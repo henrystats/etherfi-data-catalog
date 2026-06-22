@@ -481,7 +481,9 @@ Never commit a real `DUNE_API_KEY`.
 Use one of these patterns instead:
 
 - Local development: set `DUNE_API_KEY` in `.env`, a shell environment, or a
-  private local MCP client config that is ignored by git.
+  private local MCP client config that is ignored by git. For Codex, that
+  config may be a global user file such as `/Users/<user>/.codex/config.toml`;
+  put the key under the `etherfi-catalog` MCP server env block.
 - CI or deployment: store `DUNE_API_KEY` in GitHub Secrets, the deployment
   platform secret manager, or another managed secret store.
 - Examples/docs: use placeholders such as `DUNE_API_KEY=...`; never paste a
@@ -523,6 +525,11 @@ execution with `execute_live=true`:
 - `get_token_price_by_symbol`
 - `get_token_prices_batch`
 - `diagnose_token_price_coverage`
+
+After editing local MCP config, fully restart or reload Codex or the MCP client
+so the `etherfi-catalog` server process receives the updated environment. Live
+Dune-backed calls may consume Dune credits, so use summary mode and narrow date,
+token, chain, or address filters when available.
 
 Before remote deployment, live Dune-backed tools should be protected with auth,
 rate limits, timeout limits, and Dune credit monitoring. Metadata/planning tools

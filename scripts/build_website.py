@@ -1220,6 +1220,7 @@ def render_mcp_page(tools: dict[str, MCPToolInfo] | None = None) -> str:
         "<h2>Planning mode</h2>"
         "<ul>"
         "<li>No Dune query execution.</li>"
+        "<li>Metadata and planning tools work without <code>DUNE_API_KEY</code>.</li>"
         "<li>Returns recommended datasets, caveats, filters, and suggested SQL.</li>"
         "<li>Useful for safe query authoring and review before creating Dune artifacts.</li>"
         "</ul>"
@@ -1228,8 +1229,8 @@ def render_mcp_page(tools: dict[str, MCPToolInfo] | None = None) -> str:
         "<h2>Live mode</h2>"
         "<ul>"
         "<li>Runs narrow Dune-backed tools where implemented.</li>"
-        "<li>Requires <code>DUNE_API_KEY</code> in the MCP runtime environment.</li>"
-        "<li>Use for specific supported questions, with credit and cost awareness.</li>"
+        "<li>Requires <code>DUNE_API_KEY</code> in the local <code>etherfi-catalog</code> MCP env block.</li>"
+        "<li>May consume Dune credits; use summary mode and narrow filters.</li>"
         "</ul>"
         "</article>"
         "</section>"
@@ -1242,12 +1243,12 @@ def render_mcp_page(tools: dict[str, MCPToolInfo] | None = None) -> str:
         '<section class="mcp-section detail-panel">'
         '<div class="mcp-section-heading">'
         "<h2>Setup</h2>"
-        "<p>Recommended setup is local stdio via <code>uvx</code>. Install Dune MCP separately for execution workflows, and use your own Dune credentials locally.</p>"
+        "<p>Recommended setup is local stdio via <code>uvx</code>. Install Dune MCP separately for execution workflows, use your own Dune credentials locally, and restart the client after config edits.</p>"
         "</div>"
         '<div class="mcp-setup-grid">'
         '<article><strong>Recommended install</strong><p><code>uvx --from git+https://github.com/henrystats/etherfi-data-catalog.git etherfi-catalog-mcp</code></p></article>'
-        '<article><strong>Claude Desktop</strong><p>Add Dune MCP and ether.fi Catalog MCP as local stdio servers. Use <code>DUNE_API_KEY=your_dune_api_key_here</code> only as a local placeholder.</p></article>'
-        '<article><strong>Codex</strong><p>Configure <code>command = "uvx"</code> with the GitHub <code>--from</code> args, plus your local Dune MCP server.</p></article>'
+        '<article><strong>Claude Desktop</strong><p>Add Dune MCP and ether.fi Catalog MCP as local stdio servers. Put <code>DUNE_API_KEY</code> under the <code>etherfi-catalog</code> env block for live catalog tools.</p></article>'
+        '<article><strong>Codex</strong><p>Configure <code>command = "uvx"</code> with the GitHub <code>--from</code> args in the active config, often <code>/Users/&lt;user&gt;/.codex/config.toml</code>, then fully restart or reload Codex.</p></article>'
         '<article><strong>Advanced deployment</strong><p>Cloud Run and Docker are optional/private staging paths, not the default team setup.</p></article>'
         "</div>"
         "</section>"
@@ -1258,6 +1259,7 @@ def render_mcp_page(tools: dict[str, MCPToolInfo] | None = None) -> str:
         "<span>Check freshness before using a dataset for reporting.</span>"
         "<span>Use Dune for heavy execution and dashboards.</span>"
         "<span>Prefer batched queries over repeated small calls.</span>"
+        "<span>For live catalog tools, prefer summary mode and narrow filters.</span>"
         "<span>Preserve caveats in generated query descriptions.</span>"
         "<span>Use team Dune context/API keys for shareable team-owned artifacts when applicable.</span>"
         "</div>"

@@ -128,7 +128,9 @@ Claude Desktop / Claude-style JSON:
 }
 ```
 
-Codex TOML:
+Codex TOML. The active local Codex config may be a global user file such as
+`/Users/<user>/.codex/config.toml`; use whichever config your client actually
+loads.
 
 ```toml
 [mcp_servers.dune]
@@ -172,10 +174,13 @@ Generic stdio MCP shape:
 ```
 
 Metadata, discovery, freshness, dashboard lookup, and query-planning tools work
-without `DUNE_API_KEY`. Live ether.fi tools require `DUNE_API_KEY` only when the
-caller sets `execute_live=true`, and those live calls may consume Dune credits.
-Do not embed a team/shared key in package config; each user should provide their
-own key locally.
+without `DUNE_API_KEY`. Live Dune-backed `etherfi-catalog` tools require
+`DUNE_API_KEY` in the local `etherfi-catalog` MCP server env block when the
+caller sets `execute_live=true`. After editing MCP config, fully restart or
+reload Codex or the MCP client so the server process receives the new
+environment. Live calls may consume Dune credits, so prefer summary mode and
+narrow date, token, chain, or address filters. Do not embed a team/shared key in
+package config; each user should provide their own key locally.
 
 ### Agent workflow quick start
 
@@ -244,13 +249,13 @@ tool_timeout_sec = 300
 
 Most `etherfi-catalog` tools support planning mode with `execute_live=false`. Planning mode does not hit Dune and can work even when live execution is not configured.
 
-Live Dune-backed `etherfi-catalog` tools require `DUNE_API_KEY` to be present in the MCP server process environment. If planning mode works but live mode fails, confirm that the key is propagated into the `etherfi-catalog` MCP session. For local shell sessions, the pattern we have used is:
+Live Dune-backed `etherfi-catalog` tools require `DUNE_API_KEY` to be present in the MCP server process environment. For Codex, the active config may be a global file such as `/Users/<user>/.codex/config.toml`; put the key under the `etherfi-catalog` MCP server env block, for example `[mcp_servers.etherfi-catalog.env]`. If planning mode works but live mode fails, confirm that the key is propagated into the `etherfi-catalog` MCP session. For local shell sessions, the pattern we have used is:
 
 ```bash
 set -a; source .env; set +a
 ```
 
-This environment propagation is for `etherfi-catalog` live tools. It is separate from Dune MCP auth, which may use OAuth or its own API-key configuration.
+This environment propagation is for `etherfi-catalog` live tools. It is separate from Dune MCP auth, which may use OAuth or its own API-key configuration. After changing client config or shell environment, fully restart or reload Codex or the MCP client before testing live mode.
 
 For current MCP deployment notes, local stdio usage, secret hygiene, and the staged remote deployment checklist, see [`docs/mcp_deployment.md`](docs/mcp_deployment.md).
 
@@ -276,7 +281,7 @@ If `etherfi-catalog` planning mode works but `execute_live=true` fails, the MCP 
 set -a; source .env; set +a
 ```
 
-Then restart the MCP session so the server process receives the environment.
+Then fully restart or reload Codex or the MCP client so the server process receives the environment.
 
 ### Catalog planning vs Dune execution
 
