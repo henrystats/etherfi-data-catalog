@@ -1,0 +1,3 @@
+[submodule "vendor/dune-skills"]
+	path = vendor/dune-skills
+	url = https://github.com/duneanalytics/skills

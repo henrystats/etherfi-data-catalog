@@ -1,0 +1,48 @@
+name: dune.ether_fi.result_tokens_traits
+display_name: Tokens Traits
+description: Metadata dataset for ether.fi-relevant token traits, including token symbols, projects, types, addresses, and blockchains.
+refresh_interval_minutes: 2880
+freshness_timestamp_column: last_updated
+source_query_id: 5711782
+source_query_url: https://dune.com/queries/5711782
+freshness_source_name: Tokens Traits
+table_name: dune.ether_fi.result_tokens_traits
+query_ready: true
+query_patterns:
+  - find token address by symbol
+  - resolve token candidates by blockchain
+  - discover ether.fi token metadata for price lookup
+grain: one row per token address and blockchain metadata record
+use_when:
+  - when resolving a token symbol to candidate token addresses before price lookup
+  - when distinguishing similarly named ether.fi-relevant assets by blockchain, type, or project
+important_columns:
+  - token_address: token contract address
+  - blockchain: chain where the token address is interpreted
+  - token_symbol: token symbol
+  - token_project: project or product grouping for the token
+  - token_type: token category or semantic type
+  - last_updated: timestamp for freshness evaluation
+schema:
+  - name: token_address
+    type: varbinary
+  - name: blockchain
+    type: varchar
+  - name: token_symbol
+    type: varchar
+  - name: token_project
+    type: varchar
+  - name: token_type
+    type: varchar
+  - name: last_updated
+    type: timestamp
+related_datasets:
+  - dune.ether_fi.result_tokens_prices_tokens_list
+  - dune.ether_fi.result_tokens_prices_enriched_minute
+  - dune.ether_fi.result_tokens_prices_enriched_daily
+search_keywords:
+  - token symbol
+  - token address
+  - token candidates
+  - price lookup
+related_dashboards: []

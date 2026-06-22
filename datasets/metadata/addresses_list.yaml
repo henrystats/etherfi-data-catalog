@@ -1,0 +1,57 @@
+name: addresses_list
+aliases:
+  - dune.ether_fi.result_addresses_addresses_list
+  - result_addresses_addresses_list
+  - etherfi address list
+table_name: dune.ether_fi.result_addresses_addresses_list
+display_name: Addresses List
+description: This dataset contains the small curated list of addresses used by ether.fi Assets Under Management tracking.
+source_query_id: 6118315
+source_query_url: https://dune.com/queries/6118315
+refresh_interval_minutes: 60
+freshness_timestamp_column: last_updated
+freshness_source_name: Addresses List
+grain: one row per tracked AUM address and blockchain
+query_ready: true
+business_meaning:
+  - This helper table defines the addresses tracked by the ether.fi Assets Under Management dataset.
+  - It combines manually maintained addresses with ether.fi addresses marked as AUM-relevant in the ether.fi address registry.
+  - The Assets Under Management dataset uses this list to decide which addresses should be included in AUM tracking.
+use_when:
+  - when checking which addresses feed ether.fi AUM tracking
+  - when explaining the address scope behind etherfi_assets_under_management
+  - when debugging why an address appears in or is missing from AUM analysis
+do_not_use_when:
+  - when the user wants daily net transfer movement; use addresses_transfers
+  - when the user wants the broader ether.fi address registry; use etherfi_addresses
+important_columns:
+  - address: tracked address used for AUM analysis
+  - blockchain: blockchain where the tracked address exists
+  - name: readable label for the tracked AUM address
+  - last_updated: freshness timestamp column for this dataset
+query_notes:
+  - This table unions a small manual address list with rows from dune.ether_fi.result_etherfi_addresses where isAum is true.
+  - Addresses tracked by the ether.fi Assets Under Management dataset come from this helper table.
+semantic_notes:
+  - This is a small helper table for AUM address scope, not a broad address registry.
+  - The table is intentionally narrow and mainly exists to feed etherfi_assets_under_management.
+caveats:
+  - This is a curated helper table, so coverage depends on the manual rows and isAum flags in etherfi_addresses.
+  - Use `last_updated` as the dataset freshness signal.
+schema:
+  - name: address
+    type: varbinary
+    description: Tracked address used for AUM analysis.
+  - name: blockchain
+    type: varchar
+    description: Blockchain where the tracked address exists.
+  - name: name
+    type: varchar
+    description: Readable label for the tracked AUM address.
+  - name: last_updated
+    type: timestamp
+    description: Freshness timestamp column for this dataset.
+related_datasets:
+  - dune.ether_fi.result_etherfi_addresses
+  - dune.ether_fi.result_etherfi_assets_under_management
+related_dashboards: []

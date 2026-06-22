@@ -1,0 +1,21 @@
+.git
+.gitmodules
+.venv
+.env
+.env.*
+.codex
+.pytest_cache
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.egg-info
+.DS_Store
+
+# Generated/local artifacts that are not needed by the MCP runtime.
+output/
+*.html
+delete/
+
+# Runtime freshness snapshots are generated or mounted separately.
+status/dataset_freshness.yaml

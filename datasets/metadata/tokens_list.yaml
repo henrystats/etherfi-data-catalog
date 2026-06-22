@@ -1,0 +1,64 @@
+name: tokens_list
+aliases:
+  - dune.ether_fi.result_tokens_tokens_list
+  - result_tokens_tokens_list
+  - token list
+  - tracked token list
+table_name: dune.ether_fi.result_tokens_tokens_list
+display_name: Tokens List
+description: This dataset contains the curated list of token addresses used across ether.fi token analytics.
+refresh_interval_minutes: 60
+freshness_timestamp_column: last_updated
+source_query_id: 6101189
+source_query_url: https://dune.com/queries/6101189
+freshness_source_name: Tokens List
+grain: one row per tracked token address and blockchain
+business_meaning:
+  - This table includes ether.fi tokens, LRTs, LSTs, and selected DeFi assets tracked by the ether.fi data stack.
+  - It defines the token universe used by the tokens_transfers pipeline and other token-level analytics.
+  - Transfer datasets join against it to determine which token addresses should be tracked and how those tokens should be interpreted.
+use_when:
+  - when the user needs the curated token registry for ether.fi token analytics
+  - when checking whether a token is included in the tracked tokens_transfers output
+  - when explaining the token universe behind tracked token transfers
+do_not_use_when:
+  - when the user wants daily net token transfer movement; use tokens_transfers
+important_columns:
+  - token_address: tracked token address
+  - blockchain: blockchain where the token exists
+  - token_symbol: token symbol
+  - token_decimals: token decimals used to normalize raw token amounts
+  - isrebase: true when the token is a rebasing token that requires special handling in transfer/balance logic
+  - last_updated: freshness timestamp column for this dataset
+semantic_notes:
+  - This is a curated token registry, not a universal ERC20 token list.
+  - It includes ether.fi tokens, LRTs, LSTs, and selected DeFi assets relevant to ether.fi analytics.
+  - If a token is not present here, it generally will not be included in the tracked tokens_transfers output.
+caveats:
+  - "`isrebase` identifies tokens that require special handling in transfer/balance logic."
+schema:
+  - name: token_address
+    type: varbinary
+    description: Tracked token address.
+  - name: blockchain
+    type: varchar
+    description: Blockchain where the token exists.
+  - name: token_symbol
+    type: varchar
+    description: Token symbol.
+  - name: token_decimals
+    type: int256
+    description: Token decimals used to normalize raw token amounts.
+  - name: isrebase
+    type: boolean
+    description: True when the token is a rebasing token that requires special handling in transfer/balance logic.
+  - name: last_updated
+    type: timestamp
+    description: Freshness timestamp column for this dataset.
+related_datasets:
+  - tokens_transfers
+  - tokens_transfers_daily
+  - tokens_transfers_hourly
+  - tokens_transfers_intermediate
+  - tokens_weth_transfers
+related_dashboards: []

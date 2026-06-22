@@ -1,0 +1,15 @@
+[project]
+name = "etherfi-analytics-catalog"
+version = "0.1.0"
+description = "Minimal ether.fi analytics catalog project"
+requires-python = ">=3.10"
+dependencies = [
+  "dune-client",
+  "mcp",
+  "PyYAML",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+]

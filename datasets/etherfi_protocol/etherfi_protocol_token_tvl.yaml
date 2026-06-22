@@ -1,0 +1,140 @@
+name: dune.ether_fi.result_etherfi_protocol_token_tvl
+aliases:
+  - result_etherfi_protocol_token_tvl
+  - etherfi_protocol_token_tvl
+  - protocol token tvl
+  - ether.fi token backing
+  - latest protocol TVL
+  - ether.fi token TVL
+  - best filter for protocol TVL
+  - should I use project or strategy_symbol?
+  - compare eETH and liquidETH
+  - what backs eETH?
+display_name: Ether.fi Protocol Token TVL
+description: Dataset used by the main ether.fi overview dashboard for protocol token TVL
+refresh_interval_minutes: 60
+freshness_timestamp_column: last_updated
+source_query_id: 6216803
+source_query_url: https://dune.com/queries/6216803
+freshness_source_name: ether.fi Protocol Token TVL
+table_name: dune.ether_fi.result_etherfi_protocol_token_tvl
+query_ready: true
+query_patterns:
+  - latest strategy tvl
+  - token backing by strategy
+  - point in time protocol token supply
+  - historical protocol token tvl by day
+  - historical protocol token tvl by month
+  - protocol token tvl over time
+  - chart protocol token tvl
+  - month over month protocol token tvl
+  - month-end protocol token tvl
+grain: one row per day per strategy
+business_meaning:
+  - This is the main ether.fi protocol token TVL and backing table.
+  - It shows supply, USD value, and underlying-asset backing for ether.fi protocol token strategies.
+use_when:
+  - when the user wants protocol token TVL
+  - when the user wants token-level TVL context for the main ether.fi dashboard
+  - when the user wants to understand what asset backs a protocol token
+  - when the user wants historical protocol token TVL by day or over a date range
+  - when the user wants monthly or month-over-month protocol token TVL history
+important_filters:
+  - strategy_symbol or strategy_address as the main strategy filters
+  - day for the latest or a historical snapshot
+  - underlying_asset_symbol when grouping by backing asset
+important_columns:
+  - strategy_symbol: main human-readable strategy filter
+  - strategy_address: main precise strategy filter
+  - token_supply_underlying: supply expressed in underlying asset units
+  - underlying_asset_symbol: backing / peg asset for the protocol token
+  - token_supply_usd: USD value of protocol token supply
+  - token_supply_eth: ETH-equivalent value of supply
+  - token_supply: token supply in token units
+query_notes:
+  - "`strategy_symbol` and `strategy_address` are the main filters for protocol token TVL analysis."
+  - "`token_supply_underlying` together with `underlying_asset_symbol` represents the asset backing or peg of the ether.fi protocol token."
+  - "Examples of protocol token backing include eETH -> ETH, liquidUSD -> USDT, liquidETH -> ETH, and eBTC -> BTC."
+semantic_notes:
+  - This table is the right source for current protocol token backing and TVL, not event flow.
+  - Use `underlying_asset_symbol` to answer what backs a given ether.fi token.
+  - Use `dune.ether_fi.result_etherfi_protocol_events` when the user asks about deposits or withdrawals rather than TVL.
+caveats:
+  - Strategy-level TVL is not the same as holder distribution.
+  - Different rate columns provide multiple valuation lenses and should not be mixed casually.
+schema:
+  - name: btc_rate
+    type: double
+  - name: day
+    type: timestamp
+  - name: eigen_rate
+    type: double
+  - name: eth_rate
+    type: double
+  - name: hype_rate
+    type: double
+  - name: last_updated
+    type: timestamp
+  - name: strategy_address
+    type: varbinary
+  - name: strategy_blockchains
+    type: array(varchar)
+  - name: strategy_symbol
+    type: varchar
+  - name: token_supply
+    type: double
+  - name: token_supply_btc
+    type: double
+  - name: token_supply_eigen
+    type: double
+  - name: token_supply_eth
+    type: double
+  - name: token_supply_hype
+    type: double
+  - name: token_supply_underlying
+    type: double
+  - name: token_supply_usd
+    type: double
+  - name: underlying_asset_symbol
+    type: varchar
+  - name: usd_rate
+    type: double
+example_user_intents:
+  - What backs liquidUSD?
+  - What is the latest TVL of eETH?
+  - Show the latest TVL for eETH and liquidETH strategies.
+  - Compare eETH and liquidETH.
+  - Compare eETH, liquidETH, and liquidUSD backing.
+  - How much TVL does liquidETH have?
+  - How much ETH backs liquidETH?
+  - What is the underlying asset for liquidUSD?
+  - Should I filter protocol TVL by project or strategy_symbol?
+  - Compare token_supply_underlying across ether.fi protocol tokens.
+  - Show me the TVL in USD for eETH, liquidETH, liquidUSD, eBTC, and liquidBTC over the last 1 year.
+  - Chart ether.fi protocol token TVL by day for the last year.
+  - Give me the monthly TVL history for eETH and liquidETH.
+  - Return month-end TVL rows for liquidUSD over the last year.
+  - Prepare month-over-month TVL data for a bar racing chart.
+  - Show daily TVL history for liquidETH and eETH over the last 90 days.
+  - Compare liquidUSD vs eBTC TVL over time.
+search_keywords:
+  - token backing
+  - peg asset
+  - tvl
+  - tvl over time
+  - historical tvl
+  - tvl chart
+  - daily tvl history
+  - monthly tvl history
+  - month over month tvl
+  - month-end tvl
+  - latest eETH tvl
+  - best filter for protocol tvl
+  - project or strategy_symbol
+  - how much tvl does liquideth have
+  - how much eth backs liquideth
+  - what backs eeth
+  - compare eeth and liquideth
+  - strategy_symbol
+related_dashboards:
+  - etherfi_overview

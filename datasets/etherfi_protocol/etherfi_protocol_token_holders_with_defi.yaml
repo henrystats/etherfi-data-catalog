@@ -1,0 +1,106 @@
+name: etherfi_protocol_token_holders_with_defi
+slug: protocol_token_holders_with_defi
+aliases:
+  - protocol_token_holders_with_defi
+  - dune.ether_fi.result_etherfi_protocol_token_holders_with_defi
+  - result_etherfi_protocol_token_holders_with_defi
+  - top eETH holders including defi
+  - holders with defi exposure
+  - exclude known defi contracts
+display_name: Protocol Token Holders With Defi
+description: Holder exposure table that includes direct balances plus balances attributable to tracked defi deposits
+refresh_interval_minutes: 240
+freshness_timestamp_column: last_updated
+source_query_id: 6221932
+source_query_url: https://dune.com/queries/6221932
+freshness_source_name: ether.fi Protocol Token Holders (incl DeFi)
+table_name: dune.ether_fi.result_etherfi_protocol_token_holders_with_defi
+query_ready: true
+query_patterns:
+  - top holders including defi exposure
+  - latest protocol token holders with defi
+grain: one row per address per token per snapshot date
+business_meaning:
+  - This is the DeFi-aware ether.fi protocol token holder table.
+  - It expands wallet exposure to include balances attributable to tracked DeFi deposits.
+refresh cadence: every 4 hours
+accuracy label: high
+completeness label: partial
+use_when:
+  - when the user wants broader exposure including tracked defi deposits
+  - when the user wants more than direct wallet balances
+do_not_use_when:
+  - when the user needs guaranteed full coverage across all defi protocols
+  - when the user wants the cleanest direct-holder-only view
+important_filters:
+  - token_symbol when isolating one ether.fi protocol token
+  - blockchain when narrowing to one network
+  - day for the latest or a specific snapshot date
+  - identified_defi_contract when including or excluding routed DeFi exposure
+important_columns:
+  - identified_defi_contract: tracked DeFi contract name; null means non-defi exposure or untracked routing
+  - address: holder wallet or contract address
+  - token_symbol: ether.fi protocol token symbol
+  - token_balance_underlying: exposure expressed in underlying units
+  - token_balance_usd: USD value of the tracked exposure
+  - token_underlying_symbol: underlying asset symbol for the protocol token exposure
+comparison_notes:
+  - compared with etherfi_protocol_token_holders, this table is broader but incomplete because not all defi protocols are tracked
+clarifying_questions:
+  - should indirect defi exposure be included?
+  - should rows attributed to known tracked DeFi contracts be included?
+semantic_notes:
+  - "`identified_defi_contract` is the tracked DeFi contract name, and null means non-DeFi exposure or untracked routing."
+  - This dataset includes broader tracked exposure than the direct-holder table.
+  - Use this when the user wants more economic exposure coverage and accepts partial DeFi completeness.
+caveats:
+  - This table is broader but incomplete because not all DeFi protocols are tracked.
+  - Exposure attributable to untracked protocols may still be missing.
+schema:
+  - name: address
+    type: varbinary
+  - name: blockchain
+    type: varchar
+  - name: day
+    type: timestamp
+  - name: identified_defi_contract
+    type: varchar
+  - name: last_updated
+    type: timestamp
+  - name: token_address
+    type: varbinary
+  - name: token_balance
+    type: double
+  - name: token_balance_eth
+    type: double
+  - name: token_balance_raw
+    type: double
+  - name: token_balance_underlying
+    type: double
+  - name: token_balance_usd
+    type: double
+  - name: token_symbol
+    type: varchar
+  - name: token_underlying_symbol
+    type: varchar
+  - name: underlying_protocol
+    type: varchar
+  - name: underlying_symbol
+    type: varchar
+example_user_intents:
+  - Who are the largest eETH holders including tracked DeFi exposure?
+  - Show the top eETH holders including DeFi exposure.
+  - Rank liquidUSD exposure after including identified DeFi routing.
+  - Exclude identified_defi_contract rows and show the remaining holders.
+  - What does identified_defi_contract mean?
+search_keywords:
+  - defi-aware holders
+  - holders with defi exposure
+  - top eETH holders including defi
+  - identified_defi_contract meaning
+  - exclude known defi contracts
+  - direct holders clean with defi broader incomplete
+  - indirect exposure
+  - tracked defi contracts
+related_dashboards:
+  - etherfi_overview

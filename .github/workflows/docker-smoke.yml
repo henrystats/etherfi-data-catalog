@@ -1,0 +1,48 @@
+name: Docker MCP smoke test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  docker-smoke:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install smoke test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+
+      - name: Build MCP Docker image
+        run: docker build -t etherfi-catalog-mcp:local .
+
+      - name: Run MCP container
+        run: |
+          docker run \
+            -d \
+            --rm \
+            --name etherfi-catalog-mcp-smoke \
+            -p 8001:8001 \
+            etherfi-catalog-mcp:local
+
+      - name: Smoke test Streamable HTTP MCP endpoint
+        run: python scripts/smoke_mcp_http.py --url http://127.0.0.1:8001/mcp --timeout 20
+
+      - name: Show container logs on failure
+        if: failure()
+        run: docker logs etherfi-catalog-mcp-smoke || true
+
+      - name: Stop MCP container
+        if: always()
+        run: docker rm -f etherfi-catalog-mcp-smoke || true

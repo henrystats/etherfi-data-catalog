@@ -1,0 +1,85 @@
+name: dune.ether_fi.result_tokens_prices_enriched_daily
+display_name: Tokens Prices Enriched (Daily)
+description: Daily enriched token pricing with direct USD prices, derived USD prices, and underlying exchange-rate context.
+refresh_interval_minutes: 60
+freshness_timestamp_column: last_updated
+source_query_id: 6258639
+source_query_url: https://dune.com/queries/6258639
+freshness_source_name: Tokens Prices Enriched (Daily)
+table_name: dune.ether_fi.result_tokens_prices_enriched_daily
+query_ready: true
+query_patterns:
+  - daily enriched token prices
+  - historical daily token pricing
+  - direct price feed with enriched fallback
+grain: one row per token, blockchain, and day
+refresh cadence: hourly
+accuracy label: medium
+completeness label: high
+use_when:
+  - when the user wants broader historical daily token price analysis
+  - when daily resolution is acceptable and safer than incomplete minute coverage
+  - when direct USD prices should be augmented with enrichment-derived prices
+do_not_use_when:
+  - when the user specifically needs minute-level price rows
+  - when the user needs only raw direct USD price feeds with no enrichment
+important_columns:
+  - day: daily timestamp for the enriched price row
+  - blockchain: chain where the token address is interpreted
+  - token_address: token contract address
+  - token_symbol: token symbol
+  - token_usd: direct USD price from the raw USD price table
+  - token_usd_rate: enriched or derived USD price from exchange-rate and enrichment logic
+  - token_underlying_rate: exchange rate into the underlying asset
+  - token_underlying_symbol: symbol of the underlying asset used by `token_underlying_rate`
+  - token_weth_rate: enriched rate relative to WETH
+  - last_updated: timestamp for freshness evaluation
+query_notes:
+  - "For a usable enriched USD price, prefer `coalesce(token_usd, token_usd_rate)` so direct price feeds win before derived prices."
+  - "Unlike the minute enriched table, this daily table does not use the same recent token-minute exposure filter."
+  - "`token_underlying_rate` and `token_underlying_symbol` are important for downstream underlying-value calculations such as weETH-to-ETH treatment."
+semantic_notes:
+  - This is the daily aggregated version of enriched token prices.
+  - It is usually a better default than `dune.ether_fi.result_tokens_prices_enriched_minute` for broad historical dashboarding and daily analysis.
+  - "Direct-vs-enriched semantics still matter: `token_usd` is direct, while `token_usd_rate` is derived or enriched."
+caveats:
+  - Daily enrichment can still depend on token-list, raw-price, and exchange-rate coverage.
+  - Do not describe `token_usd_rate` as a direct raw USD price feed.
+schema:
+  - name: day
+    type: timestamp
+  - name: blockchain
+    type: varchar
+  - name: token_address
+    type: varbinary
+  - name: token_symbol
+    type: varchar
+  - name: token_type
+    type: varchar
+  - name: token_project
+    type: varchar
+  - name: token_usd
+    type: double
+  - name: token_underlying_rate
+    type: double
+  - name: token_underlying_symbol
+    type: varchar
+  - name: token_usd_rate
+    type: double
+  - name: token_weth_rate
+    type: double
+  - name: last_updated
+    type: timestamp
+related_datasets:
+  - dune.ether_fi.result_tokens_prices_enriched_minute
+  - dune.ether_fi.result_tokens_prices_usd_daily
+  - dune.ether_fi.result_tokens_prices_tokens_list
+  - dune.ether_fi.result_tokens_rates_oracle_pegs
+  - dune.ether_fi.result_tokens_exchange_rates_daily
+search_keywords:
+  - daily prices
+  - enriched prices
+  - token_usd_rate
+  - underlying rate
+  - historical daily pricing
+related_dashboards: []

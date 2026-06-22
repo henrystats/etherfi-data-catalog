@@ -1,0 +1,125 @@
+name: dune.ether_fi.result_lrts_restaking_dex_pools_balances
+table_name: dune.ether_fi.result_lrts_restaking_dex_pools_balances
+display_name: LRTs + Restaking Dex Pools Balances
+description: This dataset tracks daily liquidity balances for DEX pools connected to tracked liquid restaking tokens (LRTs) and liquid staking tokens (LSTs), such as weETH, ezETH, stETH, and wstETH.
+refresh_interval_minutes: 60
+freshness_timestamp_column: last_updated
+source_query_id: 6257621
+source_query_url: https://dune.com/queries/6257621
+freshness_source_name: LRTs + Restaking Dex Pools Balances
+grain: one row per day, tracked LRT/LST token, pool address, and pool token address
+business_meaning:
+  - This table shows token balances held by relevant DEX pools, along with USD and ETH liquidity values, pool metadata, DEX/project details, and pool/explorer links.
+  - It is used to analyze LRT/LST DEX liquidity over time, including liquidity by token, pool, DEX, chain, and day.
+  - It is especially useful for weETH and other derivative liquidity monitoring.
+use_when:
+  - when the user wants LRT/LST DEX liquidity over time
+  - when the user wants to know how much liquidity exists for a tracked derivative token
+  - when analyzing which pools hold derivative liquidity
+  - when comparing liquidity distribution across DEXs, chains, pools, or days
+important_filters:
+  - token_address or token_symbol for the tracked LRT/LST analysis lens
+  - pool_address for pool-specific liquidity
+  - pool_token_address or pool_token_symbol for the token balance held in the pool
+  - day for historical liquidity snapshots
+  - blockchain, project, version, or token_pair for market grouping
+important_columns:
+  - token_address: tracked LRT/LST token address used as the analysis lens
+  - pool_token_address: token address for the asset held in the pool balance row
+  - pool_token_balance: token balance held by the pool for pool_token_address
+  - pool_liquidity_usd: USD value of the pool token balance
+  - pool_liquidity_eth: ETH value of the pool token balance
+  - pool_address: DEX pool address
+  - last_updated: freshness timestamp column for this dataset
+query_notes:
+  - "`token_address` is the tracked LRT/LST being analyzed, while `pool_token_address` is the actual token held in the pool."
+  - "For token-level liquidity analysis, filter or group by `token_address`."
+  - "For unique pool-level liquidity, dedupe or group carefully by `day`, `pool_address`, and `pool_token_address` depending on the question."
+semantic_notes:
+  - This table is token-lens and pool-balance normalized.
+  - A single pool can produce multiple rows for the same day because each tracked-token lens can include multiple pool-token balance rows.
+  - Pools containing two tracked derivatives can appear under both tracked token lenses.
+caveats:
+  - This table is not one row per unique pool. It is one row per day, tracked token, pool, and pool token balance.
+  - "`token_address` and `pool_token_address` are different concepts: `token_address` is the tracked LRT/LST analysis lens, while `pool_token_address` is the token balance held by the pool."
+  - Pools containing two tracked derivatives can appear under both tracked token lenses.
+  - Be careful when summing liquidity across all rows, because derivative-to-derivative pools can create multiple rows for the same underlying pool/token balances.
+  - "`pool_link` can be null for some DEXs, but `pool_explorer_link` should generally be available."
+  - Use `last_updated` as the dataset freshness signal.
+schema:
+  - name: day
+    type: timestamp
+    description: Day for the pool balance snapshot.
+  - name: blockchain
+    type: varchar
+    description: Blockchain where the DEX pool is deployed.
+  - name: token_address
+    type: varbinary
+    description: Tracked LRT/LST token address used as the analysis lens.
+  - name: token_symbol
+    type: varchar
+    description: Tracked LRT/LST token symbol.
+  - name: token_type
+    type: varchar
+    description: Token classification, usually `lrt` or `lst`.
+  - name: pool_address
+    type: varbinary
+    description: DEX pool address.
+  - name: project
+    type: varchar
+    description: DEX/project where the pool exists.
+  - name: pool_name
+    type: varchar
+    description: "Enriched pool name from the LRT/LST DEX pools registry, for example `Uniswap V3: weETH-wstETH`."
+  - name: version
+    type: varchar
+    description: DEX/project version for the pool.
+  - name: token_pair
+    type: varchar
+    description: Pool pair symbol.
+  - name: pool_link
+    type: varchar
+    description: Project-specific link to the pool, such as a Uniswap pool page. This can be null for some DEXs.
+  - name: pool_explorer_link
+    type: varchar
+    description: Blockchain explorer link for the pool address.
+  - name: pool_token_address
+    type: varbinary
+    description: Token address for the asset held in the pool balance row.
+  - name: pool_token_symbol
+    type: varchar
+    description: Symbol for the token held in the pool balance row.
+  - name: pool_token_balance
+    type: double
+    description: Token balance held by the pool for `pool_token_address`.
+  - name: pool_liquidity_usd
+    type: double
+    description: USD value of the pool token balance.
+  - name: pool_liquidity_eth
+    type: double
+    description: ETH value of the pool token balance.
+  - name: last_updated
+    type: timestamp
+    description: Freshness timestamp column for this dataset.
+example_user_intents:
+  - How much DEX liquidity exists for weETH?
+  - Which pools hold the most LRT/LST liquidity?
+  - Show LRT liquidity by DEX and chain over time.
+  - How did tracked derivative pool balances change by day?
+  - Compare liquidity for weETH, ezETH, stETH, and wstETH pools.
+search_keywords:
+  - lrt pool balances
+  - lst pool balances
+  - dex liquidity
+  - weeth liquidity
+  - pool liquidity
+  - restaking liquidity
+  - pool token balances
+  - derivative liquidity monitoring
+related_datasets:
+  - dune.ether_fi.result_lrts_restaking_dex_pools
+  - dune.ether_fi.result_lrts_restaking_dex_pools_transfers
+  - dune.ether_fi.result_lrts_restaking_trades
+  - dune.ether_fi.result_lrts_restaking_protocol_tvl
+related_dashboards:
+  - etherfi_overview

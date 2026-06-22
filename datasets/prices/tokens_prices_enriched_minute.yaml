@@ -1,0 +1,92 @@
+name: dune.ether_fi.result_tokens_prices_enriched_minute
+display_name: Tokens Prices Enriched (Minute)
+description: Minute-level enriched token pricing with direct USD prices, derived USD prices, and underlying exchange-rate context for selected recent active token-minute combinations.
+refresh_interval_minutes: 120
+freshness_timestamp_column: last_updated
+source_query_id: 6402974
+source_query_url: https://dune.com/queries/6402974
+freshness_source_name: Tokens Prices Enriched (Minute)
+table_name: dune.ether_fi.result_tokens_prices_enriched_minute
+query_ready: true
+query_patterns:
+  - recent minute-level enriched token prices
+  - active token-minute pricing
+  - direct price feed with enriched fallback
+grain: one row per token, blockchain, and minute when the token-minute is included by the recent activity filter
+refresh cadence: every 2 hours
+accuracy label: medium
+completeness label: partial
+use_when:
+  - when the user specifically needs recent minute-level price resolution
+  - when the user understands that only selected active token-minute combinations are present
+  - when direct USD prices should be augmented with enrichment-derived prices
+do_not_use_when:
+  - when the user wants the safest complete-ish latest price for all tokens
+  - when the user wants broad historical daily dashboarding
+  - when missing minute rows would be interpreted as missing token support
+important_columns:
+  - minute: minute timestamp for the enriched price row
+  - blockchain: chain where the token address is interpreted
+  - token_address: token contract address
+  - token_symbol: token symbol
+  - token_usd: direct USD price from `dune.ether_fi.result_tokens_prices_usd`
+  - token_usd_rate: enriched or derived USD price from exchange-rate and enrichment logic
+  - token_underlying_rate: exchange rate into the underlying asset
+  - token_underlying_symbol: symbol of the underlying asset used by `token_underlying_rate`
+  - token_weth_rate: enriched rate relative to WETH
+  - last_updated: timestamp for freshness evaluation
+query_notes:
+  - "For a usable enriched USD price, prefer `coalesce(token_usd, token_usd_rate)` so direct price feeds win before derived prices."
+  - "`token_usd` comes from `dune.ether_fi.result_tokens_prices_usd` and should be treated as the direct/raw price feed value."
+  - "`token_usd_rate` is an enriched or derived USD price and should not be confused with a direct market price feed."
+  - "The minute table is filtered to token-minute combinations seen recently in `dune.ether_fi.result_etherfi_protocol_events` and `dune.veda.result_vaults_events`."
+  - "If a token/minute is missing here, check the token universe and raw USD price tables before concluding the token is unsupported."
+semantic_notes:
+  - This table is incomplete by design to reduce storage.
+  - Minute rows are limited to selected active token-minute combinations, based on recent protocol and Veda vault event activity.
+  - A token can exist in the ether.fi price universe without having every minute represented in this table.
+  - Example: BNB-chain weETH may lack a direct BNB-chain price feed, while enrichment can derive a usable price from 1:1 semantics with Ethereum weETH.
+caveats:
+  - Do not treat absent minute rows as proof that a token has no price coverage.
+  - This is not the safest default for complete latest price coverage across all known tokens.
+  - Enriched prices can be derived from assumptions or exchange-rate logic and should be distinguished from direct price feeds.
+schema:
+  - name: minute
+    type: timestamp
+  - name: blockchain
+    type: varchar
+  - name: token_address
+    type: varbinary
+  - name: token_symbol
+    type: varchar
+  - name: token_type
+    type: varchar
+  - name: token_project
+    type: varchar
+  - name: token_usd
+    type: double
+  - name: token_underlying_rate
+    type: double
+  - name: token_underlying_symbol
+    type: varchar
+  - name: token_usd_rate
+    type: double
+  - name: token_weth_rate
+    type: double
+  - name: last_updated
+    type: timestamp
+related_datasets:
+  - dune.ether_fi.result_tokens_prices_enriched_daily
+  - dune.ether_fi.result_tokens_prices_usd
+  - dune.ether_fi.result_tokens_prices_tokens_list
+  - dune.ether_fi.result_tokens_rates_oracle_pegs
+  - dune.ether_fi.result_tokens_exchange_rates_daily
+  - dune.ether_fi.result_etherfi_protocol_events
+  - dune.veda.result_vaults_events
+search_keywords:
+  - minute prices
+  - enriched prices
+  - token_usd_rate
+  - direct price feed fallback
+  - incomplete minute coverage
+related_dashboards: []

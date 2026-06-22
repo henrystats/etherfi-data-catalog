@@ -1,0 +1,61 @@
+name: dune.ether_fi.result_tokens_prices_usd
+display_name: Tokens Prices USD (Minute)
+description: Minute-level raw/direct USD token price feed for the ether.fi token universe.
+refresh_interval_minutes: 120
+freshness_timestamp_column: minute
+source_query_id: 6147662
+source_query_url: https://dune.com/queries/6147662
+freshness_source_name: Tokens Prices USD (Minute)
+table_name: dune.ether_fi.result_tokens_prices_usd
+query_ready: true
+query_patterns:
+  - raw minute-level USD token prices
+  - direct USD price feed
+  - token_usd source for enriched prices
+grain: one row per token contract, blockchain, and minute with a direct USD price feed
+refresh cadence: every 2 hours
+accuracy label: high
+completeness label: partial
+use_when:
+  - when the user wants direct/raw USD token prices without enrichment-derived fallback
+  - when validating whether a token has a direct price feed
+  - when tracing the source of `token_usd` in enriched price tables
+do_not_use_when:
+  - when derived/enriched fallback pricing is needed
+  - when underlying exchange rates are needed
+important_columns:
+  - minute: minute timestamp for the direct price feed row
+  - blockchain: chain where the contract address is interpreted
+  - contract_address: token contract address
+  - price: direct USD price
+query_notes:
+  - "`price` is the raw/direct USD price feed value used as `token_usd` in enriched price tables."
+  - "This table depends on `dune.ether_fi.result_tokens_prices_tokens_list` for the token universe."
+  - "Unlike `dune.ether_fi.result_tokens_prices_enriched_minute`, this table does not use the same recent protocol-event and Veda-event minute exposure filter."
+semantic_notes:
+  - This is the direct USD price source, not the enriched or derived price table.
+  - Missing rows can mean the token universe lacks the token or that no direct USD feed is available for the token/minute.
+caveats:
+  - This table does not provide derived prices for tokens lacking a direct feed.
+  - For enriched price workflows, use `coalesce(token_usd, token_usd_rate)` from an enriched table instead of using this table alone.
+schema:
+  - name: minute
+    type: timestamp
+  - name: blockchain
+    type: varchar
+  - name: contract_address
+    type: varbinary
+  - name: price
+    type: double
+related_datasets:
+  - dune.ether_fi.result_tokens_prices_tokens_list
+  - dune.ether_fi.result_tokens_prices_usd_daily
+  - dune.ether_fi.result_tokens_prices_enriched_minute
+  - dune.ether_fi.result_tokens_prices_enriched_daily
+search_keywords:
+  - raw price
+  - direct price feed
+  - USD price
+  - token_usd
+related_dashboards:
+  - etherfi_overview

@@ -1,0 +1,163 @@
+name: dune.ether_fi.result_etherfi_protocol_events
+aliases:
+  - result_etherfi_protocol_events
+  - etherfi_protocol_events
+  - protocol events
+  - ether.fi product events
+  - recent protocol events
+  - ether.fi protocol activity
+display_name: Ether.fi Protocol Events
+description: Dataset used by ether.fi overview analytics for protocol events
+refresh_interval_minutes: 60
+freshness_timestamp_column: last_updated
+source_query_id: 6232670
+source_query_url: https://dune.com/queries/6232670
+freshness_source_name: ether.fi Protocol Events
+table_name: dune.ether_fi.result_etherfi_protocol_events
+query_ready: true
+live_query:
+  query_id: 6232670
+  query_url: https://dune.com/queries/6232670
+  table_name: dune.ether_fi.result_etherfi_protocol_events
+  defaults_to_mat_view: true
+  notes:
+    - Current live-query metadata intentionally points to the existing materialized-view query/table.
+    - Future live-query logic can combine this scheduled baseline with fresher recent raw events.
+backups:
+  weekly:
+    query_id:
+    query_url:
+    table_name:
+    notes: Reserved for future weekly backup/reconciliation reference.
+  monthly:
+    query_id:
+    query_url:
+    table_name:
+    notes: Reserved for future monthly backup/reconciliation reference.
+monitoring:
+  reconciliation_dimensions:
+    - blockchain
+    - event_type
+    - strategy_address
+  metrics:
+    event_count:
+      expression: count(*)
+    usd_volume:
+      column: amount_usd
+      expression: sum(amount_usd)
+  reconciliation_checks:
+    - live_query_vs_weekly_backup
+    - live_query_vs_monthly_backup
+    - event_count_match
+    - usd_volume_match
+  raw_source_sanity:
+    source_type: raw_chain_logs
+    contract_dimension: strategy_address
+    matching_method: topic0/event name matching against raw chain logs
+    notes:
+      - Raw-source count checks should compare event totals by blockchain, event_type, and strategy_address.
+      - strategy_address corresponds to the emitting contract address lens used for raw chain-log reconciliation.
+  thresholds:
+    event_count_relative_tolerance: 0
+    usd_volume_relative_tolerance: 0.001
+query_patterns:
+  - recent protocol events
+  - deposits by strategy
+  - withdrawal requests by strategy
+  - processed withdrawals by strategy
+grain: one row per protocol event
+business_meaning:
+  - This is a main ether.fi product events table for protocol-level deposit and withdrawal activity.
+  - It supports tracing event flow by product, strategy, asset, and transaction.
+important_filters:
+  - project when separating broad product families
+  - strategy_symbol or strategy_address as the preferred filters for strategy-level analysis
+  - "event_type, especially `deposit`, `withdrawal_request`, and `withdrawal_processed`"
+  - token_symbol or amount_underlying_symbol when isolating asset flows
+important_columns:
+  - event_type: core protocol action type
+  - strategy_symbol: preferred human-readable strategy filter
+  - strategy_address: preferred precise strategy filter
+  - project: higher-level product grouping
+  - amount_underlying_symbol: underlying asset moved in the event
+  - amount_usd: USD value of the event
+  - address: address associated with the protocol event
+  - tx_hash: transaction for the event
+query_notes:
+  - "`strategy_symbol` and `strategy_address` are usually the best filters for strategy-level analysis."
+  - "`project` is useful, but it is often broader than the strategy filters."
+  - "Important `event_type` values include `deposit`, `withdrawal_request`, and `withdrawal_processed`."
+semantic_notes:
+  - This is the main protocol product event stream, not a balances table.
+  - Use this table when the question is about deposits, withdrawal requests, processed withdrawals, or strategy-level protocol flow.
+  - Use `dune.ether_fi.result_etherfi_protocol_token_tvl` when the question is about current token backing or TVL rather than event flow.
+caveats:
+  - Event flow answers are different from holder or TVL answers and may need aggregation over time windows.
+  - Strategy-level analysis should prefer strategy filters over project alone to avoid overly broad grouping.
+schema:
+  - name: address
+    type: varbinary
+  - name: amount_eth
+    type: double
+  - name: amount_underlying
+    type: double
+  - name: amount_underlying_symbol
+    type: varchar
+  - name: amount_usd
+    type: double
+  - name: block_date
+    type: date
+  - name: block_number
+    type: bigint
+  - name: block_time
+    type: timestamp
+  - name: blockchain
+    type: varchar
+  - name: event_id
+    type: varchar
+  - name: event_type
+    type: varchar
+  - name: evt_index
+    type: integer
+  - name: last_updated
+    type: timestamp
+  - name: project
+    type: varchar
+  - name: strategy_address
+    type: varbinary
+  - name: strategy_amount
+    type: double
+  - name: strategy_symbol
+    type: varchar
+  - name: token_address
+    type: varbinary
+  - name: token_amount
+    type: double
+  - name: token_symbol
+    type: varchar
+  - name: tx_from
+    type: varbinary
+  - name: tx_hash
+    type: varbinary
+  - name: tx_to
+    type: varbinary
+example_user_intents:
+  - Show deposits and withdrawals for one ether.fi strategy.
+  - How much was deposited into eETH-related strategies this week?
+  - Compare withdrawal requests versus processed withdrawals by strategy_symbol.
+  - Show recent eETH protocol deposits.
+  - Summarize withdrawal requests for liquidETH.
+  - Show recent protocol activity for this strategy.
+  - Should I filter protocol events by project or strategy_symbol?
+  - What is the difference between withdrawal_request and withdrawal_processed?
+search_keywords:
+  - deposit
+  - recent eETH deposits
+  - best filter for protocol events
+  - project or strategy_symbol
+  - withdrawal_request
+  - withdrawal_processed
+  - strategy_symbol
+  - strategy_address
+related_dashboards:
+  - etherfi_overview

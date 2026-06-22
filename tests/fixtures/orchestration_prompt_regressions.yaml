@@ -1,0 +1,76 @@
+cases:
+  - id: shareable_query_flow
+    prompt: "Show me weekly USDC spend volume on etherfi-cash."
+    route:
+      - etherfi-catalog
+      - Dune MCP
+    planner_backed: true
+    expected:
+      dataset: dune.ether_fi.result_etherfi_cash_events
+      filters:
+        event_type: spend
+        token_symbol: USDC
+      grain: week
+      metric: weekly_spend_volume_usd
+      dune_mcp_owner: query_lifecycle
+      local_chart_default: false
+
+  - id: create_shareable_query_flow
+    prompt: "Create a Dune query I can share with colleagues for weekly USDC Cash spend volume."
+    route:
+      - etherfi-catalog
+      - Dune MCP
+      - Dune Skills
+    planner_backed: true
+    expected:
+      dataset: dune.ether_fi.result_etherfi_cash_events
+      filters:
+        event_type: spend
+        token_symbol: USDC
+      grain: week
+      dune_mcp_owner: query_lifecycle
+      team_owned_context_preferred: true
+
+  - id: visualization_flow
+    prompt: "Make a bar chart for that query."
+    route:
+      - Dune MCP
+    planner_backed: false
+    expected:
+      dune_mcp_owner: visualization
+      local_chart_default: false
+      requires_catalog_vetted_query: true
+
+  - id: dashboard_flow
+    prompt: "Make a dashboard widget from the result."
+    route:
+      - Dune MCP
+    planner_backed: false
+    expected:
+      dune_mcp_owner: dashboard
+      local_chart_default: false
+      requires_catalog_vetted_query: true
+
+  - id: optimization_flow
+    prompt: "Optimize this Dune query for lower scan cost."
+    route:
+      - Dune Skills
+    planner_backed: false
+    expected:
+      optimization_owner: Dune Skills
+      catalog_is_optimizer: false
+
+  - id: holder_ambiguity_flow
+    prompt: "Create a query for the top 100 ether.fi protocol token holders today."
+    route:
+      - etherfi-catalog
+      - Dune MCP
+    planner_backed: true
+    expected:
+      datasets:
+        - etherfi_protocol_token_holders
+        - etherfi_protocol_token_holders_with_defi
+      ambiguity:
+        - direct_vs_with_defi
+        - identified_defi_contract
+      dune_mcp_owner: query_lifecycle

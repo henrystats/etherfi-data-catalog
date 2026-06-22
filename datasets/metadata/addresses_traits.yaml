@@ -1,0 +1,79 @@
+name: dune.ether_fi.result_addresses_traits
+display_name: Addresses Traits
+description: This dataset contains address-level metadata and labeling information for ether.fi-related addresses and other relevant addresses used in ether.fi analytics.
+table_name: dune.ether_fi.result_addresses_traits
+refresh_interval_minutes: 2880
+freshness_timestamp_column: last_updated
+source_query_id: 6127413
+source_query_url: https://dune.com/queries/6127413
+freshness_source_name: Addresses Traits
+grain: one row per labeled address and blockchain/project context
+query_ready: true
+business_meaning:
+  - This table helps identify what an address represents, which project it is associated with, whether it is a token or protocol-controlled address, and which category or label should be applied to it.
+  - It is used to enrich addresses in dashboards, flows, transfer analysis, AUM analysis, and other ether.fi datasets.
+  - It helps analysts and dashboard users understand where funds are, what addresses are interacting with ether.fi products, and how addresses should be classified in charts or tables.
+use_when:
+  - when enriching raw addresses with labels, names, project context, or classification fields
+  - when analyzing fund movements, wallet activity, contract activity, transfer flows, or AUM context
+  - when a dashboard or query needs readable address labels instead of raw addresses
+do_not_use_when:
+  - when the user needs a universal address-labeling source outside the maintained ether.fi analytics scope
+  - when the user needs token-level metadata such as decimals or price coverage; use token metadata or price datasets instead
+important_columns:
+  - project: project associated with the address
+  - blockchain: blockchain where the address exists or is deployed
+  - address: address being labeled or enriched
+  - name: human-readable name of the address
+  - label: category/classification label for the address
+  - last_updated: freshness timestamp column for this dataset
+query_notes:
+  - "The `name` and `label` columns are the most useful fields for most dashboard and analysis use cases."
+  - "`primary_trait` is a legacy or helper field and can generally be ignored unless a specific query already depends on it."
+semantic_notes:
+  - This is a curated labeling/enrichment table, not a universal address-labeling source.
+  - Address labels and classifications depend on the currently maintained metadata.
+caveats:
+  - This is a curated labeling/enrichment table, not a universal address-labeling source.
+  - Address labels and classifications depend on the currently maintained metadata.
+  - "The `name` and `label` columns are the most useful fields for most dashboard and analysis use cases."
+  - "`primary_trait` can generally be ignored unless a specific query already depends on it."
+  - "Use `last_updated` as the dataset freshness signal."
+schema:
+  - name: project
+    type: varchar
+    description: Project associated with the address.
+  - name: blockchain
+    type: varchar
+    description: Blockchain where the address exists or is deployed.
+  - name: address
+    type: varbinary
+    description: Address being labeled or enriched.
+  - name: symbol
+    type: varchar
+    description: Symbol associated with the address, when relevant; for example when the address is a token.
+  - name: name
+    type: varchar
+    description: Human-readable name of the address. This is one of the most important columns because it provides the clearest identification of what the address represents.
+  - name: istoken
+    type: boolean
+    description: True when the address is a token address.
+  - name: isprotocol
+    type: boolean
+    description: True when the address is controlled by or directly associated with a protocol.
+  - name: label
+    type: varchar
+    description: Category/classification label for the address. Useful for grouping addresses in dashboards and analysis.
+  - name: primary_trait
+    type: varchar
+    description: Legacy or helper trait field; generally not required for most analysis.
+  - name: last_updated
+    type: timestamp
+    description: Freshness timestamp column for this dataset.
+related_datasets:
+  - addresses_list
+  - dune.ether_fi.result_etherfi_addresses
+  - addresses_transfers
+  - dune.ether_fi.result_etherfi_assets_under_management
+related_dashboards:
+  - etherfi_overview

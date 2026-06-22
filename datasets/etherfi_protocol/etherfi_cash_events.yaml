@@ -1,0 +1,146 @@
+name: dune.ether_fi.result_etherfi_cash_events
+aliases:
+  - result_etherfi_cash_events
+  - etherfi_cash_events
+  - cash events
+  - ether.fi cash activity
+display_name: Ether.fi Cash Events
+description: Dataset used for ether.fi cash event analytics
+refresh_interval_minutes: 720
+freshness_timestamp_column: last_updated
+source_query_id: 6819736
+source_query_url: https://dune.com/queries/6819736
+freshness_source_name: ether.fi Cash Events
+table_name: dune.ether_fi.result_etherfi_cash_events
+query_ready: true
+live_query:
+  query_id: 6819736
+  query_url: https://dune.com/queries/6819736
+  table_name: dune.ether_fi.result_etherfi_cash_events
+  defaults_to_mat_view: true
+  notes:
+    - Current live-query metadata intentionally points to the existing materialized-view query/table.
+    - Future live-query logic can combine this scheduled baseline with fresher recent Cash events.
+backups:
+  weekly:
+    query_id:
+    query_url:
+    table_name:
+    notes: Reserved for future weekly backup/reconciliation reference.
+  monthly:
+    query_id:
+    query_url:
+    table_name:
+    notes: Reserved for future monthly backup/reconciliation reference.
+monitoring:
+  reconciliation_dimensions:
+    - blockchain
+    - event_type
+    - contract_address
+  metrics:
+    event_count:
+      expression: count(*)
+    usd_volume:
+      column: token_amount_usd
+      expression: sum(token_amount_usd)
+  reconciliation_checks:
+    - live_query_vs_weekly_backup
+    - live_query_vs_monthly_backup
+    - event_count_match
+    - usd_volume_match
+  raw_source_sanity:
+    source_type: raw_chain_logs
+    contract_dimension: contract_address
+    matching_method: topic0/event name matching against raw chain logs
+    notes:
+      - Raw-source count checks should compare event totals by blockchain, event_type, and contract_address.
+      - contract_address is the emitting contract address lens used for raw chain-log reconciliation.
+  thresholds:
+    event_count_relative_tolerance: 0
+    usd_volume_relative_tolerance: 0.001
+query_patterns:
+  - recent cash events
+  - cash spend over time
+  - cash borrow and repay activity
+grain: one row per Cash event
+business_meaning:
+  - This is the main ether.fi Cash activity table.
+  - It captures user-safe level Cash actions such as spending, borrowing, repayment, cashback, and liquidation.
+important_filters:
+  - "event_type for the main Cash activity lens: `spend`, `borrow`, `repay`, `cashback`, `liquidation`"
+  - user_safe when analyzing one Cash safe or card account
+  - token_symbol when isolating activity in one token
+  - block_date or block_time when narrowing to a time window
+important_columns:
+  - user_safe: Cash safe / card account address
+  - event_type: main Cash activity type filter
+  - event_class: higher-level event grouping when present
+  - token_symbol: token involved in the Cash event
+  - token_amount: normalized token amount for the event
+  - token_amount_usd: USD value of the event
+  - contract_address: emitting contract for the Cash event
+  - tx_hash: source transaction for the event
+query_notes:
+  - "`event_type` is the primary filter for Cash activity analysis."
+  - "The key `event_type` values are `spend`, `borrow`, `repay`, `cashback`, and `liquidation`."
+  - "Use `user_safe` as the main per-account filter when following one Cash user safe."
+semantic_notes:
+  - "`user_safe` is the Cash safe / card account address in this table."
+  - "To classify whether an address is a Cash safe, use `dune.ether_fi.result_etherfi_addresses` where `name = 'CASH'`."
+  - "For balance-side Cash classification, use `dune.ether_fi.result_etherfi_assets_under_management` where `address_name = 'CASH'`."
+  - This table is the activity source for Cash actions, while the AUM table is the balance source.
+caveats:
+  - Cash event volume and Cash balances answer different questions and should not be mixed without care.
+  - Event rows may need aggregation by `user_safe`, `event_type`, and time window for meaningful reporting.
+schema:
+  - name: block_date
+    type: date
+  - name: block_minute
+    type: timestamp
+  - name: block_number
+    type: bigint
+  - name: block_time
+    type: timestamp
+  - name: blockchain
+    type: varchar
+  - name: contract_address
+    type: varbinary
+  - name: event_class
+    type: varchar
+  - name: event_type
+    type: varchar
+  - name: last_updated
+    type: timestamp
+  - name: token_address
+    type: varbinary
+  - name: token_amount
+    type: double
+  - name: token_amount_raw
+    type: double
+  - name: token_amount_usd
+    type: double
+  - name: token_symbol
+    type: varchar
+  - name: tx_hash
+    type: varbinary
+  - name: tx_index
+    type: integer
+  - name: user_safe
+    type: varbinary
+example_user_intents:
+  - What did this Cash safe spend last week?
+  - How much borrowing activity happened in ether.fi Cash today?
+  - Show borrow vs repay events for one Cash user_safe.
+  - Which Cash safes had liquidation events?
+  - What does user_safe mean in ether.fi Cash events?
+search_keywords:
+  - cash safe
+  - card account
+  - user_safe meaning
+  - spend
+  - borrow
+  - repay
+  - cashback
+  - liquidation
+related_dashboards:
+  - etherfi_overview

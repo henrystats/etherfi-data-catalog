@@ -1,0 +1,38 @@
+[setup]
+steps = [
+  "python3 -m venv .venv",
+  ".venv/bin/python -m pip install -e '.[dev]'",
+]
+
+[mcp_servers.etherfi-catalog]
+command = "/Users/henrystats/etherfi-data-catalog/.venv/bin/python"
+args = ["-m", "src.server"]
+cwd = "/Users/henrystats/etherfi-data-catalog"
+enabled = true
+startup_timeout_sec = 20
+tool_timeout_sec = 60
+
+# Live Dune-backed etherfi-catalog tools require DUNE_API_KEY only when
+# execute_live=true. Do not commit a real key in this tracked config.
+# Set DUNE_API_KEY in the MCP runtime environment, or use a local/private
+# client config outside git.
+#
+# [mcp_servers.etherfi-catalog.env]
+# DUNE_API_KEY = "..."
+
+# Dune MCP is configured separately from etherfi-catalog MCP.
+# For long-running Dune getExecutionResults calls in Codex, use a higher
+# timeout on the Dune MCP server entry to avoid "Transport closed" failures.
+#
+# [mcp_servers.dune]
+# command = "..."
+# args = [...]
+# tool_timeout_sec = 300
+#
+# For API-key Dune MCP auth, configure the key on the Dune MCP server entry.
+# Browser-capable agents can use Dune MCP OAuth instead.
+# [mcp_servers.dune.env]
+# DUNE_API_KEY = "..."
+
+[actions.test]
+command = ".venv/bin/python -m pytest"

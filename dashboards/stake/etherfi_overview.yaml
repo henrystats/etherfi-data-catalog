@@ -1,0 +1,52 @@
+name: etherfi_overview
+title: ether.fi
+url: https://dune.com/ether_fi/etherfi
+category: stake
+show_in_core: true
+description: Main ether.fi protocol overview dashboard covering protocol growth, assets under management, token TVL, holder distribution, address and user activity, protocol events, restaking and trading context, token pricing, and selected product-level views across ether.fi assets such as eETH, eBTC, and weETHs. It is intended as the primary high-level dashboard for tracking ether.fi ecosystem performance and user behavior, including depositor, withdrawer, and net depositor trends over time.
+tags:
+  - overview
+  - protocol
+  - tvl
+  - holders
+  - addresses
+  - pricing
+  - events
+  - restaking
+datasets:
+  - dune.ether_fi.result_etherfi_protocol_token_tvl
+  - dune.ether_fi.result_etherfi_protocol_token_holders
+  - dune.ether_fi.result_etherfi_assets_under_management
+  - dune.ether_fi.result_etherfi_addresses
+  - utils.days
+  - etherfi_ethereum.etherfinodesmanager_evt_phasechanged
+  - erc721_ethereum.evt_transfer
+  - etherfi_ethereum.bnft_evt_transfer
+  - etherfi_optimism.tvloracle_evt_tvlcategoryupdated
+  - dune.ether_fi.result_tokens_prices_tokens_list
+  - prices.usd
+  - dune.ether_fi.result_tokens_prices_usd
+  - dune.ether_fi.result_addresses_traits
+  - dune.ether_fi.result_lrts_restaking_protocol_tvl
+  - staking_ethereum.deposits
+  - ethereum.withdrawals
+  - dune.ether_fi.result_tokens_prices_usd_daily
+  - dune.ether_fi.result_etherfi_protocol_events
+  - dune.ether_fi.result_etherfi_protocol_token_holders_with_defi
+  - dune.ether_fi.result_lrts_restaking_dex_pools_balances
+  - dune.ether_fi.result_lrts_restaking_trades
+  - labels.ens
+  - dex_aggregator.trades
+  - scroll.logs
+  - dune.ether_fi.result_tokens_erc20
+  - dune.ether_fi.result_etherfi_cash_events
+  - prices.day
+  - etherfieth_ethereum.eeth_evt_transfer
+  - eigenlayer_ethereum.eigen_evt_transfer
+  - ssv_ethereum.ssvtoken_evt_transfer
+  - obol_ethereum.oboltoken_evt_transfer
+  - dune.veda.result_vaults_metadata
+  - veda_multichain.boringvault_evt_transfer
+  - veda_ethereum.accountant_evt_managementfeeupdated
+  - dune.ether_fi.result_tokens_rates_oracle_pegs
+  - dune.veda.result_vaults_base_assets

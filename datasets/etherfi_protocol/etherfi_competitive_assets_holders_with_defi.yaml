@@ -1,0 +1,81 @@
+name: dune.ether_fi.result_etherfi_competitive_assets_holders_with_defi
+aliases:
+  - result_etherfi_competitive_assets_holders_with_defi
+  - competitive_assets_holders_with_defi
+  - competitive asset holders
+  - competitive holders with defi
+display_name: Ether.fi Competitive Asset Holders With Defi
+description: Dataset for ether.fi competitive asset holders including tracked defi exposure
+refresh_interval_minutes: 360
+freshness_timestamp_column: last_updated
+source_query_id: 6279462
+source_query_url: https://dune.com/queries/6279462
+freshness_source_name: ether.fi Competitive Asset Holders (incl DeFi)
+grain: one row per address per token per snapshot date
+business_meaning:
+  - This dataset supports holder analysis across ether.fi competitive assets with tracked DeFi exposure included.
+  - It is useful for comparing broader asset-holder exposure rather than just direct wallet balances.
+important_filters:
+  - token_symbol when isolating one competitive asset
+  - underlying_symbol or underlying_protocol when comparing backing or exposure sources
+  - blockchain when narrowing to one network
+  - day for one snapshot date
+important_columns:
+  - address: holder wallet or contract address
+  - token_symbol: tracked competitive asset symbol
+  - token_balance: token balance at the snapshot
+  - token_balance_underlying: balance converted into underlying exposure units
+  - token_balance_usd: USD value of the exposure
+  - token_balance_eth: ETH-equivalent value of the exposure
+  - token_protocol: protocol associated with the tracked token
+  - underlying_protocol: protocol associated with the underlying exposure
+  - underlying_symbol: underlying asset symbol for the exposure
+semantic_notes:
+  - This is a broader exposure table because it includes tracked DeFi routing rather than only direct balances.
+  - Use it for comparative holder context, not as the cleanest direct-holder table.
+  - For ether.fi protocol tokens specifically, prefer `etherfi_protocol_token_holders` for direct balances or `etherfi_protocol_token_holders_with_defi` for broader tracked exposure.
+caveats:
+  - As with other DeFi-aware holder datasets, coverage depends on the tracked DeFi universe and is not guaranteed to be exhaustive.
+  - Competitive holder comparisons can mix direct and routed exposure, so rankings may differ from wallet-only views.
+schema:
+  - name: address
+    type: varbinary
+  - name: blockchain
+    type: varchar
+  - name: day
+    type: timestamp
+  - name: last_updated
+    type: timestamp
+  - name: token_address
+    type: varbinary
+  - name: token_balance
+    type: double
+  - name: token_balance_eth
+    type: double
+  - name: token_balance_raw
+    type: double
+  - name: token_balance_underlying
+    type: double
+  - name: token_balance_usd
+    type: double
+  - name: token_protocol
+    type: varchar
+  - name: token_symbol
+    type: varchar
+  - name: token_underlying_symbol
+    type: varchar
+  - name: underlying_protocol
+    type: varchar
+  - name: underlying_symbol
+    type: varchar
+example_user_intents:
+  - Who holds the most competitive liquid staking assets including tracked DeFi exposure?
+  - Compare holder exposure across ether.fi competitive assets.
+  - Which wallets have the most USD exposure to a specific competitive asset?
+search_keywords:
+  - competitive holders
+  - comparative asset holders
+  - holder exposure
+  - defi-aware holders
+related_dashboards:
+  - etherfi_overview

@@ -1,0 +1,136 @@
+name: dune.ether_fi.result_lrts_restaking_trades
+table_name: dune.ether_fi.result_lrts_restaking_trades
+display_name: LRTs + Restaking Trades
+description: This dataset contains DEX trade activity for tracked liquid restaking tokens (LRTs) and liquid staking tokens (LSTs), such as weETH and wstETH.
+refresh_interval_minutes: 120
+freshness_timestamp_column: last_updated
+source_query_id: 6227280
+source_query_url: https://dune.com/queries/6227280
+freshness_source_name: LRTs + Restaking Trades
+grain: one row per tracked LRT/LST token side of a DEX trade
+business_meaning:
+  - This table normalizes DEX trades for tracked derivative tokens so analysts can query token-level volume, trade prices, matched token amounts, DEX venue, pool, and chain-level activity across supported markets.
+  - It supports analysis of LRT and LST market activity, including weETH trading volume, DEX venue comparisons, token-level liquidity, and monthly derivative-token trading volume.
+use_when:
+  - when the user wants DEX trade activity for tracked LRT or LST tokens
+  - when the user wants token-level LRT/LST trading volume
+  - when the user wants weETH DEX volume or derivative-token volume by DEX, pool, token, or chain
+  - when comparing LRT and LST market activity
+important_filters:
+  - token_type for lrt vs lst analysis
+  - token_symbol or token_address for token-specific trade activity
+  - block_time, block_day, or block_hour for time-windowed volume
+  - blockchain, project, version, or pool_address for venue and market analysis
+important_columns:
+  - token_type: token classification, usually lrt or lst
+  - token_symbol: tracked LRT or LST token symbol
+  - token_address: tracked LRT or LST token address
+  - token_amount: amount of the tracked derivative token traded
+  - amount_usd: USD value of the tracked token side of the trade
+  - opposite_side_symbol: matched/opposite-side token symbol in the trade
+  - pool_address: DEX pool where the trade happened
+  - last_updated: freshness timestamp column for this dataset
+query_notes:
+  - "For total LST trading volume, filter `token_type = 'lst'` and aggregate `amount_usd`."
+  - "For total LRT trading volume, filter `token_type = 'lrt'` and aggregate `amount_usd`."
+  - "For weETH DEX volume, filter by `token_symbol = 'weETH'` or the relevant token address."
+semantic_notes:
+  - This table is token-side normalized, so it is best for token-level LRT/LST trade analysis.
+  - Use `amount_usd` for tracked-token-side volume and use `opposite_side_*` fields for matched-token context.
+caveats:
+  - If a swap is between two tracked derivatives, such as weETH and wstETH, the same underlying swap can appear once for each tracked token side. This is useful for token-level volume analysis, but summing all rows can double-count derivative-to-derivative swaps in market-wide totals.
+schema:
+  - name: blockchain
+    type: varchar
+    description: Blockchain where the trade happened.
+  - name: project
+    type: varchar
+    description: DEX or trading project where the trade happened.
+  - name: version
+    type: varchar
+    description: Version of the DEX/project.
+  - name: block_day
+    type: timestamp
+    description: Day the trade happened.
+  - name: block_hour
+    type: timestamp
+    description: Hour the trade happened.
+  - name: block_minute
+    type: timestamp
+    description: Minute the trade happened.
+  - name: block_time
+    type: timestamp
+    description: Block timestamp of the trade.
+  - name: block_number
+    type: bigint
+    description: Block number at which the trade happened.
+  - name: evt_index
+    type: bigint
+    description: Event index of the trade within the transaction/block context.
+  - name: tx_hash
+    type: varbinary
+    description: Transaction hash of the trade.
+  - name: pool_address
+    type: varbinary
+    description: DEX pool where the trade happened.
+  - name: project_contract_address
+    type: varbinary
+    description: Contract address for the DEX/project interaction.
+  - name: token_pair
+    type: varchar
+    description: DEX pool token pair.
+  - name: token_address
+    type: varbinary
+    description: Tracked LRT or LST token address.
+  - name: token_symbol
+    type: varchar
+    description: Tracked LRT or LST token symbol.
+  - name: token_type
+    type: varchar
+    description: Token classification, usually `lrt` or `lst`.
+  - name: token_amount
+    type: double
+    description: Amount of the tracked LRT or LST token traded.
+  - name: opposite_side_amount
+    type: double
+    description: Amount of the matched/opposite-side token in the trade.
+  - name: opposite_side_address
+    type: varbinary
+    description: Token address for the matched/opposite side of the trade.
+  - name: opposite_side_symbol
+    type: varchar
+    description: Token symbol for the matched/opposite side of the trade.
+  - name: amount_usd
+    type: double
+    description: USD value of the trade for the tracked token side.
+  - name: eth_rate
+    type: double
+    description: ETH exchange rate for the tracked LRT/LST at the time of the trade.
+  - name: usd_price
+    type: double
+    description: USD price for the tracked LRT/LST at the time of the trade.
+  - name: last_updated
+    type: timestamp
+    description: Freshness timestamp column for this dataset.
+example_user_intents:
+  - What was total LST DEX volume this month?
+  - What was total LRT DEX volume this month?
+  - Show weETH DEX volume across DEXs.
+  - Compare LRT and LST trading activity.
+  - Which pools have the most tracked derivative-token volume?
+search_keywords:
+  - lrt trades
+  - lst trades
+  - restaking trades
+  - dex volume
+  - weeth volume
+  - wsteth volume
+  - derivative token volume
+  - lrt lst market activity
+related_datasets:
+  - dune.ether_fi.result_lrts_restaking_dex_pools
+  - dune.ether_fi.result_lrts_restaking_dex_pools_transfers
+  - dune.ether_fi.result_lrts_restaking_dex_pools_balances
+  - dune.ether_fi.result_lrts_restaking_protocol_tvl
+related_dashboards:
+  - etherfi_overview

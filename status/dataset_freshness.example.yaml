@@ -1,0 +1,6 @@
+# Generated runtime freshness snapshots are keyed by dataset name.
+#
+# Example structure:
+# dune.ether_fi.result_example:
+#   query_id: 1234567
+#   last_updated: 2026-01-01T00:00:00Z
