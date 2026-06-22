@@ -21,6 +21,7 @@ DEFAULT_OUTPUT_DIR = ROOT / "output" / "website"
 DEFAULT_DATASETS_DIR = ROOT / "datasets"
 DEFAULT_DASHBOARD_REGISTRY = ROOT / "dashboards"
 DEFAULT_FRESHNESS_REGISTRY = ROOT / "status" / "dataset_freshness.yaml"
+OBSOLETE_PAGE_OUTPUT_NAMES = {"agent-workflow.html"}
 NOT_DOCUMENTED = "Not documented yet"
 FRESHNESS_NOT_DOCUMENTED = "Not documented"
 FRESHNESS_DASH = "&mdash;"
@@ -2873,7 +2874,7 @@ def build_site(
 
     output_dir.mkdir(parents=True, exist_ok=True)
     copy_assets(source_dir, output_dir)
-    for output_name in unpublished_page_output_names(source_dir):
+    for output_name in unpublished_page_output_names(source_dir) | OBSOLETE_PAGE_OUTPUT_NAMES:
         stale_path = output_dir / output_name
         if stale_path.exists():
             stale_path.unlink()

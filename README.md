@@ -160,7 +160,7 @@ own key locally.
 
 ### Agent workflow quick start
 
-For the practical routing guide and onboarding examples, see [`docs/agent_workflow.md`](docs/agent_workflow.md).
+For setup, local MCP usage, and deployment notes, see [`docs/mcp_deployment.md`](docs/mcp_deployment.md).
 For teammate-friendly ether.fi DuneSQL style, optimization, and price-table defaults, see [`docs/sql_style_guide.md`](docs/sql_style_guide.md).
 
 Quick decision guide:

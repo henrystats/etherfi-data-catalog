@@ -6,7 +6,7 @@ from etherfi_catalog.catalog import plan_etherfi_query
 
 
 FIXTURE_PATH = Path("tests/fixtures/orchestration_prompt_regressions.yaml")
-WORKFLOW_DOC_PATH = Path("docs/agent_workflow.md")
+README_PATH = Path("README.md")
 ETHERFI_SKILL_PATH = Path("skills/etherfi/SKILL.md")
 DASHBOARD_FLOW_PATH = Path("skills/etherfi/flows/dashboard_build.md")
 QUERY_FLOW_PATH = Path("skills/etherfi/flows/query_authoring.md")
@@ -27,7 +27,7 @@ def _read_orchestration_docs() -> str:
     return "\n".join(
         path.read_text()
         for path in [
-            WORKFLOW_DOC_PATH,
+            README_PATH,
             ETHERFI_SKILL_PATH,
             DASHBOARD_FLOW_PATH,
             QUERY_FLOW_PATH,
@@ -80,11 +80,11 @@ def test_visualization_flow_assigns_shareable_chart_artifacts_to_dune_mcp():
 
     assert case["route"] == ["Dune MCP"]
     assert case["expected"]["dune_mcp_owner"] == "visualization"
-    assert "Use Dune MCP visualization/dashboard tools to create the chart or widget." in docs
+    assert "use Dune MCP visualization/dashboard tools" in docs
     assert "Avoid local chart files when the user wants a shareable Dune artifact." in Path(
         "skills/etherfi/examples/chart_for_query.md"
     ).read_text()
-    assert "Do not build local charts when the user asked for a shareable Dune artifact." in docs
+    assert "Avoid ad hoc local chart building when the user asked for a shareable Dune chart or dashboard." in docs
 
 
 def test_dashboard_flow_assigns_dashboard_artifacts_to_dune_mcp():
@@ -93,7 +93,7 @@ def test_dashboard_flow_assigns_dashboard_artifacts_to_dune_mcp():
 
     assert case["route"] == ["Dune MCP"]
     assert case["expected"]["dune_mcp_owner"] == "dashboard"
-    assert "Dune MCP handles Dune query creation, updates, execution, results, visualizations, and dashboards." in docs
+    assert "Use Dune MCP to run, save, retrieve, visualize, and dashboard the Dune query." in docs
     assert "Dune MCP has created or updated the requested chart/dashboard artifact." in docs
 
 
@@ -104,7 +104,7 @@ def test_optimization_flow_routes_to_dune_skills_not_catalog_optimizer():
     assert case["route"] == ["Dune Skills"]
     assert case["expected"]["optimization_owner"] == "Dune Skills"
     assert case["expected"]["catalog_is_optimizer"] is False
-    assert "Dune Skills help with DuneSQL, Dune CLI workflows, and optimization." in docs
+    assert "Dune Skills: Dune CLI, query-writing, optimization, and Dune-side workflow guidance for agents." in docs
     assert "Dune Skills for DuneSQL style, optimization, and Dune CLI guidance" in docs
 
 

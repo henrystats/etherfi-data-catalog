@@ -2,10 +2,12 @@
 __pycache__/
 *.pyc
 *.egg-info/
+.DS_Store
 status/dataset_freshness.yaml
 .env
 .env.local
 .env.*.local
+.codex/config.toml
 .codex/config.local.toml
 
 # local generated artifacts

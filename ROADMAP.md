@@ -148,7 +148,7 @@ website over the existing ether.fi analytics catalog and MCP server.
 - `docs/freshness.md`
 - `docs/generated/freshness.md`
 
-### Ticket 7: MCP Setup And Agent Workflow Pages
+### Ticket 7: MCP Setup Page
 
 **Status:** `[ ]` todo  
 **Labels:** `docs`, `mcp`, `mvp`  
@@ -164,7 +164,6 @@ website over the existing ether.fi analytics catalog and MCP server.
 
 **Likely Files:**
 - `docs/mcp.md`
-- `docs/agent_workflow.md`
 - maybe generated tool section from `etherfi_catalog/server.py`
 
 ### Ticket 8: Website Visual Polish Pass
@@ -231,6 +230,6 @@ website over the existing ether.fi analytics catalog and MCP server.
 4. Ticket 8: Website Visual Polish Pass
 5. Ticket 5: Generate Dashboard Registry Pages
 6. Ticket 6: Freshness And Catalog Health Page
-7. Ticket 7: MCP Setup And Agent Workflow Pages
+7. Ticket 7: MCP Setup Page
 8. Ticket 9: Deployment Path
 9. Ticket 10: Post-MVP Metadata Completeness Dashboard

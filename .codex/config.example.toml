@@ -1,0 +1,41 @@
+[setup]
+steps = [
+  "python3 -m venv .venv",
+  ".venv/bin/python -m pip install -e '.[dev]'",
+]
+
+[mcp_servers.etherfi-catalog]
+# Local repo-development option:
+# command = ".venv/bin/python"
+# args = ["-m", "etherfi_catalog.server"]
+# cwd = "/path/to/etherfi-data-catalog"
+#
+# Recommended public install option:
+command = "uvx"
+args = [
+  "--from",
+  "git+https://github.com/henrystats/etherfi-data-catalog",
+  "etherfi-catalog-mcp",
+]
+enabled = true
+startup_timeout_sec = 20
+tool_timeout_sec = 60
+
+# Metadata, discovery, freshness, dashboard lookup, and query-planning tools
+# work without DUNE_API_KEY. Live Dune-backed tools require DUNE_API_KEY only
+# when execute_live=true. Use a local/private config or shell environment for
+# real secrets; never commit a real API key.
+#
+# [mcp_servers.etherfi-catalog.env]
+# DUNE_API_KEY = "your_dune_api_key_here"
+
+# Dune MCP should be configured as a separate server entry. Use the current
+# official Dune MCP install/auth instructions for your client.
+#
+# [mcp_servers.dune]
+# command = "..."
+# args = [...]
+# tool_timeout_sec = 300
+
+[actions.test]
+command = ".venv/bin/python -m pytest"
