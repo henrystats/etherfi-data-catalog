@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import os
+import re
 import socket
 import subprocess
 import sys
@@ -24,6 +25,8 @@ EXPECTED_HTTP_SMOKE_TOOLS = {
     "plan_etherfi_query",
 }
 
+AUTH_HEADER_NAME_PATTERN = re.compile(r"^[A-Za-z0-9-]+$")
+
 
 @dataclass(frozen=True)
 class SmokeConfig:
@@ -32,6 +35,21 @@ class SmokeConfig:
     port: int
     query: str
     timeout_seconds: float
+    bearer_token: str | None
+    auth_header_name: str
+
+
+def normalize_auth_header_name(name: str) -> str:
+    normalized = name.strip()
+    if not normalized or not AUTH_HEADER_NAME_PATTERN.fullmatch(normalized):
+        raise ValueError("Auth header name must contain only letters, numbers, and hyphens.")
+    return normalized
+
+
+def build_auth_headers(bearer_token: str | None, auth_header_name: str) -> dict[str, str]:
+    if not bearer_token:
+        return {}
+    return {normalize_auth_header_name(auth_header_name): f"Bearer {bearer_token}"}
 
 
 def find_free_port(host: str) -> int:
@@ -70,19 +88,40 @@ def parse_args(argv: Sequence[str] | None = None) -> SmokeConfig:
         default=10.0,
         help="Seconds to wait for the server/client handshake.",
     )
+    parser.add_argument(
+        "--bearer-token",
+        help="Bearer token for authenticated MCP endpoints. The token is never printed.",
+    )
+    parser.add_argument(
+        "--auth-header-name",
+        default="Authorization",
+        help="Header name for bearer auth. Defaults to Authorization.",
+    )
     args = parser.parse_args(argv)
+    try:
+        auth_header_name = normalize_auth_header_name(args.auth_header_name)
+    except ValueError as exc:
+        parser.error(str(exc))
+
     return SmokeConfig(
         url=args.url,
         host=args.host,
         port=args.port,
         query=args.query,
         timeout_seconds=args.timeout,
+        bearer_token=args.bearer_token,
+        auth_header_name=auth_header_name,
     )
 
 
-async def verify_mcp_endpoint(url: str, query: str, timeout_seconds: float) -> tuple[int, int]:
+async def verify_mcp_endpoint(
+    url: str,
+    query: str,
+    timeout_seconds: float,
+    auth_headers: dict[str, str] | None = None,
+) -> tuple[int, int]:
     timeout = httpx.Timeout(timeout_seconds, read=timeout_seconds)
-    async with httpx.AsyncClient(timeout=timeout) as http_client:
+    async with httpx.AsyncClient(timeout=timeout, headers=auth_headers or {}) as http_client:
         async with streamable_http_client(url, http_client=http_client) as (read, write, _get_session_id):
             async with ClientSession(read, write) as session:
                 await session.initialize()
@@ -101,12 +140,22 @@ async def verify_mcp_endpoint(url: str, query: str, timeout_seconds: float) -> t
                 return len(tool_names), len(result.content)
 
 
-async def wait_for_mcp_endpoint(url: str, query: str, timeout_seconds: float) -> tuple[int, int]:
+async def wait_for_mcp_endpoint(
+    url: str,
+    query: str,
+    timeout_seconds: float,
+    auth_headers: dict[str, str] | None = None,
+) -> tuple[int, int]:
     deadline = time.monotonic() + timeout_seconds
     last_error: Exception | None = None
     while time.monotonic() < deadline:
         try:
-            return await verify_mcp_endpoint(url, query, timeout_seconds=min(3.0, timeout_seconds))
+            return await verify_mcp_endpoint(
+                url,
+                query,
+                timeout_seconds=min(3.0, timeout_seconds),
+                auth_headers=auth_headers,
+            )
         except Exception as exc:
             last_error = exc
             await asyncio.sleep(0.25)
@@ -157,6 +206,8 @@ def main(argv: Sequence[str] | None = None) -> None:
         url = f"http://{config.host}:{port}/mcp"
         process = start_local_server(config.host, port)
 
+    auth_headers = build_auth_headers(config.bearer_token, config.auth_header_name)
+
     try:
         if process is not None and process.poll() is not None:
             stdout, stderr = process.communicate(timeout=1)
@@ -166,7 +217,12 @@ def main(argv: Sequence[str] | None = None) -> None:
             )
 
         tool_count, content_count = asyncio.run(
-            wait_for_mcp_endpoint(url, config.query, config.timeout_seconds)
+            wait_for_mcp_endpoint(
+                url,
+                config.query,
+                config.timeout_seconds,
+                auth_headers=auth_headers,
+            )
         )
     finally:
         if process is not None:

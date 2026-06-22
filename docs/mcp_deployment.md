@@ -195,6 +195,227 @@ to cloud infrastructure. It proves the image can build and serve metadata tools
 over Streamable HTTP in a Docker-enabled CI environment. It does not prove
 production auth, rate limiting, cloud routing, TLS, or live-tool safety.
 
+## Cloud Run private staging
+
+This is the planned first remote staging path. It is metadata-only: do not set
+`DUNE_API_KEY`, do not grant public unauthenticated access, and do not expose
+live Dune-backed tools before auth, rate limiting, and credit controls are
+reviewed.
+
+Cloud Run authenticated services use IAM to decide who can invoke the service.
+The container still serves the MCP endpoint at `/mcp` on port `8001`.
+
+### Prerequisites
+
+- Google Cloud project selected for staging.
+- `gcloud` installed and authenticated locally.
+- Artifact Registry API enabled.
+- Cloud Run API enabled.
+- Permission to create/push Artifact Registry Docker images.
+- Permission to deploy and manage Cloud Run services.
+- Permission to grant Cloud Run Invoker access to selected users or service
+  accounts.
+- A selected region, such as `us-central1`.
+
+### Variables
+
+Use placeholders first; do not paste secrets into these variables:
+
+```bash
+PROJECT_ID="your-gcp-project"
+REGION="us-central1"
+REPOSITORY="etherfi"
+IMAGE="etherfi-catalog-mcp"
+SERVICE="etherfi-catalog-mcp-staging"
+IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${IMAGE}:staging"
+```
+
+### Enable required APIs
+
+```bash
+gcloud services enable artifactregistry.googleapis.com run.googleapis.com \
+  --project "$PROJECT_ID"
+```
+
+### Create an Artifact Registry repository
+
+Run this once per project/region/repository:
+
+```bash
+gcloud artifacts repositories create "$REPOSITORY" \
+  --project "$PROJECT_ID" \
+  --repository-format docker \
+  --location "$REGION" \
+  --description "ether.fi catalog MCP container images"
+```
+
+Configure Docker auth for the region:
+
+```bash
+gcloud auth configure-docker "${REGION}-docker.pkg.dev"
+```
+
+### Build and push the image
+
+```bash
+docker build -t "$IMAGE_URI" .
+docker push "$IMAGE_URI"
+```
+
+This should be run only from a clean local checkout or CI job. The Docker image
+must not contain `.env`, `.codex/`, `status/dataset_freshness.yaml`, or any
+`DUNE_API_KEY` value.
+
+### Deploy the private Cloud Run service
+
+```bash
+gcloud run deploy "$SERVICE" \
+  --project "$PROJECT_ID" \
+  --region "$REGION" \
+  --image "$IMAGE_URI" \
+  --port 8001 \
+  --no-allow-unauthenticated
+```
+
+Important staging defaults:
+
+- Do not pass `--allow-unauthenticated`.
+- Do not set `DUNE_API_KEY`.
+- Do not add GitHub/cloud secrets yet.
+- Keep the service metadata-only until a later hardening task approves live
+  Dune-backed tools.
+
+### Grant invoker access
+
+Grant access only to selected users, groups, or service accounts:
+
+```bash
+INVOKER="user:teammate@example.com"
+
+gcloud run services add-iam-policy-binding "$SERVICE" \
+  --project "$PROJECT_ID" \
+  --region "$REGION" \
+  --member "$INVOKER" \
+  --role "roles/run.invoker"
+```
+
+Repeat for each approved principal. Do not grant `allUsers` or
+`allAuthenticatedUsers` for staging.
+
+### Smoke test the deployed MCP endpoint
+
+Fetch the service URL:
+
+```bash
+SERVICE_URL="$(gcloud run services describe "$SERVICE" \
+  --project "$PROJECT_ID" \
+  --region "$REGION" \
+  --format 'value(status.url)')"
+```
+
+Generate a Google-signed identity token for the active `gcloud` user:
+
+```bash
+TOKEN="$(gcloud auth print-identity-token)"
+```
+
+Run the MCP Streamable HTTP smoke helper against the authenticated Cloud Run
+URL:
+
+```bash
+.venv/bin/python scripts/smoke_mcp_http.py \
+  --url "$SERVICE_URL/mcp" \
+  --bearer-token "$TOKEN"
+```
+
+The helper sends the token as:
+
+```text
+Authorization: Bearer <token>
+```
+
+If a proxy or serverless integration expects the Cloud Run-specific serverless
+header, use:
+
+```bash
+.venv/bin/python scripts/smoke_mcp_http.py \
+  --url "$SERVICE_URL/mcp" \
+  --bearer-token "$TOKEN" \
+  --auth-header-name X-Serverless-Authorization
+```
+
+The smoke helper never prints the token or auth headers.
+
+You can also test through the Google Cloud CLI local proxy:
+
+```bash
+gcloud run services proxy "$SERVICE" \
+  --project "$PROJECT_ID" \
+  --region "$REGION" \
+  --port 8001
+
+.venv/bin/python scripts/smoke_mcp_http.py --url http://127.0.0.1:8001/mcp
+```
+
+### Expected staging behavior
+
+- MCP initialize/session handshake works over Streamable HTTP.
+- Tool listing works.
+- Metadata tools such as `search_datasets`, `get_dataset_status`, and
+  `search_dashboards` work.
+- Live tools called with `execute_live=true` fail clearly because no
+  `DUNE_API_KEY` is configured.
+- No Dune credits are consumed.
+
+If the service is reachable but the MCP handshake fails with host/origin
+security errors, keep the service private and update the server's Streamable
+HTTP allowed-host/allowed-origin configuration in a separate reviewed task. Do
+not disable auth or make the service public to work around transport security.
+
+### Freshness behavior in staging
+
+The image includes `status/dataset_freshness.example.yaml`, but intentionally
+does not include the local generated `status/dataset_freshness.yaml`.
+
+Until a runtime freshness file is provided, staging may show unknown freshness.
+That is expected for metadata-only staging. Scheduled freshness import and
+runtime file delivery are future work.
+
+### Logs and rollback
+
+Read recent logs:
+
+```bash
+gcloud run services logs read "$SERVICE" \
+  --project "$PROJECT_ID" \
+  --region "$REGION" \
+  --limit 50
+```
+
+List revisions:
+
+```bash
+gcloud run revisions list \
+  --project "$PROJECT_ID" \
+  --region "$REGION" \
+  --service "$SERVICE"
+```
+
+Rollback can be done by moving traffic back to a previous known-good revision in
+the Cloud Run console or with `gcloud run services update-traffic` after
+identifying the revision. Do not automate rollback until staging behavior is
+verified.
+
+### Security reminders
+
+- Do not grant public unauthenticated access.
+- Do not set `DUNE_API_KEY` in metadata-only staging.
+- Do not bake secrets into the Docker image.
+- Rotate any Dune key that was ever committed, pasted, or shared before adding
+  live-tool staging.
+- Before any broader external usage, add auth review, rate limits, live-tool
+  credit controls, logging expectations, and incident rollback steps.
+
 ## Local smoke tests
 
 Run the server smoke tests before changing transport or deployment behavior:
@@ -276,7 +497,9 @@ model is finalized.
 - [x] Task 3: Streamable HTTP entrypoint while preserving stdio behavior.
 - [x] Task 3.5: local Streamable HTTP MCP handshake smoke test.
 - [x] Task 4: Docker/container setup with no baked-in secrets.
-- [ ] Task 5: private staging deployment instructions.
+- [x] Task 4.5: Docker-enabled CI smoke verification workflow.
+- [x] Task 5A: Cloud Run private staging docs and authenticated smoke helper.
+- [ ] Task 5B: manual private Cloud Run staging deployment after approval.
 - [ ] Task 6: auth, rate limit, and live-tool hardening.
 - [ ] Task 7: website MCP setup docs update after deployment is verified.
 
