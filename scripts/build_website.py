@@ -1245,7 +1245,7 @@ def render_mcp_page(tools: dict[str, MCPToolInfo] | None = None) -> str:
         "<p>Recommended setup is local stdio via <code>uvx</code>. Install Dune MCP separately for execution workflows, and use your own Dune credentials locally.</p>"
         "</div>"
         '<div class="mcp-setup-grid">'
-        '<article><strong>Recommended install</strong><p><code>uvx --from git+https://github.com/henrystats/etherfi-data-catalog etherfi-catalog-mcp</code></p></article>'
+        '<article><strong>Recommended install</strong><p><code>uvx --from git+https://github.com/henrystats/etherfi-data-catalog.git etherfi-catalog-mcp</code></p></article>'
         '<article><strong>Claude Desktop</strong><p>Add Dune MCP and ether.fi Catalog MCP as local stdio servers. Use <code>DUNE_API_KEY=your_dune_api_key_here</code> only as a local placeholder.</p></article>'
         '<article><strong>Codex</strong><p>Configure <code>command = "uvx"</code> with the GitHub <code>--from</code> args, plus your local Dune MCP server.</p></article>'
         '<article><strong>Advanced deployment</strong><p>Cloud Run and Docker are optional/private staging paths, not the default team setup.</p></article>'

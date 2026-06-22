@@ -14,7 +14,7 @@ steps = [
 command = "uvx"
 args = [
   "--from",
-  "git+https://github.com/henrystats/etherfi-data-catalog",
+  "git+https://github.com/henrystats/etherfi-data-catalog.git",
   "etherfi-catalog-mcp",
 ]
 enabled = true

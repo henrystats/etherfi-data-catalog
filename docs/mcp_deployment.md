@@ -5,14 +5,20 @@ plan. It is intentionally limited to deployment hygiene and planning. The MCP
 server runs locally over stdio by default, and can also be started in local
 Streamable HTTP mode for remote-transport testing.
 
-The recommended teammate onboarding path is local stdio install via `uvx`:
+The recommended teammate onboarding path is local stdio install via `uvx`.
+This command has been verified against the public GitHub repo:
 
 ```bash
-uvx --from git+https://github.com/henrystats/etherfi-data-catalog etherfi-catalog-mcp
+uvx --from "git+https://github.com/henrystats/etherfi-data-catalog.git" etherfi-catalog-mcp
 ```
 
 Docker and Cloud Run are advanced/private staging paths, not the default team
 setup.
+
+On Apple Silicon Macs, if `uvx` fails with an error like
+`/usr/local/bin/git ... Bad CPU type in executable`, the shell is using an old
+Intel Git binary. Prefer `/opt/homebrew/bin/git` or `/usr/bin/git`, and make
+sure that path appears before `/usr/local/bin` in your shell `PATH`.
 
 ## Current runtime
 
@@ -79,6 +85,30 @@ etherfi-catalog-mcp
 For Codex/local clients, configure the client to run that command from the repo
 root during development. Installed package runs load bundled dataset/dashboard
 metadata by default.
+
+## Verified local smoke test
+
+After installing from GitHub, confirm the console script is available:
+
+```bash
+etherfi-catalog-mcp --help
+```
+
+Optional Streamable HTTP smoke test:
+
+```bash
+etherfi-catalog-mcp --transport streamable-http --host 127.0.0.1 --port 8001
+```
+
+In another terminal, verify the MCP handshake, tool listing, and a metadata-only
+tool call:
+
+```bash
+.venv/bin/python scripts/smoke_mcp_http.py --url http://127.0.0.1:8001/mcp
+```
+
+This checks the installed server over `/mcp` without requiring `DUNE_API_KEY`
+and without making live Dune calls.
 
 Start the local Streamable HTTP server for transport testing:
 

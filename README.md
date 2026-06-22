@@ -34,23 +34,29 @@ The recommended team path is a local stdio MCP install. Each teammate installs
 Dune MCP separately, installs the ether.fi Catalog MCP from GitHub, and uses
 their own local Dune credentials.
 
-Recommended ether.fi Catalog MCP command:
+Recommended ether.fi Catalog MCP command, verified against the public GitHub
+repo:
 
 ```bash
-uvx --from git+https://github.com/henrystats/etherfi-data-catalog etherfi-catalog-mcp
+uvx --from "git+https://github.com/henrystats/etherfi-data-catalog.git" etherfi-catalog-mcp
 ```
 
 Tagged releases can be installed with:
 
 ```bash
-uvx --from git+https://github.com/henrystats/etherfi-data-catalog@v0.1.0 etherfi-catalog-mcp
+uvx --from "git+https://github.com/henrystats/etherfi-data-catalog.git@v0.1.0" etherfi-catalog-mcp
 ```
 
 Fallback with `pipx`:
 
 ```bash
-pipx run --spec git+https://github.com/henrystats/etherfi-data-catalog etherfi-catalog-mcp
+pipx run --spec "git+https://github.com/henrystats/etherfi-data-catalog.git" etherfi-catalog-mcp
 ```
+
+On Apple Silicon Macs, if `uvx` fails with an error like
+`/usr/local/bin/git ... Bad CPU type in executable`, the shell is using an old
+Intel Git binary. Prefer `/opt/homebrew/bin/git` or `/usr/bin/git`, and make
+sure that path appears before `/usr/local/bin` in your shell `PATH`.
 
 Local development from a clone still works:
 
@@ -63,6 +69,19 @@ transport testing or advanced private staging:
 
 ```bash
 etherfi-catalog-mcp --transport streamable-http --host 127.0.0.1 --port 8001
+```
+
+Quick smoke checks:
+
+```bash
+etherfi-catalog-mcp --help
+```
+
+Optional Streamable HTTP smoke test:
+
+```bash
+etherfi-catalog-mcp --transport streamable-http --host 127.0.0.1 --port 8001
+.venv/bin/python scripts/smoke_mcp_http.py --url http://127.0.0.1:8001/mcp
 ```
 
 Installed runs load bundled catalog metadata from the package. Local repo runs
@@ -98,7 +117,7 @@ Claude Desktop / Claude-style JSON:
       "command": "uvx",
       "args": [
         "--from",
-        "git+https://github.com/henrystats/etherfi-data-catalog",
+        "git+https://github.com/henrystats/etherfi-data-catalog.git",
         "etherfi-catalog-mcp"
       ],
       "env": {
@@ -124,7 +143,7 @@ DUNE_API_KEY = "your_dune_api_key_here"
 command = "uvx"
 args = [
   "--from",
-  "git+https://github.com/henrystats/etherfi-data-catalog",
+  "git+https://github.com/henrystats/etherfi-data-catalog.git",
   "etherfi-catalog-mcp",
 ]
 startup_timeout_sec = 30
@@ -143,7 +162,7 @@ Generic stdio MCP shape:
   "command": "uvx",
   "args": [
     "--from",
-    "git+https://github.com/henrystats/etherfi-data-catalog",
+    "git+https://github.com/henrystats/etherfi-data-catalog.git",
     "etherfi-catalog-mcp"
   ],
   "env": {

@@ -168,7 +168,7 @@ def test_build_website_generates_polished_mcp_page_from_current_tools(tmp_path):
     assert "Live mode" in mcp_page
     assert "Setup" in mcp_page
     assert "Recommended setup is local stdio via <code>uvx</code>" in mcp_page
-    assert "uvx --from git+https://github.com/henrystats/etherfi-data-catalog etherfi-catalog-mcp" in mcp_page
+    assert "uvx --from git+https://github.com/henrystats/etherfi-data-catalog.git etherfi-catalog-mcp" in mcp_page
     assert "Cloud Run and Docker are optional/private staging paths" in mcp_page
     assert "Claude Desktop" in mcp_page
     assert "Codex" in mcp_page
