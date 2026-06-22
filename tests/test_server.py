@@ -19,7 +19,7 @@ EXPECTED_METADATA_AND_PLANNING_TOOLS = {
 
 
 def _server_module():
-    return importlib.import_module("src.server")
+    return importlib.import_module("etherfi_catalog.server")
 
 
 def _tool_names(server: FastMCP) -> set[str]:
@@ -199,7 +199,7 @@ def test_live_capable_tool_planning_mode_does_not_require_dune_key(monkeypatch):
     def fail_if_live_sql_runs(sql):
         raise AssertionError("planning mode should not execute live Dune SQL")
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fail_if_live_sql_runs)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fail_if_live_sql_runs)
     server_module = _server_module()
 
     result = server_module.get_assets_under_management_balances(

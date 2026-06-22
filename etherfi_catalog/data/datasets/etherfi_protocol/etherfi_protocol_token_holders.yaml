@@ -1,0 +1,82 @@
+name: etherfi_protocol_token_holders
+slug: protocol_token_holders
+aliases:
+  - protocol_token_holders
+  - dune.ether_fi.result_etherfi_protocol_token_holders
+  - result_etherfi_protocol_token_holders
+  - direct protocol token holders
+  - top eETH holders
+display_name: Protocol Token Holders
+description: Direct holders of ether.fi protocol tokens by address
+refresh_interval_minutes: 240
+freshness_timestamp_column: last_updated
+source_query_id: 6213381
+source_query_url: https://dune.com/queries/6213381
+freshness_source_name: ether.fi Protocol Token Holders
+table_name: dune.ether_fi.result_etherfi_protocol_token_holders
+query_ready: true
+query_patterns:
+  - top holders by token
+  - latest protocol token holders
+grain: one row per address per token per snapshot date
+business_meaning:
+  - This is the standard direct-holder table for ether.fi protocol tokens.
+  - It is the clean default when the user wants wallet-level holders without tracked DeFi routing.
+refresh cadence: every 4 hours
+accuracy label: high
+completeness label: complete
+use_when:
+  - when the user wants direct holders only
+  - when the user wants the cleanest holder view
+do_not_use_when:
+  - when the user wants defi-routed exposure included
+important_filters:
+  - token_symbol when isolating one ether.fi protocol token
+  - blockchain when narrowing to one network
+  - day for the latest or a specific snapshot date
+important_columns:
+  - holder_address: holder wallet or contract address
+  - address: holder wallet or contract address
+  - token_symbol: ether.fi protocol token symbol
+  - token_balance: direct token balance at the snapshot
+  - token_balance_raw: raw token balance before display normalization
+comparison_notes:
+  - compared with etherfi_protocol_token_holders_with_defi, this table is the direct holder view and should be treated as the cleaner default
+semantic_notes:
+  - This table represents direct holder balances only.
+  - Use this table for standard holder rankings or wallet-level holder analysis for ether.fi protocol tokens.
+  - If the user wants tracked DeFi-routed exposure included, switch to `etherfi_protocol_token_holders_with_defi`.
+caveats:
+  - This table does not include broader routed exposure through tracked DeFi positions.
+  - Direct holder rankings can differ materially from DeFi-aware exposure rankings.
+schema:
+  - name: address
+    type: varbinary
+  - name: blockchain
+    type: varchar
+  - name: day
+    type: timestamp
+  - name: last_updated
+    type: timestamp
+  - name: token_address
+    type: varbinary
+  - name: token_balance
+    type: double
+  - name: token_balance_raw
+    type: double
+  - name: token_symbol
+    type: varchar
+example_user_intents:
+  - Who are the top direct holders of eETH?
+  - Who are the top eETH holders today?
+  - Show direct liquidUSD holders on the latest day.
+  - Rank wallets by direct liquidETH holdings.
+search_keywords:
+  - direct holders
+  - direct protocol token holders
+  - top eETH holders
+  - direct holders clean with defi broader incomplete
+  - clean holder view
+  - wallet holders
+related_dashboards:
+  - etherfi_overview

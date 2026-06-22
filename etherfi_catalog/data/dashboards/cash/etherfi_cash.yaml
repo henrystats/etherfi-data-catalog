@@ -1,0 +1,32 @@
+name: etherfi_cash
+title: ether.fi Cash
+url: https://dune.com/ether_fi/etherfi-cash
+category: cash
+show_in_core: true
+description: Operational dashboard for ether.fi Cash activity, covering card spends, cashback events, user-safe transactions, swaps, borrow/repay activity, liquidations, borrow index updates, token metadata, pricing, and Cash AUM context.
+tags:
+  - etherfi
+  - cash
+  - spend
+  - cashback
+  - swaps
+  - user_safe
+  - lending
+  - borrow
+  - repay
+  - liquidations
+  - transactions
+datasets:
+  - etherfi_optimism.casheventemitter_evt_cashback
+  - etherfi_optimism.casheventemitter_evt_spend
+  - etherfi_multichain.debtmanagercore_evt_borrowed
+  - etherfi_multichain.debtmanagercore_evt_repaid
+  - etherfi_multichain.debtmanagercore_evt_interestindexupdated
+  - etherfi_multichain.debtmanagercore_evt_liquidated
+  - dune.ether_fi.result_tokens_erc20
+  - dune.ether_fi.result_tokens_prices_usd
+  - dune.ether_fi.result_backup_etherfi_cash_scroll_events
+  - dune.ether_fi.result_etherfi_cash_events
+  - dune.ether_fi.result_etherfi_assets_under_management
+  - dune.ether_fi.result_etherfi_cash_borrow_index
+  - utils.days

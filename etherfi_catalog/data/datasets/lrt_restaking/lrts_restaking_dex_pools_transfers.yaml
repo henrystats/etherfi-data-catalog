@@ -1,0 +1,89 @@
+name: dune.ether_fi.result_lrts_restaking_dex_pools_transfers
+table_name: dune.ether_fi.result_lrts_restaking_dex_pools_transfers
+display_name: LRTs + Restaking Dex Pools Transfers
+description: This dataset contains daily aggregated net token transfers for DEX pool addresses used in the LRT/LST restaking liquidity stack.
+refresh_interval_minutes: 240
+freshness_timestamp_column: last_updated
+source_query_id: 6253246
+source_query_url: https://dune.com/queries/6253246
+freshness_source_name: LRTs + Restaking Dex Pools Transfers
+grain: one row per day, DEX pool address, token address, and blockchain
+business_meaning:
+  - This table records net token movement by day, pool address, token, and blockchain for assets held by tracked DEX pools.
+  - It is primarily a supporting/intermediate dataset used by downstream LRT/LST liquidity datasets, especially dune.ether_fi.result_lrts_restaking_dex_pools_balances.
+  - It is useful for debugging or investigating pool balance calculation inconsistencies because it shows daily net transfer movements for pool-held assets.
+use_when:
+  - when debugging LRT/LST DEX pool balance discrepancies
+  - when validating transfer movement into and out of tracked DEX pools
+  - when inspecting daily net token movement for pool-held assets
+  - when investigating inputs to the LRT/LST pool balances dataset
+do_not_use_when:
+  - when the user wants the main LRT/LST liquidity table; use dune.ether_fi.result_lrts_restaking_dex_pools_balances
+  - when the user wants pool metadata; use dune.ether_fi.result_lrts_restaking_dex_pools
+  - when the user wants DEX trade volume; use dune.ether_fi.result_lrts_restaking_trades
+important_filters:
+  - block_date for the daily transfer aggregation date
+  - address for the tracked DEX pool address
+  - token_address or token_symbol for the transferred asset
+  - blockchain for chain-specific transfer movement
+important_columns:
+  - block_date: day of the aggregated transfer movement
+  - address: DEX pool address
+  - token_address: token address for the transferred asset
+  - token_symbol: token symbol for the transferred asset
+  - amount: daily net token amount transferred for the pool/token combination
+  - last_updated: freshness timestamp column for this dataset
+query_notes:
+  - This table is generally not the main table analysts should use for LRT/LST liquidity. For liquidity analysis, use dune.ether_fi.result_lrts_restaking_dex_pools_balances.
+  - The `amount` field is a daily net amount; positive values represent net inflow and negative values represent net outflow.
+  - This transfer table is best treated as a debugging or intermediate source for the balance-building logic.
+semantic_notes:
+  - This table is a simplified daily net-transfer aggregate for tracked DEX pool addresses.
+  - It is part of the balance-building logic, but it is not sufficient on its own to reconstruct the final LRT/LST pool balances dataset.
+  - The balances dataset combines transfer-derived movement with daily balance logic.
+caveats:
+  - This is an intermediate/supporting dataset, not the preferred end-user table for LRT/LST pool liquidity analysis.
+  - It is useful for debugging pool balance discrepancies or validating transfer movement into and out of tracked DEX pools.
+  - It cannot fully reconstruct dune.ether_fi.result_lrts_restaking_dex_pools_balances by itself because the balances table also depends on daily balance logic.
+  - The `amount` field is a net daily amount for the pool/token combination.
+  - Use `last_updated` as the dataset freshness signal.
+schema:
+  - name: block_date
+    type: date
+    description: Day of the aggregated transfer movement.
+  - name: address
+    type: varbinary
+    description: DEX pool address.
+  - name: token_address
+    type: varbinary
+    description: Token address for the transferred asset.
+  - name: token_symbol
+    type: varchar
+    description: Token symbol for the transferred asset.
+  - name: blockchain
+    type: varchar
+    description: Blockchain where the transfer activity occurred.
+  - name: amount
+    type: double
+    description: Daily net token amount transferred for the pool/token combination. Positive values represent net inflow and negative values represent net outflow.
+  - name: last_updated
+    type: timestamp
+    description: Freshness timestamp column for this dataset.
+example_user_intents:
+  - Debug why a tracked DEX pool balance changed.
+  - Show daily net token movement for a pool address.
+  - Validate transfer movements behind LRT/LST pool balances.
+  - Inspect net inflows and outflows for pool-held assets.
+search_keywords:
+  - lrt pool transfers
+  - lst pool transfers
+  - dex pool transfer movement
+  - net pool transfers
+  - pool balance debugging
+  - restaking liquidity transfers
+  - pool-held assets
+related_datasets:
+  - dune.ether_fi.result_lrts_restaking_dex_pools
+  - dune.ether_fi.result_lrts_restaking_dex_pools_balances
+  - dune.ether_fi.result_lrts_restaking_trades
+related_dashboards: []

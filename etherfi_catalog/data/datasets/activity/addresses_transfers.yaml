@@ -1,0 +1,102 @@
+name: addresses_transfers
+aliases:
+  - address transfers
+  - etherfi address transfers
+  - query_6901789
+table_name: query_6901789
+display_name: Addresses Transfers
+description: This is the main user-facing daily net token transfers dataset for ether.fi-related addresses.
+refresh_interval_minutes: 60
+freshness_timestamp_column: last_updated
+source_query_id: 6901789
+source_query_url: https://dune.com/queries/6901789
+freshness_source_name: Addresses Transfers
+query_ready: true
+grain: one row per day, address, token address, token symbol, and blockchain
+business_meaning:
+  - This table aggregates daily net token movements by address, token, and blockchain for the curated ether.fi address list.
+  - It is a core building block for downstream datasets such as Assets Under Management and other address/token balance-style analytics.
+use_when:
+  - when the user wants daily net token transfers for ether.fi-related addresses across supported blockchains
+  - when building address-level token balance-style analytics from net transfer movement
+  - when analyzing net inflows and outflows for addresses in the curated ether.fi address list
+  - when looking for the preferred public/querying surface for ether.fi address-level transfers
+do_not_use_when:
+  - when debugging the slower scheduled daily baseline layer; use addresses_transfers_daily
+  - when debugging the hourly recent-transfer layer; use addresses_transfers_hourly
+  - when debugging the intermediate transfer layer; use addresses_transfers_intermediate
+important_filters:
+  - block_date for daily movement windows
+  - address for tracked ether.fi-related address analysis
+  - token_address or token_symbol for asset-specific movement
+  - blockchain for chain-specific transfer activity
+important_columns:
+  - block_date: day of the net transfer movement
+  - address: tracked ether.fi-related address
+  - token_address: token address for the transferred asset
+  - token_symbol: token symbol for the transferred asset
+  - blockchain: blockchain where the transfer activity occurred
+  - amount: daily net token amount for the address/token/blockchain combination
+query_notes:
+  - "This table name is intentionally `query_6901789`; on Dune it should be queried as `select * from query_6901789`."
+  - This is the main table users should query for ether.fi address-level daily net transfers.
+  - It is built from a cost/freshness-aware combination of daily, intermediate, hourly, and live-query logic.
+  - It aggregates net token transfers for addresses from dune.ether_fi.result_addresses_addresses_list.
+semantic_notes:
+  - This is the preferred public/querying surface, while the daily, hourly, and intermediate tables are supporting sub-tables.
+  - Because it is a net-transfer aggregate, positive `amount` means net inflow and negative `amount` means net outflow for that address/token/day.
+  - Downstream datasets such as dune.ether_fi.result_etherfi_assets_under_management depend on this transfer logic.
+caveats:
+  - This is a net-transfer aggregate, not a raw transfer log table.
+  - Supporting sub-tables exist for cost/freshness-aware construction and pipeline debugging, but normal analysis should start here.
+  - The output is a saved query result exposed as query_6901789 rather than a materialized-view table.
+schema:
+  - name: block_date
+    type: timestamp
+    description: Day of the net transfer movement.
+  - name: address
+    type: varbinary
+    description: Tracked ether.fi-related address.
+  - name: token_address
+    type: varbinary
+    description: Token address for the transferred asset.
+  - name: token_symbol
+    type: varchar
+    description: Token symbol for the transferred asset.
+  - name: blockchain
+    type: varchar
+    description: Blockchain where the transfer activity occurred.
+  - name: amount
+    type: double
+    description: Daily net token amount for the address/token/blockchain combination. Positive values represent net inflow and negative values represent net outflow.
+  - name: last_updated
+    type: timestamp
+    description: Freshness timestamp column for this dataset.
+live_query:
+  query_id: 7576959
+  query_url: https://dune.com/queries/7576959
+  table_name: query_7576959
+  defaults_to_table_name: true
+  notes:
+    - This live query is used for the freshest `addresses_transfers` data path.
+    - The table name intentionally uses `query_7576959` because this output is queried as a saved query result rather than a materialized view.
+    - The main `addresses_transfers` dataset combines scheduled transfer layers with fresher recent transfer logic.
+example_user_intents:
+  - Show daily net transfers for an ether.fi address.
+  - Which tokens had net inflows for tracked ether.fi addresses yesterday?
+  - Build address-level balances from net transfer movement.
+  - Find daily net USDC movement for tracked ether.fi addresses.
+search_keywords:
+  - address transfers
+  - daily net transfers
+  - net token movement
+  - etherfi address list
+  - transfer pipeline
+  - query_6901789
+related_datasets:
+  - addresses_transfers_daily
+  - addresses_transfers_hourly
+  - addresses_transfers_intermediate
+  - addresses_list
+  - dune.ether_fi.result_etherfi_assets_under_management
+related_dashboards: []

@@ -5,9 +5,9 @@ steps = [
 ]
 
 [mcp_servers.etherfi-catalog]
-command = "/Users/henrystats/etherfi-data-catalog/.venv/bin/python"
-args = ["-m", "src.server"]
-cwd = "/Users/henrystats/etherfi-data-catalog"
+command = "/Users/henrystats/etherfi-data-catalog-clean/.venv/bin/python"
+args = ["-m", "etherfi_catalog.server"]
+cwd = "/Users/henrystats/etherfi-data-catalog-clean"
 enabled = true
 startup_timeout_sec = 20
 tool_timeout_sec = 60

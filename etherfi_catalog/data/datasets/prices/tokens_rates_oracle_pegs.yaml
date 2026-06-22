@@ -1,0 +1,96 @@
+name: dune.ether_fi.result_tokens_rates_oracle_pegs
+display_name: Tokens Exchange Rates
+description: Main token-to-underlying exchange-rate table from onchain events, oracles, and protocol logic; the oracle pegs name is historical and this is not a USD price table.
+refresh_interval_minutes: 240
+freshness_timestamp_column: last_updated
+source_query_id: 5849669
+source_query_url: https://dune.com/queries/5849669
+freshness_source_name: Tokens Exchange Rates
+table_name: dune.ether_fi.result_tokens_rates_oracle_pegs
+query_ready: true
+query_patterns:
+  - token underlying exchange rates
+  - oracle and protocol exchange rates
+  - forward-fill token rates by block or time
+grain: one row per token exchange-rate update event or effective interval
+refresh cadence: every 4 hours
+accuracy label: high
+completeness label: partial
+use_when:
+  - when the user needs token-to-underlying exchange rates
+  - when calculating underlying value for tokens such as weETH-like assets
+  - when tracing the exchange-rate source used by enriched price calculations
+do_not_use_when:
+  - when the user wants USD token prices
+  - when the user wants a simple daily price table
+important_columns:
+  - token_address: token contract address
+  - token_symbol: token symbol
+  - token_blockchain: chain where the token address is interpreted
+  - underlying_asset_address: underlying asset contract address
+  - underlying_asset_symbol: symbol of the underlying asset
+  - exchange_rate: token-to-underlying exchange rate
+  - block_time: timestamp for the exchange-rate update
+  - block_number: block number for the exchange-rate update
+  - block_day: day of the exchange-rate update
+  - block_number_index: ordering key for rate intervals
+  - next_block_number_index: next interval boundary for forward-filling rates
+  - next_block_time: next time boundary for forward-filling rates
+  - last_updated: timestamp for freshness evaluation
+query_notes:
+  - "Despite the materialized view name, treat this as the main token exchange-rates table."
+  - "Do not describe this dataset as a USD price table."
+  - "Exchange rates do not change often, so downstream logic often needs to fill rates forward over block or time intervals."
+  - "`next_block_number_index` and `next_block_time` exist to support forward-fill interval joins."
+semantic_notes:
+  - The `oracle_pegs` name is historical and imperfect, but it cannot be changed because downstream users already depend on it.
+  - This dataset is necessary for price enrichment and underlying-value calculations.
+  - It captures token-to-underlying exchange-rate semantics, not direct market USD pricing.
+caveats:
+  - A missing recent row does not necessarily mean a rate is stale; exchange rates may be intended to carry forward until the next update.
+  - Prefer the daily exchange-rate table for daily analysis unless block-level interval semantics are needed.
+schema:
+  - name: token_address
+    type: varbinary
+  - name: token_symbol
+    type: varchar
+  - name: token_blockchain
+    type: varchar
+  - name: token_decimals
+    type: integer
+  - name: block_time
+    type: timestamp
+  - name: block_number
+    type: bigint
+  - name: block_day
+    type: timestamp
+  - name: tx_hash
+    type: varbinary
+  - name: tx_index
+    type: integer
+  - name: underlying_asset_address
+    type: varbinary
+  - name: underlying_asset_symbol
+    type: varchar
+  - name: exchange_rate
+    type: double
+  - name: block_number_index
+    type: double
+  - name: next_block_number_index
+    type: double
+  - name: next_block_time
+    type: timestamp
+  - name: last_updated
+    type: timestamp
+related_datasets:
+  - dune.ether_fi.result_tokens_exchange_rates_daily
+  - dune.ether_fi.result_tokens_prices_enriched_minute
+  - dune.ether_fi.result_tokens_prices_enriched_daily
+search_keywords:
+  - exchange rates
+  - underlying asset
+  - oracle pegs
+  - token_underlying_rate
+  - forward fill
+related_dashboards:
+  - etherfi_overview

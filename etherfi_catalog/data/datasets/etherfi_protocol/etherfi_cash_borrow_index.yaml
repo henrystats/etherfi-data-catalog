@@ -1,0 +1,76 @@
+name: dune.ether_fi.result_etherfi_cash_borrow_index
+aliases:
+  - result_etherfi_cash_borrow_index
+  - etherfi_cash_borrow_index
+  - cash borrow index
+  - ether.fi cash borrow index
+  - ether.fi cash debt index
+display_name: Ether.fi Cash Borrow Index
+description: Dataset used for ether.fi cash borrow index analytics
+refresh_interval_minutes: 60
+freshness_timestamp_column: last_updated
+source_query_id: 6914697
+source_query_url: https://dune.com/queries/6914697
+freshness_source_name: ether.fi Cash Borrow Index
+grain: one row per borrow index update event
+business_meaning:
+  - This dataset tracks borrow index updates for ether.fi Cash borrow accounting.
+  - It is useful for understanding how the Cash borrowing index evolves across update events for a token.
+important_filters:
+  - token_symbol or token_address when isolating one borrow market
+  - block_date when narrowing to a time range
+  - tx_hash when investigating one specific update transaction
+important_columns:
+  - block_date: date of the borrow index update event
+  - borrow_index: borrow index value applied at that update point
+  - token_address: token market whose borrow index is being updated
+  - token_symbol: shorthand token label for the borrow index market
+  - block_number: chain ordering field for the update
+  - block_number_index: sub-ordering field when multiple updates occur around the same block
+  - tx_hash: transaction that emitted the update
+query_notes:
+  - Use this dataset for borrow index mechanics, not for Cash balances or Cash activity counts.
+  - Join conceptually with Cash events when analyzing borrowing behavior over time.
+semantic_notes:
+  - This is an index-update table, not a user-safe classification table.
+  - To identify Cash safes or Cash-related addresses, use `dune.ether_fi.result_etherfi_addresses` where `name = 'CASH'`.
+  - To analyze balances for Cash addresses, use `dune.ether_fi.result_etherfi_assets_under_management` where `address_name = 'CASH'`.
+caveats:
+  - Borrow index values are accounting state, so they should not be interpreted as user balances by themselves.
+  - This table is event-like and may need ordering by block and transaction fields to reconstruct state transitions.
+schema:
+  - name: block_date
+    type: date
+  - name: block_number
+    type: bigint
+  - name: block_number_index
+    type: integer
+  - name: borrow_index
+    type: double
+  - name: last_updated
+    type: timestamp
+  - name: next_block_number
+    type: bigint
+  - name: next_block_number_index
+    type: integer
+  - name: token_address
+    type: varbinary
+  - name: token_symbol
+    type: varchar
+  - name: tx_hash
+    type: varbinary
+  - name: tx_index
+    type: integer
+example_user_intents:
+  - How has the ether.fi Cash borrow index changed over time?
+  - What borrow index updates happened for liquidUSD?
+  - Which transaction updated the Cash borrow index on a given day?
+search_keywords:
+  - cash borrow
+  - borrow index
+  - cash debt index
+  - ether.fi cash debt index
+  - ether.fi cash rates
+  - cash interest accounting
+related_dashboards:
+  - etherfi_overview

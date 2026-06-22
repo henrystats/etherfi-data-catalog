@@ -168,7 +168,7 @@ def start_local_server(host: str, port: int) -> subprocess.Popen:
     command = [
         sys.executable,
         "-m",
-        "src.server",
+        "etherfi_catalog.server",
         "--transport",
         "streamable-http",
         "--host",

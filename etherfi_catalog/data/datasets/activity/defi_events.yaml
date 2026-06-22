@@ -1,0 +1,11 @@
+name: dune.ether_fi.result_defi_events
+display_name: DeFi Events
+description: Activity dataset for DeFi events
+refresh_interval_minutes: 720
+freshness_timestamp_column: last_updated
+source_query_id: 6140936
+source_query_url: https://dune.com/queries/6140936
+freshness_source_name: DeFi Events
+hide_from_dataset_index: true
+hide_from_dataset_search: true
+related_dashboards: []

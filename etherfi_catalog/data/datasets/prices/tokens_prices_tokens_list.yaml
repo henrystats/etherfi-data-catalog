@@ -1,0 +1,62 @@
+name: dune.ether_fi.result_tokens_prices_tokens_list
+display_name: Tokens Prices Token List
+description: Token universe that ether.fi price tables attempt to cover, used to diagnose missing direct or enriched price coverage.
+refresh_interval_minutes: 1440
+freshness_timestamp_column: last_updated
+source_query_id: 6258625
+source_query_url: https://dune.com/queries/6258625
+freshness_source_name: Tokens Prices Token List
+table_name: dune.ether_fi.result_tokens_prices_tokens_list
+query_ready: true
+query_patterns:
+  - price token universe
+  - missing price coverage diagnostics
+  - check whether a token is in the ether.fi price list
+grain: one row per token address and blockchain in the ether.fi price universe
+refresh cadence: daily
+accuracy label: high
+completeness label: partial
+use_when:
+  - when diagnosing why a token is missing from price outputs
+  - when checking whether a token is in the ether.fi-relevant pricing universe
+  - when tracing the token universe behind raw and enriched price tables
+do_not_use_when:
+  - when the user wants actual USD prices or exchange rates
+  - when the user wants a guarantee that every listed token has a direct or enriched price
+important_columns:
+  - token_address: token contract address included in the price universe
+  - blockchain: chain where the token address is interpreted
+  - last_updated: timestamp for freshness evaluation
+query_notes:
+  - "If a token has no price in downstream price tables, first check whether it exists in this token list."
+  - "Being present in this list does not guarantee a direct USD feed or an enriched price."
+  - "For missing price diagnostics, check: token-list inclusion, direct USD feed availability, then enrichment or exchange-rate derivation coverage."
+semantic_notes:
+  - This dataset defines the universe of tokens that ether.fi price tables attempt to cover.
+  - It is built from a broad union of ether.fi-relevant token sources.
+  - Sources include `dune.ether_fi.result_addresses_transfers`, `dune.ether_fi.result_lrts_restaking_dex_pools_transfers`, `dune.ether_fi.result_tokens_traits`, `dune.ether_fi.result_lrts_restaking_dex_pools_balances_history`, `dune.veda.result_vaults_events`, and `dune.ether_fi.result_traits_restaking_protocols`.
+  - It also includes a hardcoded Hyperevm placeholder address row.
+caveats:
+  - This is a token universe, not a price table.
+  - It is intentionally wide, but downstream price availability still depends on direct price feeds and enrichment or exchange-rate logic.
+schema:
+  - name: token_address
+    type: varbinary
+  - name: blockchain
+    type: varchar
+  - name: last_updated
+    type: timestamp
+related_datasets:
+  - dune.ether_fi.result_tokens_prices_usd
+  - dune.ether_fi.result_tokens_prices_usd_daily
+  - dune.ether_fi.result_tokens_prices_enriched_minute
+  - dune.ether_fi.result_tokens_prices_enriched_daily
+  - dune.ether_fi.result_tokens_rates_oracle_pegs
+search_keywords:
+  - token universe
+  - missing price
+  - price coverage
+  - direct price feed diagnostics
+  - token list
+related_dashboards:
+  - etherfi_overview

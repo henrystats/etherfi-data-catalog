@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from importlib import resources
 import os
 from pathlib import Path
 import re
@@ -37,6 +38,89 @@ _DASHBOARD_CATEGORY_ORDER = {
     "others": 3,
 }
 
+_DEFAULT_DATASETS_DIR = "datasets"
+_DEFAULT_DASHBOARDS_DIR = "dashboards"
+_DEFAULT_FRESHNESS_REGISTRY_PATH = "status/dataset_freshness.yaml"
+_PACKAGE_DATA_ROOT = resources.files("etherfi_catalog").joinpath("data")
+
+
+def _catalog_data_root() -> Path | resources.abc.Traversable:
+    override = os.getenv("ETHERFI_CATALOG_DATA_DIR")
+    if override:
+        return Path(override)
+    return _PACKAGE_DATA_ROOT
+
+
+def _resolve_catalog_dir(
+    value: str | Path,
+    *,
+    default_value: str,
+    env_var: str,
+    package_subdir: str,
+) -> Path | resources.abc.Traversable:
+    override = os.getenv(env_var)
+    if override:
+        return Path(override)
+
+    path = Path(value)
+    if str(value) != default_value or path.exists():
+        return path
+
+    data_root = _catalog_data_root()
+    return data_root.joinpath(package_subdir)
+
+
+def _resolve_freshness_registry_path(
+    value: str | Path,
+) -> Path | resources.abc.Traversable:
+    freshness_override = os.getenv("ETHERFI_FRESHNESS_PATH")
+    if freshness_override:
+        return Path(freshness_override)
+
+    status_override = os.getenv("ETHERFI_STATUS_DIR")
+    if status_override:
+        return Path(status_override) / Path(value).name
+
+    path = Path(value)
+    if str(value) != _DEFAULT_FRESHNESS_REGISTRY_PATH or path.exists():
+        return path
+
+    data_root = _catalog_data_root()
+    return data_root.joinpath("status", Path(value).name)
+
+
+def _iter_yaml_files(path: Path | resources.abc.Traversable):
+    if isinstance(path, Path):
+        yield from sorted(path.glob("**/*.yaml"))
+        return
+
+    for child in sorted(path.iterdir(), key=lambda item: str(item)):
+        if child.is_dir():
+            yield from _iter_yaml_files(child)
+        elif child.name.endswith(".yaml"):
+            yield child
+
+
+def _iter_child_dirs(path: Path | resources.abc.Traversable):
+    if not _is_dir(path):
+        return
+    yield from sorted(
+        (child for child in path.iterdir() if child.is_dir()),
+        key=lambda item: str(item),
+    )
+
+
+def _is_file(path: Path | resources.abc.Traversable) -> bool:
+    return path.is_file() if hasattr(path, "is_file") else False
+
+
+def _is_dir(path: Path | resources.abc.Traversable) -> bool:
+    return path.is_dir() if hasattr(path, "is_dir") else False
+
+
+def _open_text(path: Path | resources.abc.Traversable):
+    return path.open("r", encoding="utf-8")
+
 
 def _search_terms(text: str) -> list[str]:
     terms: list[str] = []
@@ -51,11 +135,17 @@ def _search_terms(text: str) -> list[str]:
     return terms
 
 
-def load_datasets(datasets_dir: str | Path = "datasets") -> dict[str, dict]:
+def load_datasets(datasets_dir: str | Path = _DEFAULT_DATASETS_DIR) -> dict[str, dict]:
     catalog: dict[str, dict] = {}
+    path = _resolve_catalog_dir(
+        datasets_dir,
+        default_value=_DEFAULT_DATASETS_DIR,
+        env_var="ETHERFI_DATASETS_DIR",
+        package_subdir="datasets",
+    )
 
-    for path in sorted(Path(datasets_dir).glob("**/*.yaml")):
-        with path.open() as f:
+    for dataset_path in _iter_yaml_files(path):
+        with _open_text(dataset_path) as f:
             dataset = yaml.safe_load(f) or {}
 
         name = dataset.get("name")
@@ -73,7 +163,7 @@ def _normalize_dashboard_category(value) -> str:
     return category if category in _DASHBOARD_CATEGORY_ORDER else "others"
 
 
-def _normalize_dashboard_metadata(dashboard: dict, *, source_path: Path, category: str | None = None) -> dict:
+def _normalize_dashboard_metadata(dashboard: dict, *, source_path, category: str | None = None) -> dict:
     normalized = dict(dashboard)
     normalized["category"] = _normalize_dashboard_category(normalized.get("category") or category)
     normalized["tags"] = list(normalized.get("tags") or [])
@@ -95,8 +185,8 @@ def _dashboard_sort_key(dashboard: dict) -> tuple[int, str]:
     )
 
 
-def _load_dashboard_yaml_file(path: Path, *, category: str | None = None) -> list[dict]:
-    with path.open() as f:
+def _load_dashboard_yaml_file(path, *, category: str | None = None) -> list[dict]:
+    with _open_text(path) as f:
         raw = yaml.safe_load(f) or {}
 
     dashboards = raw.get("dashboards") if isinstance(raw, dict) else None
@@ -112,9 +202,14 @@ def _load_dashboard_yaml_file(path: Path, *, category: str | None = None) -> lis
 
 
 def load_dashboard_registry(
-    registry_path: str | Path = "dashboards",
+    registry_path: str | Path = _DEFAULT_DASHBOARDS_DIR,
 ) -> dict:
-    path = Path(registry_path)
+    path = _resolve_catalog_dir(
+        registry_path,
+        default_value=_DEFAULT_DASHBOARDS_DIR,
+        env_var="ETHERFI_DASHBOARDS_DIR",
+        package_subdir="dashboards",
+    )
     dashboards_by_name: dict[str, dict] = {}
 
     def add_dashboard(dashboard: dict) -> None:
@@ -122,17 +217,18 @@ def load_dashboard_registry(
         if name and name not in dashboards_by_name:
             dashboards_by_name[str(name)] = dashboard
 
-    if path.is_dir():
-        for dashboard_path in sorted(path.glob("*/*.yaml")):
-            category = dashboard_path.parent.name
-            for dashboard in _load_dashboard_yaml_file(dashboard_path, category=category):
-                add_dashboard(dashboard)
+    if _is_dir(path):
+        for category_dir in _iter_child_dirs(path):
+            category = category_dir.name
+            for dashboard_path in _iter_yaml_files(category_dir):
+                for dashboard in _load_dashboard_yaml_file(dashboard_path, category=category):
+                    add_dashboard(dashboard)
 
-        legacy_registry_path = path / "registry.yaml"
-        if legacy_registry_path.exists():
+        legacy_registry_path = path.joinpath("registry.yaml")
+        if _is_file(legacy_registry_path):
             for dashboard in _load_dashboard_yaml_file(legacy_registry_path):
                 add_dashboard(dashboard)
-    elif path.exists():
+    elif _is_file(path):
         for dashboard in _load_dashboard_yaml_file(path):
             add_dashboard(dashboard)
 
@@ -140,13 +236,13 @@ def load_dashboard_registry(
 
 
 def load_dataset_freshness_registry(
-    registry_path: str | Path = "status/dataset_freshness.yaml",
+    registry_path: str | Path = _DEFAULT_FRESHNESS_REGISTRY_PATH,
 ) -> dict:
-    path = Path(registry_path)
-    if not path.exists():
+    path = _resolve_freshness_registry_path(registry_path)
+    if not _is_file(path):
         return {}
 
-    with path.open() as f:
+    with _open_text(path) as f:
         registry = yaml.safe_load(f) or {}
 
     return registry

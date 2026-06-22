@@ -5,18 +5,27 @@ plan. It is intentionally limited to deployment hygiene and planning. The MCP
 server runs locally over stdio by default, and can also be started in local
 Streamable HTTP mode for remote-transport testing.
 
-## Current runtime
-
-The MCP server lives in `src/server.py` and is registered as a FastMCP server:
+The recommended teammate onboarding path is local stdio install via `uvx`:
 
 ```bash
-.venv/bin/python -m src.server
+uvx --from git+https://github.com/henrystats/etherfi-data-catalog etherfi-catalog-mcp
+```
+
+Docker and Cloud Run are advanced/private staging paths, not the default team
+setup.
+
+## Current runtime
+
+The MCP server lives in `etherfi_catalog/server.py` and is registered as a FastMCP server:
+
+```bash
+etherfi-catalog-mcp
 ```
 
 The default transport is stdio:
 
 ```bash
-.venv/bin/python -m src.server
+etherfi-catalog-mcp
 ```
 
 That means a local MCP client must spawn the server process directly. This is
@@ -26,7 +35,7 @@ clients that support subprocess/stdio servers.
 For local Streamable HTTP testing, run:
 
 ```bash
-.venv/bin/python -m src.server --transport streamable-http --host 127.0.0.1 --port 8001
+etherfi-catalog-mcp --transport streamable-http --host 127.0.0.1 --port 8001
 ```
 
 The local MCP endpoint is:
@@ -38,7 +47,7 @@ http://127.0.0.1:8001/mcp
 You can also use environment variables for local testing:
 
 ```bash
-MCP_TRANSPORT=streamable-http MCP_HOST=127.0.0.1 MCP_PORT=8001 .venv/bin/python -m src.server
+MCP_TRANSPORT=streamable-http MCP_HOST=127.0.0.1 MCP_PORT=8001 etherfi-catalog-mcp
 ```
 
 CLI arguments take priority over environment variables. HTTP mode defaults to
@@ -64,17 +73,17 @@ Run tests:
 Start the local stdio MCP server:
 
 ```bash
-.venv/bin/python -m src.server
+etherfi-catalog-mcp
 ```
 
 For Codex/local clients, configure the client to run that command from the repo
-root. The server reads catalog metadata from local repo files such as
-`datasets/`, `dashboards/`, and `status/dataset_freshness.yaml`.
+root during development. Installed package runs load bundled dataset/dashboard
+metadata by default.
 
 Start the local Streamable HTTP server for transport testing:
 
 ```bash
-.venv/bin/python -m src.server --transport streamable-http --host 127.0.0.1 --port 8001
+etherfi-catalog-mcp --transport streamable-http --host 127.0.0.1 --port 8001
 ```
 
 The Streamable HTTP path is `/mcp`.
@@ -88,7 +97,7 @@ session flow.
 To start the server manually:
 
 ```bash
-.venv/bin/python -m src.server --transport streamable-http --host 127.0.0.1 --port 8001
+etherfi-catalog-mcp --transport streamable-http --host 127.0.0.1 --port 8001
 ```
 
 In another terminal, verify the MCP handshake, tool listing, and a metadata-only

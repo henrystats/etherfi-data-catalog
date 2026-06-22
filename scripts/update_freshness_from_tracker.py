@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from src.catalog import load_datasets
+from etherfi_catalog.catalog import load_datasets
 
 
 QUERY_ID_PATTERN = re.compile(r"queries/(\d+)")

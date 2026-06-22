@@ -28,6 +28,136 @@ Intended orchestration flow:
 
 Keep the boundary explicit: `etherfi-catalog` is the semantic catalog and planning layer; Dune MCP is the execution and visualization layer. The catalog should not become a general-purpose Dune client.
 
+### Recommended local install
+
+The recommended team path is a local stdio MCP install. Each teammate installs
+Dune MCP separately, installs the ether.fi Catalog MCP from GitHub, and uses
+their own local Dune credentials.
+
+Recommended ether.fi Catalog MCP command:
+
+```bash
+uvx --from git+https://github.com/henrystats/etherfi-data-catalog etherfi-catalog-mcp
+```
+
+Tagged releases can be installed with:
+
+```bash
+uvx --from git+https://github.com/henrystats/etherfi-data-catalog@v0.1.0 etherfi-catalog-mcp
+```
+
+Fallback with `pipx`:
+
+```bash
+pipx run --spec git+https://github.com/henrystats/etherfi-data-catalog etherfi-catalog-mcp
+```
+
+Local development from a clone still works:
+
+```bash
+.venv/bin/python -m etherfi_catalog.server
+```
+
+The server defaults to stdio. Streamable HTTP remains available for local
+transport testing or advanced private staging:
+
+```bash
+etherfi-catalog-mcp --transport streamable-http --host 127.0.0.1 --port 8001
+```
+
+Installed runs load bundled catalog metadata from the package. Local repo runs
+still prefer the top-level `datasets/`, `dashboards/`, and
+`status/dataset_freshness.yaml` files when they exist. Advanced users can point
+the runtime at external metadata with:
+
+- `ETHERFI_CATALOG_DATA_DIR`
+- `ETHERFI_DATASETS_DIR`
+- `ETHERFI_DASHBOARDS_DIR`
+- `ETHERFI_STATUS_DIR`
+- `ETHERFI_FRESHNESS_PATH`
+
+### MCP client config snippets
+
+Use the current official Dune MCP install command for the `dune` entry. The
+placeholder below shows where a local API key belongs when API-key auth is used;
+browser-capable clients may use Dune MCP OAuth instead.
+
+Claude Desktop / Claude-style JSON:
+
+```json
+{
+  "mcpServers": {
+    "dune": {
+      "command": "<official-dune-mcp-command>",
+      "args": ["<official-dune-mcp-args>"],
+      "env": {
+        "DUNE_API_KEY": "your_dune_api_key_here"
+      }
+    },
+    "etherfi-catalog": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/henrystats/etherfi-data-catalog",
+        "etherfi-catalog-mcp"
+      ],
+      "env": {
+        "DUNE_API_KEY": "your_dune_api_key_here"
+      }
+    }
+  }
+}
+```
+
+Codex TOML:
+
+```toml
+[mcp_servers.dune]
+command = "<official-dune-mcp-command>"
+args = ["<official-dune-mcp-args>"]
+tool_timeout_sec = 300
+
+[mcp_servers.dune.env]
+DUNE_API_KEY = "your_dune_api_key_here"
+
+[mcp_servers.etherfi-catalog]
+command = "uvx"
+args = [
+  "--from",
+  "git+https://github.com/henrystats/etherfi-data-catalog",
+  "etherfi-catalog-mcp",
+]
+startup_timeout_sec = 30
+tool_timeout_sec = 60
+
+[mcp_servers.etherfi-catalog.env]
+DUNE_API_KEY = "your_dune_api_key_here"
+```
+
+Generic stdio MCP shape:
+
+```json
+{
+  "name": "etherfi-catalog",
+  "transport": "stdio",
+  "command": "uvx",
+  "args": [
+    "--from",
+    "git+https://github.com/henrystats/etherfi-data-catalog",
+    "etherfi-catalog-mcp"
+  ],
+  "env": {
+    "DUNE_API_KEY": "your_dune_api_key_here"
+  }
+}
+```
+
+Metadata, discovery, freshness, dashboard lookup, and query-planning tools work
+without `DUNE_API_KEY`. Live ether.fi tools require `DUNE_API_KEY` only when the
+caller sets `execute_live=true`, and those live calls may consume Dune credits.
+Do not embed a team/shared key in package config; each user should provide their
+own key locally.
+
 ### Agent workflow quick start
 
 For the practical routing guide and onboarding examples, see [`docs/agent_workflow.md`](docs/agent_workflow.md).
@@ -199,7 +329,7 @@ Historical and range-style planning should still prefer the baseline materialize
 
 For local development, install the project with `pip install -e .[dev]`.
 
-To run the local MCP server over stdio, use `.venv/bin/python -m src.server`.
+To run the local MCP server over stdio after installing the package, use `etherfi-catalog-mcp`.
 
 Dashboard search is now also available through the MCP server.
 Dashboard search can now also surface linked dataset freshness warnings through the MCP server.
@@ -281,7 +411,10 @@ Price token discovery is available through `find_price_tokens(token_symbol=None,
 Symbol-based token price lookup is available through `get_token_price_by_symbol(token_symbol, blockchain=None, token_project=None, as_of_timestamp=None, granularity="minute", execute_live=false)`.
 Token price coverage diagnostics are available through `diagnose_token_price_coverage(token_address, blockchain=None, execute_live=false)`.
 
-For Codex, point the MCP config at `.venv/bin/python -m src.server`. If discovery is working, the server should appear as `etherfi-catalog` with these tools:
+For Codex, point the MCP config at the `uvx` command shown above. For local
+development from a clone, `.venv/bin/python -m etherfi_catalog.server` also
+works. If discovery is working, the server should appear as `etherfi-catalog`
+with these tools:
 
 - `search_datasets`
 - `search_dashboards`

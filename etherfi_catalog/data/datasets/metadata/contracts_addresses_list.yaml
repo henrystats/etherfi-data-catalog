@@ -1,0 +1,72 @@
+name: contracts_addresses_list
+aliases:
+  - dune.ether_fi.result_contracts_addresses_list
+  - result_contracts_addresses_list
+  - contract addresses list
+  - contracts address registry
+table_name: dune.ether_fi.result_contracts_addresses_list
+display_name: Contracts Addresses List
+description: This dataset contains the curated list of contract addresses and event topics used by the ether.fi contract logs/traces extraction pipeline.
+refresh_interval_minutes: 1440
+freshness_timestamp_column: last_updated
+source_query_id: 6089538
+source_query_url: https://dune.com/queries/6089538
+freshness_source_name: Contracts Addresses List
+grain: one row per tracked contract address, blockchain, and event topic/protocol classification entry
+business_meaning:
+  - This table includes ether.fi-related contracts and selected DeFi contracts where logs or traces are useful for downstream analytics.
+  - It defines which contracts and event topics are included in the reusable contracts_logs and contracts_traces datasets.
+  - It acts as the input registry for contract-level extraction and helps keep downstream analytics consistent without repeatedly maintaining contract lists in many queries.
+use_when:
+  - when the user needs the contract registry behind reusable logs and traces extraction
+  - when checking whether a contract or event topic is included in contract activity outputs
+  - when explaining the coverage scope behind contracts_logs or contracts_traces
+do_not_use_when:
+  - when the user wants emitted event log rows; use contracts_logs
+  - when the user wants trace/call rows; use contracts_traces
+important_columns:
+  - contract_address: tracked contract address
+  - blockchain: blockchain where the contract is deployed
+  - topic0: event signature topic to track for this contract, when relevant for logs extraction
+  - protocol: name of the protocol or product the contract address is associated with
+  - last_updated: freshness timestamp column for this dataset
+query_notes:
+  - Some rows may be used for logs extraction through `topic0`, while traces may only need the contract address.
+semantic_notes:
+  - This is a curated contract registry, not a universal list of all ether.fi or DeFi contracts.
+  - contracts_logs and contracts_traces depend on this table for the contracts and events they track.
+  - If a contract or topic is not present here, it will generally not appear in the downstream contract logs/traces datasets.
+caveats:
+  - This is a curated contract registry, not a universal list of all ether.fi or DeFi contracts.
+  - Some rows may be used for logs extraction through `topic0`, while traces may only need the contract address.
+  - Use `last_updated` as the dataset freshness signal.
+schema:
+  - name: contract_address
+    type: varbinary
+    description: Tracked contract address.
+  - name: blockchain
+    type: varchar
+    description: Blockchain where the contract is deployed.
+  - name: topic0
+    type: varbinary
+    description: Event signature topic to track for this contract, when relevant for logs extraction.
+  - name: protocol
+    type: varchar
+    description: Name of the protocol or product the contract address is associated with.
+  - name: last_updated
+    type: timestamp
+    description: Freshness timestamp column for this dataset.
+example_user_intents:
+  - Which contracts feed the reusable contract logs table?
+  - Check whether a contract is included in the contract traces pipeline.
+  - What event topics are tracked for contract log extraction?
+search_keywords:
+  - contract registry
+  - contracts address list
+  - topic0 registry
+  - tracked contracts
+  - contract extraction scope
+related_datasets:
+  - contracts_logs
+  - contracts_traces
+related_dashboards: []

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import yaml
 
-from src.catalog import plan_etherfi_query
+from etherfi_catalog.catalog import plan_etherfi_query
 
 
 FIXTURE_PATH = Path("tests/fixtures/orchestration_prompt_regressions.yaml")

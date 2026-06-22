@@ -1,0 +1,66 @@
+name: tokens_weth_transfers
+aliases:
+  - token_weth_tfers
+  - tokens_weth_tfers
+  - dune.ether_fi.result_tokens_weth_tfers
+  - result_tokens_weth_tfers
+  - weth token transfers
+table_name: dune.ether_fi.result_tokens_weth_tfers
+display_name: Tokens WETH Transfers
+description: This is the WETH-specific transfer layer used by the tracked token transfer pipeline.
+refresh_interval_minutes: 60
+freshness_timestamp_column: last_updated
+source_query_id: 6226918
+source_query_url: https://dune.com/queries/6226918
+freshness_source_name: Tokens WETH Transfers
+is_subtable: true
+parent_dataset: tokens_transfers
+hide_from_dataset_index: true
+hide_from_dataset_search: true
+grain: one row per day, address, token address, token symbol, and blockchain
+business_meaning:
+  - This table uses WETH-specific decoded tables on Dune where possible to reduce query cost and avoid rebuilding expensive generic transfer logic for WETH.
+  - It supports the main tokens_transfers dataset by providing WETH transfer movements in a more cost-efficient way.
+use_when:
+  - when debugging the WETH-specific transfer layer behind tokens_transfers
+  - when validating WETH transfer movement in the tracked token transfer pipeline
+do_not_use_when:
+  - when the user wants normal tracked token-level daily net transfers; use tokens_transfers
+important_columns:
+  - block_date: day of the net transfer movement
+  - address: address with net token transfer activity for the tracked token
+  - token_address: token address for the transferred asset
+  - token_symbol: token symbol for the transferred asset
+  - blockchain: blockchain where the transfer activity occurred
+  - amount: daily net token amount for the address/token/blockchain combination
+  - last_updated: freshness timestamp column for this dataset
+semantic_notes:
+  - This is mainly a pipeline/supporting table, not the primary dataset users should query for token transfer analysis.
+caveats:
+  - This sub-table should not normally be queried directly by team members unless debugging or validating the transfer pipeline.
+  - Use `last_updated` as the dataset freshness signal.
+schema:
+  - name: block_date
+    type: date
+    description: Day of the net transfer movement.
+  - name: address
+    type: varbinary
+    description: Address with net token transfer activity for the tracked token.
+  - name: token_address
+    type: varbinary
+    description: Token address for the transferred asset.
+  - name: token_symbol
+    type: varchar
+    description: Token symbol for the transferred asset.
+  - name: blockchain
+    type: varchar
+    description: Blockchain where the transfer activity occurred.
+  - name: amount
+    type: double
+    description: Daily net token amount for the address/token/blockchain combination. Positive values represent net inflow and negative values represent net outflow.
+  - name: last_updated
+    type: timestamp
+    description: Freshness timestamp column for this dataset.
+related_datasets:
+  - tokens_transfers
+related_dashboards: []

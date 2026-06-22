@@ -560,7 +560,7 @@ def load_freshness_registry(registry_path: Path = DEFAULT_FRESHNESS_REGISTRY) ->
     return yaml.safe_load(registry_path.read_text(encoding="utf-8")) or {}
 
 
-def count_mcp_tools(server_path: Path = ROOT / "src" / "server.py") -> int:
+def count_mcp_tools(server_path: Path = ROOT / "etherfi_catalog" / "server.py") -> int:
     server_path = Path(server_path)
     if not server_path.exists():
         return 0
@@ -578,7 +578,7 @@ def mcp_tool_name_from_decorator(decorator: ast.expr) -> str | None:
     return None
 
 
-def extract_mcp_tools(server_path: Path = ROOT / "src" / "server.py") -> dict[str, MCPToolInfo]:
+def extract_mcp_tools(server_path: Path = ROOT / "etherfi_catalog" / "server.py") -> dict[str, MCPToolInfo]:
     """Read the local MCP server and return the tools currently registered there."""
     server_path = Path(server_path)
     if not server_path.exists():
@@ -1167,7 +1167,7 @@ def render_mcp_page(tools: dict[str, MCPToolInfo] | None = None) -> str:
         '<div>'
         '<p class="eyebrow">Semantic agent layer</p>'
         "<h1>ether.fi Catalog MCP</h1>"
-        '<p class="page-lead">Connect AI agents to ether.fi&rsquo;s dataset catalog, dashboard registry, freshness status, and selected live Dune-backed tools.</p>'
+        '<p class="page-lead">Install a local stdio MCP that helps AI agents use ether.fi&rsquo;s dataset catalog, dashboard registry, freshness status, and Dune query-planning context.</p>'
         '<div class="mcp-action-row">'
         '<a class="button primary" href="datasets.html">Explore datasets</a>'
         '<a class="button secondary" href="dashboards.html">View dashboards</a>'
@@ -1235,19 +1235,19 @@ def render_mcp_page(tools: dict[str, MCPToolInfo] | None = None) -> str:
         '<section class="mcp-section detail-panel">'
         '<div class="mcp-section-heading compact">'
         "<h2>Today vs later</h2>"
-        "<p>Today, the MCP is strongest for metadata discovery, freshness/status, query planning, and scoped live answers. Later, deployment packaging and client-specific install docs can be made explicit.</p>"
+        "<p>Local stdio install is the recommended team path. Docker and Cloud Run remain advanced options for private staging, demos, and future remote deployments.</p>"
         "</div>"
         "</section>"
         '<section class="mcp-section detail-panel">'
         '<div class="mcp-section-heading">'
         "<h2>Setup</h2>"
-        "<p>Deployment instructions coming soon. These placeholders keep the page ready for final client-specific setup docs.</p>"
+        "<p>Recommended setup is local stdio via <code>uvx</code>. Install Dune MCP separately for execution workflows, and use your own Dune credentials locally.</p>"
         "</div>"
         '<div class="mcp-setup-grid">'
-        '<article><strong>Claude Desktop</strong><p>Coming soon.</p></article>'
-        '<article><strong>Codex</strong><p>Coming soon.</p></article>'
-        '<article><strong>ChatGPT / MCP-compatible clients</strong><p>Coming soon.</p></article>'
-        '<article><strong>Local development</strong><p>The server runs from this repo with <code>.venv/bin/python -m src.server</code>. Live tools require <code>DUNE_API_KEY</code>. The website is generated from repo metadata.</p></article>'
+        '<article><strong>Recommended install</strong><p><code>uvx --from git+https://github.com/henrystats/etherfi-data-catalog etherfi-catalog-mcp</code></p></article>'
+        '<article><strong>Claude Desktop</strong><p>Add Dune MCP and ether.fi Catalog MCP as local stdio servers. Use <code>DUNE_API_KEY=your_dune_api_key_here</code> only as a local placeholder.</p></article>'
+        '<article><strong>Codex</strong><p>Configure <code>command = "uvx"</code> with the GitHub <code>--from</code> args, plus your local Dune MCP server.</p></article>'
+        '<article><strong>Advanced deployment</strong><p>Cloud Run and Docker are optional/private staging paths, not the default team setup.</p></article>'
         "</div>"
         "</section>"
         '<section class="mcp-section detail-panel">'

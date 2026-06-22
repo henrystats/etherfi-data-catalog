@@ -1,0 +1,118 @@
+name: contracts_logs
+aliases:
+  - dune.ether_fi.result_contracts_logs
+  - result_contracts_logs
+  - contract logs
+table_name: dune.ether_fi.result_contracts_logs
+display_name: Contracts Logs
+description: This dataset contains decoded/raw EVM log records for the curated set of ether.fi-related and relevant DeFi contracts tracked by the catalog.
+refresh_interval_minutes: 360
+freshness_timestamp_column: last_updated
+source_query_id: 6090018
+source_query_url: https://dune.com/queries/6090018
+freshness_source_name: Contracts Logs
+query_ready: true
+grain: one row per emitted contract log/event matching a tracked contract address and topic on a supported blockchain
+business_meaning:
+  - This table captures event topics, raw event data, transaction hashes, block metadata, and sender information for contract events that are useful to ether.fi analytics.
+  - It is used as a reusable contract-log extraction layer for downstream analytics so queries do not repeatedly scan raw chain logs for the same ether.fi and DeFi contract/event combinations.
+  - It is especially important for datasets that derive exchange rates, oracle/rate updates, protocol events, and other contract-event-driven metrics.
+use_when:
+  - when the user needs reusable contract log/event records for tracked ether.fi and relevant DeFi contracts
+  - when downstream logic needs event topics, raw event data, or event transaction context
+  - when analyzing oracle, exchange-rate, protocol-event, or contract-event-driven metrics
+do_not_use_when:
+  - when the user needs universal chain logs; this table only covers curated tracked contracts and topics
+  - when the user needs trace/call payloads rather than emitted event logs; use contracts_traces
+important_filters:
+  - blockchain for chain-specific log/event activity
+  - contract_address for a tracked emitting contract
+  - topic0 for event signature filtering
+  - block_time or block_date for time-windowed log extraction
+important_columns:
+  - contract_address: contract address that emitted the log
+  - topic0: event signature topic for the log
+  - data: raw non-indexed event data payload
+  - tx_hash: transaction hash containing the log
+  - index: log index within the transaction/block context
+  - last_updated: freshness timestamp column for this dataset
+query_notes:
+  - This table only includes logs for contracts and topics listed in contracts_addresses_list.
+  - Raw `data` and topic fields may need downstream decoding depending on the event.
+semantic_notes:
+  - This is a reusable extraction layer, not a universal chain logs table.
+  - "`topic0` identifies the emitted event signature."
+  - Some analytics require both logs and traces; use contracts_logs and contracts_traces together where needed.
+caveats:
+  - This table only includes logs for contracts and topics listed in contracts_addresses_list.
+  - It is not a universal chain logs table.
+  - Raw `data` and topic fields may need downstream decoding depending on the event.
+  - Use `last_updated` as the dataset freshness signal.
+schema:
+  - name: blockchain
+    type: varchar
+    description: Blockchain where the log/event was emitted.
+  - name: block_date
+    type: date
+    description: Date of the block containing the log.
+  - name: block_time
+    type: timestamp
+    description: Block timestamp for the log.
+  - name: block_number
+    type: bigint
+    description: Block number containing the log.
+  - name: contract_address
+    type: varbinary
+    description: Contract address that emitted the log.
+  - name: topic0
+    type: varbinary
+    description: Event signature topic for the log.
+  - name: topic1
+    type: varbinary
+    description: First indexed event topic, if present.
+  - name: topic2
+    type: varbinary
+    description: Second indexed event topic, if present.
+  - name: topic3
+    type: varbinary
+    description: Third indexed event topic, if present.
+  - name: data
+    type: varbinary
+    description: Raw non-indexed event data payload.
+  - name: tx_hash
+    type: varbinary
+    description: Transaction hash containing the log.
+  - name: index
+    type: integer
+    description: Log index within the transaction/block context.
+  - name: tx_from
+    type: varbinary
+    description: Sender address for the transaction that emitted the log.
+  - name: last_updated
+    type: timestamp
+    description: Freshness timestamp column for this dataset.
+live_query:
+  query_id: 6816322
+  query_url: https://dune.com/queries/6816322
+  table_name: query_6816322
+  defaults_to_table_name: true
+  notes:
+    - This live query is used for fresher contract log coverage.
+    - The table name intentionally uses `query_6816322` because this output is queried as a saved query result rather than a materialized view.
+example_user_intents:
+  - Show contract logs for a tracked ether.fi contract.
+  - Find event logs by topic0 for a tracked contract.
+  - Inspect oracle or exchange-rate update event logs.
+search_keywords:
+  - contract logs
+  - event logs
+  - topic0
+  - oracle events
+  - exchange rate events
+  - raw event data
+related_datasets:
+  - contracts_addresses_list
+  - contracts_traces
+  - dune.ether_fi.result_tokens_rates_oracle_pegs
+  - dune.ether_fi.result_tokens_exchange_rates_daily
+related_dashboards: []

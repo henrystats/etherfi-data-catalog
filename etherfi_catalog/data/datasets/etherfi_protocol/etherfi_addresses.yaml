@@ -1,0 +1,123 @@
+name: dune.ether_fi.result_etherfi_addresses
+aliases:
+  - result_etherfi_addresses
+  - etherfi_addresses
+  - ether.fi address registry
+  - ether.fi addresses
+display_name: Ether.fi Addresses
+description: Curated list of ether.fi-related addresses tracked across supported chains, including protocol contracts, product addresses, token addresses, DAO/governance-controlled addresses, Veda-deployed contracts, AUM-related addresses, and other labeled ether.fi ecosystem addresses.
+table_name: dune.ether_fi.result_etherfi_addresses
+refresh_interval_minutes: 60
+freshness_timestamp_column: last_updated
+source_query_id: 6127538
+source_query_url: https://dune.com/queries/6127538
+grain: one row per tracked ether.fi address per blockchain/category entry
+business_meaning:
+  - This is the main address registry for ether.fi analytics.
+  - It helps classify tracked addresses by product area, chain, token status, protocol relevance, ownership/control category, and labeling metadata.
+  - Other datasets and queries can join against this table to identify ether.fi addresses and apply consistent address-level classifications.
+  - "The `name` column is the business meaning or classification label for a tracked address."
+  - "For Cash-related questions, `name = 'CASH'` identifies ether.fi Cash user safes and other Cash-related tracked addresses."
+semantic_notes:
+  - "In this table, the classification column is `name`, not `address_name`."
+  - "In `dune.ether_fi.result_etherfi_assets_under_management`, the related classification context appears in the `address_name` column instead."
+  - "`name` in this registry and `address_name` in AUM are conceptually related, but they are not the same literal column name."
+  - Use this address registry to determine whether an address is classified as Cash, protocol, liquid, DAO, Veda, or something else.
+  - "Use `dune.ether_fi.result_etherfi_assets_under_management` when the question is about balances for a tracked address."
+  - "`last_updated` should be used as the dataset freshness signal."
+caveats:
+  - This is a curated address registry, so classifications depend on the addresses currently tracked in the source query.
+  - Boolean classification columns can overlap; for example, an address may be relevant to multiple product/control categories.
+  - This dataset explains classification semantics, not token balances.
+  - When answering balance questions, join or cross-reference this table conceptually with the AUM table instead of treating it as a balance source.
+  - "For top Cash holder questions, the canonical classification comes from this table, while the balance ranking should come from AUM filtered to `address_name = 'CASH'`."
+schema:
+  - name: project
+    type: varchar
+    description: ether.fi
+  - name: blockchain
+    type: varchar
+    description: Blockchain of the tracked address.
+  - name: address
+    type: varbinary
+    description: tracked ether.fi address being classified
+  - name: parent_address
+    type: varbinary
+    description: optional parent grouping address
+  - name: symbol
+    type: varchar
+    description: shorthand label that may help identify product context such as CASH
+  - name: decimals
+    type: integer
+    description: If the tracked address is a token, this is the relevant token decimals value.
+  - name: name
+    type: varchar
+    description: Identification or classification column for the address.
+  - name: istoken
+    type: boolean
+    description: True when the tracked address is also a token address.
+  - name: isveda
+    type: boolean
+    description: True when the tracked address is a contract deployed by Veda.
+  - name: isdao
+    type: boolean
+    description: True when the tracked address is an ETHFI governance-controlled address.
+  - name: isprotocol
+    type: boolean
+    description: true when the address is classified as protocol-related
+  - name: isliquid
+    type: boolean
+    description: True when the tracked address is a Liquid product address.
+  - name: isaum
+    type: boolean
+    description: true when the address is tracked in an AUM context
+  - name: label
+    type: varchar
+    description: broader human-readable grouping such as Payments
+  - name: last_updated
+    type: timestamp
+    description: Freshness timestamp column for this dataset.
+important_columns:
+  - project: ether.fi
+  - blockchain: Blockchain of the tracked address.
+  - address: tracked ether.fi address being classified
+  - parent_address: optional parent grouping address
+  - symbol: shorthand label that may help identify product context such as CASH
+  - decimals: If the tracked address is a token, this is the relevant token decimals value.
+  - name: canonical address classification / business meaning label
+  - istoken: True when the tracked address is also a token address.
+  - isveda: True when the tracked address is a contract deployed by Veda.
+  - isdao: True when the tracked address is an ETHFI governance-controlled address.
+  - isprotocol: true when the address is classified as protocol-related
+  - isliquid: True when the tracked address is a Liquid product address.
+  - isaum: true when the address is tracked in an AUM context
+  - label: broader human-readable grouping such as Payments
+  - last_updated: Freshness timestamp column for this dataset.
+query_notes:
+  - "Use `name = 'CASH'` to identify ether.fi Cash user safes and related tracked addresses."
+  - "When mapping semantics to AUM, treat `name` here as the conceptual source for `address_name` in the AUM dataset."
+  - This dataset is the right place to answer questions like "Is this a Cash safe, protocol wallet, or something else?"
+  - Use `last_updated` as the dataset freshness signal.
+use_when:
+  - when the user asks what an ether.fi address represents
+  - when the user asks whether an address is Cash, protocol, liquid, DAO, Veda, or another tracked category
+  - when a balance workflow needs address classification semantics
+example_user_intents:
+  - "What are the latest balances for ether.fi cash address 0x...?"
+  - "Who are the top 10 ether.fi Cash holders?"
+  - "Is this address a Cash safe, protocol wallet, or something else?"
+search_keywords:
+  - cash
+  - cash safe
+  - ether.fi cash
+  - address classification
+  - canonical address registry
+  - protocol wallet
+related_datasets:
+  - dune.ether_fi.result_etherfi_assets_under_management
+  - dune.ether_fi.result_etherfi_cash_events
+  - dune.ether_fi.result_etherfi_cash_borrow_index
+  - dune.ether_fi.result_addresses_transfers
+  - dune.ether_fi.result_addresses_transfers_hourly
+related_dashboards:
+  - etherfi_overview

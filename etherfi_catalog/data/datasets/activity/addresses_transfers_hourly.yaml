@@ -1,0 +1,64 @@
+name: addresses_transfers_hourly
+aliases:
+  - dune.ether_fi.result_addresses_transfers_hourly
+  - result_addresses_transfers_hourly
+  - hourly address transfers
+table_name: dune.ether_fi.result_addresses_transfers_hourly
+display_name: Addresses Transfers Hourly
+description: This is the hourly transfer layer used to keep the ether.fi address-level net transfers dataset fresh without repeatedly running a full expensive transfer aggregation.
+refresh_interval_minutes: 60
+freshness_timestamp_column: last_updated
+source_query_id: 6901762
+source_query_url: https://dune.com/queries/6901762
+freshness_source_name: Addresses Transfers Hourly
+is_subtable: true
+parent_dataset: addresses_transfers
+hide_from_dataset_index: true
+hide_from_dataset_search: true
+grain: one row per day, address, token address, token symbol, and blockchain, for the covered recent/hourly window
+business_meaning:
+  - This table supports the main addresses_transfers dataset by providing frequent recent transfer updates.
+  - It is mainly useful for pipeline debugging or freshness validation, not general analysis.
+use_when:
+  - when debugging the hourly recent-transfer layer behind addresses_transfers
+  - when validating freshness behavior in the address transfer pipeline
+do_not_use_when:
+  - when the user wants normal address-level daily net transfers; use addresses_transfers
+important_columns:
+  - block_date: day of the net transfer movement
+  - address: tracked ether.fi-related address
+  - token_address: token address for the transferred asset
+  - token_symbol: token symbol for the transferred asset
+  - blockchain: blockchain where the transfer activity occurred
+  - amount: daily net token amount for the address/token/blockchain combination
+  - last_updated: freshness timestamp column for this dataset
+semantic_notes:
+  - This is a supporting table. Users should prefer addresses_transfers unless they are debugging the pipeline.
+caveats:
+  - This sub-table should not normally be queried directly by team members unless debugging or validating the transfer pipeline.
+  - Use `last_updated` as the dataset freshness signal.
+schema:
+  - name: block_date
+    type: timestamp
+    description: Day of the net transfer movement.
+  - name: address
+    type: varbinary
+    description: Tracked ether.fi-related address.
+  - name: token_address
+    type: varbinary
+    description: Token address for the transferred asset.
+  - name: token_symbol
+    type: varchar
+    description: Token symbol for the transferred asset.
+  - name: blockchain
+    type: varchar
+    description: Blockchain where the transfer activity occurred.
+  - name: amount
+    type: double
+    description: Daily net token amount for the address/token/blockchain combination. Positive values represent net inflow and negative values represent net outflow.
+  - name: last_updated
+    type: timestamp
+    description: Freshness timestamp column for this dataset.
+related_datasets:
+  - addresses_transfers
+related_dashboards: []

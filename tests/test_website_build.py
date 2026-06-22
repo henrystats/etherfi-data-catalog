@@ -106,7 +106,7 @@ def test_build_website_generates_polished_mcp_page_from_current_tools(tmp_path):
     mcp_page = (tmp_path / "mcp.html").read_text(encoding="utf-8")
     assert 'data-mcp-page' in mcp_page
     assert "<h1>ether.fi Catalog MCP</h1>" in mcp_page
-    assert "Connect AI agents to ether.fi&rsquo;s dataset catalog" in mcp_page
+    assert "Install a local stdio MCP" in mcp_page
     assert 'href="datasets.html">Explore datasets</a>' in mcp_page
     assert 'href="dashboards.html">View dashboards</a>' in mcp_page
     assert 'href="freshness.html">Check freshness</a>' in mcp_page
@@ -167,11 +167,13 @@ def test_build_website_generates_polished_mcp_page_from_current_tools(tmp_path):
     assert "Planning mode" in mcp_page
     assert "Live mode" in mcp_page
     assert "Setup" in mcp_page
-    assert "Deployment instructions coming soon" in mcp_page
+    assert "Recommended setup is local stdio via <code>uvx</code>" in mcp_page
+    assert "uvx --from git+https://github.com/henrystats/etherfi-data-catalog etherfi-catalog-mcp" in mcp_page
+    assert "Cloud Run and Docker are optional/private staging paths" in mcp_page
     assert "Claude Desktop" in mcp_page
     assert "Codex" in mcp_page
-    assert "ChatGPT / MCP-compatible clients" in mcp_page
-    assert ".venv/bin/python -m src.server" in mcp_page
+    assert "Dune MCP" in mcp_page
+    assert ".venv/bin/python -m etherfi_catalog.server" not in mcp_page
     assert "DUNE_API_KEY" in mcp_page
     assert "Best practices" in mcp_page
 

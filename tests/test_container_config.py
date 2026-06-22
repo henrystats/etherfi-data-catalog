@@ -8,12 +8,13 @@ def test_dockerfile_runs_streamable_http_without_baked_secret():
     dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
 
     assert "FROM python:3.12-slim" in dockerfile
-    assert "COPY src ./src" in dockerfile
+    assert "COPY etherfi_catalog ./etherfi_catalog" in dockerfile
     assert "COPY datasets ./datasets" in dockerfile
     assert "COPY dashboards ./dashboards" in dockerfile
     assert "COPY status/dataset_freshness.example.yaml ./status/dataset_freshness.example.yaml" in dockerfile
     assert "DUNE_API_KEY" not in dockerfile
     assert "EXPOSE 8001" in dockerfile
+    assert 'CMD ["etherfi-catalog-mcp"' in dockerfile
     assert '"--transport", "streamable-http"' in dockerfile
     assert '"--host", "0.0.0.0"' in dockerfile
     assert '"--port", "8001"' in dockerfile

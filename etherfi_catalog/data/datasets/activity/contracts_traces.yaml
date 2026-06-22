@@ -1,0 +1,97 @@
+name: contracts_traces
+aliases:
+  - dune.ether_fi.result_contracts_traces
+  - result_contracts_traces
+  - contract traces
+table_name: dune.ether_fi.result_contracts_traces
+display_name: Contracts Traces
+description: This dataset contains EVM trace/call records for the curated set of ether.fi-related and relevant DeFi contracts tracked by the catalog.
+refresh_interval_minutes: 720
+freshness_timestamp_column: last_updated
+source_query_id: 6090651
+source_query_url: https://dune.com/queries/6090651
+freshness_source_name: Contracts Traces
+query_ready: true
+grain: one row per contract trace/call matching a tracked contract address on a supported blockchain
+business_meaning:
+  - This table captures contract call metadata such as destination address, trace address, input/output payloads, transaction hash, and block metadata.
+  - It is used as a reusable contract-trace extraction layer for downstream analytics so queries do not repeatedly scan raw chain traces for tracked contracts.
+  - It is useful for datasets that need trace-level contract interaction data, including exchange-rate, oracle, protocol, or accounting logic that cannot be derived from logs alone.
+use_when:
+  - when the user needs reusable trace/call records for tracked ether.fi and relevant DeFi contracts
+  - when downstream logic needs raw input/output calldata or call-level payloads
+  - when contract interaction analysis cannot be derived from logs alone
+do_not_use_when:
+  - when the user needs universal chain traces; this table only covers curated tracked contracts
+  - when the user needs emitted event topics rather than traces; use contracts_logs
+important_filters:
+  - blockchain for chain-specific trace activity
+  - to for destination contract address filtering
+  - block_time or block_date for time-windowed trace extraction
+  - tx_hash for transaction-level trace inspection
+important_columns:
+  - to: destination contract address for the trace/call
+  - trace_address: trace path/address within the transaction execution tree
+  - input: raw input calldata for the trace/call
+  - output: raw output payload from the trace/call
+  - tx_hash: transaction hash containing the trace/call
+  - last_updated: freshness timestamp column for this dataset
+query_notes:
+  - This table only includes traces for contracts listed in contracts_addresses_list.
+  - Raw `input` and `output` fields may need downstream ABI decoding.
+semantic_notes:
+  - This is a reusable extraction layer, not a universal chain traces table.
+  - Some analytics require both logs and traces; use contracts_logs and contracts_traces together where needed.
+caveats:
+  - This table only includes traces for contracts listed in contracts_addresses_list.
+  - It is not a universal chain traces table.
+  - Raw `input` and `output` fields may need downstream ABI decoding.
+  - Use `last_updated` as the dataset freshness signal.
+schema:
+  - name: blockchain
+    type: varchar
+    description: Blockchain where the trace/call occurred.
+  - name: block_date
+    type: date
+    description: Date of the block containing the trace.
+  - name: block_time
+    type: timestamp
+    description: Block timestamp for the trace.
+  - name: block_number
+    type: bigint
+    description: Block number containing the trace.
+  - name: to
+    type: varbinary
+    description: Destination contract address for the trace/call.
+  - name: trace_address
+    type: array(bigint)
+    description: Trace path/address within the transaction execution tree.
+  - name: output
+    type: varbinary
+    description: Raw output payload from the trace/call.
+  - name: input
+    type: varbinary
+    description: Raw input calldata for the trace/call.
+  - name: tx_hash
+    type: varbinary
+    description: Transaction hash containing the trace/call.
+  - name: last_updated
+    type: timestamp
+    description: Freshness timestamp column for this dataset.
+example_user_intents:
+  - Show traces for a tracked contract.
+  - Inspect calldata for tracked contract calls.
+  - Find trace-level payloads for oracle or accounting logic.
+search_keywords:
+  - contract traces
+  - evm traces
+  - calldata
+  - trace address
+  - contract calls
+  - oracle traces
+related_datasets:
+  - contracts_addresses_list
+  - contracts_logs
+  - dune.ether_fi.result_tokens_rates_oracle_pegs
+  - dune.ether_fi.result_tokens_exchange_rates_daily
+related_dashboards: []

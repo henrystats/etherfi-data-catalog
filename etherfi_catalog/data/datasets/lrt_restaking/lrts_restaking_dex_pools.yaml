@@ -1,0 +1,97 @@
+name: dune.ether_fi.result_lrts_restaking_dex_pools
+table_name: dune.ether_fi.result_lrts_restaking_dex_pools
+display_name: LRTs + Restaking Dex Pools
+description: This dataset contains the curated list of DEX pools used to track liquidity and pool-level activity for liquid restaking tokens (LRTs) and liquid staking tokens (LSTs), such as weETH and wstETH.
+refresh_interval_minutes: 1440
+freshness_timestamp_column: last_updated
+source_query_id: 6252978
+source_query_url: https://dune.com/queries/6252978
+freshness_source_name: LRTs + Restaking Dex Pools
+grain: one row per tracked pool address and LRT/LST token address combination
+business_meaning:
+  - This table maps each tracked LRT/LST token to the relevant DEX pool address, pool pair, DEX project, chain, and token classification.
+  - It acts as the pool registry for LRT/LST DEX analytics, so downstream balance, transfer, liquidity, and activity datasets can track relevant pool addresses without rebuilding pool-discovery logic.
+use_when:
+  - when the user needs the curated pool registry for tracked LRT/LST markets
+  - when identifying pool addresses for LRT/LST liquidity, balance, or transfer analysis
+  - when joining LRT/LST DEX trades to pool metadata
+  - when checking which pool/token combinations downstream LRT/LST datasets should track
+important_filters:
+  - pool_address for pool-specific analysis
+  - token_address or token_symbol for token-specific pool coverage
+  - token_type for lrt vs lst analysis
+  - blockchain, project, version, or token_pair for market grouping
+important_columns:
+  - pool_address: pool address related to the tracked LRT/LST token
+  - token_address: relevant tracked LRT or LST token address
+  - token_symbol: relevant tracked LRT or LST token symbol
+  - token_type: token classification, usually lrt or lst
+  - token_pair: pool pair symbol
+  - pool_name: enriched readable pool name
+  - last_updated: freshness timestamp column for this dataset
+query_notes:
+  - Use this table as the registry/helper table for tracked LRT/LST DEX pools.
+  - For every pool address and tracked LRT/LST token combination found in the LRT/LST restaking trades dataset, there should be a corresponding entry in this table.
+  - The `num` field is an internal helper/index field and generally should not be used for analysis.
+semantic_notes:
+  - This table identifies the pool addresses and token combinations that downstream LRT/LST liquidity and balance datasets should track.
+  - Because the same pool can contain multiple tracked LRT/LST tokens, a single pool address may appear more than once, once per relevant tracked token side.
+caveats:
+  - This table is a curated pool registry for tracked LRT/LST markets, not a universal list of every DEX pool.
+  - A pool address may appear multiple times if multiple tracked LRT/LST tokens are relevant to that pool.
+  - The `num` field is an internal helper/index field and generally should not be used for analysis.
+  - Use `last_updated` as the dataset freshness signal.
+schema:
+  - name: pool_address
+    type: varbinary
+    description: Pool address related to the tracked LRT/LST token.
+  - name: token_pair
+    type: varchar
+    description: Pool pair symbol.
+  - name: blockchain
+    type: varchar
+    description: Blockchain where the pool is deployed.
+  - name: project
+    type: varchar
+    description: DEX or trading project for the pool.
+  - name: token_address
+    type: varbinary
+    description: Relevant tracked LRT or LST token address.
+  - name: token_symbol
+    type: varchar
+    description: Relevant tracked LRT or LST token symbol.
+  - name: token_type
+    type: varchar
+    description: Token classification, usually `lrt` or `lst`.
+  - name: version
+    type: varchar
+    description: DEX/project version for the pool.
+  - name: num
+    type: bigint
+    description: Internal helper/index field; generally not needed for analysis.
+  - name: pool_name
+    type: varchar
+    description: "Enriched readable pool name, for example `Uniswap V3: weETH-wstETH`."
+  - name: last_updated
+    type: timestamp
+    description: Freshness timestamp column for this dataset.
+example_user_intents:
+  - Which DEX pools are tracked for weETH?
+  - Show tracked LRT/LST pool addresses by chain.
+  - Which pools feed the LRT/LST pool balances dataset?
+  - List tracked LRT DEX pools by project and token.
+search_keywords:
+  - lrt dex pools
+  - lst dex pools
+  - restaking pool registry
+  - weeth pools
+  - wsteth pools
+  - pool addresses
+  - tracked derivative pools
+related_datasets:
+  - dune.ether_fi.result_lrts_restaking_trades
+  - dune.ether_fi.result_lrts_restaking_dex_pools_transfers
+  - dune.ether_fi.result_lrts_restaking_dex_pools_balances
+  - dune.ether_fi.result_lrts_restaking_protocol_tvl
+related_dashboards:
+  - etherfi_overview

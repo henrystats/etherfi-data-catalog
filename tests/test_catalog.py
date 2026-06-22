@@ -1,8 +1,9 @@
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 
 import pytest
 
-from src.catalog import (
+from etherfi_catalog.catalog import (
     compare_datasets,
     diagnose_token_price_coverage,
     evaluate_freshness,
@@ -36,6 +37,13 @@ from src.catalog import (
 )
 
 
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def _relative_yaml_files(root: Path) -> list[Path]:
+    return sorted(path.relative_to(root) for path in root.glob("**/*.yaml"))
+
+
 def test_load_datasets_reads_existing_yaml_files():
     catalog = load_datasets()
 
@@ -45,6 +53,46 @@ def test_load_datasets_reads_existing_yaml_files():
     assert "protocol_token_holders_with_defi" not in catalog
     assert "dune.ether_fi.result_etherfi_addresses" in catalog
     assert catalog["etherfi_protocol_token_holders"]["display_name"] == "Protocol Token Holders"
+
+
+def test_default_loaders_use_packaged_metadata_outside_repo_root(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("ETHERFI_CATALOG_DATA_DIR", raising=False)
+    monkeypatch.delenv("ETHERFI_DATASETS_DIR", raising=False)
+    monkeypatch.delenv("ETHERFI_DASHBOARDS_DIR", raising=False)
+    monkeypatch.delenv("ETHERFI_STATUS_DIR", raising=False)
+    monkeypatch.delenv("ETHERFI_FRESHNESS_PATH", raising=False)
+
+    catalog = load_datasets()
+    registry = load_dashboard_registry()
+    freshness_registry = load_dataset_freshness_registry()
+
+    assert "dune.ether_fi.result_etherfi_cash_events" in catalog
+    assert any(dashboard["name"] == "etherfi_cash" for dashboard in registry["dashboards"])
+    assert freshness_registry == {}
+
+
+def test_packaged_catalog_metadata_mirrors_repo_sources():
+    package_data_root = ROOT / "etherfi_catalog" / "data"
+
+    for source_name in ["datasets", "dashboards"]:
+        source_root = ROOT / source_name
+        package_root = package_data_root / source_name
+        source_files = _relative_yaml_files(source_root)
+        package_files = _relative_yaml_files(package_root)
+
+        assert package_files == source_files
+        for relative_path in source_files:
+            assert (package_root / relative_path).read_text(encoding="utf-8") == (
+                source_root / relative_path
+            ).read_text(encoding="utf-8")
+
+    assert (
+        package_data_root / "status" / "dataset_freshness.example.yaml"
+    ).read_text(encoding="utf-8") == (
+        ROOT / "status" / "dataset_freshness.example.yaml"
+    ).read_text(encoding="utf-8")
+    assert not (package_data_root / "status" / "dataset_freshness.yaml").exists()
 
 
 def test_dataset_details_resolve_legacy_names_and_table_aliases():
@@ -1439,7 +1487,7 @@ def test_get_assets_under_management_balances_execute_live_without_api_key_fails
 def test_get_assets_under_management_balances_execute_live_returns_mocked_rows(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: [
             {
                 "day": "2026-01-01",
@@ -1535,7 +1583,7 @@ def test_get_assets_under_management_balances_returns_clear_error_when_not_query
 
 def test_get_assets_under_management_balances_live_zero_rows_returns_empty_rows(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
-    monkeypatch.setattr("src.catalog._execute_dune_sql", lambda sql: [])
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", lambda sql: [])
 
     result = get_assets_under_management_balances(
         "0x1111111111111111111111111111111111111111",
@@ -1568,7 +1616,7 @@ def test_get_assets_under_management_balances_live_zero_rows_returns_empty_rows(
 def test_get_assets_under_management_balances_summary_groups_balances_by_token(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: [
             {
                 "day": "2026-01-01",
@@ -1624,7 +1672,7 @@ def test_get_assets_under_management_balances_summary_groups_balances_by_token(m
 def test_get_assets_under_management_balances_summary_groups_balances_by_blockchain(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: [
             {
                 "day": "2026-01-01",
@@ -1680,7 +1728,7 @@ def test_get_assets_under_management_balances_summary_groups_balances_by_blockch
 def test_get_assets_under_management_balances_live_execution_failures_return_execution_error(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: (_ for _ in ()).throw(RuntimeError("Dune query execution failed: boom")),
     )
 
@@ -1868,7 +1916,7 @@ def test_get_top_cash_users_execute_live_groups_tokens_and_chains(monkeypatch):
             },
         ]
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_top_cash_users(
         token_symbol="liquidUSD",
@@ -1945,7 +1993,7 @@ def test_get_top_cash_users_token_symbol_filter_reranks_cash_population(monkeypa
             },
         ]
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_top_cash_users(
         token_symbol="liquidUSD",
@@ -2005,7 +2053,7 @@ def test_get_top_cash_users_token_address_filter_reranks_cash_population(monkeyp
             }
         ]
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_top_cash_users(
         token_address=token_address,
@@ -2058,7 +2106,7 @@ def test_get_top_cash_users_blockchain_and_token_symbol_filters_apply_before_ran
             }
         ]
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_top_cash_users(
         token_symbol="liquidUSD",
@@ -2089,7 +2137,7 @@ def test_get_top_cash_users_blockchain_and_token_symbol_filters_apply_before_ran
 def test_get_top_cash_users_live_execution_failures_return_execution_error(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: (_ for _ in ()).throw(RuntimeError("Dune query execution failed: boom")),
     )
 
@@ -2203,7 +2251,7 @@ def test_get_cash_token_totals_live_execution_for_token_symbol(monkeypatch):
             },
         ]
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_cash_token_totals(
         token_symbol="liquidUSD",
@@ -2254,7 +2302,7 @@ def test_get_cash_token_totals_live_execution_for_token_symbol_and_blockchain(mo
             },
         ]
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_cash_token_totals(
         token_symbol="liquidUSD",
@@ -2285,7 +2333,7 @@ def test_get_cash_token_totals_empty_result_behavior(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
 
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: [
             {
                 "row_type": "overview",
@@ -2319,7 +2367,7 @@ def test_get_cash_token_totals_prompt_equivalent_liquidusd_total(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
 
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: [
             {
                 "row_type": "overview",
@@ -2603,7 +2651,7 @@ def test_get_cash_holdings_timeseries_live_execution_returns_chart_friendly_seri
             },
         ]
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_cash_holdings_timeseries(
         start_date="2026-04-20",
@@ -2669,7 +2717,7 @@ def test_get_cash_holdings_timeseries_live_execution_returns_monthly_category_se
             },
         ]
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_cash_holdings_timeseries(
         start_date="2026-03-01",
@@ -2741,7 +2789,7 @@ def test_get_cash_holdings_timeseries_live_execution_batches_multiple_symbols(mo
             },
         ]
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_cash_holdings_timeseries(
         period="last_2_years",
@@ -2769,7 +2817,7 @@ def test_get_cash_holdings_timeseries_live_execution_batches_multiple_symbols(mo
 
 def test_get_cash_holdings_timeseries_empty_result_behavior(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
-    monkeypatch.setattr("src.catalog._execute_dune_sql", lambda sql: [])
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", lambda sql: [])
 
     result = get_cash_holdings_timeseries(
         period="last_90_days",
@@ -2811,7 +2859,7 @@ def test_get_cash_holdings_timeseries_prompt_equivalent_last_month_chart(monkeyp
             },
         ]
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_cash_holdings_timeseries(
         period="last_month",
@@ -2870,7 +2918,7 @@ def test_get_cash_holdings_timeseries_prompt_equivalent_monthly_cash_categories(
             },
         ]
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_cash_holdings_timeseries(
         period="last_2_years",
@@ -2900,7 +2948,7 @@ def test_get_cash_holdings_timeseries_prompt_equivalent_multiple_symbols_one_que
         captured["sql"] = sql
         return []
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_cash_holdings_timeseries(
         period="last_2_years",
@@ -2928,7 +2976,7 @@ def test_get_cash_holdings_timeseries_prompt_equivalent_filtered_categories_one_
         captured["sql"] = sql
         return []
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_cash_holdings_timeseries(
         period="last_2_years",
@@ -3103,7 +3151,7 @@ def test_get_cash_safe_profile_execute_live_profiles_balances_and_activity(monke
             },
         ]
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_cash_safe_profile(
         "0x1111111111111111111111111111111111111111",
@@ -3143,7 +3191,7 @@ def test_get_cash_safe_profile_execute_live_can_validate_identity(monkeypatch):
             },
         ]
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_cash_safe_profile(
         "0x1111111111111111111111111111111111111111",
@@ -3161,7 +3209,7 @@ def test_get_cash_safe_profile_execute_live_can_validate_identity(monkeypatch):
 def test_get_cash_safe_profile_live_execution_failures_return_execution_error(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: (_ for _ in ()).throw(RuntimeError("Dune query execution failed: boom")),
     )
 
@@ -3181,7 +3229,7 @@ def test_cash_workflow_summarize_safe_uses_evidence_profile_without_identity_cla
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
 
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: [
             {
                 "row_type": "balance_token",
@@ -3233,7 +3281,7 @@ def test_cash_workflow_validate_safe_identity_distinguishes_canonical_classifica
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
 
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: [
             {
                 "row_type": "events_overview",
@@ -3265,7 +3313,7 @@ def test_cash_workflow_top_users_returns_ranked_all_users_with_breakdowns(monkey
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
 
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: [
             {
                 "rank": 1,
@@ -3348,7 +3396,7 @@ def test_cash_workflow_recent_spend_activity_uses_summary_path(monkeypatch):
             }]
         raise AssertionError(sql)
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_cash_events(
         event_type="spend",
@@ -3426,7 +3474,7 @@ def test_cash_workflow_borrow_and_repay_for_safe_preserve_event_type_semantics(m
             }]
         raise AssertionError(sql)
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     common_kwargs = {
         "user_safe": "0x1111111111111111111111111111111111111111",
@@ -3519,7 +3567,7 @@ def test_get_cash_events_rejects_unknown_event_type():
 def test_get_cash_events_execute_live_returns_summary(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: [
             {
                 "block_date": "2026-01-02",
@@ -3588,7 +3636,7 @@ def test_get_cash_events_summary_mode_uses_aggregate_queries(monkeypatch):
             return [{"event_type": "spend", "event_count": 12, "total_token_amount_usd": 345.67}]
         raise AssertionError(sql)
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_cash_events(
         start_date="2026-04-01",
@@ -3701,7 +3749,7 @@ def test_get_protocol_token_holders_uses_with_defi_dataset_when_requested():
 def test_get_protocol_token_holders_execute_live_returns_summary(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: [
             {
                 "day": "2026-04-01",
@@ -3769,7 +3817,7 @@ def test_get_protocol_token_holders_summary_mode_uses_aggregate_queries(monkeypa
             return [{"identified_defi_contract": "unidentified_or_non_defi", "holder_count": 1, "total_token_balance": 10.0, "token_balance_usd": 25000.0}]
         raise AssertionError(sql)
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_protocol_token_holders(
         token_symbol="liquidETH",
@@ -3877,7 +3925,7 @@ def test_holder_workflow_direct_holders_summary_uses_latest_day_for_selected_tok
             return [{"address": "0x1111111111111111111111111111111111111111", "blockchain": "ethereum", "token_balance": 10.0}]
         raise AssertionError(sql)
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_protocol_token_holders(
         token_symbol="eETH",
@@ -3910,7 +3958,7 @@ def test_holder_workflow_with_defi_summary_preserves_partial_coverage_caveat(mon
             return [{"identified_defi_contract": "Aave", "holder_count": 1, "total_token_balance": 15.0, "token_balance_usd": 36000.0}]
         raise AssertionError(sql)
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_protocol_token_holders(
         token_symbol="eETH",
@@ -3942,7 +3990,7 @@ def test_holder_workflow_exclude_identified_defi_adds_filter_and_preserves_summa
             return [{"identified_defi_contract": "unidentified_or_non_defi", "holder_count": 2, "total_token_balance": 10.0, "token_balance_usd": 24000.0}]
         raise AssertionError(sql)
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_protocol_token_holders(
         token_symbol="eETH",
@@ -4079,7 +4127,7 @@ def test_get_protocol_events_summary_mode_uses_aggregate_queries(monkeypatch):
             return [{"amount_underlying_symbol": "ETH", "event_count": 5, "total_amount_underlying": 99.0, "total_amount_usd": 1000.0}]
         raise AssertionError(sql)
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_protocol_events(
         strategy_symbol="liquidETH",
@@ -4108,7 +4156,7 @@ def test_get_protocol_events_summary_mode_uses_aggregate_queries(monkeypatch):
 def test_get_protocol_events_rows_mode_returns_row_summary(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: [
             {
                 "block_time": "2026-03-15 10:00:00 UTC",
@@ -4268,7 +4316,7 @@ def test_protocol_events_workflow_deposit_prompt_maps_to_summary_semantics(monke
             }]
         raise AssertionError(sql)
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_protocol_events(
         strategy_symbol="eETH",
@@ -4373,7 +4421,7 @@ def test_protocol_tvl_workflow_filter_guidance_prefers_strategy_filters():
 def test_protocol_tvl_workflow_single_strategy_tvl_prompt_maps_to_summary(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: [
             {
                 "day": "2026-04-13 00:00:00 UTC",
@@ -4414,7 +4462,7 @@ def test_protocol_tvl_workflow_single_strategy_tvl_prompt_maps_to_summary(monkey
 def test_protocol_tvl_workflow_multi_strategy_comparison_preserves_comparison_semantics(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: [
             {
                 "day": "2026-04-13 00:00:00 UTC",
@@ -4692,7 +4740,7 @@ def test_get_protocol_token_tvl_rows_mode_rejects_broad_high_limit_requests():
 def test_get_protocol_token_tvl_execute_live_summary_returns_grouped_summary(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: [
             {
                 "day": "2026-04-08 00:00:00 UTC",
@@ -4744,7 +4792,7 @@ def test_get_protocol_token_tvl_execute_live_summary_returns_grouped_summary(mon
 def test_get_protocol_token_tvl_execute_live_summary_supports_multi_strategy(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: [
             {
                 "day": "2026-04-08 00:00:00 UTC",
@@ -4816,7 +4864,7 @@ def test_get_protocol_token_tvl_execute_live_summary_supports_multi_strategy(mon
 def test_get_protocol_token_tvl_rows_mode_returns_row_summary(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: [
             {
                 "day": "2026-04-08 00:00:00 UTC",
@@ -4981,7 +5029,7 @@ def test_get_protocol_token_tvl_timeseries_live_execution_returns_chart_friendly
             {"day": "2026-04-21", "strategy_symbol": "liquidETH", "tvl_usd": 255000.0},
         ]
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_protocol_token_tvl_timeseries(
         start_date="2026-04-20",
@@ -5040,7 +5088,7 @@ def test_get_protocol_token_tvl_timeseries_live_execution_returns_month_end_seri
             },
         ]
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_protocol_token_tvl_timeseries(
         period="last_90_days",
@@ -5070,7 +5118,7 @@ def test_get_protocol_token_tvl_timeseries_live_execution_returns_month_end_seri
 
 def test_get_protocol_token_tvl_timeseries_empty_result_behavior(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
-    monkeypatch.setattr("src.catalog._execute_dune_sql", lambda sql: [])
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", lambda sql: [])
 
     result = get_protocol_token_tvl_timeseries(
         period="last_90_days",
@@ -5106,7 +5154,7 @@ def test_get_protocol_token_tvl_timeseries_prompt_equivalent_last_year_multi_tok
             {"day": "2026-04-22", "strategy_symbol": "liquidBTC", "tvl_usd": 17000000.0},
         ]
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_protocol_token_tvl_timeseries(
         period="last_1_year",
@@ -5159,7 +5207,7 @@ def test_get_protocol_token_tvl_timeseries_prompt_equivalent_month_over_month_ba
             },
         ]
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_protocol_token_tvl_timeseries(
         period="last_1_year",
@@ -5243,7 +5291,7 @@ def test_get_token_price_daily_planning_mode_uses_daily_enriched_dataset():
 def test_get_token_price_execute_live_returns_effective_price_summary(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: [
             {
                 "day": "2026-04-12 00:00:00 UTC",
@@ -5291,7 +5339,7 @@ def test_get_token_price_execute_live_returns_effective_price_summary(monkeypatc
 
 def test_get_token_price_minute_live_zero_rows_suggests_daily_and_token_list(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
-    monkeypatch.setattr("src.catalog._execute_dune_sql", lambda sql: [])
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", lambda sql: [])
 
     result = get_token_price(
         token_address="0x1111111111111111111111111111111111111111",
@@ -5390,7 +5438,7 @@ def test_get_token_prices_batch_daily_planning_mode_returns_narrow_sql():
 def test_get_token_prices_batch_execute_live_returns_partial_coverage_summary(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: [
             {
                 "day": "2026-04-12 00:00:00 UTC",
@@ -5601,7 +5649,7 @@ def test_diagnose_token_price_coverage_planning_mode_returns_checks_sql():
 def test_diagnose_token_price_coverage_live_explains_daily_fallback(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: [
             {
                 "in_price_token_universe": True,
@@ -5636,7 +5684,7 @@ def test_diagnose_token_price_coverage_live_explains_daily_fallback(monkeypatch)
 def test_diagnose_token_price_coverage_live_explains_missing_universe(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: [
             {
                 "in_price_token_universe": False,
@@ -5666,7 +5714,7 @@ def test_diagnose_token_price_coverage_live_explains_missing_universe(monkeypatc
 def test_diagnose_token_price_coverage_live_explains_exchange_rates_without_usd(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: [
             {
                 "in_price_token_universe": True,
@@ -5747,7 +5795,7 @@ def test_price_workflow_unique_symbol_resolution_to_price(monkeypatch):
             }
         ]
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_token_price_by_symbol(
         token_symbol="weETH",
@@ -5789,7 +5837,7 @@ def test_price_workflow_ambiguous_symbol_returns_candidates_without_guessing(mon
             },
         ]
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_token_price_by_symbol(
         token_symbol="weETH",
@@ -5806,7 +5854,7 @@ def test_price_workflow_ambiguous_symbol_returns_candidates_without_guessing(mon
 
 def test_price_workflow_no_match_returns_suggestions(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
-    monkeypatch.setattr("src.catalog._execute_dune_sql", lambda sql: [])
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", lambda sql: [])
 
     result = get_token_price_by_symbol(
         token_symbol="NOT_A_TOKEN",
@@ -5823,7 +5871,7 @@ def test_price_workflow_no_match_returns_suggestions(monkeypatch):
 def test_price_workflow_batch_partial_coverage_does_not_fail(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: [
             {
                 "day": "2026-04-12 00:00:00 UTC",
@@ -5862,7 +5910,7 @@ def test_price_workflow_batch_partial_coverage_does_not_fail(monkeypatch):
 def test_price_workflow_minute_missing_diagnostic_suggests_daily_fallback(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: [
             {
                 "in_price_token_universe": True,
@@ -5892,7 +5940,7 @@ def test_price_workflow_minute_missing_diagnostic_suggests_daily_fallback(monkey
 def test_price_workflow_exchange_rate_without_usd_diagnostic(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: [
             {
                 "in_price_token_universe": True,
@@ -5959,7 +6007,7 @@ def test_find_price_tokens_planning_mode_returns_candidate_sql():
 def test_find_price_tokens_execute_live_returns_summary(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: [
             {
                 "token_address": "0x1111111111111111111111111111111111111111",
@@ -6148,7 +6196,7 @@ def test_get_token_price_by_symbol_live_resolves_unique_candidate_and_prices(mon
             }
         ]
 
-    monkeypatch.setattr("src.catalog._execute_dune_sql", fake_execute)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
 
     result = get_token_price_by_symbol(
         token_symbol="weETH",
@@ -6191,7 +6239,7 @@ def test_get_token_price_by_symbol_live_resolves_unique_candidate_and_prices(mon
 def test_get_token_price_by_symbol_live_returns_disambiguation_for_multiple_matches(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
     monkeypatch.setattr(
-        "src.catalog._execute_dune_sql",
+        "etherfi_catalog.catalog._execute_dune_sql",
         lambda sql: [
             {
                 "token_address": "0x1111111111111111111111111111111111111111",
@@ -6242,7 +6290,7 @@ def test_get_token_price_by_symbol_live_returns_disambiguation_for_multiple_matc
 
 def test_get_token_price_by_symbol_live_returns_no_match(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
-    monkeypatch.setattr("src.catalog._execute_dune_sql", lambda sql: [])
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", lambda sql: [])
 
     result = get_token_price_by_symbol(
         token_symbol="NOPE",

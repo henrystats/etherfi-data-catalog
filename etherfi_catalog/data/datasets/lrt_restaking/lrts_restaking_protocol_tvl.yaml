@@ -1,0 +1,105 @@
+name: dune.ether_fi.result_lrts_restaking_protocol_tvl
+table_name: dune.ether_fi.result_lrts_restaking_protocol_tvl
+display_name: LRTs + Restaking Protocols TVL
+description: This dataset contains daily asset balances and TVL estimates for tracked restaking protocols, currently focused on EigenLayer, Symbiotic, and Karak.
+refresh_interval_minutes: 120
+freshness_timestamp_column: last_updated
+source_query_id: 6610098
+source_query_url: https://dune.com/queries/6610098
+freshness_source_name: LRTs + Restaking Protocols TVL
+grain: one row per day, blockchain, restaking protocol address, restaking protocol, and held token asset
+business_meaning:
+  - This table summarizes assets held by restaking protocol contracts by day, chain, protocol, asset token, and value in token units, USD, and ETH.
+  - It is used to analyze restaking protocol TVL by protocol and deposited asset, including stETH or wstETH balances held in EigenLayer, Symbiotic, or Karak.
+  - This table belongs to the LRT/LST restaking category, but it is not an LRT/LST DEX market table.
+use_when:
+  - when the user wants tracked restaking protocol balances or asset-level TVL
+  - when filtering restaking protocol TVL by restaking_protocol and token_symbol
+  - when asking how much stETH or wstETH is held in EigenLayer
+  - when comparing asset balances across EigenLayer, Symbiotic, and Karak
+do_not_use_when:
+  - when the user wants LRT/LST DEX trades; use dune.ether_fi.result_lrts_restaking_trades
+  - when the user wants DEX pool liquidity; use dune.ether_fi.result_lrts_restaking_dex_pools_balances
+  - when the user wants ether.fi protocol token backing or supply; use dune.ether_fi.result_etherfi_protocol_token_tvl
+important_filters:
+  - restaking_protocol for EigenLayer, Symbiotic, or Karak
+  - token_symbol or token_address for deposited asset analysis
+  - day for historical balance snapshots
+  - blockchain or address for chain and protocol-contract context
+important_columns:
+  - restaking_protocol: restaking protocol name, such as EigenLayer, Symbiotic, or Karak
+  - protocol_symbol: symbol or label for the specific restaking protocol contract/deposit asset context
+  - address: restaking protocol contract address holding or accounting for the asset
+  - token_symbol: token symbol of the asset held by the restaking protocol
+  - token_balance: token balance of the asset held by the restaking protocol
+  - token_balance_usd: USD value of the token balance
+  - token_balance_eth: ETH value of the token balance
+  - last_updated: freshness timestamp column for this dataset
+query_notes:
+  - "This table should be used for tracked restaking protocol balances and asset-level TVL, especially when filtering by `restaking_protocol` and `token_symbol`."
+  - "To check how much stETH or wstETH is in EigenLayer, filter `restaking_protocol = 'EigenLayer'` and `token_symbol in ('stETH', 'wstETH')`."
+  - "Interpret `protocol_symbol`, `address`, `token_symbol`, and `restaking_protocol` together because restaking protocols can use different contracts or accounting addresses for different deposit assets."
+semantic_notes:
+  - weETH is an LRT issued by ether.fi, while EigenLayer, Symbiotic, and Karak are restaking protocols that can hold or account for deposited assets.
+  - This table tracks balances held by restaking protocol contracts, not DEX trades or pool liquidity.
+  - It is best for protocol + asset-level questions, such as how much wstETH is in EigenLayer.
+caveats:
+  - This table is maintained for selected tracked restaking protocols, currently EigenLayer, Symbiotic, and Karak.
+  - It should not be treated as a perfect universal restaking market TVL source unless the tracked protocol/address coverage is confirmed.
+  - Many restaking protocols use different contracts or accounting addresses for different deposit assets, so `protocol_symbol`, `address`, `token_symbol`, and `restaking_protocol` should be interpreted together.
+  - Use `last_updated` as the dataset freshness signal.
+schema:
+  - name: day
+    type: timestamp
+    description: Day for the restaking protocol balance snapshot.
+  - name: blockchain
+    type: varchar
+    description: Blockchain where the restaking protocol contract/address is tracked.
+  - name: address
+    type: varbinary
+    description: Restaking protocol contract address holding or accounting for the asset.
+  - name: token_address
+    type: varbinary
+    description: Token address of the asset held by the restaking protocol.
+  - name: protocol_symbol
+    type: varchar
+    description: Symbol or label for the specific restaking protocol contract/deposit asset context.
+  - name: token_symbol
+    type: varchar
+    description: Token symbol of the asset held by the restaking protocol.
+  - name: restaking_protocol
+    type: varchar
+    description: Restaking protocol name, such as EigenLayer, Symbiotic, or Karak.
+  - name: token_balance
+    type: double
+    description: Token balance of the asset held by the restaking protocol.
+  - name: token_balance_usd
+    type: double
+    description: USD value of the token balance.
+  - name: token_balance_eth
+    type: double
+    description: ETH value of the token balance.
+  - name: last_updated
+    type: timestamp
+    description: Freshness timestamp column for this dataset.
+example_user_intents:
+  - How much wstETH is held in EigenLayer?
+  - Show restaking protocol TVL by asset.
+  - Compare EigenLayer, Symbiotic, and Karak balances over time.
+  - What assets are held by tracked restaking protocol contracts?
+search_keywords:
+  - restaking protocol tvl
+  - eigenlayer tvl
+  - symbiotic tvl
+  - karak tvl
+  - steth in eigenlayer
+  - wsteth in eigenlayer
+  - restaking balances
+  - protocol asset balances
+related_datasets:
+  - dune.ether_fi.result_lrts_restaking_trades
+  - dune.ether_fi.result_lrts_restaking_dex_pools
+  - dune.ether_fi.result_lrts_restaking_dex_pools_balances
+  - dune.ether_fi.result_etherfi_protocol_token_tvl
+related_dashboards:
+  - etherfi_overview

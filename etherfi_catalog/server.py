@@ -5,31 +5,31 @@ import os
 
 from mcp.server.fastmcp import FastMCP
 
-from src.catalog import compare_datasets as compare_catalog_datasets
-from src.catalog import diagnose_token_price_coverage as diagnose_token_price_coverage_data
-from src.catalog import find_price_tokens as find_price_tokens_data
-from src.catalog import get_assets_under_management_balances as get_aum_balances_plan
-from src.catalog import get_catalog_health_summary as get_catalog_health_summary_data
-from src.catalog import get_cash_events as get_cash_events_data
-from src.catalog import get_cash_holdings_timeseries as get_cash_holdings_timeseries_data
-from src.catalog import get_cash_safe_profile as get_cash_safe_profile_data
-from src.catalog import get_cash_token_totals as get_cash_token_totals_data
-from src.catalog import get_dashboard_details as get_catalog_dashboard_details
-from src.catalog import get_dashboard_status as get_catalog_dashboard_status
-from src.catalog import get_dataset_details as get_catalog_dataset_details
-from src.catalog import get_dataset_status as get_catalog_dataset_status
-from src.catalog import get_protocol_token_holders as get_protocol_token_holders_data
-from src.catalog import get_protocol_token_tvl as get_protocol_token_tvl_data
-from src.catalog import get_protocol_token_tvl_timeseries as get_protocol_token_tvl_timeseries_data
-from src.catalog import get_protocol_events as get_protocol_events_data
-from src.catalog import get_token_price as get_token_price_data
-from src.catalog import get_token_price_by_symbol as get_token_price_by_symbol_data
-from src.catalog import get_token_prices_batch as get_token_prices_batch_data
-from src.catalog import get_top_cash_users as get_top_cash_users_data
-from src.catalog import list_stale_datasets as list_catalog_stale_datasets
-from src.catalog import plan_etherfi_query as plan_etherfi_query_data
-from src.catalog import search_dashboards as search_catalog_dashboards
-from src.catalog import search_datasets as search_catalog_datasets
+from etherfi_catalog.catalog import compare_datasets as compare_catalog_datasets
+from etherfi_catalog.catalog import diagnose_token_price_coverage as diagnose_token_price_coverage_data
+from etherfi_catalog.catalog import find_price_tokens as find_price_tokens_data
+from etherfi_catalog.catalog import get_assets_under_management_balances as get_aum_balances_plan
+from etherfi_catalog.catalog import get_catalog_health_summary as get_catalog_health_summary_data
+from etherfi_catalog.catalog import get_cash_events as get_cash_events_data
+from etherfi_catalog.catalog import get_cash_holdings_timeseries as get_cash_holdings_timeseries_data
+from etherfi_catalog.catalog import get_cash_safe_profile as get_cash_safe_profile_data
+from etherfi_catalog.catalog import get_cash_token_totals as get_cash_token_totals_data
+from etherfi_catalog.catalog import get_dashboard_details as get_catalog_dashboard_details
+from etherfi_catalog.catalog import get_dashboard_status as get_catalog_dashboard_status
+from etherfi_catalog.catalog import get_dataset_details as get_catalog_dataset_details
+from etherfi_catalog.catalog import get_dataset_status as get_catalog_dataset_status
+from etherfi_catalog.catalog import get_protocol_token_holders as get_protocol_token_holders_data
+from etherfi_catalog.catalog import get_protocol_token_tvl as get_protocol_token_tvl_data
+from etherfi_catalog.catalog import get_protocol_token_tvl_timeseries as get_protocol_token_tvl_timeseries_data
+from etherfi_catalog.catalog import get_protocol_events as get_protocol_events_data
+from etherfi_catalog.catalog import get_token_price as get_token_price_data
+from etherfi_catalog.catalog import get_token_price_by_symbol as get_token_price_by_symbol_data
+from etherfi_catalog.catalog import get_token_prices_batch as get_token_prices_batch_data
+from etherfi_catalog.catalog import get_top_cash_users as get_top_cash_users_data
+from etherfi_catalog.catalog import list_stale_datasets as list_catalog_stale_datasets
+from etherfi_catalog.catalog import plan_etherfi_query as plan_etherfi_query_data
+from etherfi_catalog.catalog import search_dashboards as search_catalog_dashboards
+from etherfi_catalog.catalog import search_datasets as search_catalog_datasets
 
 
 server = FastMCP("etherfi-catalog")

@@ -165,7 +165,7 @@ website over the existing ether.fi analytics catalog and MCP server.
 **Likely Files:**
 - `docs/mcp.md`
 - `docs/agent_workflow.md`
-- maybe generated tool section from `src/server.py`
+- maybe generated tool section from `etherfi_catalog/server.py`
 
 ### Ticket 8: Website Visual Polish Pass
 
