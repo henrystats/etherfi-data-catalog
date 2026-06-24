@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import ast
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 import hashlib
@@ -58,17 +57,6 @@ class DashboardEntry:
     slug: str
     category: str
     data: dict
-
-
-@dataclass(frozen=True)
-class MCPToolInfo:
-    name: str
-    description: str
-    parameters: tuple[str, ...]
-
-    @property
-    def live_capable(self) -> bool:
-        return "execute_live" in self.parameters and self.name != "plan_etherfi_query"
 
 
 def parse_frontmatter(path: Path) -> tuple[dict, str]:
@@ -315,71 +303,6 @@ DASHBOARD_DISPLAY_GROUPS = [
 ]
 
 
-MCP_TOOL_GROUPS = [
-    {
-        "title": "Catalog discovery",
-        "description": "Find the right documented dataset or dashboard before anyone writes SQL.",
-        "tools": [
-            "search_datasets",
-            "get_dataset_details",
-            "compare_datasets",
-            "search_dashboards",
-            "get_dashboard_details",
-        ],
-    },
-    {
-        "title": "Freshness and status",
-        "description": "Inspect freshness, dashboard-linked warnings, and catalog health.",
-        "tools": [
-            "get_dataset_status",
-            "list_stale_datasets",
-            "get_dashboard_status",
-            "get_catalog_health_summary",
-        ],
-    },
-    {
-        "title": "Query planning",
-        "description": "Return safe query plans, caveats, filters, and starter DuneSQL without executing.",
-        "tools": [
-            "plan_etherfi_query",
-        ],
-    },
-    {
-        "title": "Cash live tools",
-        "description": "Answer narrow ether.fi Cash questions when live execution is enabled.",
-        "tools": [
-            "get_cash_events",
-            "get_cash_holdings_timeseries",
-            "get_cash_safe_profile",
-            "get_cash_token_totals",
-            "get_top_cash_users",
-            "get_assets_under_management_balances",
-        ],
-    },
-    {
-        "title": "Protocol live tools",
-        "description": "Inspect protocol TVL, holders, and protocol events through scoped tools.",
-        "tools": [
-            "get_protocol_token_holders",
-            "get_protocol_events",
-            "get_protocol_token_tvl",
-            "get_protocol_token_tvl_timeseries",
-        ],
-    },
-    {
-        "title": "Price coverage tools",
-        "description": "Resolve token price candidates and diagnose enriched price coverage.",
-        "tools": [
-            "find_price_tokens",
-            "get_token_price",
-            "get_token_price_by_symbol",
-            "get_token_prices_batch",
-            "diagnose_token_price_coverage",
-        ],
-    },
-]
-
-
 def category_sort_key(item: tuple[str, list["DatasetEntry"]] | str) -> tuple[int, str]:
     category = item[0] if isinstance(item, tuple) else item
     if category in CATEGORY_ORDER:
@@ -559,53 +482,6 @@ def load_freshness_registry(registry_path: Path = DEFAULT_FRESHNESS_REGISTRY) ->
     if not registry_path.exists():
         return {}
     return yaml.safe_load(registry_path.read_text(encoding="utf-8")) or {}
-
-
-def count_mcp_tools(server_path: Path = ROOT / "etherfi_catalog" / "server.py") -> int:
-    server_path = Path(server_path)
-    if not server_path.exists():
-        return 0
-    return len(re.findall(r"@server\.tool\(", server_path.read_text(encoding="utf-8")))
-
-
-def mcp_tool_name_from_decorator(decorator: ast.expr) -> str | None:
-    if not isinstance(decorator, ast.Call):
-        return None
-    if not isinstance(decorator.func, ast.Attribute) or decorator.func.attr != "tool":
-        return None
-    for keyword in decorator.keywords:
-        if keyword.arg == "name" and isinstance(keyword.value, ast.Constant):
-            return str(keyword.value.value)
-    return None
-
-
-def extract_mcp_tools(server_path: Path = ROOT / "etherfi_catalog" / "server.py") -> dict[str, MCPToolInfo]:
-    """Read the local MCP server and return the tools currently registered there."""
-    server_path = Path(server_path)
-    if not server_path.exists():
-        return {}
-    tree = ast.parse(server_path.read_text(encoding="utf-8"))
-    tools: dict[str, MCPToolInfo] = {}
-    for node in tree.body:
-        if not isinstance(node, ast.FunctionDef):
-            continue
-        tool_name = next(
-            (
-                name
-                for decorator in node.decorator_list
-                if (name := mcp_tool_name_from_decorator(decorator))
-            ),
-            None,
-        )
-        if not tool_name:
-            continue
-        parameters = tuple(arg.arg for arg in node.args.args)
-        tools[tool_name] = MCPToolInfo(
-            name=tool_name,
-            description=ast.get_docstring(node) or "Available ether.fi catalog MCP tool.",
-            parameters=parameters,
-        )
-    return dict(sorted(tools.items()))
 
 
 def value_or_missing(value) -> str:
@@ -996,18 +872,6 @@ def render_freshness_meter(row: dict) -> str:
     )
 
 
-def render_summary_card(label: str, value: object, helper: str = "", class_name: str = "") -> str:
-    classes = f"catalog-summary-card {class_name}".strip()
-    helper_html = f"<p>{escape(helper)}</p>" if helper else ""
-    return (
-        f'<article class="{escape(classes)}">'
-        f"<span>{escape(label)}</span>"
-        f"<strong>{escape(str(value))}</strong>"
-        f"{helper_html}"
-        "</article>"
-    )
-
-
 def render_meta_chip(label: str, value_html: str, class_name: str = "", title: str = "") -> str:
     classes = f"meta-chip {class_name}".strip()
     title_attr = f' title="{escape(title)}"' if title else ""
@@ -1016,96 +880,6 @@ def render_meta_chip(label: str, value_html: str, class_name: str = "", title: s
         f"<span>{escape(label)}</span>"
         f"<strong>{value_html}</strong>"
         "</span>"
-    )
-
-
-def mcp_grouped_tools(tools: dict[str, MCPToolInfo]) -> list[dict]:
-    grouped = []
-    mapped_tools: set[str] = set()
-    for group in MCP_TOOL_GROUPS:
-        group_tools = [
-            tools[name]
-            for name in group["tools"]
-            if name in tools
-        ]
-        mapped_tools.update(tool.name for tool in group_tools)
-        if group_tools:
-            grouped.append({**group, "tool_infos": group_tools})
-
-    extra_tools = [
-        tool
-        for name, tool in tools.items()
-        if name not in mapped_tools
-    ]
-    if extra_tools:
-        grouped.append(
-            {
-                "title": "Other available tools",
-                "description": "Registered tools that do not yet have a more specific website group.",
-                "tools": [tool.name for tool in extra_tools],
-                "tool_infos": extra_tools,
-            }
-        )
-    return grouped
-
-
-def render_mcp_badge(label: str, class_name: str) -> str:
-    return f'<span class="mcp-badge {escape(class_name)}">{escape(label)}</span>'
-
-
-def mcp_tool_badges(tool: MCPToolInfo, group_title: str) -> list[str]:
-    if tool.live_capable:
-        return [
-            render_mcp_badge("Planning", "planning"),
-            render_mcp_badge("Live-capable", "live"),
-            render_mcp_badge("DUNE_API_KEY", "key"),
-        ]
-    if tool.name == "plan_etherfi_query":
-        return [render_mcp_badge("Planning", "planning")]
-    if group_title == "Freshness and status":
-        return [
-            render_mcp_badge("Metadata", "metadata"),
-            render_mcp_badge("Status", "status"),
-        ]
-    return [render_mcp_badge("Metadata", "metadata")]
-
-
-def render_mcp_tool_card(tool: MCPToolInfo, group_title: str) -> str:
-    badges = "".join(mcp_tool_badges(tool, group_title))
-    return (
-        f'<article class="mcp-tool-card" data-mcp-tool="{escape(tool.name)}">'
-        f"<code>{escape(tool.name)}</code>"
-        f"<p>{escape(tool.description)}</p>"
-        f'<div class="mcp-badge-row">{badges}</div>'
-        "</article>"
-    )
-
-
-def render_mcp_tool_groups(tools: dict[str, MCPToolInfo]) -> str:
-    groups = []
-    for group in mcp_grouped_tools(tools):
-        tool_cards = "".join(
-            render_mcp_tool_card(tool, str(group["title"]))
-            for tool in group["tool_infos"]
-        )
-        groups.append(
-            '<section class="mcp-tool-group detail-panel">'
-            "<div>"
-            f"<h3>{escape(str(group['title']))}</h3>"
-            f"<p>{escape(str(group['description']))}</p>"
-            "</div>"
-            f'<div class="mcp-tool-list">{tool_cards}</div>'
-            "</section>"
-        )
-    return "".join(groups)
-
-
-def render_mcp_capability_card(title: str, description: str) -> str:
-    return (
-        '<article class="mcp-capability-card">'
-        f"<h3>{escape(title)}</h3>"
-        f"<p>{escape(description)}</p>"
-        "</article>"
     )
 
 
@@ -1118,26 +892,29 @@ def render_mcp_prompt_card(group: str, prompt: str) -> str:
     )
 
 
-def render_mcp_code_block(value: str) -> str:
-    return f"<pre><code>{escape(value.strip())}</code></pre>"
+def render_mcp_code_block(value: str, label: str = "Snippet") -> str:
+    stripped = value.strip()
+    return (
+        '<div class="code-snippet">'
+        '<div class="code-snippet-bar">'
+        f"<span>{escape(label)}</span>"
+        f'<button class="copy-value-button snippet-copy-button" type="button" data-snippet-copy '
+        f'data-copy-text="{escape(stripped)}" aria-label="Copy {escape(label)}">'
+        f"{COPY_ICON_SVG}"
+        '<span class="copy-value-label" data-copy-feedback>Copy</span>'
+        "</button>"
+        "</div>"
+        f"<pre><code>{escape(stripped)}</code></pre>"
+        "</div>"
+    )
 
 
-def render_mcp_page(tools: dict[str, MCPToolInfo] | None = None) -> str:
-    tools = tools or extract_mcp_tools()
-    live_tool_count = sum(1 for tool in tools.values() if tool.live_capable)
+def render_mcp_page(*, mcp_js_version: str = "local") -> str:
     catalog_install_command = (
         "uvx --from git+https://github.com/henrystats/etherfi-data-catalog.git "
         "etherfi-catalog-mcp"
     )
     codex_config = """
-[mcp_servers.dune]
-command = "<official-dune-mcp-command>"
-args = ["<official-dune-mcp-args>"]
-tool_timeout_sec = 300
-
-[mcp_servers.dune.env]
-DUNE_API_KEY = "your_dune_api_key_here"
-
 [mcp_servers.etherfi-catalog]
 command = "uvx"
 args = [
@@ -1145,8 +922,9 @@ args = [
   "git+https://github.com/henrystats/etherfi-data-catalog.git",
   "etherfi-catalog-mcp",
 ]
-startup_timeout_sec = 30
-tool_timeout_sec = 60
+enabled = true
+startup_timeout_sec = 60
+tool_timeout_sec = 120
 
 [mcp_servers.etherfi-catalog.env]
 DUNE_API_KEY = "your_dune_api_key_here"
@@ -1154,13 +932,6 @@ DUNE_API_KEY = "your_dune_api_key_here"
     claude_config = """
 {
   "mcpServers": {
-    "dune": {
-      "command": "<official-dune-mcp-command>",
-      "args": ["<official-dune-mcp-args>"],
-      "env": {
-        "DUNE_API_KEY": "your_dune_api_key_here"
-      }
-    },
     "etherfi-catalog": {
       "command": "uvx",
       "args": [
@@ -1175,198 +946,121 @@ DUNE_API_KEY = "your_dune_api_key_here"
   }
 }
 """
-    capability_cards = "".join(
-        render_mcp_capability_card(title, description)
-        for title, description in [
-            (
-                "Dataset discovery",
-                "Find the right ether.fi materialized view and understand what it represents.",
-            ),
-            (
-                "Dashboard discovery",
-                "Find existing Dune dashboards and the internal datasets they depend on.",
-            ),
-            (
-                "Freshness checks",
-                "Check whether key materialized views are fresh, stale, or undocumented.",
-            ),
-            (
-                "Query planning",
-                "Help agents plan safe ether.fi DuneSQL queries with the right tables, filters, and caveats.",
-            ),
-            (
-                "Live answers",
-                "Run selected narrow Dune-backed tools when live execution is enabled.",
-            ),
-        ]
-    )
     prompt_cards = "".join(
         render_mcp_prompt_card(group, prompt)
         for group, prompt in [
-            ("Dataset discovery", "Which ether.fi dataset should I use to analyze protocol token TVL?"),
-            ("Dataset discovery", "What does result_etherfi_cash_events contain?"),
-            ("Freshness", "Is the Cash events dataset fresh?"),
-            ("Freshness", "Which ether.fi datasets are currently stale?"),
-            ("Dashboard discovery", "Is there already a dashboard for ether.fi Cash?"),
-            ("Dashboard discovery", "Which dashboards depend on the Cash events dataset?"),
-            ("Live answer", "What are the latest balances for Cash address 0xCa59d6a6a7360fBe3ceDF9C82CeBfe7F7AE72e8F?"),
-            ("Query planning", "Plan a Dune query for weekly USDC spend volume on ether.fi Cash."),
+            (
+                "Metadata-only test",
+                'Use etherfi-catalog MCP only. Search datasets for "cash events", get details for the best match, and get the catalog health summary. Do not make live Dune calls.',
+            ),
+            (
+                "Dashboard test",
+                'Use etherfi-catalog MCP only. Search dashboards for "cash" and summarize the best match. Do not make live Dune calls.',
+            ),
+            (
+                "Planning test",
+                "Use etherfi-catalog MCP only. Plan a Dune query for weekly USDC cashback volume on ether.fi Cash. Do not execute live.",
+            ),
         ]
     )
-    tool_groups = render_mcp_tool_groups(tools)
 
     return (
         '<section class="page mcp-page" data-mcp-page>'
         '<div class="wrap mcp-layout">'
         '<section class="mcp-hero detail-panel">'
         '<div>'
-        '<p class="eyebrow">Semantic agent layer</p>'
+        '<p class="eyebrow">MCP setup</p>'
         "<h1>ether.fi Catalog MCP</h1>"
-        '<p class="page-lead">Install a local stdio MCP that helps AI agents use ether.fi&rsquo;s dataset catalog, dashboard registry, freshness status, and Dune query-planning context.</p>'
+        '<p class="page-lead">Connect AI agents to ether.fi dataset metadata, dashboards, freshness context, and query-planning guidance.</p>'
         '<div class="mcp-action-row">'
-        '<a class="button primary" href="datasets.html">Explore datasets</a>'
-        '<a class="button secondary" href="dashboards.html">View dashboards</a>'
-        '<a class="button secondary" href="freshness.html">Check freshness</a>'
+        '<a class="button primary" href="#recommended-setup">Recommended setup</a>'
+        '<a class="button secondary" href="#client-configs">Client configs</a>'
+        '<a class="button secondary" href="#test-it-works">Test it works</a>'
         "</div>"
-        "</div>"
-        '<div class="mcp-summary-grid">'
-        f'{render_summary_card("Registered tools", len(tools), class_name="accent")}'
-        f'{render_summary_card("Tool groups", len(mcp_grouped_tools(tools)), class_name="fresh")}'
-        f'{render_summary_card("Live-capable", live_tool_count, class_name="stale")}'
-        f'{render_summary_card("Execution layer", "Dune", class_name="unknown")}'
         "</div>"
         "</section>"
-        '<section class="mcp-section">'
+        '<section class="mcp-section detail-panel compact-guide">'
         '<div class="mcp-section-heading">'
-        "<h2>What this MCP does</h2>"
-        "<p>It helps agents and teammates choose the right ether.fi context before moving into Dune execution.</p>"
+        "<h2>What it does</h2>"
         "</div>"
-        f'<div class="mcp-capability-grid">{capability_cards}</div>'
+        '<ul class="mcp-plain-list">'
+        "<li>Find the right ether.fi dataset or dashboard.</li>"
+        "<li>Check freshness context before reporting or querying.</li>"
+        "<li>Plan safer DuneSQL with documented caveats and table semantics.</li>"
+        "<li>Use Dune MCP for execution, saved queries, charts, and dashboards.</li>"
+        "</ul>"
         "</section>"
-        '<section class="mcp-section mcp-flow-section detail-panel">'
+        '<section id="recommended-setup" class="mcp-section detail-panel">'
         '<div class="mcp-section-heading">'
-        "<h2>How it fits together</h2>"
-        "<p>etherfi-catalog is the semantic layer. Dune is still the query and dashboard execution layer.</p>"
+        "<h2>Recommended setup</h2>"
+        "<p>Use local stdio via <code>uvx</code>. Keep real credentials in private local config.</p>"
         "</div>"
-        '<div class="mcp-flow">'
-        '<article><span>1</span><strong>User question</strong><p>A teammate or agent asks what to analyze, build, check, or summarize.</p></article>'
-        '<article><span>2</span><strong>etherfi-catalog MCP</strong><p>Chooses datasets, tools, caveats, filters, and safe query shape.</p></article>'
-        '<article><span>3</span><strong>Dune / Dune MCP</strong><p>Handles query execution, saved queries, charts, and dashboards.</p></article>'
-        '<article><span>4</span><strong>Website catalog</strong><p>Documents the same datasets, dashboards, and freshness status for humans.</p></article>'
-        "</div>"
+        f"{render_mcp_code_block(catalog_install_command, 'Install command')}"
+        "<ul>"
+        "<li>Install Dune MCP separately using Dune&rsquo;s official instructions.</li>"
+        "<li>Use ether.fi Catalog MCP for dataset semantics, dashboard discovery, freshness context, and query planning.</li>"
+        "<li>Use Dune MCP for execution, saved queries, charts, and dashboards.</li>"
+        "<li>Each user should use their own Dune API key locally.</li>"
+        "<li>Do not put a shared team key in the repo.</li>"
+        "</ul>"
         "</section>"
-        '<section class="mcp-section">'
+        '<section id="client-configs" class="mcp-section detail-panel">'
         '<div class="mcp-section-heading">'
-        "<h2>Tool groups</h2>"
-        "<p>Available tools are read from the current MCP server and grouped for the website.</p>"
+        "<h2>Client configs</h2>"
+        "<p>Use placeholders in examples. Put real credentials only in private local config.</p>"
         "</div>"
-        f'<div class="mcp-tool-groups">{tool_groups}</div>'
+        '<div class="mcp-config-grid">'
+        '<article>'
+        "<h3>Codex config</h3>"
+        f"{render_mcp_code_block(codex_config, 'Codex TOML')}"
+        "</article>"
+        '<article>'
+        "<h3>Claude Desktop config</h3>"
+        f"{render_mcp_code_block(claude_config, 'Claude JSON')}"
+        "</article>"
+        "</div>"
+        "<ul>"
+        "<li>Codex may use the global config at <code>/Users/&lt;user&gt;/.codex/config.toml</code>.</li>"
+        "<li>Claude Desktop typically uses a JSON MCP server config.</li>"
+        "<li>After editing MCP config, fully restart or reload the client.</li>"
+        "</ul>"
         "</section>"
-        '<section class="mcp-section">'
+        '<section class="mcp-section detail-panel">'
         '<div class="mcp-section-heading">'
-        "<h2>Example prompts</h2>"
-        "<p>Short prompts that show how teammates and agents should start with catalog semantics.</p>"
+        "<h2>How to use with Dune MCP</h2>"
+        "</div>"
+        "<ol>"
+        "<li>Ask ether.fi Catalog MCP which dataset, dashboard, or freshness context applies.</li>"
+        "<li>Use Dune MCP to execute queries, create saved queries, build charts, or update dashboards.</li>"
+        "<li>Keep caveats and freshness notes in query descriptions.</li>"
+        "<li>Use live ether.fi tools only when needed and with narrow filters.</li>"
+        "</ol>"
+        "</section>"
+        '<section id="test-it-works" class="mcp-section detail-panel">'
+        '<div class="mcp-section-heading">'
+        "<h2>Test it works</h2>"
         "</div>"
         f'<div class="mcp-prompt-grid">{prompt_cards}</div>'
         "</section>"
-        '<section class="mcp-section mcp-mode-grid">'
-        '<article class="detail-panel">'
-        "<h2>Planning mode</h2>"
-        "<ul>"
-        "<li>No Dune query execution.</li>"
-        "<li>Metadata and planning tools work without <code>DUNE_API_KEY</code>.</li>"
-        "<li>Returns recommended datasets, caveats, filters, and suggested SQL.</li>"
-        "<li>Useful for safe query authoring and review before creating Dune artifacts.</li>"
-        "</ul>"
-        "</article>"
-        '<article class="detail-panel warning">'
-        "<h2>Live mode</h2>"
-        "<ul>"
-        "<li>Runs narrow Dune-backed tools where implemented.</li>"
-        "<li>Requires <code>DUNE_API_KEY</code> in the local <code>etherfi-catalog</code> MCP env block.</li>"
-        "<li>May consume Dune credits; use summary mode and narrow filters.</li>"
-        "</ul>"
-        "</article>"
-        "</section>"
-        '<section class="mcp-section detail-panel">'
-        '<div class="mcp-section-heading compact">'
-        "<h2>Today vs later</h2>"
-        "<p>Local stdio install is the recommended team path. Docker and Cloud Run remain advanced options for private staging, demos, and future remote deployments.</p>"
-        "</div>"
-        "</section>"
-        '<section class="mcp-section detail-panel">'
-        '<div class="mcp-section-heading">'
-        "<h2>Recommended setup</h2>"
-        "<p>Install Dune MCP first for execution workflows, then install ether.fi Catalog MCP as the semantic catalog and planning layer. Each teammate should use their own Dune credentials locally.</p>"
-        "</div>"
-        '<div class="mcp-setup-grid">'
-        '<article><strong>1. Install Dune MCP</strong><p>Follow the current official Dune MCP instructions for your client. Use OAuth when the client can complete browser auth, or put <code>DUNE_API_KEY</code> in the Dune MCP env block for API-key auth.</p></article>'
-        f'<article><strong>2. Install ether.fi Catalog MCP</strong><p><code>{escape(catalog_install_command)}</code></p></article>'
-        '<article><strong>3. Reload the client</strong><p>After changing MCP config, fully restart or reload Codex, Claude Desktop, or the active MCP client so new server processes receive the environment.</p></article>'
-        '<article><strong>Advanced only</strong><p>Docker and Cloud Run are optional/private staging paths, not the default team setup.</p></article>'
-        "</div>"
-        "</section>"
-        '<section class="mcp-section detail-panel">'
-        '<div class="mcp-section-heading">'
-        "<h2>Codex config</h2>"
-        "<p>Codex may load a global config such as <code>/Users/&lt;user&gt;/.codex/config.toml</code>. Put real keys only in private local config, never in this repo.</p>"
-        "</div>"
-        f"{render_mcp_code_block(codex_config)}"
-        "</section>"
-        '<section class="mcp-section detail-panel">'
-        '<div class="mcp-section-heading">'
-        "<h2>Claude Desktop config</h2>"
-        "<p>Claude-style clients use the same local stdio shape: one server entry for Dune MCP and one for ether.fi Catalog MCP.</p>"
-        "</div>"
-        f"{render_mcp_code_block(claude_config)}"
-        "</section>"
-        '<section class="mcp-section detail-panel">'
-        '<div class="mcp-section-heading">'
-        "<h2>Test it works</h2>"
-        "<p>Start with metadata and planning prompts. These do not require <code>DUNE_API_KEY</code> and should not make live Dune calls.</p>"
-        "</div>"
-        "<ul>"
-        "<li>Search ether.fi datasets for Cash events.</li>"
-        "<li>Show details for the protocol token holders dataset.</li>"
-        "<li>Is the Cash events dataset fresh?</li>"
-        "<li>Plan a Dune query for weekly USDC spend volume on ether.fi Cash with <code>execute_live=false</code>.</li>"
-        "</ul>"
-        "</section>"
         '<section class="mcp-section detail-panel warning">'
         '<div class="mcp-section-heading">'
-        "<h2>Optional live Dune calls</h2>"
-        "<p>Only use live catalog tools when the question needs a fresh Dune-backed answer.</p>"
+        "<h2>Live Dune-backed tools</h2>"
+        "<p>Live calls require <code>DUNE_API_KEY</code> in the <code>etherfi-catalog</code> env block and may consume Dune credits. Use summary mode and narrow date, token, chain, or address filters.</p>"
         "</div>"
-        "<ul>"
-        "<li>Set <code>DUNE_API_KEY</code> in the local <code>etherfi-catalog</code> MCP env block before using <code>execute_live=true</code>.</li>"
-        "<li>Live calls may consume Dune credits.</li>"
-        "<li>Use summary mode, narrow date ranges, and token, chain, or address filters.</li>"
-        "<li>Prefer one narrow live call over repeated broad calls.</li>"
-        "</ul>"
         "</section>"
         '<section class="mcp-section detail-panel">'
         '<div class="mcp-section-heading">'
         "<h2>Troubleshooting</h2>"
         "</div>"
         "<ul>"
-        "<li>If planning tools work but live tools cannot see <code>DUNE_API_KEY</code>, confirm the key is in the active MCP client config and restart the client.</li>"
-        "<li>On Apple Silicon, <code>/usr/local/bin/git ... Bad CPU type in executable</code> usually means an old Intel Git is first on <code>PATH</code>; prefer <code>/opt/homebrew/bin/git</code> or <code>/usr/bin/git</code>.</li>"
-        "<li>If Dune MCP auth fails, verify whether your client should use OAuth or API-key auth.</li>"
-        "<li>Keep Cloud Run and Docker as advanced/private staging options until auth, rate limits, and credit controls are reviewed.</li>"
+        "<li>If MCP does not load, confirm <code>uvx</code> works in your shell.</li>"
+        "<li>If Codex cannot see new config, restart Codex.</li>"
+        "<li>If live calls fail, confirm <code>DUNE_API_KEY</code> is under the <code>etherfi-catalog</code> env block.</li>"
+        "<li>On Apple Silicon, if <code>uvx</code> fails with <code>/usr/local/bin/git ... Bad CPU type in executable</code>, prefer <code>/opt/homebrew/bin/git</code> or <code>/usr/bin/git</code>.</li>"
+        "<li>If metadata works but live calls fail, the key may not be reaching the MCP runtime.</li>"
         "</ul>"
         "</section>"
-        '<section class="mcp-section detail-panel">'
-        "<h2>Best practices</h2>"
-        '<div class="mcp-best-practices">'
-        "<span>Start with dataset discovery before writing SQL.</span>"
-        "<span>Check freshness before using a dataset for reporting.</span>"
-        "<span>Use Dune for heavy execution and dashboards.</span>"
-        "<span>Prefer batched queries over repeated small calls.</span>"
-        "<span>For live catalog tools, prefer summary mode and narrow filters.</span>"
-        "<span>Preserve caveats in generated query descriptions.</span>"
-        "<span>Use team Dune context/API keys for shareable team-owned artifacts when applicable.</span>"
-        "</div>"
-        "</section>"
+        f'<script src="assets/mcp.js?v={escape(mcp_js_version)}" defer></script>'
         "</div>"
         "</section>"
     )
@@ -1384,13 +1078,24 @@ def render_home_preview_card(title: str, description: str, href: str, label: str
     )
 
 
-def render_home_workflow_step(number: int, title: str, description: str) -> str:
+def render_home_command_preview() -> str:
     return (
-        "<article>"
-        f"<span>{number}</span>"
-        f"<strong>{escape(title)}</strong>"
-        f"<p>{escape(description)}</p>"
-        "</article>"
+        '<aside class="home-command-preview" aria-label="Catalog workflow preview">'
+        '<div class="command-preview-bar">'
+        "<span></span><span></span><span></span>"
+        "<strong>ether.fi catalog</strong>"
+        "</div>"
+        '<div class="command-preview-query">'
+        "<span>Teammate question</span>"
+        "<strong>Which table backs Cash activity and is it fresh enough?</strong>"
+        "</div>"
+        '<div class="command-preview-footer">'
+        "<span>Dataset context</span>"
+        "<span>Freshness status</span>"
+        "<span>MCP-ready</span>"
+        "<span>Static generated</span>"
+        "</div>"
+        "</aside>"
     )
 
 
@@ -1405,46 +1110,27 @@ def render_home_page(
         [
             render_home_preview_card(
                 "Datasets",
-                "Browse ether.fi materialized views, table schemas, refresh cadence, source queries, and related datasets.",
+                "Find cataloged tables and open schema/freshness details.",
                 "datasets.html",
                 "Explore datasets",
             ),
             render_home_preview_card(
                 "Dashboards",
-                "Find Dune dashboards by product area and see which internal catalog datasets they use.",
+                "Find existing Dune dashboards before building new views.",
                 "dashboards.html",
                 "View dashboards",
             ),
             render_home_preview_card(
                 "Freshness",
-                "Check which catalog datasets are fresh, delayed, stale, or undocumented.",
+                "Check dataset freshness and source query links.",
                 "freshness.html",
                 "Check freshness",
             ),
             render_home_preview_card(
                 "MCP",
-                "Connect AI agents to ether.fi dataset metadata, dashboard discovery, freshness checks, and selected live tools.",
+                "Set up the catalog MCP alongside Dune MCP.",
                 "mcp.html",
                 "Learn about MCP",
-            ),
-        ]
-    )
-    workflow = "".join(
-        [
-            render_home_workflow_step(
-                1,
-                "Discover the right dataset or dashboard",
-                "Start with the catalog pages to find existing tables and analysis.",
-            ),
-            render_home_workflow_step(
-                2,
-                "Check freshness and context",
-                "Confirm whether a dataset is fresh enough before using it in reporting.",
-            ),
-            render_home_workflow_step(
-                3,
-                "Use MCP/Dune to answer questions",
-                "Use the MCP for semantics and Dune for execution, charts, and dashboards.",
             ),
         ]
     )
@@ -1454,25 +1140,22 @@ def render_home_page(
         '<div class="wrap home-hub-layout">'
         '<section class="home-hub-hero detail-panel">'
         '<div>'
-        '<p class="eyebrow">Repo-backed analytics catalog</p>'
+        '<p class="eyebrow">ether.fi data command center</p>'
         "<h1>ether.fi Data Catalog</h1>"
-        '<p class="page-lead">A repo-backed catalog for ether.fi datasets, dashboards, freshness status, and MCP-powered AI workflows.</p>'
+        '<p class="page-lead">A polished, repo-backed catalog for finding ether.fi datasets, checking freshness, discovering dashboards, and giving AI agents the right context before Dune execution.</p>'
+        '<div class="home-hero-actions">'
+        '<a class="button primary" href="datasets.html">Explore datasets</a>'
+        '<a class="button secondary" href="freshness.html">Check freshness</a>'
+        '<a class="button secondary" href="mcp.html">Set up MCP</a>'
         "</div>"
+        "</div>"
+        f"{render_home_command_preview()}"
         "</section>"
         '<section class="home-section">'
         '<div class="mcp-section-heading">'
         "<h2>Explore the data catalog</h2>"
         "</div>"
         f'<div class="home-preview-grid">{preview_cards}</div>'
-        "</section>"
-        '<section class="home-section detail-panel">'
-        '<div class="mcp-section-heading">'
-        "<h2>How this fits together</h2>"
-        "</div>"
-        f'<div class="home-workflow-grid">{workflow}</div>'
-        "</section>"
-        '<section class="home-start-callout detail-panel">'
-        "<p>Start with <strong>Datasets</strong> if you are looking for tables. Start with <strong>Dashboards</strong> if you are looking for existing analysis. Start with <strong>MCP</strong> if you want an agent to choose the right data path.</p>"
         "</section>"
         "</div>"
         "</section>"
@@ -1489,8 +1172,6 @@ def render_freshness_page(
     entries: list[DatasetEntry],
     freshness_registry: dict,
     *,
-    dashboard_count: int = 0,
-    mcp_tool_count: int = 0,
     now: datetime | None = None,
     freshness_js_version: str = "local",
 ) -> str:
@@ -1500,26 +1181,19 @@ def render_freshness_page(
     ]
     rows = sorted(rows, key=freshness_sort_key)
 
-    counts = {
-        status: sum(1 for row in rows if row["status"] == status)
-        for status in ["fresh", "delayed", "stale", "unknown", "not-documented"]
-    }
-
-    summary_grid = (
-        '<div class="catalog-summary-grid">'
-        + "\n".join(
-            [
-                render_summary_card("Total datasets", len(rows), class_name="accent"),
-                render_summary_card("Fresh", counts["fresh"], class_name="fresh"),
-                render_summary_card("Stale", counts["delayed"] + counts["stale"], class_name="stale"),
-                render_summary_card(
-                    "Unknown",
-                    counts["unknown"] + counts["not-documented"],
-                    class_name="unknown",
-                ),
-            ]
-        )
-        + "</div>"
+    hero = (
+        '<section class="freshness-hero detail-panel">'
+        '<div>'
+        '<p class="eyebrow">Freshness monitor</p>'
+        "<h1>Freshness</h1>"
+        "<p>Search cataloged ether.fi datasets and check whether each one is fresh enough for reporting, dashboards, or agent-assisted Dune queries.</p>"
+        "</div>"
+        '<div class="freshness-hero-notes">'
+        "<span>Static site</span>"
+        "<span>Runtime snapshot aware</span>"
+        "<span>No live Dune call in the browser</span>"
+        "</div>"
+        "</section>"
     )
 
     status_filter_buttons = "\n".join(
@@ -1613,7 +1287,7 @@ def render_freshness_page(
     return (
         '<section class="page catalog-page freshness-page" data-freshness-page>'
         '<div class="wrap catalog-layout">'
-        f"{summary_grid}"
+        f"{hero}"
         '<section class="catalog-toolbar">'
         '<div class="catalog-search">'
         '<label for="dataset-search">Search datasets</label>'
@@ -1988,18 +1662,16 @@ def render_dataset_index(
         '<section class="dataset-overview-view" data-dataset-overview>'
         '<div class="dataset-overview-copy">'
         "<h1>Dataset catalog</h1>"
-        "<p>This page documents ether.fi materialized views and supporting datasets. Browse by category, search across the full catalog, and open detail pages for table meaning, freshness, schema, source queries, and related resources.</p>"
+        "<p>Search or browse ether.fi materialized views, then open a detail page for grain, freshness, schema, source query, and related resources.</p>"
         "</div>"
         '<section class="dataset-featured-section">'
         '<div class="dataset-view-heading">'
         "<div>"
         "<h2>Featured datasets</h2>"
-        "<p>Common starting points for protocol, TVL, and Cash analysis.</p>"
         "</div>"
         "</div>"
         f'<div class="dataset-browser-list featured-list">{featured_cards}</div>'
         "</section>"
-        '<section class="dataset-browse-callout">Browse categories on the left to explore the full catalog.</section>'
         "</section>"
         f'{"".join(category_sections)}'
         '<div id="dataset-empty-state" class="freshness-empty-state dataset-empty-state" hidden>No datasets match your search.</div>'
@@ -2141,6 +1813,10 @@ def render_schema_table(schema, important_columns=None) -> str:
         )
     return (
         '<div class="schema-table-wrap">'
+        '<div class="schema-table-toolbar">'
+        "<span>Columns</span>"
+        f"<strong>{len(columns)}</strong>"
+        "</div>"
         '<table class="schema-table">'
         "<thead><tr><th>Column</th><th>Type</th><th>Description</th></tr></thead>"
         f"<tbody>{''.join(rows)}</tbody>"
@@ -2379,6 +2055,14 @@ def render_dataset_page(
     related_dataset_html = render_related_dataset_links(data.get("related_datasets"), dataset_reference_index)
     related_dashboard_html = render_related_dashboard_links(data.get("related_dashboards"), dashboard_reference_index)
     supporting_subtables_html = render_supporting_subtables(entry, entries)
+    caveats_html = (
+        '<section class="detail-panel dataset-detail-section dataset-caveat-panel warning">'
+        "<h2>Caveats</h2>"
+        f"{render_limited_metadata_list(data.get('caveats'), limit=5)}"
+        "</section>"
+        if data.get("caveats")
+        else ""
+    )
 
     return (
         '<section class="page dataset-page">'
@@ -2386,6 +2070,10 @@ def render_dataset_page(
         '<header class="dataset-detail-header">'
         '<div>'
         '<a class="dataset-back-link" href="../datasets.html">Back to datasets</a>'
+        '<div class="dataset-detail-hero-meta">'
+        f'<span class="category-pill {escape(entry.category.replace("_", "-"))}">{escape(titleize_category(entry.category))}</span>'
+        f'<span class="status-badge freshness-badge {escape(display_status)}">{escape(freshness_display_status(row)[1])}</span>'
+        "</div>"
         f"<h1>{escape(title)}</h1>"
         f"<p>{render_inline_markdown(summary_text)}</p>"
         "</div>"
@@ -2404,6 +2092,7 @@ def render_dataset_page(
         f"{render_schema_table(data.get('schema'), data.get('important_columns'))}"
         "</section>"
         f"{supporting_subtables_html}"
+        f"{caveats_html}"
         '<section class="detail-panel dataset-detail-section">'
         "<h2>Related datasets and dashboards</h2>"
         '<div class="related-resource-columns">'
@@ -2587,29 +2276,6 @@ def render_dashboard_index(
         grouped.setdefault(entry.category, []).append(entry)
 
     core_entries = [entry for entry in entries if dashboard_is_core(entry)]
-    linked_dataset_count = len(
-        {
-            dataset_entry.slug
-            for entry in entries
-            for dataset_entry in resolve_dashboard_dataset_entries(
-                entry.data.get("datasets") or [],
-                dataset_reference_index,
-            )
-        }
-    )
-    summary_grid = (
-        '<div class="catalog-summary-grid dataset-summary-grid">'
-        + "\n".join(
-            [
-                render_summary_card("Total dashboards", len(entries), class_name="accent"),
-                render_summary_card("Core dashboards", len(core_entries), class_name="fresh"),
-                render_summary_card("Categories", len(DASHBOARD_CATEGORY_ORDER), class_name="unknown"),
-                render_summary_card("Linked datasets", linked_dataset_count, class_name="stale"),
-            ]
-        )
-        + "</div>"
-    )
-
     nav_buttons = []
     for group in DASHBOARD_DISPLAY_GROUPS:
         count = len(core_entries) if group == "core" else len(grouped.get(group, []))
@@ -2678,9 +2344,11 @@ def render_dashboard_index(
         "</aside>"
         '<div class="dataset-browser-main">'
         '<section class="dashboard-browser-header">'
+        '<div>'
+        '<p class="eyebrow">Dashboard registry</p>'
         "<h1>Dashboards</h1>"
-        "<p>Browse ether.fi Dune dashboards by product area and linked datasets.</p>"
-        f"{summary_grid}"
+        "<p>Find existing ether.fi Dune dashboards by product area, tag, or linked catalog dataset.</p>"
+        "</div>"
         "</section>"
         '<section class="catalog-toolbar dataset-browser-toolbar">'
         '<div class="catalog-search">'
@@ -2732,6 +2400,10 @@ def render_dashboard_page(
         '<header class="dataset-detail-header">'
         '<div>'
         '<a class="dataset-back-link" href="../dashboards.html">Back to dashboards</a>'
+        '<div class="dataset-detail-hero-meta">'
+        f'<span class="dashboard-category-chip {escape(entry.category)}">{escape(dashboard_category_label(entry))}</span>'
+        f'<span class="dashboard-linked-count">{len(resolve_dashboard_dataset_entries(datasets, dataset_reference_index))} linked datasets</span>'
+        "</div>"
         f"<h1>{escape(title)}</h1>"
         f'<p>{render_field_value(data.get("description"))}</p>'
         "</div>"
@@ -2807,8 +2479,6 @@ def write_freshness_page(
     *,
     entries: list[DatasetEntry],
     freshness_registry: dict,
-    dashboard_count: int,
-    mcp_tool_count: int,
     pages: list[Page],
     template: Template,
     output_dir: Path,
@@ -2823,8 +2493,6 @@ def write_freshness_page(
             content=render_freshness_page(
                 entries,
                 freshness_registry,
-                dashboard_count=dashboard_count,
-                mcp_tool_count=mcp_tool_count,
                 now=now,
                 freshness_js_version=freshness_js_version,
             ),
@@ -2843,13 +2511,14 @@ def write_mcp_page(
     pages: list[Page],
     template: Template,
     output_dir: Path,
+    mcp_js_version: str = "local",
 ) -> list[Path]:
     output_path = output_dir / "mcp.html"
     output_path.write_text(
         render_generated_page(
             title="MCP",
             description="Product documentation for the ether.fi catalog MCP.",
-            content=render_mcp_page(),
+            content=render_mcp_page(mcp_js_version=mcp_js_version),
             pages=pages,
             template=template,
             active_slug="mcp",
@@ -2987,6 +2656,7 @@ def build_site(
     datasets_js_version = asset_cache_version(source_dir / "assets" / "datasets.js")
     dataset_detail_js_version = asset_cache_version(source_dir / "assets" / "dataset-detail.js")
     dashboards_js_version = asset_cache_version(source_dir / "assets" / "dashboards.js")
+    mcp_js_version = asset_cache_version(source_dir / "assets" / "mcp.js")
     freshness_registry = (
         load_freshness_registry(Path(freshness_registry_path))
         if freshness_registry_path is not None
@@ -3027,6 +2697,7 @@ def build_site(
                 pages=pages,
                 template=template,
                 output_dir=output_dir,
+                mcp_js_version=mcp_js_version,
             )
         )
 
@@ -3062,8 +2733,6 @@ def build_site(
             write_freshness_page(
                 entries=dataset_entries,
                 freshness_registry=freshness_registry,
-                dashboard_count=len(dashboard_entries),
-                mcp_tool_count=count_mcp_tools(),
                 pages=pages,
                 template=template,
                 output_dir=output_dir,

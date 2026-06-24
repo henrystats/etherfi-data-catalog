@@ -10,7 +10,6 @@ from scripts.build_website import (
     NOT_DOCUMENTED,
     build_site,
     dataset_freshness_interval_summary,
-    extract_mcp_tools,
     format_relative_age,
     freshness_meter_for_row,
     load_dashboard_entries,
@@ -54,7 +53,7 @@ def test_build_website_outputs_core_pages(tmp_path):
     assert '<span class="brand-mark">ether.fi</span>' in index_html
     assert '<span class="brand-mark">e.fi</span>' not in index_html
     assert "ether.fi Data Catalog" in index_html
-    assert "A repo-backed catalog for ether.fi datasets, dashboards, freshness status, and MCP-powered AI workflows." in index_html
+    assert "A polished, repo-backed catalog for finding ether.fi datasets, checking freshness, discovering dashboards, and giving AI agents the right context before Dune execution." in index_html
     assert 'href="datasets.html">Explore datasets</a>' in index_html
     assert 'href="dashboards.html">View dashboards</a>' in index_html
     assert 'href="freshness.html">Check freshness</a>' in index_html
@@ -69,22 +68,29 @@ def test_build_website_outputs_core_pages(tmp_path):
     )
     assert hero_html
     assert "ether.fi Data Catalog" in hero_html.group(1)
-    assert "A repo-backed catalog" in hero_html.group(1)
-    assert "button" not in hero_html.group(1)
+    assert "A polished, repo-backed catalog" in hero_html.group(1)
+    assert "home-command-preview" in hero_html.group(1)
+    assert "Which table backs Cash activity and is it fresh enough?" in hero_html.group(1)
+    assert 'href="datasets.html">Explore datasets</a>' in hero_html.group(1)
+    assert 'href="freshness.html">Check freshness</a>' in hero_html.group(1)
+    assert 'href="mcp.html">Set up MCP</a>' in hero_html.group(1)
     assert "catalog-summary-card" not in hero_html.group(1)
     assert "Total datasets" not in index_html
     assert "Total dashboards" not in index_html
     assert "Fresh datasets" not in index_html
     assert "MCP tools" not in index_html
     assert "Explore the data catalog" in index_html
+    assert "Start from the surface that matches the question in front of you." not in index_html
     assert "Jump straight into the page that matches the question in front of you." not in index_html
-    assert "Browse ether.fi materialized views" in index_html
-    assert "Find Dune dashboards by product area" in index_html
-    assert "How this fits together" in index_html
+    assert "Find cataloged tables and open schema/freshness details." in index_html
+    assert "Find existing Dune dashboards before building new views." in index_html
+    assert "Check dataset freshness and source query links." in index_html
+    assert "Set up the catalog MCP alongside Dune MCP." in index_html
+    assert "How this fits together" not in index_html
     assert "A short path through the catalog without duplicating the full MCP guide." not in index_html
-    assert "Discover the right dataset or dashboard" in index_html
-    assert "Start with <strong>Datasets</strong>" in index_html
-    assert "Start with <strong>MCP</strong>" in index_html
+    assert "Discover the right dataset or dashboard" not in index_html
+    assert "Start with <strong>Datasets</strong>" not in index_html
+    assert "Start with <strong>MCP</strong>" not in index_html
     assert "Monday demo path" not in index_html
     assert "Built for three audiences" not in index_html
     assert "Questions this makes safer" not in index_html
@@ -98,6 +104,8 @@ def test_build_website_outputs_core_pages(tmp_path):
     freshness_html = (tmp_path / "freshness.html").read_text(encoding="utf-8")
     assert '<span class="brand-mark">ether.fi</span>' in freshness_html
     assert '<span class="brand-mark">e.fi</span>' not in freshness_html
+    assert "<h1>Freshness</h1>" in freshness_html
+    assert "No live Dune call in the browser" in freshness_html
 
 
 def test_build_website_generates_polished_mcp_page_from_current_tools(tmp_path):
@@ -106,90 +114,79 @@ def test_build_website_generates_polished_mcp_page_from_current_tools(tmp_path):
     mcp_page = (tmp_path / "mcp.html").read_text(encoding="utf-8")
     assert 'data-mcp-page' in mcp_page
     assert "<h1>ether.fi Catalog MCP</h1>" in mcp_page
-    assert "Install a local stdio MCP" in mcp_page
-    assert 'href="datasets.html">Explore datasets</a>' in mcp_page
-    assert 'href="dashboards.html">View dashboards</a>' in mcp_page
-    assert 'href="freshness.html">Check freshness</a>' in mcp_page
+    assert "Connect AI agents to ether.fi dataset metadata, dashboards, freshness context, and query-planning guidance." in mcp_page
 
-    assert "What this MCP does" in mcp_page
-    assert "Dataset discovery" in mcp_page
-    assert "Dashboard discovery" in mcp_page
-    assert "Freshness checks" in mcp_page
-    assert "Query planning" in mcp_page
-    assert "Live answers" in mcp_page
+    assert "What it does" in mcp_page
+    assert "mcp-plain-list" in mcp_page
+    assert "Find the right ether.fi dataset" in mcp_page
+    assert "Check freshness context before reporting or querying." in mcp_page
+    assert "Plan safer DuneSQL with documented caveats and table semantics." in mcp_page
+    assert "Use Dune MCP for execution, saved queries, charts, and dashboards." in mcp_page
+    assert "Search the catalog and understand what each table represents." not in mcp_page
+    assert "See whether datasets are fresh, stale, or missing freshness data." not in mcp_page
 
-    assert "How it fits together" in mcp_page
-    assert "etherfi-catalog is the semantic layer" in mcp_page
-    assert "Dune / Dune MCP" in mcp_page
-    assert "Tool groups" in mcp_page
-    assert "Catalog discovery" in mcp_page
-    assert "Freshness and status" in mcp_page
-    assert "Cash live tools" in mcp_page
-    assert "Protocol live tools" in mcp_page
-    assert "Price coverage tools" in mcp_page
-
-    registered_tools = set(extract_mcp_tools())
-    rendered_tools = set(re.findall(r'data-mcp-tool="([^"]+)"', mcp_page))
-    assert rendered_tools == registered_tools
-    assert "create_dashboard" not in rendered_tools
-    assert "run_arbitrary_sql" not in rendered_tools
-
-    cash_events_card = re.search(
-        r'<article class="mcp-tool-card" data-mcp-tool="get_cash_events">(.*?)</article>',
-        mcp_page,
-        re.S,
-    )
-    assert cash_events_card
-    assert "Live-capable" in cash_events_card.group(1)
-    assert "DUNE_API_KEY" in cash_events_card.group(1)
-
-    plan_card = re.search(
-        r'<article class="mcp-tool-card" data-mcp-tool="plan_etherfi_query">(.*?)</article>',
-        mcp_page,
-        re.S,
-    )
-    assert plan_card
-    assert "Planning" in plan_card.group(1)
-    assert "DUNE_API_KEY" not in plan_card.group(1)
-
-    search_card = re.search(
-        r'<article class="mcp-tool-card" data-mcp-tool="search_datasets">(.*?)</article>',
-        mcp_page,
-        re.S,
-    )
-    assert search_card
-    assert "Metadata" in search_card.group(1)
-    assert "DUNE_API_KEY" not in search_card.group(1)
-
-    assert "Example prompts" in mcp_page
-    assert "Which ether.fi dataset should I use to analyze protocol token TVL?" in mcp_page
-    assert "Plan a Dune query for weekly USDC spend volume on ether.fi Cash." in mcp_page
-    assert "Planning mode" in mcp_page
-    assert "Live mode" in mcp_page
     assert "Recommended setup" in mcp_page
-    assert "Install Dune MCP" in mcp_page
-    assert "Install ether.fi Catalog MCP" in mcp_page
-    assert "Reload the client" in mcp_page
+    assert "mcp-preview-panel" not in mcp_page
+    assert "mcp-capability-grid" not in mcp_page
+    assert "mcp-capability-card" not in mcp_page
+    assert "Client configs" in mcp_page
     assert "uvx --from git+https://github.com/henrystats/etherfi-data-catalog.git etherfi-catalog-mcp" in mcp_page
-    assert "Docker and Cloud Run are optional/private staging paths" in mcp_page
+    assert 'data-snippet-copy' in mcp_page
+    assert "Install Dune MCP separately using Dune&rsquo;s official instructions." in mcp_page
+    assert "Use ether.fi Catalog MCP for dataset semantics" in mcp_page
+    assert "Use Dune MCP for execution, saved queries, charts, and dashboards." in mcp_page
+    assert "Each user should use their own Dune API key locally." in mcp_page
+    assert "Do not put a shared team key in the repo." in mcp_page
+
     assert "Codex config" in mcp_page
     assert "Claude Desktop config" in mcp_page
-    assert "Test it works" in mcp_page
-    assert "Search ether.fi datasets for Cash events." in mcp_page
-    assert "execute_live=false" in mcp_page
-    assert "Optional live Dune calls" in mcp_page
-    assert "Live calls may consume Dune credits" in mcp_page
-    assert "Troubleshooting" in mcp_page
+    assert "[mcp_servers.etherfi-catalog]" in mcp_page
+    assert "&quot;mcpServers&quot;" in mcp_page
+    assert 'command = &quot;uvx&quot;' in mcp_page
+    assert "enabled = true" in mcp_page
+    assert "startup_timeout_sec = 60" in mcp_page
+    assert "tool_timeout_sec = 120" in mcp_page
     assert "/Users/&lt;user&gt;/.codex/config.toml" in mcp_page
+    assert "After editing MCP config, fully restart or reload the client." in mcp_page
+
+    assert "How to use with Dune MCP" in mcp_page
+    assert "Ask ether.fi Catalog MCP which dataset, dashboard, or freshness context applies." in mcp_page
+    assert "Keep caveats and freshness notes in query descriptions." in mcp_page
+
+    assert "Test it works" in mcp_page
+    assert "Metadata-only test" in mcp_page
+    assert "Search datasets for &quot;cash events&quot;" in mcp_page
+    assert "Dashboard test" in mcp_page
+    assert "Search dashboards for &quot;cash&quot;" in mcp_page
+    assert "Planning test" in mcp_page
+    assert "weekly USDC cashback volume" in mcp_page
+    assert "Live Dune-backed tools" in mcp_page
+    assert "may consume Dune credits" in mcp_page
+
+    assert "Troubleshooting" in mcp_page
+    assert "confirm <code>uvx</code> works" in mcp_page
+    assert "restart Codex" in mcp_page
+    assert "the key may not be reaching the MCP runtime" in mcp_page
     assert "Bad CPU type in executable" in mcp_page
-    assert "Dune MCP" in mcp_page
+    assert "Advanced deployment" not in mcp_page
+    assert "local <code>uvx</code> setup is the recommended teammate install path" not in mcp_page
+
+    assert "Tool groups" not in mcp_page
+    assert "Available tools are read from the current MCP server" not in mcp_page
+    assert "Catalog discovery" not in mcp_page
+    assert "Cash live tools" not in mcp_page
+    assert "Protocol live tools" not in mcp_page
+    assert "Price coverage tools" not in mcp_page
+    assert 'data-mcp-tool="' not in mcp_page
     assert ".venv/bin/python -m etherfi_catalog.server" not in mcp_page
+    assert 'src="assets/mcp.js?v=' in mcp_page
     assert "DUNE_API_KEY" in mcp_page
-    assert "Best practices" in mcp_page
+    assert "Best practices" not in mcp_page
 
     assert (tmp_path / "datasets.html").exists()
     assert (tmp_path / "dashboards.html").exists()
     assert (tmp_path / "freshness.html").exists()
+    assert (tmp_path / "assets" / "mcp.js").exists()
 
 
 def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
@@ -210,7 +207,10 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     assert dataset_index.find("<span>Prices</span>") < dataset_index.find("<span>Metadata</span>")
     assert dataset_index.find("<span>Metadata</span>") < dataset_index.find("<span>LRT / Restaking</span>")
     assert "<h1>Dataset catalog</h1>" in dataset_index
-    assert "This page documents ether.fi materialized views and supporting datasets." in dataset_index
+    assert "Search or browse ether.fi materialized views, then open a detail page" in dataset_index
+    assert "This page documents ether.fi materialized views and supporting datasets." not in dataset_index
+    assert "dataset-overview-routes" not in dataset_index
+    assert "Search spans schema fields, table names, source query IDs, and related catalog metadata." not in dataset_index
     assert "dataset-summary-grid" not in dataset_index
     assert "Total datasets" not in dataset_index
     assert "Categories" not in dataset_index
@@ -220,7 +220,7 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     assert "Ether.fi Assets Under Management" in dataset_index
     assert "Ether.fi Protocol Token TVL" in dataset_index
     assert "Ether.fi Cash Events" in dataset_index
-    assert "Browse categories on the left to explore the full catalog." in dataset_index
+    assert "Browse categories on the left to explore the full catalog." not in dataset_index
     assert 'id="dataset-search"' in dataset_index
     assert 'id="dataset-count"' in dataset_index
     assert 'id="dataset-empty-state"' in dataset_index
@@ -266,6 +266,7 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     assert "../assets/styles.css" in holder_page
     assert "Back to datasets" in holder_page
     assert "At a glance" in holder_page
+    assert "dataset-detail-hero-meta" in holder_page
     assert "Full table name" in holder_page
     assert 'class="dataset-glance-card full-table-name copyable-table-name"' in holder_page
     assert 'class="dataset-glance-card glance-grain"' in holder_page
@@ -274,6 +275,8 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     assert 'data-copy-text="dune.ether_fi.result_etherfi_protocol_token_holders"' in holder_page
     assert 'aria-label="Copy full table name"' in holder_page
     assert 'src="../assets/dataset-detail.js?v=' in holder_page
+    assert "schema-table-toolbar" in holder_page
+    assert "<h2>Caveats</h2>" in holder_page
     assert "<span>Live query</span>" not in holder_page
     assert "Live query table" not in holder_page
     assert "Live query ID" not in holder_page
@@ -327,8 +330,8 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     assert "Important columns" not in holder_page
     assert "Query notes" not in holder_page
     assert "Query notes / caveats" not in holder_page
-    assert "Caveats" not in holder_page
-    assert "This table does not include broader routed exposure" not in holder_page
+    assert "<h2>Caveats</h2>" in holder_page
+    assert "This table does not include broader routed exposure" in holder_page
     assert "Use when" not in holder_page
     assert "Do not use when" not in holder_page
     assert "Example prompts" not in holder_page
@@ -678,11 +681,12 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     dashboard_index = (tmp_path / "dashboards.html").read_text(encoding="utf-8")
     assert 'data-dashboards-page' in dashboard_index
     assert '<h1>Dashboards</h1>' in dashboard_index
-    assert "Browse ether.fi Dune dashboards by product area and linked datasets." in dashboard_index
-    assert "Total dashboards" in dashboard_index
-    assert "Core dashboards" in dashboard_index
-    assert "Categories" in dashboard_index
-    assert "Linked datasets" in dashboard_index
+    assert "Find existing ether.fi Dune dashboards by product area, tag, or linked catalog dataset." in dashboard_index
+    assert "Browse ether.fi Dune dashboards by product area and linked datasets." not in dashboard_index
+    assert "Total dashboards" not in dashboard_index
+    assert "Core dashboards" not in dashboard_index
+    assert "Categories" not in dashboard_index
+    assert "Linked datasets" not in dashboard_index
     assert 'data-dashboard-nav="core"' in dashboard_index
     assert 'data-dashboard-nav="stake"' in dashboard_index
     assert 'data-dashboard-nav="cash"' in dashboard_index
@@ -852,6 +856,12 @@ def test_build_website_generates_freshness_status_page(tmp_path):
     assert "within documented interval" not in freshness_page
     assert "past expected refresh" not in freshness_page
     assert "missing freshness coverage" not in freshness_page
+    assert "catalog-summary-card" not in freshness_page
+    assert "freshness-status-legend" not in freshness_page
+    assert "Total datasets" not in freshness_page
+    assert "Fresh datasets" not in freshness_page
+    assert "Stale datasets" not in freshness_page
+    assert "Unknown datasets" not in freshness_page
     assert "Search datasets" in freshness_page
     assert "Search by dataset, table name, category, status, or query ID..." in freshness_page
     assert "Dataset category filters" not in freshness_page
