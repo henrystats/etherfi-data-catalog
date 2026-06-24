@@ -15,6 +15,35 @@ uvx --from "git+https://github.com/henrystats/etherfi-data-catalog.git" etherfi-
 Docker and Cloud Run are advanced/private staging paths, not the default team
 setup.
 
+## Recommended teammate setup
+
+Install and configure the two MCP layers separately:
+
+1. Install Dune MCP first. Follow Dune's current MCP install instructions for
+   the exact command, then choose OAuth for browser-capable clients or API-key
+   auth for headless clients.
+2. Install ether.fi Catalog MCP with `uvx`:
+
+   ```bash
+   uvx --from "git+https://github.com/henrystats/etherfi-data-catalog.git" etherfi-catalog-mcp
+   ```
+
+3. Put real credentials only in a private local MCP config or secret manager.
+   Each teammate should use their own Dune API key unless a team-owned Dune
+   context has been explicitly approved.
+4. Fully restart or reload Codex, Claude Desktop, or the active MCP client after
+   editing config so the newly spawned MCP server process receives the updated
+   environment.
+
+Metadata, discovery, freshness, dashboard lookup, and planning tools work
+without `DUNE_API_KEY`. Live Dune-backed catalog tools require `DUNE_API_KEY`
+only when the caller sets `execute_live=true`; those calls may consume Dune
+credits, so use summary mode and narrow date, token, chain, or address filters.
+
+For Codex, the active config may be a global user file such as
+`/Users/<user>/.codex/config.toml`; use whichever config your client actually
+loads.
+
 On Apple Silicon Macs, if `uvx` fails with an error like
 `/usr/local/bin/git ... Bad CPU type in executable`, the shell is using an old
 Intel Git binary. Prefer `/opt/homebrew/bin/git` or `/usr/bin/git`, and make
@@ -233,6 +262,55 @@ call live Dune-backed tools, does not publish Docker images, and does not deploy
 to cloud infrastructure. It proves the image can build and serve metadata tools
 over Streamable HTTP in a Docker-enabled CI environment. It does not prove
 production auth, rate limiting, cloud routing, TLS, or live-tool safety.
+
+## GitHub Pages website deployment
+
+The MVP public website should deploy through GitHub Pages from the generated
+static output directory:
+
+```text
+output/website
+```
+
+The workflow `.github/workflows/deploy-website.yml` runs on pushes to `main` and
+manual `workflow_dispatch`, installs the project, runs the website build tests,
+builds the site with `python scripts/build_website.py`, uploads
+`output/website` as the Pages artifact, and deploys it with GitHub's official
+Pages actions.
+
+Before using the workflow, set the repository Pages source to GitHub Actions:
+
+```text
+GitHub repo -> Settings -> Pages -> Source: GitHub Actions
+```
+
+The normal website deploy does not require `DUNE_API_KEY` and does not fetch
+Dune data. It can publish the catalog with unknown runtime freshness if no
+runtime snapshot exists in the runner workspace.
+
+## Freshness workflow
+
+Runtime freshness snapshots are generated into `status/dataset_freshness.yaml`.
+That file should stay ignored by git because it is runtime data, not source
+metadata.
+
+The optional workflow `.github/workflows/refresh-freshness.yml` runs hourly and
+on manual dispatch. It uses the read-only repository secret `DUNE_API_KEY` to
+call `scripts/update_freshness_from_dune.py --query-id 7625551`, which reads the
+latest stored Dune query result and writes `status/dataset_freshness.yaml` in
+the runner workspace. It then rebuilds `output/website` and deploys the Pages
+artifact.
+
+The importer reads Dune's latest stored result endpoint; it does not trigger a
+fresh Dune SQL execution. Schedule or run the source freshness query on Dune
+itself when you need a new snapshot, then let the importer pull the stored
+result.
+
+Website builds use `status/dataset_freshness.yaml` when present. If the file is
+absent, the generated freshness page and dataset cards fall back to unknown or
+undocumented runtime freshness. The Pages artifact may include freshness-derived
+HTML after the optional workflow generates the runtime file, but the YAML
+snapshot itself should not be committed.
 
 ## Cloud Run private staging
 

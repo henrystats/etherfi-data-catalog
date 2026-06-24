@@ -1118,9 +1118,63 @@ def render_mcp_prompt_card(group: str, prompt: str) -> str:
     )
 
 
+def render_mcp_code_block(value: str) -> str:
+    return f"<pre><code>{escape(value.strip())}</code></pre>"
+
+
 def render_mcp_page(tools: dict[str, MCPToolInfo] | None = None) -> str:
     tools = tools or extract_mcp_tools()
     live_tool_count = sum(1 for tool in tools.values() if tool.live_capable)
+    catalog_install_command = (
+        "uvx --from git+https://github.com/henrystats/etherfi-data-catalog.git "
+        "etherfi-catalog-mcp"
+    )
+    codex_config = """
+[mcp_servers.dune]
+command = "<official-dune-mcp-command>"
+args = ["<official-dune-mcp-args>"]
+tool_timeout_sec = 300
+
+[mcp_servers.dune.env]
+DUNE_API_KEY = "your_dune_api_key_here"
+
+[mcp_servers.etherfi-catalog]
+command = "uvx"
+args = [
+  "--from",
+  "git+https://github.com/henrystats/etherfi-data-catalog.git",
+  "etherfi-catalog-mcp",
+]
+startup_timeout_sec = 30
+tool_timeout_sec = 60
+
+[mcp_servers.etherfi-catalog.env]
+DUNE_API_KEY = "your_dune_api_key_here"
+"""
+    claude_config = """
+{
+  "mcpServers": {
+    "dune": {
+      "command": "<official-dune-mcp-command>",
+      "args": ["<official-dune-mcp-args>"],
+      "env": {
+        "DUNE_API_KEY": "your_dune_api_key_here"
+      }
+    },
+    "etherfi-catalog": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/henrystats/etherfi-data-catalog.git",
+        "etherfi-catalog-mcp"
+      ],
+      "env": {
+        "DUNE_API_KEY": "your_dune_api_key_here"
+      }
+    }
+  }
+}
+"""
     capability_cards = "".join(
         render_mcp_capability_card(title, description)
         for title, description in [
@@ -1242,15 +1296,64 @@ def render_mcp_page(tools: dict[str, MCPToolInfo] | None = None) -> str:
         "</section>"
         '<section class="mcp-section detail-panel">'
         '<div class="mcp-section-heading">'
-        "<h2>Setup</h2>"
-        "<p>Recommended setup is local stdio via <code>uvx</code>. Install Dune MCP separately for execution workflows, use your own Dune credentials locally, and restart the client after config edits.</p>"
+        "<h2>Recommended setup</h2>"
+        "<p>Install Dune MCP first for execution workflows, then install ether.fi Catalog MCP as the semantic catalog and planning layer. Each teammate should use their own Dune credentials locally.</p>"
         "</div>"
         '<div class="mcp-setup-grid">'
-        '<article><strong>Recommended install</strong><p><code>uvx --from git+https://github.com/henrystats/etherfi-data-catalog.git etherfi-catalog-mcp</code></p></article>'
-        '<article><strong>Claude Desktop</strong><p>Add Dune MCP and ether.fi Catalog MCP as local stdio servers. Put <code>DUNE_API_KEY</code> under the <code>etherfi-catalog</code> env block for live catalog tools.</p></article>'
-        '<article><strong>Codex</strong><p>Configure <code>command = "uvx"</code> with the GitHub <code>--from</code> args in the active config, often <code>/Users/&lt;user&gt;/.codex/config.toml</code>, then fully restart or reload Codex.</p></article>'
-        '<article><strong>Advanced deployment</strong><p>Cloud Run and Docker are optional/private staging paths, not the default team setup.</p></article>'
+        '<article><strong>1. Install Dune MCP</strong><p>Follow the current official Dune MCP instructions for your client. Use OAuth when the client can complete browser auth, or put <code>DUNE_API_KEY</code> in the Dune MCP env block for API-key auth.</p></article>'
+        f'<article><strong>2. Install ether.fi Catalog MCP</strong><p><code>{escape(catalog_install_command)}</code></p></article>'
+        '<article><strong>3. Reload the client</strong><p>After changing MCP config, fully restart or reload Codex, Claude Desktop, or the active MCP client so new server processes receive the environment.</p></article>'
+        '<article><strong>Advanced only</strong><p>Docker and Cloud Run are optional/private staging paths, not the default team setup.</p></article>'
         "</div>"
+        "</section>"
+        '<section class="mcp-section detail-panel">'
+        '<div class="mcp-section-heading">'
+        "<h2>Codex config</h2>"
+        "<p>Codex may load a global config such as <code>/Users/&lt;user&gt;/.codex/config.toml</code>. Put real keys only in private local config, never in this repo.</p>"
+        "</div>"
+        f"{render_mcp_code_block(codex_config)}"
+        "</section>"
+        '<section class="mcp-section detail-panel">'
+        '<div class="mcp-section-heading">'
+        "<h2>Claude Desktop config</h2>"
+        "<p>Claude-style clients use the same local stdio shape: one server entry for Dune MCP and one for ether.fi Catalog MCP.</p>"
+        "</div>"
+        f"{render_mcp_code_block(claude_config)}"
+        "</section>"
+        '<section class="mcp-section detail-panel">'
+        '<div class="mcp-section-heading">'
+        "<h2>Test it works</h2>"
+        "<p>Start with metadata and planning prompts. These do not require <code>DUNE_API_KEY</code> and should not make live Dune calls.</p>"
+        "</div>"
+        "<ul>"
+        "<li>Search ether.fi datasets for Cash events.</li>"
+        "<li>Show details for the protocol token holders dataset.</li>"
+        "<li>Is the Cash events dataset fresh?</li>"
+        "<li>Plan a Dune query for weekly USDC spend volume on ether.fi Cash with <code>execute_live=false</code>.</li>"
+        "</ul>"
+        "</section>"
+        '<section class="mcp-section detail-panel warning">'
+        '<div class="mcp-section-heading">'
+        "<h2>Optional live Dune calls</h2>"
+        "<p>Only use live catalog tools when the question needs a fresh Dune-backed answer.</p>"
+        "</div>"
+        "<ul>"
+        "<li>Set <code>DUNE_API_KEY</code> in the local <code>etherfi-catalog</code> MCP env block before using <code>execute_live=true</code>.</li>"
+        "<li>Live calls may consume Dune credits.</li>"
+        "<li>Use summary mode, narrow date ranges, and token, chain, or address filters.</li>"
+        "<li>Prefer one narrow live call over repeated broad calls.</li>"
+        "</ul>"
+        "</section>"
+        '<section class="mcp-section detail-panel">'
+        '<div class="mcp-section-heading">'
+        "<h2>Troubleshooting</h2>"
+        "</div>"
+        "<ul>"
+        "<li>If planning tools work but live tools cannot see <code>DUNE_API_KEY</code>, confirm the key is in the active MCP client config and restart the client.</li>"
+        "<li>On Apple Silicon, <code>/usr/local/bin/git ... Bad CPU type in executable</code> usually means an old Intel Git is first on <code>PATH</code>; prefer <code>/opt/homebrew/bin/git</code> or <code>/usr/bin/git</code>.</li>"
+        "<li>If Dune MCP auth fails, verify whether your client should use OAuth or API-key auth.</li>"
+        "<li>Keep Cloud Run and Docker as advanced/private staging options until auth, rate limits, and credit controls are reviewed.</li>"
+        "</ul>"
         "</section>"
         '<section class="mcp-section detail-panel">'
         "<h2>Best practices</h2>"

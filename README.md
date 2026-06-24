@@ -222,6 +222,23 @@ Website source files live under `website/`. Generated HTML is written to
 `output/website`, which is intentionally ignored by git. Dataset and dashboard
 pages will be generated from the catalog metadata in follow-up MVP tickets.
 
+### GitHub Pages website deployment
+
+The launch path for the public website is GitHub Pages, not Cloud Run. The
+workflow `.github/workflows/deploy-website.yml` builds the static site on pushes
+to `main` and on manual dispatch, uploads `output/website` as a Pages artifact,
+and deploys it with GitHub's official Pages actions.
+
+Before the workflow can publish the site, configure the repository setting:
+
+```text
+GitHub repo -> Settings -> Pages -> Source: GitHub Actions
+```
+
+The normal website deploy does not require `DUNE_API_KEY` and does not fetch
+freshness from Dune. It builds from tracked metadata plus any freshness snapshot
+available in the runner workspace.
+
 ### ether.fi workflow skill
 
 This repo includes `skills/etherfi/` as a compact workflow guide for Codex/Claude-style agents. It does not add a new data layer or replace the MCP server. Use it to teach agents the correct orchestration pattern: start with `etherfi-catalog` for ether.fi semantics and caveats, then use Dune MCP for shareable queries, charts, dashboards, and execution lifecycle, with Dune Skills helping on DuneSQL and Dune CLI workflows.
@@ -313,11 +330,23 @@ DUNE_API_KEY=... .venv/bin/python scripts/update_freshness_from_dune.py --query-
 
 This importer calls Dune's latest query result endpoint and does not trigger a fresh execution of the SQL. Schedule or run the query on Dune itself when you need a new snapshot, then use this importer to pull the already-computed result into the website.
 
-The GitHub Pages workflow in `.github/workflows/refresh-freshness.yml` runs the
-same importer hourly and on manual dispatch, rebuilds `output/website`, and
-deploys the generated static site. Before enabling it for the launched website,
-configure GitHub Pages to use GitHub Actions and add a read-only repository
-secret named `DUNE_API_KEY`.
+The tracked website deployment workflow does not require freshness secrets. It
+will build the site even when `status/dataset_freshness.yaml` is absent; in that
+case generated freshness views fall back to unknown or undocumented runtime
+status.
+
+The optional freshness workflow in `.github/workflows/refresh-freshness.yml`
+runs the same importer hourly and on manual dispatch, writes
+`status/dataset_freshness.yaml` in the runner workspace, rebuilds
+`output/website`, and deploys the generated static site. Before enabling
+scheduled freshness refreshes for the launched website, configure GitHub Pages
+to use GitHub Actions and add a read-only repository secret named
+`DUNE_API_KEY`.
+
+Keep `status/dataset_freshness.yaml` ignored in git. It is a runtime snapshot,
+not source metadata. The Pages artifact can include freshness-derived HTML after
+the optional workflow generates the file, but the snapshot file itself should
+not be committed.
 
 To refresh the local runtime file, run `.venv/bin/python scripts/update_freshness_from_tracker.py path/to/tracker.csv`.
 Or use `scripts/refresh_catalog_status.sh path/to/tracker.csv`.

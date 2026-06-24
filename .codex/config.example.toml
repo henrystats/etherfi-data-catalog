@@ -4,6 +4,19 @@ steps = [
   ".venv/bin/python -m pip install -e '.[dev]'",
 ]
 
+# Configure Dune MCP as a separate server first, using Dune's current official
+# install/auth instructions. Use each teammate's own private Dune credentials;
+# never commit a real key to this repo. Your active Codex config may be a global
+# file such as /Users/<user>/.codex/config.toml.
+#
+# [mcp_servers.dune]
+# command = "..."
+# args = [...]
+# tool_timeout_sec = 300
+#
+# [mcp_servers.dune.env]
+# DUNE_API_KEY = "your_dune_api_key_here"
+
 [mcp_servers.etherfi-catalog]
 # Local repo-development option:
 # command = ".venv/bin/python"
@@ -23,19 +36,13 @@ tool_timeout_sec = 60
 
 # Metadata, discovery, freshness, dashboard lookup, and query-planning tools
 # work without DUNE_API_KEY. Live Dune-backed tools require DUNE_API_KEY only
-# when execute_live=true. Use a local/private config or shell environment for
-# real secrets; never commit a real API key.
+# when execute_live=true and may consume Dune credits. Use summary mode and
+# narrow filters for live calls. Use a local/private config or shell environment
+# for real secrets; never commit a real API key. Restart or reload Codex after
+# changing MCP config so the server process receives the new environment.
 #
 # [mcp_servers.etherfi-catalog.env]
 # DUNE_API_KEY = "your_dune_api_key_here"
-
-# Dune MCP should be configured as a separate server entry. Use the current
-# official Dune MCP install/auth instructions for your client.
-#
-# [mcp_servers.dune]
-# command = "..."
-# args = [...]
-# tool_timeout_sec = 300
 
 [actions.test]
 command = ".venv/bin/python -m pytest"

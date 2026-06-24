@@ -166,12 +166,22 @@ def test_build_website_generates_polished_mcp_page_from_current_tools(tmp_path):
     assert "Plan a Dune query for weekly USDC spend volume on ether.fi Cash." in mcp_page
     assert "Planning mode" in mcp_page
     assert "Live mode" in mcp_page
-    assert "Setup" in mcp_page
-    assert "Recommended setup is local stdio via <code>uvx</code>" in mcp_page
+    assert "Recommended setup" in mcp_page
+    assert "Install Dune MCP" in mcp_page
+    assert "Install ether.fi Catalog MCP" in mcp_page
+    assert "Reload the client" in mcp_page
     assert "uvx --from git+https://github.com/henrystats/etherfi-data-catalog.git etherfi-catalog-mcp" in mcp_page
-    assert "Cloud Run and Docker are optional/private staging paths" in mcp_page
-    assert "Claude Desktop" in mcp_page
-    assert "Codex" in mcp_page
+    assert "Docker and Cloud Run are optional/private staging paths" in mcp_page
+    assert "Codex config" in mcp_page
+    assert "Claude Desktop config" in mcp_page
+    assert "Test it works" in mcp_page
+    assert "Search ether.fi datasets for Cash events." in mcp_page
+    assert "execute_live=false" in mcp_page
+    assert "Optional live Dune calls" in mcp_page
+    assert "Live calls may consume Dune credits" in mcp_page
+    assert "Troubleshooting" in mcp_page
+    assert "/Users/&lt;user&gt;/.codex/config.toml" in mcp_page
+    assert "Bad CPU type in executable" in mcp_page
     assert "Dune MCP" in mcp_page
     assert ".venv/bin/python -m etherfi_catalog.server" not in mcp_page
     assert "DUNE_API_KEY" in mcp_page
