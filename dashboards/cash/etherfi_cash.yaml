@@ -27,6 +27,7 @@ datasets:
   - dune.ether_fi.result_tokens_prices_usd
   - dune.ether_fi.result_backup_etherfi_cash_scroll_events
   - dune.ether_fi.result_etherfi_cash_events
+  - dune.ether_fi.result_etherfi_cash_addresses
   - dune.ether_fi.result_etherfi_assets_under_management
   - dune.ether_fi.result_etherfi_cash_borrow_index
   - utils.days

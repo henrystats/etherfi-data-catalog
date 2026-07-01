@@ -15,6 +15,7 @@ EXPECTED_METADATA_AND_PLANNING_TOOLS = {
     "list_stale_datasets",
     "get_catalog_health_summary",
     "plan_etherfi_query",
+    "check_cash_safe_address",
 }
 
 
@@ -206,9 +207,15 @@ def test_live_capable_tool_planning_mode_does_not_require_dune_key(monkeypatch):
         "0x1111111111111111111111111111111111111111",
         execute_live=False,
     )
+    cash_safe_result = server_module.check_cash_safe_address(
+        "0x1111111111111111111111111111111111111111",
+        execute_live=False,
+    )
 
     assert "suggested_sql" in result
     assert "rows" not in result
+    assert "suggested_sql" in cash_safe_result
+    assert cash_safe_result["executed_live"] is False
 
 
 def test_live_capable_tool_fails_clearly_without_dune_key(monkeypatch):

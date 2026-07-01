@@ -17,20 +17,24 @@ business_meaning:
   - It helps classify tracked addresses by product area, chain, token status, protocol relevance, ownership/control category, and labeling metadata.
   - Other datasets and queries can join against this table to identify ether.fi addresses and apply consistent address-level classifications.
   - "The `name` column is the business meaning or classification label for a tracked address."
-  - "For Cash-related questions, `name = 'CASH'` identifies ether.fi Cash user safes and other Cash-related tracked addresses."
+  - "For public Cash-safe validation, use `dune.ether_fi.result_etherfi_cash_addresses` instead of this broader address registry."
 semantic_notes:
   - "In this table, the classification column is `name`, not `address_name`."
   - "In `dune.ether_fi.result_etherfi_assets_under_management`, the related classification context appears in the `address_name` column instead."
   - "`name` in this registry and `address_name` in AUM are conceptually related, but they are not the same literal column name."
-  - Use this address registry to determine whether an address is classified as Cash, protocol, liquid, DAO, Veda, or something else.
-  - "Use `dune.ether_fi.result_etherfi_assets_under_management` when the question is about balances for a tracked address."
+  - Use this address registry to understand broader ether.fi address classifications such as protocol, liquid, DAO, Veda, or AUM-related context.
+  - "Use `dune.ether_fi.result_etherfi_cash_addresses` for public checks of whether an address is an ether.fi Cash safe."
+  - "Use `dune.ether_fi.result_etherfi_assets_under_management` only when the question explicitly concerns AUM/managed/internal/protocol-controlled address balances."
+  - "Use `etherfi_protocol_token_holders` for generic user wallet/address holdings such as \"how much does this address have in ether.fi?\""
   - "`last_updated` should be used as the dataset freshness signal."
 caveats:
   - This is a curated address registry, so classifications depend on the addresses currently tracked in the source query.
   - Boolean classification columns can overlap; for example, an address may be relevant to multiple product/control categories.
   - This dataset explains classification semantics, not token balances.
-  - When answering balance questions, join or cross-reference this table conceptually with the AUM table instead of treating it as a balance source.
-  - "For top Cash holder questions, the canonical classification comes from this table, while the balance ranking should come from AUM filtered to `address_name = 'CASH'`."
+  - When answering explicit AUM/managed-address balance questions, join or cross-reference this table conceptually with the AUM table instead of treating it as a balance source.
+  - Do not use this address registry or AUM as the default route for generic user wallet holdings; use `etherfi_protocol_token_holders`.
+  - "Do not use this broader registry for public Cash-safe validation; use `dune.ether_fi.result_etherfi_cash_addresses`."
+  - "For top Cash holder questions, balance ranking should come from AUM filtered to `address_name = 'CASH'`; use the public Cash-safe registry only when identity validation is needed."
 schema:
   - name: project
     type: varchar
@@ -94,26 +98,26 @@ important_columns:
   - label: broader human-readable grouping such as Payments
   - last_updated: Freshness timestamp column for this dataset.
 query_notes:
-  - "Use `name = 'CASH'` to identify ether.fi Cash user safes and related tracked addresses."
-  - "When mapping semantics to AUM, treat `name` here as the conceptual source for `address_name` in the AUM dataset."
-  - This dataset is the right place to answer questions like "Is this a Cash safe, protocol wallet, or something else?"
+  - "Use `dune.ether_fi.result_etherfi_cash_addresses` to validate ether.fi Cash safe addresses."
+  - "When mapping explicit managed/internal address semantics to AUM, treat `name` here as the conceptual source for `address_name` in the AUM dataset."
+  - This dataset can help explain broader ether.fi address classifications, while Cash-safe membership checks should use the public Cash-safe registry.
   - Use `last_updated` as the dataset freshness signal.
 use_when:
   - when the user asks what an ether.fi address represents
-  - when the user asks whether an address is Cash, protocol, liquid, DAO, Veda, or another tracked category
-  - when a balance workflow needs address classification semantics
+  - when the user asks whether an address is protocol, liquid, DAO, Veda, AUM-related, or another tracked non-Cash-safe category
+  - when an explicit AUM/managed/internal balance workflow needs address classification semantics
+do_not_use_when:
+  - when the user asks generic wallet/address holdings, invested balance, or "how much does this address have in ether.fi?"; use `etherfi_protocol_token_holders`
+  - when the user asks whether an address is an ether.fi Cash safe; use `etherfi_cash_addresses`
 example_user_intents:
-  - "What are the latest balances for ether.fi cash address 0x...?"
-  - "Who are the top 10 ether.fi Cash holders?"
-  - "Is this address a Cash safe, protocol wallet, or something else?"
+  - "Is this address a protocol wallet, liquid product address, DAO address, or something else?"
+  - "Why is this address included in AUM scope?"
 search_keywords:
-  - cash
-  - cash safe
-  - ether.fi cash
   - address classification
-  - canonical address registry
+  - address registry
   - protocol wallet
 related_datasets:
+  - etherfi_cash_addresses
   - dune.ether_fi.result_etherfi_assets_under_management
   - dune.ether_fi.result_etherfi_cash_events
   - dune.ether_fi.result_etherfi_cash_borrow_index

@@ -86,7 +86,7 @@ query_notes:
   - "Use `user_safe` as the main per-account filter when following one Cash user safe."
 semantic_notes:
   - "`user_safe` is the Cash safe / card account address in this table."
-  - "To classify whether an address is a Cash safe, use `dune.ether_fi.result_etherfi_addresses` where `name = 'CASH'`."
+  - "To check whether an address is a Cash safe, use the public registry `dune.ether_fi.result_etherfi_cash_addresses`."
   - "For balance-side Cash classification, use `dune.ether_fi.result_etherfi_assets_under_management` where `address_name = 'CASH'`."
   - This table is the activity source for Cash actions, while the AUM table is the balance source.
 caveats:
@@ -143,4 +143,4 @@ search_keywords:
   - cashback
   - liquidation
 related_dashboards:
-  - etherfi_overview
+  - etherfi_cash

@@ -242,7 +242,7 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     assert holder_card
     holder_card_html = holder_card.group(1)
     assert "Protocol Token Holders" in holder_card_html
-    assert "Direct holders of ether.fi protocol tokens by address" in holder_card_html
+    assert "Direct user/wallet holders of ether.fi protocol tokens by address" in holder_card_html
     assert '<span>Refresh</span>' in holder_card_html
     assert '<strong>4h</strong>' in holder_card_html
     assert '<span>Last refreshed</span>' in holder_card_html
@@ -307,7 +307,7 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     assert any(status in holder_glance_html for status in ["Fresh", "Delayed", "Stale", "Unknown"])
     assert "daily" not in holder_page
     assert "About this table" in holder_page
-    assert "Direct holders of ether.fi protocol tokens by address" in holder_page
+    assert "Direct user/wallet holders of ether.fi protocol tokens by address" in holder_page
     assert "one row per address per token per snapshot date" in holder_page
     assert "Schema" in holder_page
     assert "<th>Description</th>" in holder_page
@@ -552,6 +552,32 @@ def test_addresses_traits_dataset_page_renders_schema_and_related_links(tmp_path
     assert 'href="../dashboards/etherfi_overview.html"' in page
 
 
+def test_cash_addresses_dataset_page_renders_public_registry_metadata(tmp_path):
+    build_site(output_dir=tmp_path)
+
+    dataset_index = (tmp_path / "datasets.html").read_text(encoding="utf-8")
+    assert "Ether.fi Cash Addresses" in dataset_index
+    assert 'href="datasets/etherfi_cash_addresses.html"' in dataset_index
+    assert 'data-source-query-id="7854862"' in dataset_index
+
+    page = (tmp_path / "datasets" / "etherfi_cash_addresses.html").read_text(
+        encoding="utf-8"
+    )
+    assert "Ether.fi Cash Addresses" in page
+    assert "dune.ether_fi.result_etherfi_cash_addresses" in page
+    assert "https://dune.com/queries/7854862" in page
+    assert "one row per blockchain and Cash safe address" in page
+    assert "Every 4h" in page
+    assert "last_updated" in page
+    assert "<td><code>blockchain</code></td><td>varchar</td>" in page
+    assert '<td class="schema-description">Chain where the Cash safe exists.</td>' in page
+    assert "<td><code>address</code></td><td>varbinary</td>" in page
+    assert '<td class="schema-description">Cash safe address.</td>' in page
+    assert 'href="../datasets/etherfi_cash_events.html"' in page
+    assert 'href="../datasets/etherfi_assets_under_management.html"' in page
+    assert 'href="../dashboards/etherfi_cash.html"' in page
+
+
 def test_dataset_schema_descriptions_render_from_schema_and_important_columns(tmp_path):
     datasets_dir = tmp_path / "datasets"
     category_dir = datasets_dir / "demo_category"
@@ -775,6 +801,7 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert "etherfi_optimism.casheventemitter_evt_spend" not in cash_page
     assert "dune.ether_fi.result_backup_etherfi_cash_scroll_events" not in cash_page
     assert 'href="../datasets/etherfi_cash_events.html"' in cash_page
+    assert 'href="../datasets/etherfi_cash_addresses.html"' in cash_page
     assert 'href="../datasets/etherfi_assets_under_management.html"' in cash_page
     assert 'href="../datasets/etherfi_cash_borrow_index.html"' in cash_page
     assert 'href="../datasets/tokens_prices_usd.html"' in cash_page

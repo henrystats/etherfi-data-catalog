@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 
 from etherfi_catalog.catalog import (
+    check_cash_safe_address,
     compare_datasets,
     diagnose_token_price_coverage,
     evaluate_freshness,
@@ -47,11 +48,13 @@ def _relative_yaml_files(root: Path) -> list[Path]:
 def test_load_datasets_reads_existing_yaml_files():
     catalog = load_datasets()
 
+    assert "etherfi_cash_addresses" in catalog
     assert "etherfi_protocol_token_holders" in catalog
     assert "etherfi_protocol_token_holders_with_defi" in catalog
     assert "protocol_token_holders" not in catalog
     assert "protocol_token_holders_with_defi" not in catalog
     assert "dune.ether_fi.result_etherfi_addresses" in catalog
+    assert catalog["etherfi_cash_addresses"]["table_name"] == "dune.ether_fi.result_etherfi_cash_addresses"
     assert catalog["etherfi_protocol_token_holders"]["display_name"] == "Protocol Token Holders"
 
 
@@ -1050,6 +1053,46 @@ def test_assets_under_management_dataset_is_loaded_and_searchable():
     }
 
 
+def test_cash_addresses_metadata_loads_and_is_searchable():
+    catalog = load_datasets()
+    results = search_datasets("Is this address an ether.fi Cash safe?")
+    details = get_dataset_details(
+        "dune.ether_fi.result_etherfi_cash_addresses",
+        datasets=catalog,
+        freshness_registry={},
+    )
+
+    assert "etherfi_cash_addresses" in catalog
+    assert details is not None
+    assert details["name"] == "etherfi_cash_addresses"
+    assert details["table_name"] == "dune.ether_fi.result_etherfi_cash_addresses"
+    assert details["source_query_id"] == 7854862
+    assert details["source_query_url"] == "https://dune.com/queries/7854862"
+    assert details["refresh_interval_minutes"] == 240
+    assert details["freshness_timestamp_column"] == "last_updated"
+    schema_columns = {column["name"] for column in details["schema"]}
+    assert {"blockchain", "address", "last_updated"} <= schema_columns
+    assert [dataset["name"] for dataset in results][0] == "etherfi_cash_addresses"
+
+
+def test_cash_safe_validation_guidance_uses_public_registry_not_private_address_registry():
+    catalog = load_datasets()
+    relevant_names = [
+        "etherfi_cash_addresses",
+        "dune.ether_fi.result_etherfi_cash_events",
+        "dune.ether_fi.result_etherfi_cash_borrow_index",
+        "dune.ether_fi.result_etherfi_assets_under_management",
+        "dune.ether_fi.result_etherfi_addresses",
+    ]
+    rendered = "\n".join(str(catalog[name]) for name in relevant_names)
+
+    assert "dune.ether_fi.result_etherfi_cash_addresses" in rendered
+    assert "For Cash-safe validation, use this public table" in rendered
+    assert "To classify whether an address is a Cash safe, use `dune.ether_fi.result_etherfi_addresses`" not in rendered
+    assert "To identify Cash safes or Cash-related addresses, use `dune.ether_fi.result_etherfi_addresses`" not in rendered
+    assert "Use `name = 'CASH'` to identify ether.fi Cash user safes" not in rendered
+
+
 def test_assets_under_management_metadata_describes_deployment_footprint_not_canonical_tvl():
     dataset = load_datasets()["dune.ether_fi.result_etherfi_assets_under_management"]
     metadata_text = " ".join(
@@ -1068,7 +1111,9 @@ def test_assets_under_management_metadata_describes_deployment_footprint_not_can
 
     assert "parent_symbol" in metadata_text
     assert "deployment footprint" in metadata_text
-    assert "address-level balances" in metadata_text
+    assert "managed/internal" in metadata_text
+    assert "generic user wallet holdings" in metadata_text
+    assert "etherfi_protocol_token_holders" in metadata_text
     assert "canonical product/token TVL" in metadata_text
     assert "dune.ether_fi.result_etherfi_protocol_token_tvl" in metadata_text
     assert "Cash event activity" in metadata_text
@@ -3018,16 +3063,119 @@ def _cash_safe_profile_datasets():
             "grain": "one row per Cash event",
             "refresh_interval_minutes": 720,
         },
-        "dune.ether_fi.result_etherfi_addresses": {
-            "name": "dune.ether_fi.result_etherfi_addresses",
-            "display_name": "Ether.fi Addresses",
+        "etherfi_cash_addresses": {
+            "name": "etherfi_cash_addresses",
+            "display_name": "Ether.fi Cash Addresses",
             "description": "Example dataset",
-            "table_name": "dune.ether_fi.result_etherfi_addresses",
+            "table_name": "dune.ether_fi.result_etherfi_cash_addresses",
             "query_ready": True,
-            "grain": "one row per blockchain address classification record",
-            "refresh_interval_minutes": 2880,
+            "grain": "one row per blockchain and Cash safe address",
+            "refresh_interval_minutes": 240,
         },
     }
+
+
+def test_check_cash_safe_address_planning_mode_uses_public_registry():
+    result = check_cash_safe_address(
+        "0x21823686d5Aa48FE8DD5Af0def9C94f3A1003d75",
+        blockchain="Base",
+        datasets=_cash_safe_profile_datasets(),
+        freshness_registry={},
+    )
+
+    assert result["dataset_name"] == "etherfi_cash_addresses"
+    assert result["table_name"] == "dune.ether_fi.result_etherfi_cash_addresses"
+    assert result["question_class"] == "single-entity lookup"
+    assert result["address"] == "0x21823686d5aa48fe8dd5af0def9c94f3a1003d75"
+    assert result["blockchain"] == "base"
+    assert result["execute_live"] is False
+    assert result["executed_live"] is False
+    assert "FROM dune.ether_fi.result_etherfi_cash_addresses" in result["suggested_sql"]
+    assert "address = 0x21823686d5aa48fe8dd5af0def9c94f3a1003d75" in result["suggested_sql"]
+    assert "blockchain = 'base'" in result["suggested_sql"]
+    assert "private/internal protocol address tables" in result["chosen_dataset"]["why_chosen"]
+    assert result["expected_output_fields"] == ["blockchain", "address", "last_updated"]
+    assert result["summary"]["is_cash_safe"] is None
+    assert result["summary"]["check_status"] == "unknown_not_executed"
+    assert result["summary"]["matching_row_count"] is None
+    assert "only shows how to check the address" in result["summary"]["message"]
+    assert "execute_live=true" in result["summary"]["message"]
+
+
+def test_check_cash_safe_address_validates_inputs():
+    bad_address = check_cash_safe_address(
+        "not-an-address",
+        datasets=_cash_safe_profile_datasets(),
+        freshness_registry={},
+    )
+    bad_blockchain = check_cash_safe_address(
+        "0x21823686d5Aa48FE8DD5Af0def9C94f3A1003d75",
+        blockchain="base-mainnet",
+        datasets=_cash_safe_profile_datasets(),
+        freshness_registry={},
+    )
+
+    assert "Address must be a 42-character 0x-prefixed hex string" in bad_address["error"]
+    assert "blockchain must contain only letters, numbers, and underscores" in bad_blockchain["error"]
+
+
+def test_check_cash_safe_address_live_mode_summarizes_registry_match(monkeypatch):
+    monkeypatch.setenv("DUNE_API_KEY", "test-key")
+    seen_sql = []
+
+    def fake_execute(sql):
+        seen_sql.append(sql)
+        assert "FROM dune.ether_fi.result_etherfi_cash_addresses" in sql
+        assert "result_etherfi_addresses" not in sql
+        return [
+            {
+                "blockchain": "base",
+                "address": "0x21823686d5aa48fe8dd5af0def9c94f3a1003d75",
+                "last_updated": "2026-06-30 12:00:00 UTC",
+            }
+        ]
+
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
+
+    result = check_cash_safe_address(
+        "0x21823686d5Aa48FE8DD5Af0def9C94f3A1003d75",
+        execute_live=True,
+        datasets=_cash_safe_profile_datasets(),
+        freshness_registry={},
+    )
+
+    assert len(seen_sql) == 1
+    assert result["executed_live"] is True
+    assert result["row_count"] == 1
+    assert result["rows"][0]["blockchain"] == "base"
+    assert result["summary"]["is_cash_safe"] is True
+    assert result["summary"]["matching_blockchains"] == ["base"]
+    assert result["summary"]["last_updated"] == "2026-06-30 12:00:00 UTC"
+
+
+def test_check_cash_safe_address_live_mode_summarizes_no_registry_match(monkeypatch):
+    monkeypatch.setenv("DUNE_API_KEY", "test-key")
+
+    def fake_execute(sql):
+        assert "FROM dune.ether_fi.result_etherfi_cash_addresses" in sql
+        assert "result_etherfi_addresses" not in sql
+        return []
+
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
+
+    result = check_cash_safe_address(
+        "0x21823686d5Aa48FE8DD5Af0def9C94f3A1003d75",
+        execute_live=True,
+        datasets=_cash_safe_profile_datasets(),
+        freshness_registry={},
+    )
+
+    assert result["executed_live"] is True
+    assert result["row_count"] == 0
+    assert result["rows"] == []
+    assert result["summary"]["is_cash_safe"] is False
+    assert result["summary"]["matching_row_count"] == 0
+    assert "not found in the public ether.fi Cash-safe registry" in result["summary"]["message"]
 
 
 def test_get_cash_safe_profile_planning_mode_omits_identity_lookup_by_default():
@@ -3043,6 +3191,7 @@ def test_get_cash_safe_profile_planning_mode_omits_identity_lookup_by_default():
     assert result["dataset_names"]["events"] == "dune.ether_fi.result_etherfi_cash_events"
     assert result["dataset_names"]["identity"] is None
     assert "result_etherfi_addresses" not in result["suggested_sql"]
+    assert "result_etherfi_cash_addresses" not in result["suggested_sql"]
     assert "user_safe = 0x1111111111111111111111111111111111111111" in result["suggested_sql"]
     assert "address_name = 'CASH'" in result["suggested_sql"]
     assert "profile_mode" in result["mode_notes"]
@@ -3063,10 +3212,12 @@ def test_get_cash_safe_profile_planning_mode_can_include_identity_validation():
     assert result["as_of_date"] == "2026-04-13"
     assert result["recent_days"] == 14
     assert result["validate_cash_identity"] is True
-    assert result["dataset_names"]["identity"] == "dune.ether_fi.result_etherfi_addresses"
-    assert "FROM dune.ether_fi.result_etherfi_addresses" in result["suggested_sql"]
-    assert "COUNT_IF(name = 'CASH') > 0 AS is_classified_cash" in result["suggested_sql"]
-    assert result["classification_source"] == "dune.ether_fi.result_etherfi_addresses"
+    assert result["dataset_names"]["identity"] == "etherfi_cash_addresses"
+    assert result["table_names"]["identity"] == "dune.ether_fi.result_etherfi_cash_addresses"
+    assert "FROM dune.ether_fi.result_etherfi_cash_addresses" in result["suggested_sql"]
+    assert "COUNT(*) > 0 AS is_classified_cash" in result["suggested_sql"]
+    assert "result_etherfi_addresses" not in result["suggested_sql"]
+    assert result["classification_source"] == "dune.ether_fi.result_etherfi_cash_addresses"
 
 
 def test_get_cash_safe_profile_validates_inputs():
@@ -3178,7 +3329,8 @@ def test_get_cash_safe_profile_execute_live_can_validate_identity(monkeypatch):
     monkeypatch.setenv("DUNE_API_KEY", "test-key")
 
     def fake_execute(sql):
-        assert "FROM dune.ether_fi.result_etherfi_addresses" in sql
+        assert "FROM dune.ether_fi.result_etherfi_cash_addresses" in sql
+        assert "result_etherfi_addresses" not in sql
         return [
             {
                 "row_type": "events_overview",
@@ -3202,8 +3354,8 @@ def test_get_cash_safe_profile_execute_live_can_validate_identity(monkeypatch):
     )
 
     assert result["is_classified_cash"] is True
-    assert result["classification_source"] == "dune.ether_fi.result_etherfi_addresses"
-    assert result["summary"]["identity"] == "classified as CASH in the canonical address registry"
+    assert result["classification_source"] == "dune.ether_fi.result_etherfi_cash_addresses"
+    assert result["summary"]["identity"] == "listed in the public Cash-safe registry"
 
 
 def test_get_cash_safe_profile_live_execution_failures_return_execution_error(monkeypatch):
@@ -3305,8 +3457,8 @@ def test_cash_workflow_validate_safe_identity_distinguishes_canonical_classifica
 
     assert result["validate_cash_identity"] is True
     assert result["is_classified_cash"] is False
-    assert result["classification_source"] == "dune.ether_fi.result_etherfi_addresses"
-    assert result["summary"]["identity"] == "not classified as CASH in the canonical address registry"
+    assert result["classification_source"] == "dune.ether_fi.result_etherfi_cash_addresses"
+    assert result["summary"]["identity"] == "not listed in the public Cash-safe registry"
 
 
 def test_cash_workflow_top_users_returns_ranked_all_users_with_breakdowns(monkeypatch):
@@ -3684,7 +3836,7 @@ def test_get_cash_events_rows_mode_rejects_broad_high_limit_requests():
     assert "Broad rows mode requests are expensive" in result["error"]
 
 
-def test_get_protocol_token_holders_requires_token_filter():
+def test_get_protocol_token_holders_requires_address_or_token_filter():
     result = get_protocol_token_holders(
         datasets={
             "etherfi_protocol_token_holders": {
@@ -3698,7 +3850,51 @@ def test_get_protocol_token_holders_requires_token_filter():
         freshness_registry={},
     )
 
-    assert result["error"] == "Provide token_symbol or token_address."
+    assert result["error"] == "Provide address, token_symbol, or token_address."
+
+
+def test_get_protocol_token_holders_accepts_address_without_token_filter():
+    result = get_protocol_token_holders(
+        address="0x21823686d5Aa48FE8DD5Af0def9C94f3A1003d75",
+        datasets={
+            "etherfi_protocol_token_holders": {
+                "name": "etherfi_protocol_token_holders",
+                "display_name": "Protocol Token Holders",
+                "description": "Example dataset",
+                "table_name": "dune.ether_fi.result_etherfi_protocol_token_holders",
+                "query_ready": True,
+                "grain": "one row per address per token per snapshot date",
+            }
+        },
+        freshness_registry={},
+    )
+
+    assert "error" not in result
+    assert result["address"] == "0x21823686d5aa48fe8dd5af0def9c94f3a1003d75"
+    assert result["token_symbol"] is None
+    assert result["token_address"] is None
+    assert "address = 0x21823686d5aa48fe8dd5af0def9c94f3a1003d75" in result["suggested_sql"]
+    assert "WITH latest_snapshot AS" in result["suggested_sql"]
+    assert result["summary"]["usd_value_available"] is False
+    assert "no USD value column" in result["summary"]["valuation_note"]
+
+
+def test_get_protocol_token_holders_address_lookup_rejects_bad_address():
+    result = get_protocol_token_holders(
+        address="not-an-address",
+        datasets={
+            "etherfi_protocol_token_holders": {
+                "name": "etherfi_protocol_token_holders",
+                "display_name": "Protocol Token Holders",
+                "description": "Example dataset",
+                "table_name": "dune.ether_fi.result_etherfi_protocol_token_holders",
+                "query_ready": True,
+            }
+        },
+        freshness_registry={},
+    )
+
+    assert "Address must be" in result["error"]
 
 
 def test_get_protocol_token_holders_rejects_excluding_defi_without_include_defi():
@@ -3849,7 +4045,7 @@ def _protocol_holder_datasets():
         "etherfi_protocol_token_holders": {
             "name": "etherfi_protocol_token_holders",
             "display_name": "Protocol Token Holders",
-            "description": "Direct holders of ether.fi protocol tokens by address",
+            "description": "Direct user/wallet holders of ether.fi protocol tokens by address",
             "table_name": "dune.ether_fi.result_etherfi_protocol_token_holders",
             "query_ready": True,
             "grain": "one row per address per token per snapshot date",
@@ -3867,6 +4063,173 @@ def _protocol_holder_datasets():
             "completeness label": "partial",
         },
     }
+
+
+def test_holder_workflow_address_summary_mode_returns_token_breakdown(monkeypatch):
+    monkeypatch.setenv("DUNE_API_KEY", "test-key")
+    seen_sql = []
+
+    def fake_execute(sql):
+        seen_sql.append(sql)
+        assert "WITH latest_snapshot AS" in sql
+        assert "FROM dune.ether_fi.result_etherfi_protocol_token_holders" in sql
+        assert "address = 0x21823686d5aa48fe8dd5af0def9c94f3a1003d75" in sql
+        assert "token_balance_usd" not in sql
+        return [
+            {
+                "day": "2026-06-26",
+                "address": "0x21823686d5aa48fe8dd5af0def9c94f3a1003d75",
+                "blockchain": "ethereum",
+                "token_address": "0x35fa164735182de50811e8e2e824cfb9b6118ac2",
+                "token_symbol": "eETH",
+                "token_balance_raw": 9.0,
+                "token_balance": 10.0,
+                "last_updated": "2026-06-26 16:16:16 UTC",
+            },
+            {
+                "day": "2026-06-26",
+                "address": "0x21823686d5aa48fe8dd5af0def9c94f3a1003d75",
+                "blockchain": "base",
+                "token_address": "0x1111111111111111111111111111111111111111",
+                "token_symbol": "weETH",
+                "token_balance_raw": 2.0,
+                "token_balance": 2.0,
+                "last_updated": "2026-06-26 16:16:16 UTC",
+            },
+        ]
+
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
+
+    result = get_protocol_token_holders(
+        address="0x21823686d5Aa48FE8DD5Af0def9C94f3A1003d75",
+        execute_live=True,
+        datasets=_protocol_holder_datasets(),
+        freshness_registry={},
+    )
+
+    assert len(seen_sql) == 1
+    assert result["executed_live"] is True
+    assert result["row_count"] == 2
+    assert result["rows"] == []
+    assert result["summary"]["address"] == "0x21823686d5aa48fe8dd5af0def9c94f3a1003d75"
+    assert result["summary"]["latest_day"] == "2026-06-26"
+    assert result["summary"]["token_symbol"] is None
+    assert result["summary"]["total_token_balance"] is None
+    assert result["summary"]["total_token_balance_usd"] is None
+    assert result["summary"]["usd_value_available"] is False
+    assert result["summary"]["token_breakdown"][0]["token_symbol"] == "eETH"
+    assert result["summary"]["token_breakdown"][1]["token_symbol"] == "weETH"
+    assert "not summed across symbols" in result["summary"]["total_token_balance_note"]
+
+
+def test_holder_workflow_address_rows_mode_returns_compact_rows(monkeypatch):
+    monkeypatch.setenv("DUNE_API_KEY", "test-key")
+
+    monkeypatch.setattr(
+        "etherfi_catalog.catalog._execute_dune_sql",
+        lambda sql: [
+            {
+                "day": "2026-06-26",
+                "address": "0x21823686d5aa48fe8dd5af0def9c94f3a1003d75",
+                "blockchain": "ethereum",
+                "token_address": "0x35fa164735182de50811e8e2e824cfb9b6118ac2",
+                "token_symbol": "eETH",
+                "token_balance_raw": 9.0,
+                "token_balance": 10.0,
+                "last_updated": "2026-06-26 16:16:16 UTC",
+            }
+        ],
+    )
+
+    result = get_protocol_token_holders(
+        address="0x21823686d5Aa48FE8DD5Af0def9C94f3A1003d75",
+        token_symbol="eETH",
+        mode="rows",
+        execute_live=True,
+        datasets=_protocol_holder_datasets(),
+        freshness_registry={},
+    )
+
+    assert result["mode"] == "rows"
+    assert result["row_count"] == 1
+    assert result["rows"][0]["token_symbol"] == "eETH"
+    assert "token_symbol = 'eETH'" in result["suggested_sql"]
+    assert result["summary"]["total_token_balance"] == 10.0
+
+
+def test_holder_workflow_address_lookup_no_rows_keeps_latest_snapshot(monkeypatch):
+    monkeypatch.setenv("DUNE_API_KEY", "test-key")
+    monkeypatch.setattr(
+        "etherfi_catalog.catalog._execute_dune_sql",
+        lambda sql: [
+            {
+                "day": "2026-06-26",
+                "address": None,
+                "blockchain": None,
+                "token_address": None,
+                "token_symbol": None,
+                "token_balance_raw": None,
+                "token_balance": None,
+                "last_updated": None,
+            }
+        ],
+    )
+
+    result = get_protocol_token_holders(
+        address="0x21823686d5Aa48FE8DD5Af0def9C94f3A1003d75",
+        execute_live=True,
+        datasets=_protocol_holder_datasets(),
+        freshness_registry={},
+    )
+
+    assert result["row_count"] == 0
+    assert result["rows"] == []
+    assert result["summary"]["latest_day"] == "2026-06-26"
+    assert result["summary"]["no_holdings_found"] is True
+    assert "No current tracked ether.fi protocol token holdings were found" in result["summary"]["message"]
+
+
+def test_holder_workflow_address_with_defi_can_return_usd_value(monkeypatch):
+    monkeypatch.setenv("DUNE_API_KEY", "test-key")
+
+    def fake_execute(sql):
+        assert "FROM dune.ether_fi.result_etherfi_protocol_token_holders_with_defi" in sql
+        assert "identified_defi_contract IS NULL" in sql
+        return [
+            {
+                "day": "2026-06-26",
+                "address": "0x21823686d5aa48fe8dd5af0def9c94f3a1003d75",
+                "blockchain": "ethereum",
+                "token_address": "0x35fa164735182de50811e8e2e824cfb9b6118ac2",
+                "token_symbol": "eETH",
+                "underlying_symbol": "ETH",
+                "underlying_protocol": None,
+                "token_underlying_symbol": "ETH",
+                "identified_defi_contract": None,
+                "token_balance_raw": 9.0,
+                "token_balance": 10.0,
+                "token_balance_underlying": 10.1,
+                "token_balance_usd": 25000.0,
+                "token_balance_eth": 10.0,
+                "last_updated": "2026-06-26 16:16:16 UTC",
+            }
+        ]
+
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
+
+    result = get_protocol_token_holders(
+        address="0x21823686d5Aa48FE8DD5Af0def9C94f3A1003d75",
+        include_defi=True,
+        exclude_identified_defi=True,
+        execute_live=True,
+        datasets=_protocol_holder_datasets(),
+        freshness_registry={},
+    )
+
+    assert result["dataset_name"] == "etherfi_protocol_token_holders_with_defi"
+    assert result["summary"]["usd_value_available"] is True
+    assert result["summary"]["total_token_balance_usd"] == 25000.0
+    assert result["summary"]["token_breakdown"][0]["token_balance_usd"] == 25000.0
 
 
 def test_holder_workflow_direct_holders_are_discoverable_from_natural_prompts():
@@ -6349,13 +6712,13 @@ def test_search_datasets_finds_protocol_token_holders_with_defi_by_alias():
     assert [dataset["name"] for dataset in results] == ["etherfi_protocol_token_holders_with_defi"]
 
 
-def test_search_datasets_finds_etherfi_addresses_by_cash_safe_intent():
+def test_search_datasets_finds_public_cash_addresses_by_cash_safe_intent():
     results = search_datasets("cash safe")
 
-    assert any(
-        dataset["name"] == "dune.ether_fi.result_etherfi_addresses"
-        for dataset in results
-    )
+    assert results[0]["name"] == "etherfi_cash_addresses"
+    assert "dune.ether_fi.result_etherfi_addresses" not in {
+        dataset["name"] for dataset in results
+    }
 
 
 def test_search_datasets_distinguishes_minute_enriched_prices_from_raw_usd_feed():

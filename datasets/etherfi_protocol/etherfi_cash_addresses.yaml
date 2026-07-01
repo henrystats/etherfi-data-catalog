@@ -1,0 +1,80 @@
+name: etherfi_cash_addresses
+aliases:
+  - result_etherfi_cash_addresses
+  - dune.ether_fi.result_etherfi_cash_addresses
+  - ether.fi cash addresses
+  - ether.fi cash safe addresses
+  - cash safe registry
+  - public cash safe registry
+display_name: Ether.fi Cash Addresses
+description: Public registry of ether.fi Cash safe addresses by blockchain.
+refresh_interval_minutes: 240
+freshness_timestamp_column: last_updated
+source_query_id: 7854862
+source_query_url: https://dune.com/queries/7854862
+freshness_source_name: ether.fi Cash Addresses
+table_name: dune.ether_fi.result_etherfi_cash_addresses
+query_ready: true
+query_patterns:
+  - cash safe address validation
+  - check whether an address is an ether.fi Cash safe
+  - public Cash safe registry lookup
+grain: one row per blockchain and Cash safe address
+business_meaning:
+  - This is the public registry of ether.fi Cash safe addresses.
+  - Use this table to check whether an address is an ether.fi Cash safe.
+  - This replaces prior reliance on private or internal ether.fi protocol address registries for public Cash-safe validation.
+important_filters:
+  - address when checking one Cash safe address
+  - blockchain when narrowing validation to one chain
+important_columns:
+  - blockchain: Chain where the Cash safe exists.
+  - address: Cash safe address.
+  - last_updated: Timestamp when the registry was last refreshed.
+query_notes:
+  - "For Cash-safe validation, use this public table instead of private/internal protocol address registry tables."
+  - "A row for an address means that address is listed as an ether.fi Cash safe on the corresponding blockchain."
+  - "Use `last_updated` as the dataset freshness signal."
+semantic_notes:
+  - This table answers Cash-safe identity/registry questions; it is not a balance or activity table.
+  - Cash activity questions should use `dune.ether_fi.result_etherfi_cash_events` filtered by `user_safe`.
+  - Cash balance/profile questions can use AUM and Cash events, with this registry added when Cash-safe identity validation is needed.
+caveats:
+  - This is a public Cash-safe registry.
+  - Use this for Cash-safe validation instead of private/internal address registry tables.
+  - The table confirms Cash-safe registry membership; it does not provide token balances, spend activity, or protocol holder balances.
+schema:
+  - name: blockchain
+    type: varchar
+    description: Chain where the Cash safe exists.
+  - name: address
+    type: varbinary
+    description: Cash safe address.
+  - name: last_updated
+    type: timestamp
+    description: Timestamp when the registry was last refreshed.
+use_when:
+  - when the user asks whether an address is an ether.fi Cash safe
+  - when a Cash profile or Cash activity workflow needs public Cash-safe identity validation
+  - when the user asks for the canonical public Cash-safe registry
+do_not_use_when:
+  - when the user asks for Cash balances; use `dune.ether_fi.result_etherfi_assets_under_management` with Cash-specific filters
+  - when the user asks for Cash spend, cashback, borrow, repay, or liquidation activity; use `dune.ether_fi.result_etherfi_cash_events`
+  - when the user asks generic ether.fi wallet/address holdings; use `etherfi_protocol_token_holders`
+example_user_intents:
+  - "Is this address an ether.fi Cash safe?"
+  - "Check if 0x... is a Cash safe."
+  - "Validate this user_safe against the public Cash-safe registry."
+  - "Which public table should I use for Cash-safe validation?"
+search_keywords:
+  - cash safe
+  - cash-safe
+  - user_safe validation
+  - public cash registry
+  - cash address registry
+  - ether.fi cash safe address
+related_datasets:
+  - dune.ether_fi.result_etherfi_cash_events
+  - dune.ether_fi.result_etherfi_assets_under_management
+related_dashboards:
+  - etherfi_cash

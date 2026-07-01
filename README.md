@@ -457,7 +457,11 @@ Example protocol-TVL time-series prompts:
 - "Show daily TVL history for liquidETH and eETH over the last 90 days."
 - "Compare liquidUSD vs eBTC TVL over time."
 
+Protocol token holder and wallet lookups are available through `get_protocol_token_holders(address=None, token_symbol=None, token_address=None, as_of_date=None, include_defi=false, exclude_identified_defi=false, mode="summary", limit=100, execute_live=false)`.
+Use `address` by itself for generic "how much does this wallet have in ether.fi?" prompts; add `token_symbol` or `token_address` only when the user asks for one token. The direct holder table returns token balances, not USD values, unless `include_defi=true` is explicitly requested for the broader tracked-DeFi exposure table.
+
 Cash-safe profile lookup is available through `get_cash_safe_profile(address, as_of_date=None, recent_days=30, validate_cash_identity=false, execute_live=false)`.
+Cash-safe address validation is available through `check_cash_safe_address(address, blockchain=None, execute_live=false)`. Use this for explicit "is this address an ether.fi Cash safe?" prompts; it uses the public `dune.ether_fi.result_etherfi_cash_addresses` registry instead of private/internal protocol address tables.
 Token price lookup is available through `get_token_price(token_address, blockchain=None, as_of_timestamp=None, granularity="minute", execute_live=false)`.
 Batch token price lookup is available through `get_token_prices_batch(token_addresses, blockchain=None, as_of_timestamp=None, granularity="daily", execute_live=false)`.
 Price token discovery is available through `find_price_tokens(token_symbol=None, token_project=None, blockchain=None, limit=20, execute_live=false)`.
@@ -478,8 +482,12 @@ with these tools:
 - `get_assets_under_management_balances`
 - `get_cash_holdings_timeseries`
 - `get_cash_safe_profile`
+- `check_cash_safe_address`
 - `get_cash_token_totals`
 - `get_top_cash_users`
+- `get_protocol_token_holders`
+- `get_protocol_events`
+- `get_protocol_token_tvl`
 - `get_protocol_token_tvl_timeseries`
 - `diagnose_token_price_coverage`
 - `find_price_tokens`
@@ -495,6 +503,7 @@ Example query-planning prompts:
 
 - "I need a live answer only: what are the latest balances for this ether.fi Cash address?"
 - "Can you create a Dune query to show weekly USDC Cash spend volume?"
+- "Is this address an ether.fi Cash safe?"
 - "Plan a chart-ready query for monthly TVL for eETH and liquidETH over the last year."
 - "Create a dashboard-ready query plan for Cash events by week."
 - "Should I use protocol_token_holders or protocol_token_holders_with_defi for a top holders query?"
@@ -504,7 +513,9 @@ Use `plan_etherfi_query(...)` before creating new shareable Dune artifacts. It r
 Example planning outputs to expect:
 
 - "Create a Dune query for weekly USDC Cash spend volume." -> Cash events, `event_type='spend'`, `token_symbol='USDC'`, weekly grain, bar chart, concise Cash-event query description.
+- "Is this address an ether.fi Cash safe? 0x..." -> public Cash-safe registry, `address=0x...`, one-row-per-blockchain validation scope.
 - "Show monthly TVL for eETH and liquidETH over the last year." -> protocol TVL time series, monthly grain, line chart with grouped-bar alternative, month-end snapshot description.
+- "How much does this address have in ether.fi? 0x..." -> protocol token holders, `address=0x...`, direct current holder snapshot, token-level breakdown.
 - "Create a query for the top 100 ether.fi protocol token holders today." -> holder datasets plus direct-vs-`with_defi` ambiguity, `identified_defi_contract` caveat, table or horizontal-bar recommendation.
 - "Build a shareable dashboard view for monthly Cash balances by category." -> Cash AUM balances, `cash_balance_buckets` category preset, grouped/stacked bar guidance, dashboard description.
 - "How much of liquidUSD is held in Aave?" -> AUM deployment footprint, `parent_symbol='liquidUSD'`, `token_project='Aave'`, net lending treatment using `secondary_trait`.
@@ -530,10 +541,16 @@ Example Cash workflow prompts:
 - "Who are the top ether.fi Cash users right now?"
 - "Summarize this Cash safe."
 - "Is this address actually a Cash safe?"
+- "Check if 0x... is a Cash safe."
+- "Validate this user_safe against the public Cash-safe registry."
 - "What does user_safe mean in ether.fi Cash events?"
 
 Example holder workflow prompts:
 
+- "How much does this address have in ether.fi? 0x..."
+- "How much has 0x... invested in ether.fi?"
+- "What ether.fi tokens does 0x... hold?"
+- "Show this address's direct eETH balance in ether.fi."
 - "Who are the top eETH holders today?"
 - "Show the top eETH holders including DeFi exposure."
 - "Exclude identified DeFi contracts."

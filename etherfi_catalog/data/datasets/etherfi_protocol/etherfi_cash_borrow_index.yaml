@@ -33,7 +33,7 @@ query_notes:
   - Join conceptually with Cash events when analyzing borrowing behavior over time.
 semantic_notes:
   - This is an index-update table, not a user-safe classification table.
-  - To identify Cash safes or Cash-related addresses, use `dune.ether_fi.result_etherfi_addresses` where `name = 'CASH'`.
+  - To check whether an address is a Cash safe, use the public registry `dune.ether_fi.result_etherfi_cash_addresses`.
   - To analyze balances for Cash addresses, use `dune.ether_fi.result_etherfi_assets_under_management` where `address_name = 'CASH'`.
 caveats:
   - Borrow index values are accounting state, so they should not be interpreted as user balances by themselves.
@@ -73,4 +73,4 @@ search_keywords:
   - ether.fi cash rates
   - cash interest accounting
 related_dashboards:
-  - etherfi_overview
+  - etherfi_cash

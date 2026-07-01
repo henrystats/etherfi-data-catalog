@@ -6,6 +6,7 @@ import os
 from mcp.server.fastmcp import FastMCP
 
 from etherfi_catalog.catalog import compare_datasets as compare_catalog_datasets
+from etherfi_catalog.catalog import check_cash_safe_address as check_cash_safe_address_data
 from etherfi_catalog.catalog import diagnose_token_price_coverage as diagnose_token_price_coverage_data
 from etherfi_catalog.catalog import find_price_tokens as find_price_tokens_data
 from etherfi_catalog.catalog import get_assets_under_management_balances as get_aum_balances_plan
@@ -135,7 +136,7 @@ def get_catalog_health_summary() -> dict:
 
 @server.tool(name="plan_etherfi_query")
 def plan_etherfi_query(question: str, execute_live: bool = False) -> dict:
-    """Return a planning-only ether.fi query plan for shareable query, chart, or dashboard prompts."""
+    """Route natural-language ether.fi questions without live execution. Cash-safe validation routes to etherfi_cash_addresses/check_cash_safe_address; generic address balance/holdings routes to etherfi_protocol_token_holders."""
     return plan_etherfi_query_data(question=question, execute_live=execute_live)
 
 
@@ -145,7 +146,7 @@ def get_assets_under_management_balances(
     as_of_date: str | None = None,
     execute_live: bool = False,
 ) -> dict:
-    """Return a planning or live response for ether.fi assets under management balances."""
+    """Return AUM/product balance rows only for explicit AUM, managed/internal/protocol-controlled, treasury, address registry, or product-deployment prompts. Do not use for generic ether.fi wallet/address balance, invested-balance, token-holding, or "how much does this address have" prompts; use plan_etherfi_query or etherfi_protocol_token_holders."""
     return get_aum_balances_plan(address, as_of_date=as_of_date, execute_live=execute_live)
 
 
@@ -159,7 +160,7 @@ def get_cash_events(
     execute_live: bool = False,
     limit: int = 100,
 ) -> dict:
-    """Return a planning or live response for ether.fi Cash events."""
+    """Return a planning or live response only for explicit ether.fi Cash spend, cashback, borrow, repay, or liquidation events. Do not use for generic ether.fi address/wallet balance prompts."""
     return get_cash_events_data(
         event_type=event_type,
         user_safe=user_safe,
@@ -186,7 +187,7 @@ def get_cash_holdings_timeseries(
     categories: list[str] | None = None,
     execute_live: bool = False,
 ) -> dict:
-    """Return a planning or live response for ether.fi Cash holdings time series."""
+    """Return a planning or live response only for explicit ether.fi Cash holdings time-series prompts. Do not use for generic ether.fi address/wallet balance prompts."""
     return get_cash_holdings_timeseries_data(
         start_date=start_date,
         end_date=end_date,
@@ -211,12 +212,26 @@ def get_cash_safe_profile(
     validate_cash_identity: bool = False,
     execute_live: bool = False,
 ) -> dict:
-    """Return a planning or live Cash-safe profile with balances and recent activity."""
+    """Return a planning or live Cash-safe profile only when the user explicitly says Cash, safe, card, user_safe, or Cash activity. For a pure "is this a Cash safe?" check, use check_cash_safe_address. Do not use for generic ether.fi address/wallet balance prompts."""
     return get_cash_safe_profile_data(
         address=address,
         as_of_date=as_of_date,
         recent_days=recent_days,
         validate_cash_identity=validate_cash_identity,
+        execute_live=execute_live,
+    )
+
+
+@server.tool(name="check_cash_safe_address")
+def check_cash_safe_address(
+    address: str,
+    blockchain: str | None = None,
+    execute_live: bool = False,
+) -> dict:
+    """Return a planning or live public-registry check for whether an address is an ether.fi Cash safe. Uses etherfi_cash_addresses / dune.ether_fi.result_etherfi_cash_addresses, not private/internal address registries."""
+    return check_cash_safe_address_data(
+        address=address,
+        blockchain=blockchain,
         execute_live=execute_live,
     )
 
@@ -229,7 +244,7 @@ def get_cash_token_totals(
     blockchain: str | None = None,
     execute_live: bool = False,
 ) -> dict:
-    """Return a planning or live response for ether.fi Cash token population totals."""
+    """Return a planning or live response only for explicit ether.fi Cash token population totals. Do not use for generic ether.fi address/wallet balance prompts."""
     return get_cash_token_totals_data(
         as_of_date=as_of_date,
         token_symbol=token_symbol,
@@ -249,7 +264,7 @@ def get_top_cash_users(
     blockchain: str | None = None,
     execute_live: bool = False,
 ) -> dict:
-    """Return a planning or live response for ranking ether.fi Cash users by holdings."""
+    """Return a planning or live response only for explicit ether.fi Cash user/safe holding rankings. Do not use for generic ether.fi address/wallet balance prompts."""
     return get_top_cash_users_data(
         as_of_date=as_of_date,
         limit=limit,
@@ -263,6 +278,7 @@ def get_top_cash_users(
 
 @server.tool(name="get_protocol_token_holders")
 def get_protocol_token_holders(
+    address: str | None = None,
     token_symbol: str | None = None,
     token_address: str | None = None,
     as_of_date: str | None = None,
@@ -272,8 +288,9 @@ def get_protocol_token_holders(
     limit: int = 100,
     execute_live: bool = False,
 ) -> dict:
-    """Return a planning or live response for ether.fi protocol token holders."""
+    """Return a planning or live response for ether.fi protocol token holders. Accepts address-only lookups for user/wallet holdings, invested balances, token balances, and generic "how much does this address have in ether.fi?" prompts; token_symbol and token_address are optional filters. This is the default route for generic address balance questions; use include_defi only for explicit DeFi exposure requests."""
     return get_protocol_token_holders_data(
+        address=address,
         token_symbol=token_symbol,
         token_address=token_address,
         as_of_date=as_of_date,
@@ -297,7 +314,7 @@ def get_protocol_events(
     execute_live: bool = False,
     limit: int = 100,
 ) -> dict:
-    """Return a planning or live response for ether.fi protocol events."""
+    """Return a planning or live response for ether.fi protocol events such as historical deposits and withdrawals."""
     return get_protocol_events_data(
         project=project,
         strategy_symbol=strategy_symbol,

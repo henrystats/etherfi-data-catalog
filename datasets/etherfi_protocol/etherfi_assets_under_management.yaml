@@ -1,6 +1,6 @@
 name: dune.ether_fi.result_etherfi_assets_under_management
 display_name: Ether.fi Assets Under Management
-description: Balance-state dataset for tracked ether.fi addresses and parent/product deployment footprint analysis
+description: Balance-state dataset for ether.fi-managed/internal/protocol-controlled addresses and parent/product deployment footprint analysis
 refresh_interval_minutes: 60
 freshness_timestamp_column: last_updated
 source_query_id: 6147901
@@ -9,12 +9,12 @@ freshness_source_name: ether.fi Assets Under Management
 table_name: dune.ether_fi.result_etherfi_assets_under_management
 query_ready: true
 query_patterns:
-  - current day balances by address
-  - latest balances by address
+  - latest AUM balances by managed or internal address
+  - current balances for explicit ether.fi-managed addresses
   - monthly Cash balance history
   - month-end Cash balances by token symbol or category
   - tracked product deployment footprint by parent_symbol
-  - product balances by protocol, address, chain, or token
+  - product balances by deployed protocol, managed address, chain, or token
 address_column: address
 date_column: day
 balance_columns:
@@ -31,8 +31,10 @@ token_columns:
   - token_underlying_symbol
 grain: one row per day, address, and token
 query_notes:
-  - This dataset supports two main modes: address-level balance lookups and parent/product deployment-footprint analysis.
-  - In address-level mode, use address, address_name, blockchain, token_symbol, token_balance, token_balance_underlying, token_balance_usd, token_balance_eth, and last_updated.
+  - This dataset supports two main modes: explicit AUM/managed-address balance lookups and parent/product deployment-footprint analysis.
+  - In managed-address mode, use address, address_name, blockchain, token_symbol, token_balance, token_balance_underlying, token_balance_usd, token_balance_eth, and last_updated.
+  - Do not use this dataset for generic user wallet holdings, invested-balance, or "how much does this address have in ether.fi?" prompts; use `etherfi_protocol_token_holders` for those.
+  - Only use address-level filters here when the prompt explicitly says AUM, assets under management, managed by ether.fi, ether.fi-owned, protocol-owned, internal, treasury, address registry, address_name, address traits, or protocol-controlled assets.
   - In parent/product deployment-footprint mode, prefer filtering parent_symbol and then analyzing or aggregating balances such as token_balance_usd by token_project, address_name, blockchain, token_symbol, parent_name, or parent_address.
   - Example product filters include parent_symbol = 'liquidETH', parent_symbol = 'liquidUSD', and parent_symbol = 'liquidBTC'.
   - For protocol-deployment questions such as "How much liquidUSD is in Aave?", filter by token_project rather than address_name; token_project identifies the protocol where the balance is deployed.
@@ -53,8 +55,8 @@ query_notes:
   - AUM sums from this table are not expected to exactly match canonical token TVL because deployment coverage is partial and improved over time as missing protocols are added.
   - Do not confuse address_name classification with parent_name or parent_symbol rollup semantics.
 semantic_notes:
-  - "Use `dune.ether_fi.result_etherfi_addresses` as the canonical source of truth for whether an address is classified as Cash."
-  - Use this dataset as the balance-state source once the address classification context or parent/product rollup context is known.
+  - "Use `dune.ether_fi.result_etherfi_cash_addresses` as the public registry for checking whether an address is an ether.fi Cash safe."
+  - Use this dataset as the balance-state source only after explicit AUM/managed-address, Cash balance, or parent/product rollup context is known.
   - Use this dataset to understand where product funds are deployed across tracked protocols, addresses, and chains.
   - For protocol-level deployment questions, `token_project` is the protocol classification and is usually the correct filter or grouping field.
   - Lending protocol rows for Aave and Morpho need net exposure treatment because supply and borrow balances are both stored as positive raw balances.
@@ -62,7 +64,8 @@ semantic_notes:
   - For canonical token/product TVL, use `dune.ether_fi.result_etherfi_protocol_token_tvl` instead.
   - "AUM `address_name` and address-registry `name` represent related business meaning, but they should not be treated as the same literal field."
   - Cash balance use cases usually filter by `address_name = 'CASH'`; product deployment-footprint use cases usually filter by `parent_symbol`.
-  - Address-level balances answer what a tracked address holds; parent/product deployment analysis answers where a product's tracked funds are deployed.
+  - Managed/internal address balances answer what a tracked ether.fi AUM-scope address holds; generic user wallet holdings belong in `etherfi_protocol_token_holders`.
+  - Parent/product deployment analysis answers where a product's tracked funds are deployed.
   - Balance-state questions belong here; event-volume and activity-flow questions belong in Cash events or protocol events datasets.
 schema:
   - name: day
@@ -106,7 +109,8 @@ schema:
   - name: last_updated
     type: timestamp
 use_when:
-  - when the user wants tracked AUM balance state by address, token, chain, or parent product
+  - when the user explicitly wants tracked AUM balance state by managed/internal/protocol-controlled address, token, chain, or parent product
+  - when the prompt says AUM, assets under management, managed by ether.fi, ether.fi-owned address, protocol-owned address, internal address, treasury, address registry, address_name, address traits, or protocol-controlled assets
   - when the user wants the latest balances for a tracked ether.fi Cash address
   - when the user wants top Cash holders by balance after filtering `address_name = 'CASH'`
   - when the user wants monthly ether.fi Cash holdings over time
@@ -118,6 +122,7 @@ use_when:
   - when the user asks how much liquidUSD, liquidETH, or liquidBTC is deployed in Aave, Morpho, or another token_project protocol
   - when the user wants parent-product balance footprint across multiple child addresses
 do_not_use_when:
+  - when the user asks generic user wallet/address holdings such as "how much does this address have in ether.fi?", "what ether.fi tokens does this wallet hold?", or "how much has this address invested in ether.fi?"; use `etherfi_protocol_token_holders`
   - when the user needs canonical product/token TVL; use dune.ether_fi.result_etherfi_protocol_token_tvl
   - when the user needs exact supply, supply_usd, or underlying supply; use dune.ether_fi.result_etherfi_protocol_token_tvl
   - when the user asks for spend, borrow, repay, cashback, liquidation, or other Cash event activity; use dune.ether_fi.result_etherfi_cash_events
@@ -138,7 +143,8 @@ important_columns:
   - token_balance_eth: ETH-equivalent value of the balance row when ETH-denominated comparison is needed.
   - filter_balance: Currently negligible and should not be elevated into a primary query field.
 clarifying_questions:
-  - Does the user want address-level balances or parent/product deployment footprint?
+  - Is this a generic user wallet holdings question? If yes, use `etherfi_protocol_token_holders` instead.
+  - Does the user explicitly mean AUM/managed/internal/protocol-controlled address balances or parent/product deployment footprint?
   - Is this a Cash balance question or a product deployment question?
   - Does the user want canonical TVL or tracked AUM/deployment balances?
   - Should results be grouped by token, category, chain, protocol/address_name, or parent product?
@@ -148,8 +154,11 @@ comparison_notes:
   - Compared with dune.ether_fi.result_etherfi_protocol_token_tvl, this table is for tracked balance/deployment footprint, not canonical product TVL or supply.
   - Compared with dune.ether_fi.result_etherfi_cash_events, this table is for Cash balance state and history, not spend, borrow, repay, cashback, liquidation, or event volume.
   - Compared with dune.ether_fi.result_etherfi_protocol_events, this table is for balance snapshots, not protocol event flow.
-  - Address-level questions should focus on address and address_name; parent-product deployment questions should focus on parent_symbol, parent_address, and parent_name.
+  - Generic wallet/address holding questions should use `etherfi_protocol_token_holders`, not this AUM dataset.
+  - Explicit AUM/managed-address questions should focus on address and address_name; parent-product deployment questions should focus on parent_symbol, parent_address, and parent_name.
 example_user_intents:
+  - "What AUM balances does ether.fi have for this managed address 0x...?"
+  - "Show assets under management for this ether.fi-owned address 0x..."
   - "What are the latest balances for ether.fi cash address 0x...?"
   - "Who are the top 10 ether.fi Cash holders?"
   - "Show monthly ether.fi Cash holdings over the last 2 years."
@@ -161,9 +170,11 @@ example_user_intents:
   - "How are liquidUSD funds distributed across protocols?"
   - "What balances make up the tracked deployment footprint of liquidBTC?"
 related_datasets:
+  - etherfi_cash_addresses
   - dune.ether_fi.result_etherfi_addresses
   - dune.ether_fi.result_etherfi_protocol_token_tvl
   - dune.ether_fi.result_etherfi_cash_events
   - dune.ether_fi.result_etherfi_protocol_events
 related_dashboards:
+  - etherfi_cash
   - etherfi_overview

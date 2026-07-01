@@ -7,7 +7,7 @@ aliases:
   - direct protocol token holders
   - top eETH holders
 display_name: Protocol Token Holders
-description: Direct holders of ether.fi protocol tokens by address
+description: Direct user/wallet holders of ether.fi protocol tokens by address; default dataset for generic "how much does this address have in ether.fi?" prompts
 refresh_interval_minutes: 240
 freshness_timestamp_column: last_updated
 source_query_id: 6213381
@@ -18,19 +18,29 @@ query_ready: true
 query_patterns:
   - top holders by token
   - latest protocol token holders
+  - latest ether.fi token holdings by wallet address
+  - generic address balance in ether.fi
+  - invested balance by address
 grain: one row per address per token per snapshot date
 business_meaning:
   - This is the standard direct-holder table for ether.fi protocol tokens.
   - It is the clean default when the user wants wallet-level holders without tracked DeFi routing.
+  - This is the default route for generic user wallet/address holdings, invested-balance, and "how much does this address have in ether.fi?" questions.
 refresh cadence: every 4 hours
 accuracy label: high
 completeness label: complete
 use_when:
+  - when the user asks how much an address has in ether.fi
+  - when the user asks how much a wallet has invested in ether.fi
+  - when the user asks what ether.fi tokens a wallet or address holds
+  - when the user asks for a generic address or wallet balance in ether.fi
   - when the user wants direct holders only
   - when the user wants the cleanest holder view
 do_not_use_when:
   - when the user wants defi-routed exposure included
+  - when the user explicitly asks for AUM, assets under management, managed/internal/protocol-controlled addresses, treasury, address registry, address_name, or protocol-owned assets
 important_filters:
+  - address when looking up one user wallet or holder address
   - token_symbol when isolating one ether.fi protocol token
   - blockchain when narrowing to one network
   - day for the latest or a specific snapshot date
@@ -45,7 +55,9 @@ comparison_notes:
 semantic_notes:
   - This table represents direct holder balances only.
   - Use this table for standard holder rankings or wallet-level holder analysis for ether.fi protocol tokens.
+  - Use this as the primary/default dataset for normal user wallet prompts such as "How much does this address have in ether.fi?", "What ether.fi tokens does this wallet hold?", and "How much has this address invested in ether.fi?"
   - If the user wants tracked DeFi-routed exposure included, switch to `etherfi_protocol_token_holders_with_defi`.
+  - Do not route generic user wallet holdings to `dune.ether_fi.result_etherfi_assets_under_management`; AUM is only for explicit managed/internal/protocol-controlled address context.
 caveats:
   - This table does not include broader routed exposure through tracked DeFi positions.
   - Direct holder rankings can differ materially from DeFi-aware exposure rankings.
@@ -67,11 +79,20 @@ schema:
   - name: token_symbol
     type: varchar
 example_user_intents:
+  - How much does this address have in ether.fi?
+  - How much has 0x... invested in ether.fi?
+  - What ether.fi tokens does this wallet hold?
+  - What is this address's ether.fi balance?
   - Who are the top direct holders of eETH?
   - Who are the top eETH holders today?
   - Show direct liquidUSD holders on the latest day.
   - Rank wallets by direct liquidETH holdings.
 search_keywords:
+  - how much does this address have in ether.fi
+  - wallet balance
+  - address balance
+  - invested in ether.fi
+  - ether.fi token holdings by address
   - direct holders
   - direct protocol token holders
   - top eETH holders
