@@ -69,8 +69,9 @@ def test_build_website_outputs_core_pages(tmp_path):
     assert hero_html
     assert "ether.fi Data Catalog" in hero_html.group(1)
     assert "A polished, repo-backed catalog" in hero_html.group(1)
-    assert "home-command-preview" in hero_html.group(1)
-    assert "Which table backs Cash activity and is it fresh enough?" in hero_html.group(1)
+    assert "ether.fi data command center" not in hero_html.group(1).lower()
+    assert "home-command-preview" not in hero_html.group(1)
+    assert "Which table backs Cash activity and is it fresh enough?" not in hero_html.group(1)
     assert 'href="datasets.html">Explore datasets</a>' in hero_html.group(1)
     assert 'href="freshness.html">Check freshness</a>' in hero_html.group(1)
     assert 'href="mcp.html">Set up MCP</a>' in hero_html.group(1)
@@ -105,7 +106,9 @@ def test_build_website_outputs_core_pages(tmp_path):
     assert '<span class="brand-mark">ether.fi</span>' in freshness_html
     assert '<span class="brand-mark">e.fi</span>' not in freshness_html
     assert "<h1>Freshness</h1>" in freshness_html
-    assert "No live Dune call in the browser" in freshness_html
+    assert "Static site" not in freshness_html
+    assert "Runtime snapshot aware" not in freshness_html
+    assert "No live Dune call in the browser" not in freshness_html
 
 
 def test_build_website_generates_polished_mcp_page_from_current_tools(tmp_path):
@@ -135,7 +138,8 @@ def test_build_website_generates_polished_mcp_page_from_current_tools(tmp_path):
     assert "Install Dune MCP separately using Dune&rsquo;s official instructions." in mcp_page
     assert "Use ether.fi Catalog MCP for dataset semantics" in mcp_page
     assert "Use Dune MCP for execution, saved queries, charts, and dashboards." in mcp_page
-    assert "Each user should use their own Dune API key locally." in mcp_page
+    assert "<li>Use local stdio via <code>uvx</code>. Keep real credentials in private local config.</li>" in mcp_page
+    assert "Each user should use their own Dune API key locally." not in mcp_page
     assert "Do not put a shared team key in the repo." in mcp_page
 
     assert "Codex config" in mcp_page
@@ -146,6 +150,7 @@ def test_build_website_generates_polished_mcp_page_from_current_tools(tmp_path):
     assert "enabled = true" in mcp_page
     assert "startup_timeout_sec = 60" in mcp_page
     assert "tool_timeout_sec = 120" in mcp_page
+    assert "<li>Use placeholders in examples. Put real credentials only in private local config.</li>" in mcp_page
     assert "/Users/&lt;user&gt;/.codex/config.toml" in mcp_page
     assert "After editing MCP config, fully restart or reload the client." in mcp_page
 

@@ -993,21 +993,19 @@ DUNE_API_KEY = "your_dune_api_key_here"
         '<section id="recommended-setup" class="mcp-section detail-panel">'
         '<div class="mcp-section-heading">'
         "<h2>Recommended setup</h2>"
-        "<p>Use local stdio via <code>uvx</code>. Keep real credentials in private local config.</p>"
         "</div>"
         f"{render_mcp_code_block(catalog_install_command, 'Install command')}"
         "<ul>"
         "<li>Install Dune MCP separately using Dune&rsquo;s official instructions.</li>"
         "<li>Use ether.fi Catalog MCP for dataset semantics, dashboard discovery, freshness context, and query planning.</li>"
         "<li>Use Dune MCP for execution, saved queries, charts, and dashboards.</li>"
-        "<li>Each user should use their own Dune API key locally.</li>"
+        "<li>Use local stdio via <code>uvx</code>. Keep real credentials in private local config.</li>"
         "<li>Do not put a shared team key in the repo.</li>"
         "</ul>"
         "</section>"
         '<section id="client-configs" class="mcp-section detail-panel">'
         '<div class="mcp-section-heading">'
         "<h2>Client configs</h2>"
-        "<p>Use placeholders in examples. Put real credentials only in private local config.</p>"
         "</div>"
         '<div class="mcp-config-grid">'
         '<article>'
@@ -1020,6 +1018,7 @@ DUNE_API_KEY = "your_dune_api_key_here"
         "</article>"
         "</div>"
         "<ul>"
+        "<li>Use placeholders in examples. Put real credentials only in private local config.</li>"
         "<li>Codex may use the global config at <code>/Users/&lt;user&gt;/.codex/config.toml</code>.</li>"
         "<li>Claude Desktop typically uses a JSON MCP server config.</li>"
         "<li>After editing MCP config, fully restart or reload the client.</li>"
@@ -1140,7 +1139,6 @@ def render_home_page(
         '<div class="wrap home-hub-layout">'
         '<section class="home-hub-hero detail-panel">'
         '<div>'
-        '<p class="eyebrow">ether.fi data command center</p>'
         "<h1>ether.fi Data Catalog</h1>"
         '<p class="page-lead">A polished, repo-backed catalog for finding ether.fi datasets, checking freshness, discovering dashboards, and giving AI agents the right context before Dune execution.</p>'
         '<div class="home-hero-actions">'
@@ -1149,7 +1147,6 @@ def render_home_page(
         '<a class="button secondary" href="mcp.html">Set up MCP</a>'
         "</div>"
         "</div>"
-        f"{render_home_command_preview()}"
         "</section>"
         '<section class="home-section">'
         '<div class="mcp-section-heading">'
@@ -1187,11 +1184,6 @@ def render_freshness_page(
         '<p class="eyebrow">Freshness monitor</p>'
         "<h1>Freshness</h1>"
         "<p>Search cataloged ether.fi datasets and check whether each one is fresh enough for reporting, dashboards, or agent-assisted Dune queries.</p>"
-        "</div>"
-        '<div class="freshness-hero-notes">'
-        "<span>Static site</span>"
-        "<span>Runtime snapshot aware</span>"
-        "<span>No live Dune call in the browser</span>"
         "</div>"
         "</section>"
     )

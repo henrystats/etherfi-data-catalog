@@ -2620,7 +2620,7 @@ h1 {
 
 .home-hub-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(340px, 0.78fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: clamp(22px, 4vw, 44px);
   align-items: center;
   overflow: hidden;
