@@ -294,6 +294,12 @@ ADDRESS_IN_TEXT_PATTERN = re.compile(r"(?<![a-fA-F0-9])0x[a-fA-F0-9]{40}(?![a-fA
 CASH_SAFE_ADDRESSES_DATASET_NAME = "etherfi_cash_addresses"
 CASH_EVENT_TYPES = {"spend", "borrow", "repay", "cashback", "liquidation"}
 QUERY_MODES = {"summary", "rows"}
+ADDRESS_BALANCE_SOURCES = {
+    "auto",
+    "cash_safe",
+    "protocol_holders",
+    "protocol_holders_with_defi",
+}
 PROTOCOL_EVENT_TYPES = {"deposit", "withdrawal_request", "withdrawal_processed"}
 _PROTOCOL_TVL_TIMESERIES_PERIODS = {
     "last_30_days",
@@ -330,6 +336,7 @@ _KNOWN_ANALYSIS_TOKEN_SYMBOLS = {
     "usdc": "USDC",
     "usdc.e": "USDC.e",
     "eeth": "eETH",
+    "weeth": "weETH",
     "liquideth": "liquidETH",
     "liquidusd": "liquidUSD",
     "ebtc": "eBTC",
@@ -481,6 +488,114 @@ def _normalize_string_list(values, field_name: str) -> list[str]:
         seen.add(normalized_value)
         normalized.append(normalized_value)
     return normalized
+
+
+def _normalize_address_literal_list(values, field_name: str) -> list[str]:
+    if values is None:
+        raise ValueError(f"{field_name} is required.")
+
+    raw_values: list[str]
+    if isinstance(values, str):
+        stripped = values.strip()
+        extracted = _extract_address_literals(stripped)
+        raw_values = extracted if extracted else [stripped]
+    elif isinstance(values, list) and values:
+        raw_values = values
+    else:
+        raise ValueError(f"{field_name} must be an address string or non-empty list of address strings.")
+
+    normalized: list[str] = []
+    seen: set[str] = set()
+    for value in raw_values:
+        address = _normalize_address_literal(value)
+        if address in seen:
+            continue
+        seen.add(address)
+        normalized.append(address)
+    return normalized
+
+
+def _normalize_optional_address_literal_list(values, field_name: str) -> list[str]:
+    if values is None:
+        return []
+    return _normalize_address_literal_list(values, field_name)
+
+
+def _normalize_token_symbol_filters(values, field_name: str = "token_symbols") -> list[str]:
+    if values is None:
+        return []
+    if isinstance(values, str):
+        raw_values = [values]
+    elif isinstance(values, list) and values:
+        raw_values = values
+    else:
+        raise ValueError(f"{field_name} must be a string or non-empty list of strings.")
+
+    normalized: list[str] = []
+    seen: set[str] = set()
+    for value in raw_values:
+        symbol = _validate_simple_string_literal(str(value).strip(), field_name)
+        dedupe_key = symbol.lower()
+        if dedupe_key in seen:
+            continue
+        seen.add(dedupe_key)
+        normalized.append(symbol)
+    return normalized
+
+
+def _validate_address_balance_source(source: str | None) -> str:
+    value = source or "auto"
+    if value not in ADDRESS_BALANCE_SOURCES:
+        allowed_values = ", ".join(sorted(ADDRESS_BALANCE_SOURCES))
+        raise ValueError(f"source must be one of: {allowed_values}.")
+    return value
+
+
+def _resolve_address_balance_protocol_source(source: str, include_defi: bool) -> str:
+    if source == "protocol_holders_with_defi" or (include_defi and source != "cash_safe"):
+        return "protocol_holders_with_defi"
+    return "protocol_holders"
+
+
+def _resolve_address_balance_date_scope(
+    as_of_date=None,
+    start_date=None,
+    end_date=None,
+) -> dict:
+    if as_of_date and (start_date or end_date):
+        raise ValueError("Provide either as_of_date or start_date/end_date, not both.")
+    if end_date and not start_date:
+        raise ValueError("start_date is required when end_date is provided for address balance history.")
+
+    if as_of_date:
+        return {
+            "mode": "as_of",
+            "as_of_date": _validate_date_literal(as_of_date, "as_of_date"),
+            "start_date": None,
+            "end_date": None,
+            "end_date_sql": None,
+        }
+
+    if start_date:
+        start_date_value = _validate_date_literal(start_date, "start_date")
+        end_date_value = _validate_date_literal(end_date, "end_date") if end_date else None
+        if end_date_value and start_date_value > end_date_value:
+            raise ValueError("start_date must be on or before end_date.")
+        return {
+            "mode": "range",
+            "as_of_date": None,
+            "start_date": start_date_value,
+            "end_date": end_date_value,
+            "end_date_sql": f"CAST('{end_date_value}' AS DATE)" if end_date_value else "CURRENT_DATE",
+        }
+
+    return {
+        "mode": "latest",
+        "as_of_date": None,
+        "start_date": None,
+        "end_date": None,
+        "end_date_sql": None,
+    }
 
 
 def _validate_protocol_tvl_timeseries_granularity(granularity: str | None) -> str:
@@ -953,6 +1068,38 @@ def _extract_known_token_symbols(question_text: str) -> list[str]:
     return found
 
 
+def _extract_date_literals(question_text: str) -> list[str]:
+    found: list[str] = []
+    for value in re.findall(r"\b20\d{2}-\d{2}-\d{2}\b", question_text):
+        try:
+            normalized = _validate_date_literal(value, "date")
+        except ValueError:
+            continue
+        if normalized not in found:
+            found.append(normalized)
+    return found
+
+
+def _extract_address_balance_dates(question_text: str) -> dict:
+    question_lower = question_text.lower()
+    date_literals = _extract_date_literals(question_text)
+    if not date_literals:
+        return {"as_of_date": None, "start_date": None, "end_date": None}
+    if len(date_literals) >= 2 and re.search(r"\b(between|from|since|range)\b", question_lower):
+        return {
+            "as_of_date": None,
+            "start_date": date_literals[0],
+            "end_date": date_literals[1],
+        }
+    if re.search(r"\b(since|from|starting)\b", question_lower) and not re.search(r"\bas\s+of\b", question_lower):
+        return {
+            "as_of_date": None,
+            "start_date": date_literals[0],
+            "end_date": date_literals[1] if len(date_literals) > 1 else None,
+        }
+    return {"as_of_date": date_literals[0], "start_date": None, "end_date": None}
+
+
 def _question_has_cash_context(question_lower: str) -> bool:
     return re.search(
         r"\b(cash|card|cards|user_safe|safe|safes|spend|spends|spending|spent|cashback|borrow|borrowed|borrowing|debt|repay|repaid|repayment|liquidation)\b",
@@ -1057,6 +1204,31 @@ def _question_is_ambiguous_protocol_deposited_balance(question_lower: str) -> bo
         return False
     return re.search(
         r"\b(have|has)\b.*\bdeposited\s+in\s+ether\.?fi\b|\bdeposited\s+in\s+ether\.?fi\b",
+        question_lower,
+    ) is not None
+
+
+def _question_wants_defi_holder_exposure(question_lower: str) -> bool:
+    return re.search(
+        r"\b(with[_\s-]?defi|include\s+defi|including\s+defi|downstream\s+defi|defi\s+positions?|defi\s+exposure)\b",
+        question_lower,
+    ) is not None
+
+
+def _question_wants_direct_protocol_holders(question_lower: str) -> bool:
+    return re.search(
+        r"\b(direct\s+protocol\s+holders?|direct\s+holder|excluding\s+defi|exclude\s+defi|without\s+defi)\b",
+        question_lower,
+    ) is not None
+
+
+def _question_is_address_balance_like(question_lower: str) -> bool:
+    if not ADDRESS_IN_TEXT_PATTERN.search(question_lower):
+        return False
+    if _question_is_historical_protocol_deposit(question_lower):
+        return False
+    return re.search(
+        r"\b(balance|balances|holding|holdings|hold|holds|have|has|investment|investments|invested|position|positions|tokens?)\b",
         question_lower,
     ) is not None
 
@@ -1432,9 +1604,18 @@ def _plan_protocol_events_query(question: str, datasets, freshness_registry=None
                 "Protocol activity view; label selected event_type, strategy filters, and whether the plan uses live_query or the baseline mat view."
             ),
             "suggested_next_step": (
-                "Use Dune MCP to create, run, and save the shareable query only after confirming event_type and strategy filters."
+                "Use get_protocol_events with execute_live=true for a live catalog answer, or use Dune MCP to save a shareable query."
             ),
             "freshness_status": freshness_status,
+            "recommended_tool": "get_protocol_events",
+            "recommended_tool_parameters": {
+                "address": address_literal,
+                "addresses": address_literals or None,
+                "event_type": event_type,
+                "strategy_symbol": token_filter,
+                "mode": "summary",
+                "execute_live": True,
+            },
         },
         execute_live,
     )
@@ -1594,7 +1775,7 @@ def _plan_protocol_holders_query(question: str, datasets, freshness_registry=Non
             "recommended_datasets": recommended,
             "why_these_datasets": [
                 (
-                    "Generic ether.fi address balance, wallet holdings, and invested-balance questions should use etherfi_protocol_token_holders as the clean direct-holder snapshot."
+                    "Explicit direct protocol holder address lookups can use etherfi_protocol_token_holders as the clean direct-holder snapshot; generic address balance prompts should use get_etherfi_address_balances auto routing."
                     if is_address_lookup and not wants_defi
                     else "Use etherfi_protocol_token_holders for the clean direct holders view."
                 ),
@@ -2106,6 +2287,161 @@ def _plan_cash_safe_balance_query(question: str, datasets, freshness_registry=No
     )
 
 
+def _plan_etherfi_address_balances_query(
+    question: str,
+    datasets,
+    freshness_registry=None,
+    now=None,
+    execute_live=False,
+    source_hint: str | None = None,
+) -> dict:
+    question_lower = question.lower()
+    address_literals = _extract_address_literals(question)
+    token_symbols = _extract_known_token_symbols(question)
+    date_filters = _extract_address_balance_dates(question)
+    wants_defi = _question_wants_defi_holder_exposure(question_lower)
+
+    if source_hint:
+        source = source_hint
+    elif _question_wants_direct_protocol_holders(question_lower):
+        source = "protocol_holders"
+    elif wants_defi and re.search(r"\b(protocol|holder|holders|token\s+holder|token\s+holders)\b", question_lower):
+        source = "protocol_holders_with_defi"
+    else:
+        source = "auto"
+
+    plan = _get_etherfi_address_balances_plan(
+        addresses=address_literals,
+        source=source,
+        token_symbols=token_symbols or None,
+        as_of_date=date_filters["as_of_date"],
+        start_date=date_filters["start_date"],
+        end_date=date_filters["end_date"],
+        include_defi=wants_defi,
+        mode="summary",
+        datasets=datasets,
+        freshness_registry=freshness_registry,
+        now=now,
+    )
+    if plan.get("error"):
+        return _finalize_etherfi_query_plan(
+            {
+                **plan,
+                "interpreted_question": "Plan an ether.fi address balance lookup, but validation failed.",
+                "recommended_datasets": [],
+                "why_these_datasets": [],
+                "ambiguity_notes": [plan["error"]],
+                "important_caveats": [],
+                "preferred_filters": [],
+                "suggested_grain": None,
+                "suggested_metrics": [],
+                "join_notes": [],
+                "suggested_sql_skeleton": None,
+                "suggested_visualization": None,
+                "suggested_chart_title": None,
+                "suggested_query_description": None,
+                "suggested_dashboard_description": None,
+                "suggested_next_step": "Provide one or more valid EVM addresses.",
+            },
+            execute_live,
+        )
+
+    sql_sections = []
+    for label, sql in plan["suggested_sql_by_source"].items():
+        sql_sections.append(f"-- {label}\n{sql}")
+    suggested_sql = "\n\n".join(sql_sections)
+
+    if source == "auto":
+        why = [
+            "Generic address balance, holdings, investments, and positions prompts should use the unified address balance tool in auto mode.",
+            "Auto mode checks the public Cash-safe registry first, then routes Cash safes to AUM and non-Cash addresses to protocol holder balances.",
+        ]
+    elif source == "cash_safe":
+        why = [
+            "Explicit Cash safe or AUM balance wording should use the AUM balance path through the unified address balance tool.",
+            "Cash-safe identity validation is separate; use check_cash_safe_address for pure registry questions.",
+        ]
+    elif source == "protocol_holders_with_defi":
+        why = [
+            "The prompt explicitly asks for DeFi-aware holder exposure, so the with-DeFi protocol holder source is selected.",
+        ]
+    else:
+        why = [
+            "The prompt explicitly asks for direct protocol holder balances or excludes DeFi, so the direct protocol holder source is selected.",
+        ]
+
+    return _finalize_etherfi_query_plan(
+        {
+            "interpreted_question": "Plan a unified ether.fi address balance lookup.",
+            "recommended_datasets": plan["chosen_datasets"],
+            "why_these_datasets": why,
+            "ambiguity_notes": (
+                [
+                    "Planning mode does not execute the Cash-safe classification query; classification remains unknown_not_executed until live mode runs.",
+                ]
+                if source == "auto"
+                else []
+            ),
+            "important_caveats": plan["caveats"],
+            "preferred_filters": plan["filters_applied"],
+            "suggested_grain": "address/source/token/blockchain/day balance snapshot",
+            "suggested_metrics": [
+                "token_balance",
+                "token_balance_underlying",
+                "token_balance_usd",
+                "token_balance_eth",
+            ],
+            "join_notes": [
+                (
+                    "Direct protocol holder USD estimates use `dune.ether_fi.result_tokens_prices_enriched_daily` and COALESCE(token_usd, token_usd_rate)."
+                    if plan["protocol_source"] == "protocol_holders"
+                    else "The selected AUM or with-DeFi holder source already includes USD balance fields."
+                ),
+                "AUM rows do not need a price join because token_balance_usd already exists in the AUM table.",
+            ],
+            "suggested_sql_skeleton": suggested_sql,
+            "suggested_visualization": _planner_visualization(
+                "holder_ranking",
+                title="Ether.fi address balances by token",
+                sort="token_balance_usd descending where available",
+            ),
+            "suggested_chart_title": "Ether.fi address balances by token",
+            "suggested_query_description": (
+                "Unified ether.fi address balance lookup with public Cash-safe classification in auto mode."
+            ),
+            "suggested_dashboard_description": (
+                "Address balance table by source, token, chain, and snapshot day; label Cash-safe auto routing and price-estimate coverage."
+            ),
+            "suggested_next_step": (
+                "Call get_etherfi_address_balances with execute_live=true for a live answer, or keep execute_live=false to review routing SQL."
+            ),
+            "freshness_status": plan["freshness_status"],
+            "selected_default_dataset": plan["protocol_source"],
+            "recommended_tool": "get_etherfi_address_balances",
+            "recommended_tool_parameters": {
+                "addresses": plan["addresses"],
+                "source": plan["source"],
+                "token_symbols": plan["token_symbols"] or None,
+                "token_addresses": plan["token_addresses"] or None,
+                "as_of_date": plan["as_of_date"],
+                "start_date": plan["start_date"],
+                "end_date": plan["end_date"],
+                "include_defi": plan["include_defi"],
+                "mode": plan["mode"],
+                "limit": plan["limit"],
+                "execute_live": True,
+            },
+            "address_balance_plan": {
+                "classification": plan["classification"],
+                "protocol_source": plan["protocol_source"],
+                "date_filter": plan["date_filter"],
+                "suggested_sql_by_source": plan["suggested_sql_by_source"],
+            },
+        },
+        execute_live,
+    )
+
+
 def _plan_token_price_query(question: str, datasets, freshness_registry=None, now=None, execute_live=False) -> dict:
     question_lower = question.lower()
     wants_minute = re.search(r"\b(minute|minute-level|intraday)\b", question_lower) is not None
@@ -2416,7 +2752,7 @@ def _plan_explicit_aum_managed_address_query(question: str, datasets, freshness_
                 "AUM is for ether.fi-managed/internal/protocol-controlled addresses and tracked product deployment balances, not generic user wallet holdings.",
             ],
             "important_caveats": [
-                "Do not use this AUM route for generic user wallet prompts such as 'how much does this address have in ether.fi?'; use etherfi_protocol_token_holders instead.",
+                "Do not use this legacy AUM route for generic user wallet prompts such as 'how much does this address have in ether.fi?'; use get_etherfi_address_balances instead.",
                 "AUM sums from this table are tracked deployment balances and are not canonical protocol token TVL.",
                 *_dataset_notes(dataset, "caveats", limit=2),
             ],
@@ -2504,21 +2840,23 @@ def plan_etherfi_query(
         )
 
     if _question_is_cash_safe_address_balance(question_lower):
-        return _plan_cash_safe_balance_query(
+        return _plan_etherfi_address_balances_query(
             question_value,
             datasets=datasets,
             freshness_registry=freshness_registry,
             now=now,
             execute_live=execute_live,
+            source_hint="cash_safe",
         )
 
     if _question_is_explicit_aum_managed_address(question_lower):
-        return _plan_explicit_aum_managed_address_query(
+        return _plan_etherfi_address_balances_query(
             question_value,
             datasets=datasets,
             freshness_registry=freshness_registry,
             now=now,
             execute_live=execute_live,
+            source_hint="cash_safe",
         )
 
     if _question_is_ambiguous_protocol_deposited_balance(question_lower):
@@ -2540,7 +2878,16 @@ def plan_etherfi_query(
         )
 
     if _question_is_generic_protocol_address_holdings(question_lower):
-        return _plan_protocol_holders_query(
+        return _plan_etherfi_address_balances_query(
+            question_value,
+            datasets=datasets,
+            freshness_registry=freshness_registry,
+            now=now,
+            execute_live=execute_live,
+        )
+
+    if _question_is_address_balance_like(question_lower):
+        return _plan_etherfi_address_balances_query(
             question_value,
             datasets=datasets,
             freshness_registry=freshness_registry,
@@ -2583,6 +2930,15 @@ def plan_etherfi_query(
         and "cash" not in question_lower
     ):
         return _plan_protocol_events_query(
+            question_value,
+            datasets=datasets,
+            freshness_registry=freshness_registry,
+            now=now,
+            execute_live=execute_live,
+        )
+
+    if ("holder" in question_lower or "holders" in question_lower) and ADDRESS_IN_TEXT_PATTERN.search(question_lower):
+        return _plan_etherfi_address_balances_query(
             question_value,
             datasets=datasets,
             freshness_registry=freshness_registry,
@@ -3596,7 +3952,7 @@ def _build_protocol_address_holdings_summary(
     data_rows = _protocol_address_holding_rows(rows)
     latest_values = [row.get("day") for row in rows if row.get("day") is not None]
     latest_day = max(latest_values) if latest_values else None
-    usd_value_available = include_defi
+    usd_value_available = include_defi or any("token_balance_usd" in row for row in data_rows)
 
     base_summary = {
         "dataset_used": dataset_name,
@@ -3630,6 +3986,15 @@ def _build_protocol_address_holdings_summary(
         return base_summary
 
     observed_symbols = {row.get("token_symbol") for row in data_rows if row.get("token_symbol") not in (None, "")}
+    addresses_by_symbol: dict[str, set] = {}
+    for row in data_rows:
+        symbol = row.get("token_symbol")
+        row_token_address = row.get("token_address")
+        if symbol not in (None, "") and row_token_address not in (None, ""):
+            addresses_by_symbol.setdefault(symbol, set()).add(row_token_address)
+    include_token_addresses = bool(token_address) or any(
+        len(addresses) > 1 for addresses in addresses_by_symbol.values()
+    )
     total_token_balance = sum(_to_number(row.get("token_balance")) for row in data_rows)
     total_token_balance_usd = (
         sum(_to_number(row.get("token_balance_usd")) for row in data_rows)
@@ -3642,18 +4007,23 @@ def _build_protocol_address_holdings_summary(
         item = {
             "blockchain": row.get("blockchain"),
             "token_symbol": row.get("token_symbol"),
-            "token_address": row.get("token_address"),
             "token_balance": _to_number(row.get("token_balance")),
             "token_balance_raw": _to_number(row.get("token_balance_raw")),
             "last_updated": row.get("last_updated"),
         }
+        if include_token_addresses:
+            item["token_address"] = row.get("token_address")
+        if usd_value_available:
+            item["token_balance_usd"] = (
+                None
+                if row.get("token_balance_usd") is None
+                else _to_number(row.get("token_balance_usd"))
+            )
+            item["pricing_source"] = row.get("pricing_source")
+            item["pricing_missing"] = row.get("pricing_missing")
         if include_defi:
             item.update(
                 {
-                    "token_underlying_symbol": row.get("token_underlying_symbol"),
-                    "token_balance_underlying": _to_number(row.get("token_balance_underlying")),
-                    "token_balance_usd": _to_number(row.get("token_balance_usd")),
-                    "token_balance_eth": _to_number(row.get("token_balance_eth")),
                     "identified_defi_contract": row.get("identified_defi_contract"),
                 }
             )
@@ -3735,6 +4105,10 @@ def _build_protocol_address_holdings_summary(
         base_summary["valuation_note"] = (
             "The direct protocol holder table has token balances but no USD value column; "
             "join pricing separately if USD totals are required."
+        )
+    elif any(row.get("pricing_missing") in (True, 1, "true", "True", "TRUE") for row in data_rows):
+        base_summary["pricing_warning"] = (
+            "USD value is missing for at least one token because no matching enriched daily token price was found."
         )
     return base_summary
 
@@ -4138,21 +4512,15 @@ def _build_protocol_address_holdings_sql(
     as_of_date=None,
     include_defi=False,
     exclude_identified_defi=False,
+    price_table_name: str | None = None,
     limit=100,
 ) -> str:
-    snapshot_filter_lines = _build_protocol_token_holders_base_filter_lines(
-        token_symbol=token_symbol,
-        token_address_literal=token_address_literal,
-        include_defi=include_defi,
-        exclude_identified_defi=exclude_identified_defi,
-    )
-    latest_snapshot_where_clause = _format_where_clause(
-        [
-            *snapshot_filter_lines,
-            f"CAST(day AS DATE) = CAST('{as_of_date}' AS DATE)",
-        ]
+    latest_snapshot_sql = (
+        "latest_snapshot AS (\n"
+        f"  SELECT CAST('{as_of_date}' AS DATE) AS day\n"
+        ")"
         if as_of_date
-        else snapshot_filter_lines
+        else _latest_completed_snapshot_day_cte(table_name, cte_name="latest_snapshot")
     )
     holding_filter_lines = _build_protocol_token_holders_base_filter_lines(
         token_symbol=token_symbol,
@@ -4164,7 +4532,7 @@ def _build_protocol_address_holdings_sql(
     holding_where_clause = _format_where_clause(
         [
             *holding_filter_lines,
-            "day = (SELECT day FROM latest_snapshot)",
+            "CAST(day AS DATE) = CAST((SELECT day FROM latest_snapshot) AS DATE)",
         ]
     )
     if include_defi:
@@ -4186,6 +4554,8 @@ def _build_protocol_address_holdings_sql(
             "  MAX(last_updated) AS last_updated"
         )
         aggregate_group_by = "GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9"
+        post_aggregate_cte = ""
+        final_table = "aggregated_holdings"
         final_extra_select = (
             "  aggregated_holdings.underlying_symbol,\n"
             "  aggregated_holdings.underlying_protocol,\n"
@@ -4194,6 +4564,8 @@ def _build_protocol_address_holdings_sql(
             "  aggregated_holdings.token_balance_underlying,\n"
             "  aggregated_holdings.token_balance_usd,\n"
             "  aggregated_holdings.token_balance_eth,\n"
+            "  CASE WHEN aggregated_holdings.token_balance_usd IS NULL THEN NULL ELSE 'protocol_token_holders_with_defi.token_balance_usd' END AS pricing_source,\n"
+            "  aggregated_holdings.token_balance_usd IS NULL AS pricing_missing,\n"
         )
         order_expr = "aggregated_holdings.token_balance_usd DESC NULLS LAST, aggregated_holdings.token_balance DESC NULLS LAST"
     else:
@@ -4208,15 +4580,59 @@ def _build_protocol_address_holdings_sql(
             "  MAX(last_updated) AS last_updated"
         )
         aggregate_group_by = "GROUP BY 1, 2, 3, 4, 5"
-        final_extra_select = ""
-        order_expr = "aggregated_holdings.token_balance DESC NULLS LAST"
+        if price_table_name:
+            post_aggregate_cte = (
+                ",\n"
+                "priced_holdings AS (\n"
+                "  SELECT\n"
+                "    aggregated_holdings.day,\n"
+                "    aggregated_holdings.address,\n"
+                "    aggregated_holdings.blockchain,\n"
+                "    aggregated_holdings.token_address,\n"
+                "    aggregated_holdings.token_symbol,\n"
+                "    prices.token_underlying_symbol,\n"
+                "    aggregated_holdings.token_balance_raw,\n"
+                "    aggregated_holdings.token_balance,\n"
+                "    CASE\n"
+                "      WHEN prices.token_underlying_rate IS NULL THEN NULL\n"
+                "      ELSE aggregated_holdings.token_balance * prices.token_underlying_rate\n"
+                "    END AS token_balance_underlying,\n"
+                "    aggregated_holdings.token_balance * COALESCE(prices.token_usd, prices.token_usd_rate) AS token_balance_usd,\n"
+                "    CAST(NULL AS double) AS token_balance_eth,\n"
+                "    CASE\n"
+                "      WHEN prices.token_usd IS NOT NULL THEN 'tokens_prices_enriched_daily.token_usd'\n"
+                "      WHEN prices.token_usd_rate IS NOT NULL THEN 'tokens_prices_enriched_daily.token_usd_rate'\n"
+                "      ELSE NULL\n"
+                "    END AS pricing_source,\n"
+                "    COALESCE(prices.token_usd, prices.token_usd_rate) IS NULL AS pricing_missing,\n"
+                "    GREATEST(aggregated_holdings.last_updated, prices.last_updated) AS last_updated\n"
+                "  FROM aggregated_holdings\n"
+                f"  LEFT JOIN {price_table_name} prices\n"
+                "    ON aggregated_holdings.token_address = prices.token_address\n"
+                "   AND lower(aggregated_holdings.blockchain) = lower(prices.blockchain)\n"
+                "   AND CAST(aggregated_holdings.day AS DATE) = CAST(prices.day AS DATE)\n"
+                ")"
+            )
+            final_table = "priced_holdings"
+            final_extra_select = (
+                "  priced_holdings.token_underlying_symbol,\n"
+                "  priced_holdings.token_balance_underlying,\n"
+                "  priced_holdings.token_balance_usd,\n"
+                "  priced_holdings.token_balance_eth,\n"
+                "  priced_holdings.pricing_source,\n"
+                "  priced_holdings.pricing_missing,\n"
+            )
+            order_expr = "priced_holdings.token_balance_usd DESC NULLS LAST, priced_holdings.token_balance DESC NULLS LAST"
+        else:
+            post_aggregate_cte = ""
+            final_table = "aggregated_holdings"
+            final_extra_select = ""
+            order_expr = "aggregated_holdings.token_balance DESC NULLS LAST"
 
     return (
-        "WITH latest_snapshot AS (\n"
-        "  SELECT MAX(day) AS day\n"
-        f"  FROM {table_name}\n"
-        f"{latest_snapshot_where_clause}"
-        "),\n"
+        "WITH "
+        + latest_snapshot_sql
+        + ",\n"
         "filtered_holdings AS (\n"
         "  SELECT *\n"
         f"  FROM {table_name}\n"
@@ -4227,20 +4643,22 @@ def _build_protocol_address_holdings_sql(
         f"{aggregate_select}\n"
         "FROM filtered_holdings\n"
         f"{aggregate_group_by}\n"
-        ")\n"
+        ")"
+        + post_aggregate_cte
+        + "\n"
         "SELECT\n"
-        "  COALESCE(aggregated_holdings.day, latest_snapshot.day) AS day,\n"
-        "  aggregated_holdings.address,\n"
-        "  aggregated_holdings.blockchain,\n"
-        "  aggregated_holdings.token_address,\n"
-        "  aggregated_holdings.token_symbol,\n"
+        f"  COALESCE({final_table}.day, latest_snapshot.day) AS day,\n"
+        f"  {final_table}.address,\n"
+        f"  {final_table}.blockchain,\n"
+        f"  {final_table}.token_address,\n"
+        f"  {final_table}.token_symbol,\n"
         f"{final_extra_select}"
-        "  aggregated_holdings.token_balance_raw,\n"
-        "  aggregated_holdings.token_balance,\n"
-        "  aggregated_holdings.last_updated\n"
+        f"  {final_table}.token_balance_raw,\n"
+        f"  {final_table}.token_balance,\n"
+        f"  {final_table}.last_updated\n"
         "FROM latest_snapshot\n"
-        "LEFT JOIN aggregated_holdings ON TRUE\n"
-        f"ORDER BY {order_expr}, aggregated_holdings.token_symbol, aggregated_holdings.blockchain\n"
+        f"LEFT JOIN {final_table} ON TRUE\n"
+        f"ORDER BY {order_expr}, {final_table}.token_symbol, {final_table}.blockchain\n"
         f"LIMIT {limit};"
     )
 
@@ -4478,6 +4896,7 @@ def _build_protocol_events_where_lines(
     project=None,
     strategy_symbol=None,
     strategy_address_literal=None,
+    address_literals: list[str] | None = None,
     event_type=None,
     start_date=None,
     end_date=None,
@@ -4489,6 +4908,11 @@ def _build_protocol_events_where_lines(
         where_lines.append(f"strategy_symbol = '{strategy_symbol}'")
     if strategy_address_literal:
         where_lines.append(f"strategy_address = {strategy_address_literal}")
+    if address_literals:
+        if len(address_literals) == 1:
+            where_lines.append(f"address = {address_literals[0]}")
+        else:
+            where_lines.append(f"address IN ({_sql_varbinary_list(address_literals)})")
     if event_type:
         where_lines.append(f"event_type = '{event_type}'")
     if start_date:
@@ -4498,11 +4922,29 @@ def _build_protocol_events_where_lines(
     return where_lines
 
 
+def _normalize_protocol_event_address_filters(address=None, addresses=None) -> list[str]:
+    normalized: list[str] = []
+    seen: set[str] = set()
+    if address:
+        normalized.extend(_normalize_address_literal_list(address, "address"))
+    if addresses:
+        normalized.extend(_normalize_address_literal_list(addresses, "addresses"))
+
+    deduped: list[str] = []
+    for value in normalized:
+        if value in seen:
+            continue
+        seen.add(value)
+        deduped.append(value)
+    return deduped
+
+
 def _build_protocol_events_rows_summary(
     rows: list[dict],
     project=None,
     strategy_symbol=None,
     strategy_address=None,
+    addresses: list[str] | None = None,
     event_type=None,
     start_date=None,
     end_date=None,
@@ -4514,6 +4956,7 @@ def _build_protocol_events_rows_summary(
             "project": project,
             "strategy_symbol": strategy_symbol,
             "strategy_address": strategy_address,
+            "addresses": addresses or [],
             "event_type": event_type,
             "date_range": {"start_date": start_date, "end_date": end_date},
             "event_count": 0,
@@ -4593,6 +5036,7 @@ def _build_protocol_events_rows_summary(
         "project": project,
         "strategy_symbol": strategy_symbol,
         "strategy_address": strategy_address,
+        "addresses": addresses or [],
         "event_type": event_type,
         "date_range": {
             "start_date": start_date,
@@ -4627,6 +5071,7 @@ def _build_protocol_events_summary_from_queries(
     project=None,
     strategy_symbol=None,
     strategy_address=None,
+    addresses: list[str] | None = None,
     event_type=None,
     start_date=None,
     end_date=None,
@@ -4638,6 +5083,7 @@ def _build_protocol_events_summary_from_queries(
         "project": project,
         "strategy_symbol": strategy_symbol,
         "strategy_address": strategy_address,
+        "addresses": addresses or [],
         "event_type": event_type,
         "date_range": {
             "start_date": start_date,
@@ -4802,6 +5248,8 @@ def _get_protocol_events_plan(
     project=None,
     strategy_symbol=None,
     strategy_address=None,
+    address=None,
+    addresses=None,
     event_type=None,
     start_date=None,
     end_date=None,
@@ -4824,6 +5272,8 @@ def _get_protocol_events_plan(
             "project": project,
             "strategy_symbol": strategy_symbol,
             "strategy_address": strategy_address,
+            "address": address,
+            "addresses": addresses or [],
             "event_type": event_type,
             "start_date": start_date,
             "end_date": end_date,
@@ -4843,6 +5293,8 @@ def _get_protocol_events_plan(
             "project": project,
             "strategy_symbol": strategy_symbol,
             "strategy_address": strategy_address,
+            "address": address,
+            "addresses": addresses or [],
             "event_type": event_type,
             "start_date": start_date,
             "end_date": end_date,
@@ -4855,6 +5307,7 @@ def _get_protocol_events_plan(
         mode_value = _validate_mode(mode)
         limit_value = _validate_limit(limit)
         strategy_address_literal = _normalize_address_literal(strategy_address) if strategy_address else None
+        address_values = _normalize_protocol_event_address_filters(address=address, addresses=addresses)
         start_date_value = _validate_date_literal(start_date, "start_date") if start_date else None
         end_date_value = _validate_date_literal(end_date, "end_date") if end_date else None
     except ValueError as exc:
@@ -4864,6 +5317,8 @@ def _get_protocol_events_plan(
             "project": project,
             "strategy_symbol": strategy_symbol,
             "strategy_address": strategy_address,
+            "address": address,
+            "addresses": addresses or [],
             "event_type": event_type,
             "start_date": start_date,
             "end_date": end_date,
@@ -4879,6 +5334,8 @@ def _get_protocol_events_plan(
             "project": project,
             "strategy_symbol": strategy_symbol,
             "strategy_address": strategy_address,
+            "address": address_values[0] if len(address_values) == 1 else None,
+            "addresses": address_values,
             "event_type": event_type,
             "start_date": start_date,
             "end_date": end_date,
@@ -4892,6 +5349,7 @@ def _get_protocol_events_plan(
         project=project,
         strategy_symbol=strategy_symbol,
         strategy_address_literal=strategy_address_literal,
+        address_literals=address_values,
         event_type=event_type,
         start_date=start_date_value,
         end_date=end_date_value,
@@ -4901,12 +5359,14 @@ def _get_protocol_events_plan(
         mode_value == "rows"
         and strategy_symbol is None
         and strategy_address_literal is None
+        and not address_values
         and project is None
         and (start_date_value is None or end_date_value is None)
     ) or (
         mode_value == "rows"
         and strategy_symbol is None
         and strategy_address_literal is None
+        and not address_values
         and start_date_value is not None
         and end_date_value is not None
         and (datetime.strptime(end_date_value, "%Y-%m-%d").date() - datetime.strptime(start_date_value, "%Y-%m-%d").date()).days > 7
@@ -4922,6 +5382,8 @@ def _get_protocol_events_plan(
             "project": project,
             "strategy_symbol": strategy_symbol,
             "strategy_address": strategy_address,
+            "address": address_values[0] if len(address_values) == 1 else None,
+            "addresses": address_values,
             "event_type": event_type,
             "start_date": start_date_value,
             "end_date": end_date_value,
@@ -4978,6 +5440,8 @@ def _get_protocol_events_plan(
         "project": project,
         "strategy_symbol": strategy_symbol,
         "strategy_address": strategy_address,
+        "address": address_values[0] if len(address_values) == 1 else None,
+        "addresses": address_values,
         "event_type": event_type,
         "start_date": start_date_value,
         "end_date": end_date_value,
@@ -7066,6 +7530,8 @@ def get_protocol_events(
     project=None,
     strategy_symbol=None,
     strategy_address=None,
+    address=None,
+    addresses=None,
     event_type=None,
     start_date=None,
     end_date=None,
@@ -7080,6 +7546,8 @@ def get_protocol_events(
         project=project,
         strategy_symbol=strategy_symbol,
         strategy_address=strategy_address,
+        address=address,
+        addresses=addresses,
         event_type=event_type,
         start_date=start_date,
         end_date=end_date,
@@ -7090,6 +7558,7 @@ def get_protocol_events(
         now=now,
     )
     if not execute_live:
+        address_values = plan.get("addresses", [])
         return {
             **plan,
             "summary": _build_protocol_events_rows_summary(
@@ -7097,6 +7566,7 @@ def get_protocol_events(
                 project=project,
                 strategy_symbol=strategy_symbol,
                 strategy_address=strategy_address,
+                addresses=address_values,
                 event_type=event_type,
                 start_date=start_date,
                 end_date=end_date,
@@ -7110,6 +7580,7 @@ def get_protocol_events(
                 project=project,
                 strategy_symbol=strategy_symbol,
                 strategy_address=strategy_address,
+                addresses=address_values,
                 event_type=event_type,
                 start_date=start_date,
                 end_date=end_date,
@@ -7126,6 +7597,7 @@ def get_protocol_events(
                 project=project,
                 strategy_symbol=strategy_symbol,
                 strategy_address=strategy_address,
+                addresses=plan.get("addresses", []),
                 event_type=event_type,
                 start_date=start_date,
                 end_date=end_date,
@@ -7139,6 +7611,7 @@ def get_protocol_events(
                 project=project,
                 strategy_symbol=strategy_symbol,
                 strategy_address=strategy_address,
+                addresses=plan.get("addresses", []),
                 event_type=event_type,
                 start_date=start_date,
                 end_date=end_date,
@@ -7146,10 +7619,12 @@ def get_protocol_events(
         }
     try:
         strategy_address_literal = _normalize_address_literal(strategy_address) if strategy_address else None
+        address_values = _normalize_protocol_event_address_filters(address=address, addresses=addresses)
         where_lines = _build_protocol_events_where_lines(
             project=project,
             strategy_symbol=strategy_symbol,
             strategy_address_literal=strategy_address_literal,
+            address_literals=address_values,
             event_type=event_type,
             start_date=plan["start_date"],
             end_date=plan["end_date"],
@@ -7170,6 +7645,7 @@ def get_protocol_events(
                 project=project,
                 strategy_symbol=strategy_symbol,
                 strategy_address=strategy_address,
+                addresses=address_values,
                 event_type=event_type,
                 start_date=start_date,
                 end_date=end_date,
@@ -7203,6 +7679,7 @@ def get_protocol_events(
                 project=project,
                 strategy_symbol=strategy_symbol,
                 strategy_address=strategy_address,
+                addresses=plan.get("addresses", []),
                 event_type=event_type,
                 start_date=start_date,
                 end_date=end_date,
@@ -7216,6 +7693,7 @@ def get_protocol_events(
                 project=project,
                 strategy_symbol=strategy_symbol,
                 strategy_address=strategy_address,
+                addresses=plan.get("addresses", []),
                 event_type=event_type,
                 start_date=start_date,
                 end_date=end_date,
@@ -7231,6 +7709,7 @@ def get_protocol_events(
             project=project,
             strategy_symbol=strategy_symbol,
             strategy_address=strategy_address,
+            addresses=plan.get("addresses", []),
             event_type=event_type,
             start_date=start_date,
             end_date=end_date,
@@ -7327,6 +7806,22 @@ def _get_protocol_token_holders_plan(
         }
 
     table_name = dataset["table_name"]
+    price_table_name = None
+    price_freshness_status = None
+    if address and not include_defi:
+        price_dataset_name = "dune.ether_fi.result_tokens_prices_enriched_daily"
+        price_dataset, price_status = _get_query_ready_dataset(
+            price_dataset_name,
+            datasets=datasets,
+            freshness_registry=freshness_registry,
+            now=now,
+        )
+        price_table_name = (
+            price_dataset["table_name"]
+            if price_dataset is not None
+            else price_dataset_name
+        )
+        price_freshness_status = price_status
     filter_lines = _build_protocol_token_holders_base_filter_lines(
         token_symbol=token_symbol_value,
         token_address_literal=token_address_literal,
@@ -7354,6 +7849,7 @@ def _get_protocol_token_holders_plan(
             as_of_date=as_of_date_value,
             include_defi=include_defi,
             exclude_identified_defi=exclude_identified_defi,
+            price_table_name=price_table_name,
             limit=limit_value,
         )
     elif mode_value == "rows":
@@ -7417,6 +7913,9 @@ def _get_protocol_token_holders_plan(
         "freshness_status": freshness_status,
         "suggested_sql": suggested_sql,
     }
+    if price_table_name is not None:
+        plan["price_table_name"] = price_table_name
+        plan["price_freshness_status"] = price_freshness_status
     if include_defi and dataset.get("completeness label") == "partial":
         plan["completeness_note"] = (
             "This DeFi-aware holder view is broader than direct holders, but "
@@ -7594,6 +8093,1125 @@ def get_protocol_token_holders(
             token_symbol=token_symbol,
             token_address=token_address,
         ),
+    }
+
+
+def _address_values_cte(addresses: list[str]) -> str:
+    values = ",\n    ".join(f"({address})" for address in addresses)
+    return "requested_addresses(address) AS (\n  VALUES\n    " + values + "\n)"
+
+
+def _sql_literal_list(values: list[str]) -> str:
+    return ", ".join(_quote_sql_string(value) for value in values)
+
+
+def _sql_varbinary_list(values: list[str]) -> str:
+    return ", ".join(values)
+
+
+def _latest_completed_snapshot_day_cte(table_name: str, cte_name: str = "snapshot_day") -> str:
+    return (
+        f"{cte_name} AS (\n"
+        "  SELECT date_trunc('day', MAX(last_updated) - interval '1' hour) AS day\n"
+        f"  FROM {table_name}\n"
+        ")"
+    )
+
+
+def _latest_completed_snapshot_day_filter(table_alias: str, cte_name: str = "snapshot_day") -> str:
+    return f"CAST({table_alias}.day AS DATE) = CAST({cte_name}.day AS DATE)"
+
+
+def _build_address_balance_token_filter_lines(
+    *,
+    table_alias: str,
+    token_symbols: list[str],
+    token_addresses: list[str],
+) -> list[str]:
+    filter_lines: list[str] = []
+    if token_symbols:
+        lowered_symbols = [symbol.lower() for symbol in token_symbols]
+        filter_lines.append(f"lower({table_alias}.token_symbol) IN ({_sql_literal_list(lowered_symbols)})")
+    if token_addresses:
+        filter_lines.append(f"{table_alias}.token_address IN ({_sql_varbinary_list(token_addresses)})")
+    return filter_lines
+
+
+def _build_address_balance_date_filter_lines(table_alias: str, date_scope: dict) -> list[str]:
+    mode = date_scope["mode"]
+    if mode == "as_of":
+        return [f"CAST({table_alias}.day AS DATE) <= CAST('{date_scope['as_of_date']}' AS DATE)"]
+    if mode == "range":
+        return [
+            f"CAST({table_alias}.day AS DATE) >= CAST('{date_scope['start_date']}' AS DATE)",
+            f"CAST({table_alias}.day AS DATE) <= {date_scope['end_date_sql']}",
+        ]
+    return []
+
+
+def _address_balance_post_aggregate_ctes(date_scope: dict, partition_by: str) -> str:
+    if date_scope["mode"] != "as_of":
+        return (
+            ",\n"
+            "selected_balances AS (\n"
+            "  SELECT *\n"
+            "  FROM aggregated_balances\n"
+            ")"
+        )
+    return (
+        ",\n"
+        "ranked_balances AS (\n"
+        "  SELECT\n"
+        "    aggregated_balances.*,\n"
+        "    ROW_NUMBER() OVER (\n"
+        f"      PARTITION BY {partition_by}\n"
+        "      ORDER BY day DESC NULLS LAST\n"
+        "    ) AS snapshot_rank\n"
+        "  FROM aggregated_balances\n"
+        "),\n"
+        "selected_balances AS (\n"
+        "  SELECT *\n"
+        "  FROM ranked_balances\n"
+        "  WHERE snapshot_rank = 1\n"
+        ")"
+    )
+
+
+def _address_balance_limit_clause(limit: int | None) -> str:
+    return f"\nLIMIT {limit};" if limit else ";"
+
+
+def _build_cash_safe_classification_sql(addresses: list[str], registry_table_name: str) -> str:
+    return (
+        "WITH "
+        + _address_values_cte(addresses)
+        + "\n"
+        "SELECT\n"
+        "  requested_addresses.address AS requested_address,\n"
+        "  registry.blockchain,\n"
+        "  registry.address,\n"
+        "  registry.last_updated\n"
+        "FROM requested_addresses\n"
+        f"LEFT JOIN {registry_table_name} registry\n"
+        "  ON registry.address = requested_addresses.address\n"
+        "ORDER BY requested_addresses.address, registry.blockchain;"
+    )
+
+
+def _build_aum_address_balances_sql(
+    *,
+    addresses: list[str],
+    table_name: str,
+    token_symbols: list[str],
+    token_addresses: list[str],
+    date_scope: dict,
+    limit: int | None = None,
+) -> str:
+    latest_mode = date_scope["mode"] == "latest"
+    snapshot_cte = ",\n" + _latest_completed_snapshot_day_cte(table_name) if latest_mode else ""
+    snapshot_join = "  CROSS JOIN snapshot_day\n" if latest_mode else ""
+    filter_lines = [
+        *_build_address_balance_token_filter_lines(
+            table_alias="balances",
+            token_symbols=token_symbols,
+            token_addresses=token_addresses,
+        ),
+        *_build_address_balance_date_filter_lines("balances", date_scope),
+    ]
+    if latest_mode:
+        filter_lines.append(_latest_completed_snapshot_day_filter("balances"))
+    filter_clause = _format_where_clause(filter_lines)
+    return (
+        "WITH "
+        + _address_values_cte(addresses)
+        + snapshot_cte
+        + ",\n"
+        "base_balances AS (\n"
+        "  SELECT balances.*\n"
+        f"  FROM {table_name} balances\n"
+        "  INNER JOIN requested_addresses\n"
+        "    ON balances.address = requested_addresses.address\n"
+        f"{snapshot_join}"
+        f"{filter_clause}"
+        "),\n"
+        "aggregated_balances AS (\n"
+        "  SELECT\n"
+        "    day,\n"
+        "    'assets_under_management' AS source,\n"
+        "    address,\n"
+        "    blockchain,\n"
+        "    token_address,\n"
+        "    token_symbol,\n"
+        "    token_type,\n"
+        "    token_project,\n"
+        "    token_underlying_symbol,\n"
+        "    CAST(NULL AS varchar) AS identified_defi_contract,\n"
+        "    SUM(token_balance_raw) AS token_balance_raw,\n"
+        "    SUM(token_balance) AS token_balance,\n"
+        "    SUM(token_balance_underlying) AS token_balance_underlying,\n"
+        "    SUM(token_balance_usd) AS token_balance_usd,\n"
+        "    SUM(token_balance_eth) AS token_balance_eth,\n"
+        "    'assets_under_management.token_balance_usd' AS pricing_source,\n"
+        "    SUM(token_balance_usd) IS NULL AS pricing_missing,\n"
+        "    MAX(last_updated) AS last_updated\n"
+        "  FROM base_balances\n"
+        "  GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9, 10\n"
+        ")"
+        + _address_balance_post_aggregate_ctes(
+            date_scope,
+            "address, blockchain, token_address, token_symbol, token_underlying_symbol",
+        )
+        + "\n"
+        "SELECT\n"
+        "  day,\n"
+        "  source,\n"
+        "  address,\n"
+        "  blockchain,\n"
+        "  token_address,\n"
+        "  token_symbol,\n"
+        "  token_type,\n"
+        "  token_project,\n"
+        "  token_underlying_symbol,\n"
+        "  identified_defi_contract,\n"
+        "  token_balance_raw,\n"
+        "  token_balance,\n"
+        "  token_balance_underlying,\n"
+        "  token_balance_usd,\n"
+        "  token_balance_eth,\n"
+        "  pricing_source,\n"
+        "  pricing_missing,\n"
+        "  last_updated\n"
+        "FROM selected_balances\n"
+        "ORDER BY address, token_balance_usd DESC NULLS LAST, token_symbol, blockchain"
+        + _address_balance_limit_clause(limit)
+    )
+
+
+def _build_protocol_address_balances_sql(
+    *,
+    addresses: list[str],
+    table_name: str,
+    protocol_source: str,
+    price_table_name: str | None,
+    token_symbols: list[str],
+    token_addresses: list[str],
+    date_scope: dict,
+    limit: int | None = None,
+) -> str:
+    include_defi = protocol_source == "protocol_holders_with_defi"
+    latest_mode = date_scope["mode"] == "latest"
+    snapshot_cte = ",\n" + _latest_completed_snapshot_day_cte(table_name) if latest_mode else ""
+    snapshot_join = "  CROSS JOIN snapshot_day\n" if latest_mode else ""
+    filter_lines = [
+        *_build_address_balance_token_filter_lines(
+            table_alias="holders",
+            token_symbols=token_symbols,
+            token_addresses=token_addresses,
+        ),
+        *_build_address_balance_date_filter_lines("holders", date_scope),
+    ]
+    if latest_mode:
+        filter_lines.append(_latest_completed_snapshot_day_filter("holders"))
+    filter_clause = _format_where_clause(filter_lines)
+
+    if include_defi:
+        aggregate_select = (
+            "    day,\n"
+            "    'protocol_token_holders_with_defi' AS source,\n"
+            "    address,\n"
+            "    blockchain,\n"
+            "    token_address,\n"
+            "    token_symbol,\n"
+            "    CAST(NULL AS varchar) AS token_type,\n"
+            "    underlying_protocol AS token_project,\n"
+            "    token_underlying_symbol,\n"
+            "    identified_defi_contract,\n"
+            "    SUM(token_balance_raw) AS token_balance_raw,\n"
+            "    SUM(token_balance) AS token_balance,\n"
+            "    SUM(token_balance_underlying) AS token_balance_underlying,\n"
+            "    SUM(token_balance_usd) AS token_balance_usd,\n"
+            "    SUM(token_balance_eth) AS token_balance_eth,\n"
+            "    CASE WHEN SUM(token_balance_usd) IS NULL THEN NULL ELSE 'protocol_token_holders_with_defi.token_balance_usd' END AS pricing_source,\n"
+            "    SUM(token_balance_usd) IS NULL AS pricing_missing,\n"
+            "    MAX(last_updated) AS last_updated\n"
+        )
+        group_by = "  GROUP BY 1, 2, 3, 4, 5, 6, 8, 9, 10\n"
+        pricing_join = ""
+        pricing_cte_select = "SELECT * FROM selected_balances"
+    else:
+        aggregate_select = (
+            "    day,\n"
+            "    'protocol_token_holders' AS source,\n"
+            "    address,\n"
+            "    blockchain,\n"
+            "    token_address,\n"
+            "    token_symbol,\n"
+            "    CAST(NULL AS varchar) AS token_type,\n"
+            "    CAST(NULL AS varchar) AS token_project,\n"
+            "    CAST(NULL AS varchar) AS token_underlying_symbol,\n"
+            "    CAST(NULL AS varchar) AS identified_defi_contract,\n"
+            "    SUM(token_balance_raw) AS token_balance_raw,\n"
+            "    SUM(token_balance) AS token_balance,\n"
+            "    CAST(NULL AS double) AS token_balance_underlying,\n"
+            "    CAST(NULL AS double) AS token_balance_usd,\n"
+            "    CAST(NULL AS double) AS token_balance_eth,\n"
+            "    CAST(NULL AS varchar) AS pricing_source,\n"
+            "    TRUE AS pricing_missing,\n"
+            "    MAX(last_updated) AS last_updated\n"
+        )
+        group_by = "  GROUP BY 1, 2, 3, 4, 5, 6\n"
+        pricing_join = (
+            ",\n"
+            "priced_balances AS (\n"
+            "  SELECT\n"
+            "    selected_balances.day,\n"
+            "    selected_balances.source,\n"
+            "    selected_balances.address,\n"
+            "    selected_balances.blockchain,\n"
+            "    selected_balances.token_address,\n"
+            "    selected_balances.token_symbol,\n"
+            "    selected_balances.token_type,\n"
+            "    selected_balances.token_project,\n"
+            "    prices.token_underlying_symbol,\n"
+            "    selected_balances.identified_defi_contract,\n"
+            "    selected_balances.token_balance_raw,\n"
+            "    selected_balances.token_balance,\n"
+            "    CASE\n"
+            "      WHEN prices.token_underlying_rate IS NULL THEN NULL\n"
+            "      ELSE selected_balances.token_balance * prices.token_underlying_rate\n"
+            "    END AS token_balance_underlying,\n"
+            "    selected_balances.token_balance * COALESCE(prices.token_usd, prices.token_usd_rate) AS token_balance_usd,\n"
+            "    selected_balances.token_balance_eth,\n"
+            "    CASE\n"
+            "      WHEN prices.token_usd IS NOT NULL THEN 'tokens_prices_enriched_daily.token_usd'\n"
+            "      WHEN prices.token_usd_rate IS NOT NULL THEN 'tokens_prices_enriched_daily.token_usd_rate'\n"
+            "      ELSE NULL\n"
+            "    END AS pricing_source,\n"
+            "    COALESCE(prices.token_usd, prices.token_usd_rate) IS NULL AS pricing_missing,\n"
+            "    GREATEST(selected_balances.last_updated, prices.last_updated) AS last_updated\n"
+            "  FROM selected_balances\n"
+            f"  LEFT JOIN {price_table_name} prices\n"
+            "    ON selected_balances.token_address = prices.token_address\n"
+            "   AND lower(selected_balances.blockchain) = lower(prices.blockchain)\n"
+            "   AND CAST(selected_balances.day AS DATE) = CAST(prices.day AS DATE)\n"
+            ")"
+        )
+        pricing_cte_select = "SELECT * FROM priced_balances"
+
+    return (
+        "WITH "
+        + _address_values_cte(addresses)
+        + snapshot_cte
+        + ",\n"
+        "base_balances AS (\n"
+        "  SELECT holders.*\n"
+        f"  FROM {table_name} holders\n"
+        "  INNER JOIN requested_addresses\n"
+        "    ON holders.address = requested_addresses.address\n"
+        f"{snapshot_join}"
+        f"{filter_clause}"
+        "),\n"
+        "aggregated_balances AS (\n"
+        "  SELECT\n"
+        f"{aggregate_select}"
+        "  FROM base_balances\n"
+        f"{group_by}"
+        ")"
+        + _address_balance_post_aggregate_ctes(
+            date_scope,
+            "address, blockchain, token_address, token_symbol, identified_defi_contract",
+        )
+        + pricing_join
+        + "\n"
+        "SELECT\n"
+        "  day,\n"
+        "  source,\n"
+        "  address,\n"
+        "  blockchain,\n"
+        "  token_address,\n"
+        "  token_symbol,\n"
+        "  token_type,\n"
+        "  token_project,\n"
+        "  token_underlying_symbol,\n"
+        "  identified_defi_contract,\n"
+        "  token_balance_raw,\n"
+        "  token_balance,\n"
+        "  token_balance_underlying,\n"
+        "  token_balance_usd,\n"
+        "  token_balance_eth,\n"
+        "  pricing_source,\n"
+        "  pricing_missing,\n"
+        "  last_updated\n"
+        f"FROM ({pricing_cte_select}) output_balances\n"
+        "ORDER BY address, token_balance_usd DESC NULLS LAST, token_balance DESC NULLS LAST, token_symbol, blockchain"
+        + _address_balance_limit_clause(limit)
+    )
+
+
+def _build_address_balance_classifications(
+    addresses: list[str],
+    rows: list[dict] | None,
+    *,
+    status_when_not_executed: str = "unknown_not_executed",
+) -> list[dict]:
+    if rows is None:
+        return [
+            {
+                "address": address,
+                "is_cash_safe": None,
+                "matched_blockchains": [],
+                "classification_source_table": "dune.ether_fi.result_etherfi_cash_addresses",
+                "classification_status": status_when_not_executed,
+            }
+            for address in addresses
+        ]
+
+    matches_by_address: dict[str, list[dict]] = {address: [] for address in addresses}
+    for row in rows:
+        raw_requested = row.get("requested_address") or row.get("address")
+        if raw_requested in (None, ""):
+            continue
+        try:
+            requested_address = _normalize_address_literal(str(raw_requested))
+        except ValueError:
+            requested_address = str(raw_requested).lower()
+        if requested_address not in matches_by_address:
+            continue
+        if row.get("address") not in (None, ""):
+            matches_by_address[requested_address].append(row)
+
+    classifications = []
+    for address in addresses:
+        matches = matches_by_address.get(address, [])
+        blockchains = sorted(
+            {
+                str(row.get("blockchain"))
+                for row in matches
+                if row.get("blockchain") not in (None, "")
+            }
+        )
+        is_cash_safe = bool(matches)
+        classifications.append(
+            {
+                "address": address,
+                "is_cash_safe": is_cash_safe,
+                "matched_blockchains": blockchains,
+                "classification_source_table": "dune.ether_fi.result_etherfi_cash_addresses",
+                "classification_status": "cash_safe" if is_cash_safe else "not_cash_safe",
+            }
+        )
+    return classifications
+
+
+def _forced_address_balance_classifications(addresses: list[str], source: str) -> list[dict]:
+    status = "cash_safe_source_forced" if source == "cash_safe" else "protocol_source_forced"
+    return [
+        {
+            "address": address,
+            "is_cash_safe": None,
+            "matched_blockchains": [],
+            "classification_source_table": "dune.ether_fi.result_etherfi_cash_addresses",
+            "classification_status": status,
+        }
+        for address in addresses
+    ]
+
+
+def _compact_address_balance_rows(rows: list[dict], limit: int) -> list[dict]:
+    compact_rows = []
+    for row in rows[:limit]:
+        compact_rows.append(
+            {
+                "day": row.get("day"),
+                "source": row.get("source"),
+                "address": row.get("address"),
+                "blockchain": row.get("blockchain"),
+                "token_address": row.get("token_address"),
+                "token_symbol": row.get("token_symbol"),
+                "token_balance": row.get("token_balance"),
+                "token_balance_underlying": row.get("token_balance_underlying"),
+                "token_underlying_symbol": row.get("token_underlying_symbol"),
+                "token_balance_usd": row.get("token_balance_usd"),
+                "token_balance_eth": row.get("token_balance_eth"),
+                "pricing_source": row.get("pricing_source"),
+                "pricing_missing": row.get("pricing_missing"),
+                "identified_defi_contract": row.get("identified_defi_contract"),
+                "last_updated": row.get("last_updated"),
+            }
+        )
+    return compact_rows
+
+
+def _address_balance_pricing_missing(row: dict) -> bool:
+    value = row.get("pricing_missing")
+    if value in (True, 1, "true", "True", "TRUE"):
+        return True
+    if value in (False, 0, "false", "False", "FALSE"):
+        return False
+    return row.get("source") == "protocol_token_holders" and row.get("token_balance_usd") is None
+
+
+def _address_balance_relevant_freshness_names(
+    source: str,
+    protocol_source: str,
+    classifications: list[dict],
+) -> list[str]:
+    aum_name = "dune.ether_fi.result_etherfi_assets_under_management"
+    protocol_name = (
+        "etherfi_protocol_token_holders_with_defi"
+        if protocol_source == "protocol_holders_with_defi"
+        else "etherfi_protocol_token_holders"
+    )
+    if source == "cash_safe":
+        return [aum_name]
+    if source in {"protocol_holders", "protocol_holders_with_defi"}:
+        return [protocol_name]
+
+    statuses = {row.get("classification_status") for row in classifications}
+    names = []
+    if "cash_safe" in statuses or not statuses or "unknown_not_executed" in statuses:
+        names.append(aum_name)
+    if "not_cash_safe" in statuses or not statuses or "unknown_not_executed" in statuses:
+        names.append(protocol_name)
+    return names or [aum_name, protocol_name]
+
+
+def _freshness_status_is_stale(status: dict | None) -> bool:
+    if not status:
+        return False
+    freshness = status.get("freshness") if isinstance(status, dict) else None
+    return bool(
+        (isinstance(freshness, dict) and freshness.get("is_stale"))
+        or status.get("warning")
+    )
+
+
+def _address_balance_no_results_context(
+    *,
+    source: str,
+    protocol_source: str,
+    classifications: list[dict],
+    date_scope: dict,
+    freshness_status: dict[str, dict] | None,
+) -> dict:
+    if date_scope["mode"] != "latest":
+        return {
+            "message": "No balances found for the requested date filter.",
+            "no_results_reason": "no_rows_for_requested_date_filter",
+        }
+
+    freshness_status = freshness_status or {}
+    relevant_names = _address_balance_relevant_freshness_names(
+        source,
+        protocol_source,
+        classifications,
+    )
+    relevant_statuses = {
+        name: freshness_status.get(name)
+        for name in relevant_names
+        if freshness_status.get(name) is not None
+    }
+    stale_names = [
+        name
+        for name, status in relevant_statuses.items()
+        if _freshness_status_is_stale(status)
+    ]
+    if stale_names:
+        return {
+            "message": (
+                "No balances found, but the source table may be stale based on last_updated/freshness interval, "
+                "so this may need a refresh check."
+            ),
+            "no_results_reason": "no_latest_rows_source_may_be_stale",
+            "freshness_checked": relevant_statuses,
+            "stale_source_tables": stale_names,
+        }
+    return {
+        "message": "No balances found for the latest completed snapshot day.",
+        "no_results_reason": "no_rows_for_latest_completed_snapshot_day",
+        "freshness_checked": relevant_statuses,
+        "stale_source_tables": [],
+    }
+
+
+def _build_etherfi_address_balances_summary(
+    rows: list[dict],
+    *,
+    addresses: list[str],
+    source: str,
+    protocol_source: str,
+    classifications: list[dict],
+    token_symbols: list[str],
+    token_addresses: list[str],
+    date_scope: dict,
+    mode: str,
+    freshness_status: dict[str, dict] | None = None,
+) -> dict:
+    latest_values = [row.get("day") for row in rows if row.get("day") is not None]
+    latest_day = max(latest_values) if latest_values else None
+    pricing_missing_count = sum(1 for row in rows if _address_balance_pricing_missing(row))
+
+    address_groups: dict[tuple[str, str], dict] = {}
+    token_groups: dict[tuple[str, str], dict] = {}
+    blockchain_groups: dict[tuple[str, str], dict] = {}
+
+    for row in rows:
+        row_source = row.get("source")
+        address_key = (row.get("address"), row_source)
+        address_group = address_groups.setdefault(
+            address_key,
+            {
+                "address": row.get("address"),
+                "source": row_source,
+                "row_count": 0,
+                "token_balance_usd": 0.0,
+                "pricing_missing_count": 0,
+            },
+        )
+        address_group["row_count"] += 1
+        address_group["token_balance_usd"] += _to_number(row.get("token_balance_usd"))
+        if _address_balance_pricing_missing(row):
+            address_group["pricing_missing_count"] += 1
+
+        token_key = (row.get("token_symbol"), row_source)
+        token_group = token_groups.setdefault(
+            token_key,
+            {
+                "token_symbol": row.get("token_symbol"),
+                "source": row_source,
+                "row_count": 0,
+                "token_balance": 0.0,
+                "token_balance_usd": 0.0,
+            },
+        )
+        token_group["row_count"] += 1
+        token_group["token_balance"] += _to_number(row.get("token_balance"))
+        token_group["token_balance_usd"] += _to_number(row.get("token_balance_usd"))
+
+        blockchain_key = (row.get("blockchain"), row_source)
+        blockchain_group = blockchain_groups.setdefault(
+            blockchain_key,
+            {
+                "blockchain": row.get("blockchain"),
+                "source": row_source,
+                "row_count": 0,
+                "token_balance_usd": 0.0,
+            },
+        )
+        blockchain_group["row_count"] += 1
+        blockchain_group["token_balance_usd"] += _to_number(row.get("token_balance_usd"))
+
+    warnings = []
+    if pricing_missing_count:
+        warnings.append(
+            "USD value unavailable for some protocol holder rows because no matching enriched daily token price was found."
+        )
+    if source == "cash_safe":
+        warnings.append(
+            "source='cash_safe' was explicitly selected, so public Cash-safe registry classification was skipped and AUM balances were used directly."
+        )
+    if source in {"protocol_holders", "protocol_holders_with_defi"}:
+        warnings.append(
+            "source was explicitly forced to protocol holders, so automatic Cash-safe routing to AUM was skipped."
+        )
+    if protocol_source == "protocol_holders_with_defi":
+        warnings.append(
+            "The with-DeFi protocol holder source includes tracked DeFi exposure, but DeFi coverage is incomplete."
+        )
+
+    summary = {
+        "mode": mode,
+        "addresses": addresses,
+        "source": source,
+        "protocol_source": protocol_source,
+        "date_filter": {
+            "mode": date_scope["mode"],
+            "as_of_date": date_scope.get("as_of_date"),
+            "start_date": date_scope.get("start_date"),
+            "end_date": date_scope.get("end_date") or ("current_date" if date_scope["mode"] == "range" else None),
+        },
+        "token_symbols": token_symbols,
+        "token_addresses": token_addresses,
+        "classification": classifications,
+        "latest_day": latest_day,
+        "row_count": len(rows),
+        "address_count": len(addresses),
+        "total_token_balance_usd": sum(_to_number(row.get("token_balance_usd")) for row in rows),
+        "pricing_missing_count": pricing_missing_count,
+        "totals_by_address": sorted(
+            address_groups.values(),
+            key=lambda row: row["token_balance_usd"],
+            reverse=True,
+        ),
+        "totals_by_token": sorted(
+            token_groups.values(),
+            key=lambda row: row["token_balance_usd"],
+            reverse=True,
+        ),
+        "totals_by_blockchain": sorted(
+            blockchain_groups.values(),
+            key=lambda row: row["token_balance_usd"],
+            reverse=True,
+        ),
+        "warnings": warnings,
+    }
+    if not rows:
+        no_results_context = _address_balance_no_results_context(
+            source=source,
+            protocol_source=protocol_source,
+            classifications=classifications,
+            date_scope=date_scope,
+            freshness_status=freshness_status,
+        )
+        summary.update(no_results_context)
+        if no_results_context["no_results_reason"] == "no_latest_rows_source_may_be_stale":
+            summary["warnings"] = [
+                *summary["warnings"],
+                no_results_context["message"],
+            ]
+    return summary
+
+
+def _address_balance_error_response(message: str, **context) -> dict:
+    return {
+        "error": message,
+        "query_ready": False,
+        "executed_live": False,
+        "row_count": 0,
+        "rows": [],
+        "summary": {
+            "row_count": 0,
+            "message": message,
+        },
+        **context,
+    }
+
+
+def _get_etherfi_address_balances_plan(
+    addresses,
+    source: str = "auto",
+    token_symbols=None,
+    token_addresses=None,
+    as_of_date=None,
+    start_date=None,
+    end_date=None,
+    include_defi: bool = False,
+    mode: str = "summary",
+    limit: int = 100,
+    datasets=None,
+    freshness_registry=None,
+    now=None,
+) -> dict:
+    try:
+        address_values = _normalize_address_literal_list(addresses, "addresses")
+        source_value = _validate_address_balance_source(source)
+        mode_value = _validate_mode(mode)
+        limit_value = _validate_limit(limit)
+        token_symbol_values = _normalize_token_symbol_filters(token_symbols)
+        token_address_values = _normalize_optional_address_literal_list(token_addresses, "token_addresses")
+        date_scope = _resolve_address_balance_date_scope(
+            as_of_date=as_of_date,
+            start_date=start_date,
+            end_date=end_date,
+        )
+    except ValueError as exc:
+        return _address_balance_error_response(
+            str(exc),
+            addresses=addresses,
+            source=source,
+            token_symbols=token_symbols,
+            token_addresses=token_addresses,
+            as_of_date=as_of_date,
+            start_date=start_date,
+            end_date=end_date,
+            include_defi=include_defi,
+            mode=mode,
+            limit=limit,
+        )
+
+    datasets = datasets or load_datasets()
+    protocol_source = _resolve_address_balance_protocol_source(source_value, include_defi)
+    aum_dataset_name = "dune.ether_fi.result_etherfi_assets_under_management"
+    direct_holder_dataset_name = "etherfi_protocol_token_holders"
+    defi_holder_dataset_name = "etherfi_protocol_token_holders_with_defi"
+    protocol_dataset_name = (
+        defi_holder_dataset_name
+        if protocol_source == "protocol_holders_with_defi"
+        else direct_holder_dataset_name
+    )
+    price_dataset_name = "dune.ether_fi.result_tokens_prices_enriched_daily"
+
+    needed_dataset_names: list[str] = []
+    if source_value == "auto":
+        needed_dataset_names.extend([CASH_SAFE_ADDRESSES_DATASET_NAME, aum_dataset_name, protocol_dataset_name])
+    elif source_value == "cash_safe":
+        needed_dataset_names.append(aum_dataset_name)
+    else:
+        needed_dataset_names.append(protocol_dataset_name)
+    if protocol_source == "protocol_holders" and source_value != "cash_safe":
+        needed_dataset_names.append(price_dataset_name)
+
+    loaded_datasets: dict[str, dict] = {}
+    freshness_status: dict[str, dict] = {}
+    for dataset_name in needed_dataset_names:
+        dataset, dataset_status = _get_query_ready_dataset(
+            dataset_name,
+            datasets=datasets,
+            freshness_registry=freshness_registry,
+            now=now,
+        )
+        freshness_status[dataset_name] = dataset_status
+        if dataset is None:
+            return _address_balance_error_response(
+                f"Dataset {dataset_name} is not query-ready for get_etherfi_address_balances.",
+                addresses=address_values,
+                source=source_value,
+                protocol_source=protocol_source,
+                freshness_status=freshness_status,
+                **dataset_status,
+            )
+        loaded_datasets[dataset_name] = dataset
+
+    sql_limit = limit_value if mode_value == "rows" else None
+    suggested_sql_by_source: dict[str, str] = {}
+    if source_value == "auto":
+        suggested_sql_by_source["classification"] = _build_cash_safe_classification_sql(
+            address_values,
+            loaded_datasets[CASH_SAFE_ADDRESSES_DATASET_NAME]["table_name"],
+        )
+    if source_value in {"auto", "cash_safe"}:
+        suggested_sql_by_source["cash_safe"] = _build_aum_address_balances_sql(
+            addresses=address_values,
+            table_name=loaded_datasets[aum_dataset_name]["table_name"],
+            token_symbols=token_symbol_values,
+            token_addresses=token_address_values,
+            date_scope=date_scope,
+            limit=sql_limit,
+        )
+    if source_value in {"auto", "protocol_holders", "protocol_holders_with_defi"}:
+        suggested_sql_by_source[protocol_source] = _build_protocol_address_balances_sql(
+            addresses=address_values,
+            table_name=loaded_datasets[protocol_dataset_name]["table_name"],
+            protocol_source=protocol_source,
+            price_table_name=(
+                loaded_datasets[price_dataset_name]["table_name"]
+                if protocol_source == "protocol_holders"
+                else None
+            ),
+            token_symbols=token_symbol_values,
+            token_addresses=token_address_values,
+            date_scope=date_scope,
+            limit=sql_limit,
+        )
+
+    if source_value == "auto":
+        suggested_sql = suggested_sql_by_source["classification"]
+    elif source_value == "cash_safe":
+        suggested_sql = suggested_sql_by_source["cash_safe"]
+    else:
+        suggested_sql = suggested_sql_by_source[protocol_source]
+
+    filters_applied = [
+        {"field": "address", "operator": "IN", "value": address_values},
+    ]
+    if token_symbol_values:
+        filters_applied.append({"field": "token_symbol", "operator": "IN", "value": token_symbol_values})
+    if token_address_values:
+        filters_applied.append({"field": "token_address", "operator": "IN", "value": token_address_values})
+    if date_scope["mode"] == "as_of":
+        filters_applied.append({"field": "day", "operator": "<=", "value": date_scope["as_of_date"]})
+    elif date_scope["mode"] == "range":
+        filters_applied.append(
+            {
+                "field": "day",
+                "operator": "between",
+                "value": {
+                    "start_date": date_scope["start_date"],
+                    "end_date": date_scope["end_date"] or "current_date",
+                },
+            }
+        )
+    else:
+        filters_applied.append(
+            {
+                "field": "day",
+                "operator": "=",
+                "value": "latest_completed_snapshot_day_from_max_last_updated_minus_1h",
+            }
+        )
+
+    caveats = [
+        "Planning mode does not execute Dune and does not verify Cash-safe status or live balances.",
+        "Auto mode checks the public Cash-safe registry first in live mode; Cash safes use AUM and non-Cash addresses use protocol holder balances.",
+        "AUM balances already include USD values, so AUM SQL does not join prices.",
+        "Latest balance mode uses the table-level completed snapshot day derived from date_trunc('day', max(last_updated) - interval '1' hour), not the latest row per token or chain.",
+    ]
+    if protocol_source == "protocol_holders":
+        caveats.append(
+            "Direct protocol holder USD values are estimated from `dune.ether_fi.result_tokens_prices_enriched_daily` with `COALESCE(token_usd, token_usd_rate)` when available."
+        )
+    else:
+        caveats.append(
+            "The with-DeFi holder table includes tracked DeFi exposure and is broader but incomplete."
+        )
+
+    return {
+        "tool_name": "get_etherfi_address_balances",
+        "question_class": "single- or multi-entity address balance lookup",
+        "addresses": address_values,
+        "source": source_value,
+        "protocol_source": protocol_source,
+        "include_defi": include_defi,
+        "mode": mode_value,
+        "limit": limit_value,
+        "token_symbols": token_symbol_values,
+        "token_addresses": token_address_values,
+        "as_of_date": date_scope.get("as_of_date"),
+        "start_date": date_scope.get("start_date"),
+        "end_date": date_scope.get("end_date"),
+        "date_filter": {
+            "mode": date_scope["mode"],
+            "as_of_date": date_scope.get("as_of_date"),
+            "start_date": date_scope.get("start_date"),
+            "end_date": date_scope.get("end_date") or ("current_date" if date_scope["mode"] == "range" else None),
+        },
+        "query_ready": True,
+        "chosen_datasets": [
+            _dataset_plan_summary(dataset)
+            for dataset in loaded_datasets.values()
+        ],
+        "freshness_status": freshness_status,
+        "filters_applied": filters_applied,
+        "aggregate_scope": (
+            "auto-classified addresses split between Cash-safe AUM and protocol holder balances"
+            if source_value == "auto"
+            else "Cash-safe/AUM address balances"
+            if source_value == "cash_safe"
+            else f"{protocol_source} address balances"
+        ),
+        "classification": (
+            _build_address_balance_classifications(address_values, None)
+            if source_value == "auto"
+            else _forced_address_balance_classifications(address_values, source_value)
+        ),
+        "expected_output_fields": [
+            "day",
+            "source",
+            "address",
+            "blockchain",
+            "token_address",
+            "token_symbol",
+            "token_balance",
+            "token_balance_underlying",
+            "token_underlying_symbol",
+            "token_balance_usd",
+            "token_balance_eth",
+            "pricing_source",
+            "pricing_missing",
+            "identified_defi_contract",
+            "last_updated",
+        ],
+        "caveats": caveats,
+        "suggested_sql": suggested_sql,
+        "suggested_sql_by_source": suggested_sql_by_source,
+    }
+
+
+def get_etherfi_address_balances(
+    addresses,
+    source: str = "auto",
+    token_symbols=None,
+    token_addresses=None,
+    as_of_date=None,
+    start_date=None,
+    end_date=None,
+    include_defi: bool = False,
+    mode: str = "summary",
+    limit: int = 100,
+    execute_live: bool = False,
+    datasets=None,
+    freshness_registry=None,
+    now=None,
+) -> dict:
+    plan = _get_etherfi_address_balances_plan(
+        addresses=addresses,
+        source=source,
+        token_symbols=token_symbols,
+        token_addresses=token_addresses,
+        as_of_date=as_of_date,
+        start_date=start_date,
+        end_date=end_date,
+        include_defi=include_defi,
+        mode=mode,
+        limit=limit,
+        datasets=datasets,
+        freshness_registry=freshness_registry,
+        now=now,
+    )
+    if plan.get("error"):
+        return plan
+
+    if not execute_live:
+        return {
+            **plan,
+            "execute_live": False,
+            "executed_live": False,
+            "row_count": 0,
+            "rows": [],
+            "summary": {
+                "mode": plan["mode"],
+                "addresses": plan["addresses"],
+                "source": plan["source"],
+                "protocol_source": plan["protocol_source"],
+                "classification": plan["classification"],
+                "row_count": 0,
+                "message": (
+                    "Planning only: no Cash-safe classification or live balances were fetched. "
+                    "Run with execute_live=true to verify routing and balances."
+                ),
+            },
+        }
+
+    try:
+        source_value = plan["source"]
+        classifications = plan["classification"]
+        source_sqls: dict[str, str] = {}
+        balance_rows: list[dict] = []
+
+        if source_value == "auto":
+            classification_sql = plan["suggested_sql_by_source"]["classification"]
+            classification_rows = _execute_dune_sql(classification_sql)
+            classifications = _build_address_balance_classifications(
+                plan["addresses"],
+                classification_rows,
+            )
+            cash_addresses = [
+                row["address"]
+                for row in classifications
+                if row["classification_status"] == "cash_safe"
+            ]
+            protocol_addresses = [
+                row["address"]
+                for row in classifications
+                if row["classification_status"] == "not_cash_safe"
+            ]
+            source_sqls["classification"] = classification_sql
+
+            if cash_addresses:
+                cash_sql = _build_aum_address_balances_sql(
+                    addresses=cash_addresses,
+                    table_name=next(
+                        dataset["table_name"]
+                        for dataset in plan["chosen_datasets"]
+                        if dataset["name"] == "dune.ether_fi.result_etherfi_assets_under_management"
+                    ),
+                    token_symbols=plan["token_symbols"],
+                    token_addresses=plan["token_addresses"],
+                    date_scope=_resolve_address_balance_date_scope(
+                        as_of_date=plan.get("as_of_date"),
+                        start_date=plan.get("start_date"),
+                        end_date=plan.get("end_date"),
+                    ),
+                    limit=plan["limit"] if plan["mode"] == "rows" else None,
+                )
+                source_sqls["cash_safe"] = cash_sql
+                balance_rows.extend(_execute_dune_sql(cash_sql))
+
+            if protocol_addresses:
+                protocol_dataset_name = (
+                    "etherfi_protocol_token_holders_with_defi"
+                    if plan["protocol_source"] == "protocol_holders_with_defi"
+                    else "etherfi_protocol_token_holders"
+                )
+                protocol_table_name = next(
+                    dataset["table_name"]
+                    for dataset in plan["chosen_datasets"]
+                    if dataset["name"] == protocol_dataset_name
+                )
+                price_table_name = None
+                if plan["protocol_source"] == "protocol_holders":
+                    price_table_name = next(
+                        dataset["table_name"]
+                        for dataset in plan["chosen_datasets"]
+                        if dataset["name"] == "dune.ether_fi.result_tokens_prices_enriched_daily"
+                    )
+                protocol_sql = _build_protocol_address_balances_sql(
+                    addresses=protocol_addresses,
+                    table_name=protocol_table_name,
+                    protocol_source=plan["protocol_source"],
+                    price_table_name=price_table_name,
+                    token_symbols=plan["token_symbols"],
+                    token_addresses=plan["token_addresses"],
+                    date_scope=_resolve_address_balance_date_scope(
+                        as_of_date=plan.get("as_of_date"),
+                        start_date=plan.get("start_date"),
+                        end_date=plan.get("end_date"),
+                    ),
+                    limit=plan["limit"] if plan["mode"] == "rows" else None,
+                )
+                source_sqls[plan["protocol_source"]] = protocol_sql
+                balance_rows.extend(_execute_dune_sql(protocol_sql))
+        else:
+            sql_key = "cash_safe" if source_value == "cash_safe" else plan["protocol_source"]
+            balance_sql = plan["suggested_sql_by_source"][sql_key]
+            source_sqls[sql_key] = balance_sql
+            balance_rows = _execute_dune_sql(balance_sql)
+
+    except RuntimeError as exc:
+        return {
+            **plan,
+            "error": str(exc),
+            "execution_error": str(exc),
+            "execute_live": True,
+            "executed_live": False,
+            "row_count": 0,
+            "rows": [],
+            "summary": _build_etherfi_address_balances_summary(
+                [],
+                addresses=plan["addresses"],
+                source=plan["source"],
+                protocol_source=plan["protocol_source"],
+                classifications=plan["classification"],
+                token_symbols=plan["token_symbols"],
+                token_addresses=plan["token_addresses"],
+                date_scope=_resolve_address_balance_date_scope(
+                    as_of_date=plan.get("as_of_date"),
+                    start_date=plan.get("start_date"),
+                    end_date=plan.get("end_date"),
+                ),
+                mode=plan["mode"],
+                freshness_status=plan.get("freshness_status"),
+            ),
+        }
+
+    date_scope = _resolve_address_balance_date_scope(
+        as_of_date=plan.get("as_of_date"),
+        start_date=plan.get("start_date"),
+        end_date=plan.get("end_date"),
+    )
+    summary = _build_etherfi_address_balances_summary(
+        balance_rows,
+        addresses=plan["addresses"],
+        source=plan["source"],
+        protocol_source=plan["protocol_source"],
+        classifications=classifications,
+        token_symbols=plan["token_symbols"],
+        token_addresses=plan["token_addresses"],
+        date_scope=date_scope,
+        mode=plan["mode"],
+        freshness_status=plan.get("freshness_status"),
+    )
+
+    return {
+        **plan,
+        "classification": classifications,
+        "execute_live": True,
+        "executed_live": True,
+        "row_count": len(balance_rows),
+        "rows": _compact_address_balance_rows(balance_rows, plan["limit"]),
+        "rows_truncated": len(balance_rows) > plan["limit"],
+        "summary": summary,
+        "summary_queries": source_sqls,
     }
 
 

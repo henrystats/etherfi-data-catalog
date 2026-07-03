@@ -588,6 +588,7 @@ Metadata and planning tools work without Dune credentials:
 Live Dune-backed tools require `DUNE_API_KEY` only when the caller requests live
 execution with `execute_live=true`:
 
+- `get_etherfi_address_balances`
 - `get_assets_under_management_balances`
 - `get_cash_events`
 - `get_cash_holdings_timeseries`
@@ -608,6 +609,13 @@ After editing local MCP config, fully restart or reload Codex or the MCP client
 so the `etherfi-catalog` server process receives the updated environment. Live
 Dune-backed calls may consume Dune credits, so use summary mode and narrow date,
 token, chain, or address filters when available.
+
+For address-balance prompts, `get_etherfi_address_balances` latest mode anchors
+to the table-level completed snapshot day derived from `max(last_updated)-1h`;
+default summaries show token balances and USD values while leaving token
+addresses and underlying/base-asset balances in raw rows. For historical
+address deposits or withdrawals, use `get_protocol_events` with `address` or
+`addresses` plus the relevant `event_type` instead of current balance tools.
 
 Before remote deployment, live Dune-backed tools should be protected with auth,
 rate limits, timeout limits, and Dune credit monitoring. Metadata/planning tools

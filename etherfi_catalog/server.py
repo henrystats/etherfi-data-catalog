@@ -19,6 +19,7 @@ from etherfi_catalog.catalog import get_dashboard_details as get_catalog_dashboa
 from etherfi_catalog.catalog import get_dashboard_status as get_catalog_dashboard_status
 from etherfi_catalog.catalog import get_dataset_details as get_catalog_dataset_details
 from etherfi_catalog.catalog import get_dataset_status as get_catalog_dataset_status
+from etherfi_catalog.catalog import get_etherfi_address_balances as get_etherfi_address_balances_data
 from etherfi_catalog.catalog import get_protocol_token_holders as get_protocol_token_holders_data
 from etherfi_catalog.catalog import get_protocol_token_tvl as get_protocol_token_tvl_data
 from etherfi_catalog.catalog import get_protocol_token_tvl_timeseries as get_protocol_token_tvl_timeseries_data
@@ -136,7 +137,7 @@ def get_catalog_health_summary() -> dict:
 
 @server.tool(name="plan_etherfi_query")
 def plan_etherfi_query(question: str, execute_live: bool = False) -> dict:
-    """Route natural-language ether.fi questions without live execution. Cash-safe validation routes to etherfi_cash_addresses/check_cash_safe_address; generic address balance/holdings routes to etherfi_protocol_token_holders."""
+    """Route natural-language ether.fi questions without live execution. Cash-safe validation routes to etherfi_cash_addresses/check_cash_safe_address; generic address balances, holdings, investments, and positions route to get_etherfi_address_balances auto classification."""
     return plan_etherfi_query_data(question=question, execute_live=execute_live)
 
 
@@ -146,7 +147,7 @@ def get_assets_under_management_balances(
     as_of_date: str | None = None,
     execute_live: bool = False,
 ) -> dict:
-    """Return AUM/product balance rows only for explicit AUM, managed/internal/protocol-controlled, treasury, address registry, or product-deployment prompts. Do not use for generic ether.fi wallet/address balance, invested-balance, token-holding, or "how much does this address have" prompts; use plan_etherfi_query or etherfi_protocol_token_holders."""
+    """Return legacy AUM/product balance rows only for explicit AUM, managed/internal/protocol-controlled, treasury, address registry, or product-deployment prompts. For address balances, holdings, investments, positions, or "how much does this address have" prompts, use get_etherfi_address_balances so auto mode can check the public Cash-safe registry before choosing AUM or protocol holders."""
     return get_aum_balances_plan(address, as_of_date=as_of_date, execute_live=execute_live)
 
 
@@ -288,7 +289,7 @@ def get_protocol_token_holders(
     limit: int = 100,
     execute_live: bool = False,
 ) -> dict:
-    """Return a planning or live response for ether.fi protocol token holders. Accepts address-only lookups for user/wallet holdings, invested balances, token balances, and generic "how much does this address have in ether.fi?" prompts; token_symbol and token_address are optional filters. This is the default route for generic address balance questions; use include_defi only for explicit DeFi exposure requests."""
+    """Return a planning or live response for explicit ether.fi protocol token holder questions, rankings, and direct-vs-with-DeFi holder analysis. For address summaries, present token symbols, balances, and USD values first; token addresses are raw/technical detail unless requested or needed for duplicate symbols. For generic address balances, holdings, investments, positions, or "how much does this address have in ether.fi?" prompts, use get_etherfi_address_balances so auto mode can check the public Cash-safe registry and route Cash safes to AUM."""
     return get_protocol_token_holders_data(
         address=address,
         token_symbol=token_symbol,
@@ -302,11 +303,43 @@ def get_protocol_token_holders(
     )
 
 
+@server.tool(name="get_etherfi_address_balances")
+def get_etherfi_address_balances(
+    addresses: str | list[str],
+    source: str = "auto",
+    token_symbols: list[str] | None = None,
+    token_addresses: list[str] | None = None,
+    as_of_date: str | None = None,
+    start_date: str | None = None,
+    end_date: str | None = None,
+    include_defi: bool = False,
+    mode: str = "summary",
+    limit: int = 100,
+    execute_live: bool = False,
+) -> dict:
+    """Return planning or live ether.fi balances for one or more addresses. In source='auto', first checks the public Cash-safe registry dune.ether_fi.result_etherfi_cash_addresses; Cash safes use AUM balances, non-Cash addresses use protocol holders, and include_defi/source='protocol_holders_with_defi' uses tracked downstream DeFi holder exposure. Supports token symbol/address filters and latest, as-of, or date-range snapshots. Latest mode uses the table-level completed snapshot day derived from max(last_updated)-1h, not latest per token/chain. Default summaries show token balances and USD values; token addresses and underlying/base-asset balances should only be surfaced from raw rows when explicitly requested or needed to disambiguate duplicate symbols."""
+    return get_etherfi_address_balances_data(
+        addresses=addresses,
+        source=source,
+        token_symbols=token_symbols,
+        token_addresses=token_addresses,
+        as_of_date=as_of_date,
+        start_date=start_date,
+        end_date=end_date,
+        include_defi=include_defi,
+        mode=mode,
+        limit=limit,
+        execute_live=execute_live,
+    )
+
+
 @server.tool(name="get_protocol_events")
 def get_protocol_events(
     project: str | None = None,
     strategy_symbol: str | None = None,
     strategy_address: str | None = None,
+    address: str | None = None,
+    addresses: list[str] | None = None,
     event_type: str | None = None,
     start_date: str | None = None,
     end_date: str | None = None,
@@ -314,11 +347,13 @@ def get_protocol_events(
     execute_live: bool = False,
     limit: int = 100,
 ) -> dict:
-    """Return a planning or live response for ether.fi protocol events such as historical deposits and withdrawals."""
+    """Return a planning or live response for ether.fi protocol events such as historical deposits and withdrawals. Supports one address or multiple EVM addresses for user-specific deposit/withdrawal totals; address filters are emitted as Dune varbinary literals."""
     return get_protocol_events_data(
         project=project,
         strategy_symbol=strategy_symbol,
         strategy_address=strategy_address,
+        address=address,
+        addresses=addresses,
         event_type=event_type,
         start_date=start_date,
         end_date=end_date,

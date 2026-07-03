@@ -19,6 +19,7 @@ from etherfi_catalog.catalog import (
     get_dashboard_status,
     get_dataset_details,
     get_dataset_status,
+    get_etherfi_address_balances,
     get_protocol_events,
     get_protocol_token_holders,
     get_protocol_token_tvl,
@@ -1802,6 +1803,383 @@ def test_get_assets_under_management_balances_live_execution_failures_return_exe
     assert "execution_error" in result
     assert result["row_count"] == 0
     assert result["rows"] == []
+
+
+def _etherfi_address_balance_datasets():
+    return {
+        "etherfi_cash_addresses": {
+            "name": "etherfi_cash_addresses",
+            "display_name": "Ether.fi Cash Addresses",
+            "description": "Public Cash safe registry",
+            "table_name": "dune.ether_fi.result_etherfi_cash_addresses",
+            "query_ready": True,
+            "grain": "one row per blockchain and Cash safe address",
+        },
+        "dune.ether_fi.result_etherfi_assets_under_management": {
+            "name": "dune.ether_fi.result_etherfi_assets_under_management",
+            "display_name": "Ether.fi Assets Under Management",
+            "description": "AUM balances",
+            "table_name": "dune.ether_fi.result_etherfi_assets_under_management",
+            "query_ready": True,
+            "grain": "one row per day, address, and token",
+        },
+        "etherfi_protocol_token_holders": {
+            "name": "etherfi_protocol_token_holders",
+            "display_name": "Protocol Token Holders",
+            "description": "Direct holders",
+            "table_name": "dune.ether_fi.result_etherfi_protocol_token_holders",
+            "query_ready": True,
+            "grain": "one row per address per token per snapshot date",
+        },
+        "etherfi_protocol_token_holders_with_defi": {
+            "name": "etherfi_protocol_token_holders_with_defi",
+            "display_name": "Protocol Token Holders With Defi",
+            "description": "Holders with tracked DeFi exposure",
+            "table_name": "dune.ether_fi.result_etherfi_protocol_token_holders_with_defi",
+            "query_ready": True,
+            "grain": "one row per address per token per snapshot date",
+            "completeness label": "partial",
+        },
+        "dune.ether_fi.result_tokens_prices_enriched_daily": {
+            "name": "dune.ether_fi.result_tokens_prices_enriched_daily",
+            "display_name": "Tokens Prices Enriched (Daily)",
+            "description": "Daily enriched token prices",
+            "table_name": "dune.ether_fi.result_tokens_prices_enriched_daily",
+            "query_ready": True,
+            "grain": "one row per token, blockchain, and day",
+        },
+    }
+
+
+def test_get_etherfi_address_balances_planning_auto_keeps_classification_unknown():
+    result = get_etherfi_address_balances(
+        "0x21823686d5Aa48FE8DD5Af0def9C94f3A1003d75",
+        execute_live=False,
+        datasets=_etherfi_address_balance_datasets(),
+        freshness_registry={},
+    )
+
+    assert result["tool_name"] == "get_etherfi_address_balances"
+    assert result["source"] == "auto"
+    assert result["executed_live"] is False
+    assert result["classification"][0]["classification_status"] == "unknown_not_executed"
+    assert result["classification"][0]["is_cash_safe"] is None
+    assert "dune.ether_fi.result_etherfi_cash_addresses" in result["suggested_sql_by_source"]["classification"]
+    assert "dune.ether_fi.result_tokens_prices_enriched_daily" in result["suggested_sql_by_source"]["protocol_holders"]
+    assert "COALESCE(prices.token_usd, prices.token_usd_rate)" in result["suggested_sql_by_source"]["protocol_holders"]
+    assert "result_tokens_exchange_rates_daily" not in result["suggested_sql_by_source"]["protocol_holders"]
+    assert "result_tokens_prices_enriched_daily" not in result["suggested_sql_by_source"]["cash_safe"]
+
+
+def test_get_etherfi_address_balances_explicit_sources_choose_expected_sql():
+    address = "0x21823686d5Aa48FE8DD5Af0def9C94f3A1003d75"
+
+    cash = get_etherfi_address_balances(
+        address,
+        source="cash_safe",
+        datasets=_etherfi_address_balance_datasets(),
+        freshness_registry={},
+    )
+    direct = get_etherfi_address_balances(
+        address,
+        source="protocol_holders",
+        datasets=_etherfi_address_balance_datasets(),
+        freshness_registry={},
+    )
+    with_defi = get_etherfi_address_balances(
+        address,
+        source="protocol_holders_with_defi",
+        datasets=_etherfi_address_balance_datasets(),
+        freshness_registry={},
+    )
+
+    assert "FROM dune.ether_fi.result_etherfi_assets_under_management" in cash["suggested_sql"]
+    assert "result_etherfi_cash_addresses" not in cash["suggested_sql"]
+    assert cash["classification"][0]["classification_status"] == "cash_safe_source_forced"
+    assert "FROM dune.ether_fi.result_etherfi_protocol_token_holders holders" in direct["suggested_sql"]
+    assert "LEFT JOIN dune.ether_fi.result_tokens_prices_enriched_daily prices" in direct["suggested_sql"]
+    assert "FROM dune.ether_fi.result_etherfi_protocol_token_holders_with_defi holders" in with_defi["suggested_sql"]
+    assert "result_tokens_prices_enriched_daily" not in with_defi["suggested_sql"]
+
+
+def test_get_etherfi_address_balances_latest_uses_completed_snapshot_day_not_per_token_latest():
+    address = "0x21823686d5Aa48FE8DD5Af0def9C94f3A1003d75"
+
+    result = get_etherfi_address_balances(
+        address,
+        datasets=_etherfi_address_balance_datasets(),
+        freshness_registry={},
+    )
+
+    cash_sql = result["suggested_sql_by_source"]["cash_safe"]
+    protocol_sql = result["suggested_sql_by_source"]["protocol_holders"]
+    assert "date_trunc('day', MAX(last_updated) - interval '1' hour) AS day" in cash_sql
+    assert "date_trunc('day', MAX(last_updated) - interval '1' hour) AS day" in protocol_sql
+    assert "CAST(balances.day AS DATE) = CAST(snapshot_day.day AS DATE)" in cash_sql
+    assert "CAST(holders.day AS DATE) = CAST(snapshot_day.day AS DATE)" in protocol_sql
+    assert "snapshot_rank" not in cash_sql
+    assert "snapshot_rank" not in protocol_sql
+    assert result["filters_applied"][-1]["value"] == "latest_completed_snapshot_day_from_max_last_updated_minus_1h"
+
+
+def test_get_etherfi_address_balances_as_of_keeps_requested_date_logic():
+    result = get_etherfi_address_balances(
+        "0x21823686d5Aa48FE8DD5Af0def9C94f3A1003d75",
+        as_of_date="2026-06-30",
+        datasets=_etherfi_address_balance_datasets(),
+        freshness_registry={},
+    )
+
+    protocol_sql = result["suggested_sql_by_source"]["protocol_holders"]
+    assert "date_trunc('day', MAX(last_updated) - interval '1' hour)" not in protocol_sql
+    assert "CAST(holders.day AS DATE) <= CAST('2026-06-30' AS DATE)" in protocol_sql
+    assert "snapshot_rank" in protocol_sql
+
+
+def test_get_etherfi_address_balances_multiple_addresses_and_token_filters_are_safe():
+    result = get_etherfi_address_balances(
+        [
+            "0x1111111111111111111111111111111111111111",
+            "0x2222222222222222222222222222222222222222",
+        ],
+        token_symbols=["eETH", "weETH"],
+        token_addresses=["0x3333333333333333333333333333333333333333"],
+        datasets=_etherfi_address_balance_datasets(),
+        freshness_registry={},
+    )
+    protocol_sql = result["suggested_sql_by_source"]["protocol_holders"]
+
+    assert "(0x1111111111111111111111111111111111111111)" in protocol_sql
+    assert "(0x2222222222222222222222222222222222222222)" in protocol_sql
+    assert "lower(holders.token_symbol) IN ('eeth', 'weeth')" in protocol_sql
+    assert "holders.token_address IN (0x3333333333333333333333333333333333333333)" in protocol_sql
+    assert "'0x1111111111111111111111111111111111111111'" not in protocol_sql
+
+
+def test_get_etherfi_address_balances_default_summary_hides_underlying_values(monkeypatch):
+    monkeypatch.setattr(
+        "etherfi_catalog.catalog._execute_dune_sql",
+        lambda sql: [
+            {
+                "day": "2026-06-30",
+                "source": "assets_under_management",
+                "address": "0x1111111111111111111111111111111111111111",
+                "blockchain": "optimism",
+                "token_address": "0x3333333333333333333333333333333333333333",
+                "token_symbol": "weETH",
+                "token_balance": 2.0,
+                "token_balance_underlying": 2.1,
+                "token_underlying_symbol": "WETH",
+                "token_balance_usd": 6000.0,
+                "token_balance_eth": 2.1,
+                "pricing_missing": False,
+            }
+        ],
+    )
+
+    result = get_etherfi_address_balances(
+        "0x1111111111111111111111111111111111111111",
+        source="cash_safe",
+        execute_live=True,
+        datasets=_etherfi_address_balance_datasets(),
+        freshness_registry={},
+    )
+
+    token_summary = result["summary"]["totals_by_token"][0]
+    chain_summary = result["summary"]["totals_by_blockchain"][0]
+    assert "token_balance_underlying" not in token_summary
+    assert "token_underlying_symbol" not in token_summary
+    assert "token_balance_eth" not in token_summary
+    assert "token_balance_eth" not in chain_summary
+    assert result["rows"][0]["token_balance_underlying"] == 2.1
+
+
+def test_get_etherfi_address_balances_no_latest_rows_reports_freshness_context(monkeypatch):
+    datasets = _etherfi_address_balance_datasets()
+    datasets["dune.ether_fi.result_etherfi_assets_under_management"]["refresh_interval_minutes"] = 60
+    stale_updated = datetime(2026, 1, 1, 0, 0, tzinfo=UTC)
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", lambda sql: [])
+
+    result = get_etherfi_address_balances(
+        "0x1111111111111111111111111111111111111111",
+        source="cash_safe",
+        execute_live=True,
+        datasets=datasets,
+        freshness_registry={
+            "dune.ether_fi.result_etherfi_assets_under_management": {
+                "last_updated": stale_updated
+            }
+        },
+        now=stale_updated + timedelta(minutes=121),
+    )
+
+    assert result["summary"]["row_count"] == 0
+    assert result["summary"]["no_results_reason"] == "no_latest_rows_source_may_be_stale"
+    assert "may be stale" in result["summary"]["message"]
+
+
+def test_get_etherfi_address_balances_date_validation():
+    mixed = get_etherfi_address_balances(
+        "0x1111111111111111111111111111111111111111",
+        as_of_date="2026-06-30",
+        start_date="2026-06-01",
+        datasets=_etherfi_address_balance_datasets(),
+        freshness_registry={},
+    )
+    end_without_start = get_etherfi_address_balances(
+        "0x1111111111111111111111111111111111111111",
+        end_date="2026-06-30",
+        datasets=_etherfi_address_balance_datasets(),
+        freshness_registry={},
+    )
+    start_only = get_etherfi_address_balances(
+        "0x1111111111111111111111111111111111111111",
+        start_date="2026-06-01",
+        datasets=_etherfi_address_balance_datasets(),
+        freshness_registry={},
+    )
+
+    assert "either as_of_date or start_date/end_date" in mixed["error"]
+    assert "start_date is required" in end_without_start["error"]
+    assert start_only["date_filter"]["end_date"] == "current_date"
+    assert "CAST(holders.day AS DATE) >= CAST('2026-06-01' AS DATE)" in start_only["suggested_sql_by_source"]["protocol_holders"]
+    assert "CAST(holders.day AS DATE) <= CURRENT_DATE" in start_only["suggested_sql_by_source"]["protocol_holders"]
+
+
+def test_get_etherfi_address_balances_validation_errors_are_clear():
+    bad_address = get_etherfi_address_balances(
+        "not-an-address",
+        datasets=_etherfi_address_balance_datasets(),
+        freshness_registry={},
+    )
+    bad_source = get_etherfi_address_balances(
+        "0x1111111111111111111111111111111111111111",
+        source="aum",
+        datasets=_etherfi_address_balance_datasets(),
+        freshness_registry={},
+    )
+
+    assert "Address must be" in bad_address["error"]
+    assert "source must be one of" in bad_source["error"]
+
+
+def test_get_etherfi_address_balances_live_auto_routes_mixed_addresses(monkeypatch):
+    seen_sql = []
+
+    def fake_execute(sql):
+        seen_sql.append(sql)
+        if "result_etherfi_cash_addresses" in sql:
+            return [
+                {
+                    "requested_address": "0x1111111111111111111111111111111111111111",
+                    "blockchain": "optimism",
+                    "address": "0x1111111111111111111111111111111111111111",
+                    "last_updated": "2026-06-30 00:00:00 UTC",
+                },
+                {
+                    "requested_address": "0x2222222222222222222222222222222222222222",
+                    "blockchain": None,
+                    "address": None,
+                    "last_updated": None,
+                },
+            ]
+        if "result_etherfi_assets_under_management" in sql:
+            assert "(0x1111111111111111111111111111111111111111)" in sql
+            assert "(0x2222222222222222222222222222222222222222)" not in sql
+            return [
+                {
+                    "day": "2026-06-30",
+                    "source": "assets_under_management",
+                    "address": "0x1111111111111111111111111111111111111111",
+                    "blockchain": "optimism",
+                    "token_address": "0x3333333333333333333333333333333333333333",
+                    "token_symbol": "liquidUSD",
+                    "token_balance": 100.0,
+                    "token_balance_underlying": 100.0,
+                    "token_underlying_symbol": "USD",
+                    "token_balance_usd": 100.0,
+                    "token_balance_eth": 0.03,
+                    "pricing_source": "assets_under_management.token_balance_usd",
+                    "pricing_missing": False,
+                }
+            ]
+        if "result_etherfi_protocol_token_holders" in sql:
+            assert "(0x2222222222222222222222222222222222222222)" in sql
+            assert "result_tokens_prices_enriched_daily" in sql
+            return [
+                {
+                    "day": "2026-06-30",
+                    "source": "protocol_token_holders",
+                    "address": "0x2222222222222222222222222222222222222222",
+                    "blockchain": "ethereum",
+                    "token_address": "0x4444444444444444444444444444444444444444",
+                    "token_symbol": "eETH",
+                    "token_balance": 2.0,
+                    "token_balance_underlying": 2.0,
+                    "token_underlying_symbol": "ETH",
+                    "token_balance_usd": 6000.0,
+                    "token_balance_eth": None,
+                    "pricing_source": "tokens_prices_enriched_daily.token_usd_rate",
+                    "pricing_missing": False,
+                }
+            ]
+        raise AssertionError(sql)
+
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
+
+    result = get_etherfi_address_balances(
+        [
+            "0x1111111111111111111111111111111111111111",
+            "0x2222222222222222222222222222222222222222",
+        ],
+        execute_live=True,
+        datasets=_etherfi_address_balance_datasets(),
+        freshness_registry={},
+    )
+
+    assert len(seen_sql) == 3
+    assert result["executed_live"] is True
+    assert result["row_count"] == 2
+    assert [row["classification_status"] for row in result["classification"]] == [
+        "cash_safe",
+        "not_cash_safe",
+    ]
+    assert result["summary"]["total_token_balance_usd"] == 6100.0
+    assert {row["source"] for row in result["rows"]} == {
+        "assets_under_management",
+        "protocol_token_holders",
+    }
+
+
+def test_get_etherfi_address_balances_live_protocol_pricing_warning(monkeypatch):
+    def fake_execute(sql):
+        assert "result_tokens_prices_enriched_daily" in sql
+        return [
+            {
+                "day": "2026-06-30",
+                "source": "protocol_token_holders",
+                "address": "0x2222222222222222222222222222222222222222",
+                "blockchain": "ethereum",
+                "token_symbol": "eETH",
+                "token_balance": 2.0,
+                "token_balance_usd": None,
+                "pricing_source": None,
+                "pricing_missing": True,
+            }
+        ]
+
+    monkeypatch.setattr("etherfi_catalog.catalog._execute_dune_sql", fake_execute)
+
+    result = get_etherfi_address_balances(
+        "0x2222222222222222222222222222222222222222",
+        source="protocol_holders",
+        execute_live=True,
+        datasets=_etherfi_address_balance_datasets(),
+        freshness_registry={},
+    )
+
+    assert result["summary"]["pricing_missing_count"] == 1
+    assert "USD value unavailable" in result["summary"]["warnings"][0]
 
 
 def test_get_top_cash_users_returns_structured_planning_response():
@@ -4074,7 +4452,9 @@ def test_holder_workflow_address_summary_mode_returns_token_breakdown(monkeypatc
         assert "WITH latest_snapshot AS" in sql
         assert "FROM dune.ether_fi.result_etherfi_protocol_token_holders" in sql
         assert "address = 0x21823686d5aa48fe8dd5af0def9c94f3a1003d75" in sql
-        assert "token_balance_usd" not in sql
+        assert "date_trunc('day', MAX(last_updated) - interval '1' hour) AS day" in sql
+        assert "LEFT JOIN dune.ether_fi.result_tokens_prices_enriched_daily prices" in sql
+        assert "COALESCE(prices.token_usd, prices.token_usd_rate)" in sql
         return [
             {
                 "day": "2026-06-26",
@@ -4084,6 +4464,9 @@ def test_holder_workflow_address_summary_mode_returns_token_breakdown(monkeypatc
                 "token_symbol": "eETH",
                 "token_balance_raw": 9.0,
                 "token_balance": 10.0,
+                "token_balance_usd": 25000.0,
+                "pricing_source": "tokens_prices_enriched_daily.token_usd_rate",
+                "pricing_missing": False,
                 "last_updated": "2026-06-26 16:16:16 UTC",
             },
             {
@@ -4094,6 +4477,9 @@ def test_holder_workflow_address_summary_mode_returns_token_breakdown(monkeypatc
                 "token_symbol": "weETH",
                 "token_balance_raw": 2.0,
                 "token_balance": 2.0,
+                "token_balance_usd": 6000.0,
+                "pricing_source": "tokens_prices_enriched_daily.token_usd_rate",
+                "pricing_missing": False,
                 "last_updated": "2026-06-26 16:16:16 UTC",
             },
         ]
@@ -4115,11 +4501,13 @@ def test_holder_workflow_address_summary_mode_returns_token_breakdown(monkeypatc
     assert result["summary"]["latest_day"] == "2026-06-26"
     assert result["summary"]["token_symbol"] is None
     assert result["summary"]["total_token_balance"] is None
-    assert result["summary"]["total_token_balance_usd"] is None
-    assert result["summary"]["usd_value_available"] is False
+    assert result["summary"]["total_token_balance_usd"] == 31000.0
+    assert result["summary"]["usd_value_available"] is True
     assert result["summary"]["token_breakdown"][0]["token_symbol"] == "eETH"
+    assert "token_address" not in result["summary"]["token_breakdown"][0]
+    assert result["summary"]["token_breakdown"][0]["token_balance_usd"] == 25000.0
     assert result["summary"]["token_breakdown"][1]["token_symbol"] == "weETH"
-    assert "not summed across symbols" in result["summary"]["total_token_balance_note"]
+    assert "total_token_balance_note" not in result["summary"]
 
 
 def test_holder_workflow_address_rows_mode_returns_compact_rows(monkeypatch):
@@ -4437,6 +4825,64 @@ def test_get_protocol_events_validates_strategy_address():
     )
 
     assert "Address must be" in result["error"]
+
+
+def test_get_protocol_events_filters_single_address():
+    result = get_protocol_events(
+        event_type="deposit",
+        address="0x21823686d5Aa48FE8DD5Af0def9C94f3A1003d75",
+        datasets={
+            "dune.ether_fi.result_etherfi_protocol_events": {
+                "name": "dune.ether_fi.result_etherfi_protocol_events",
+                "display_name": "Ether.fi Protocol Events",
+                "description": "Example dataset",
+                "table_name": "dune.ether_fi.result_etherfi_protocol_events",
+                "query_ready": True,
+            }
+        },
+        freshness_registry={},
+    )
+
+    assert result["address"] == "0x21823686d5aa48fe8dd5af0def9c94f3a1003d75"
+    assert result["addresses"] == ["0x21823686d5aa48fe8dd5af0def9c94f3a1003d75"]
+    assert "address = 0x21823686d5aa48fe8dd5af0def9c94f3a1003d75" in result["suggested_sql"]
+    assert "event_type = 'deposit'" in result["suggested_sql"]
+
+
+def test_get_protocol_events_filters_multiple_addresses_and_rejects_invalid_address():
+    result = get_protocol_events(
+        addresses=[
+            "0x1111111111111111111111111111111111111111",
+            "0x2222222222222222222222222222222222222222",
+        ],
+        event_type="deposit",
+        datasets={
+            "dune.ether_fi.result_etherfi_protocol_events": {
+                "name": "dune.ether_fi.result_etherfi_protocol_events",
+                "display_name": "Ether.fi Protocol Events",
+                "description": "Example dataset",
+                "table_name": "dune.ether_fi.result_etherfi_protocol_events",
+                "query_ready": True,
+            }
+        },
+        freshness_registry={},
+    )
+    invalid = get_protocol_events(
+        address="not-an-address",
+        datasets={
+            "dune.ether_fi.result_etherfi_protocol_events": {
+                "name": "dune.ether_fi.result_etherfi_protocol_events",
+                "display_name": "Ether.fi Protocol Events",
+                "description": "Example dataset",
+                "table_name": "dune.ether_fi.result_etherfi_protocol_events",
+                "query_ready": True,
+            }
+        },
+        freshness_registry={},
+    )
+
+    assert "address IN (0x1111111111111111111111111111111111111111, 0x2222222222222222222222222222222222222222)" in result["suggested_sql"]
+    assert "Address must be" in invalid["error"]
 
 
 def test_get_protocol_events_rejects_broad_rows_mode_request():

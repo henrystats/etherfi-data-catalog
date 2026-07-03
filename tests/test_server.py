@@ -16,6 +16,7 @@ EXPECTED_METADATA_AND_PLANNING_TOOLS = {
     "get_catalog_health_summary",
     "plan_etherfi_query",
     "check_cash_safe_address",
+    "get_etherfi_address_balances",
 }
 
 
@@ -155,6 +156,22 @@ def test_metadata_and_planning_tools_are_registered_without_dune_key(monkeypatch
     assert EXPECTED_METADATA_AND_PLANNING_TOOLS <= registered_tools
 
 
+def test_protocol_events_and_address_balance_tool_schema_descriptions(monkeypatch):
+    monkeypatch.delenv("DUNE_API_KEY", raising=False)
+    server_module = _server_module()
+    tools = {tool.name: tool for tool in asyncio.run(server_module.server.list_tools())}
+
+    protocol_events_schema = tools["get_protocol_events"].inputSchema
+    protocol_event_properties = protocol_events_schema["properties"]
+    assert "address" in protocol_event_properties
+    assert "addresses" in protocol_event_properties
+    assert "address filters" in tools["get_protocol_events"].description
+
+    balance_description = tools["get_etherfi_address_balances"].description
+    assert "completed snapshot day" in balance_description
+    assert "underlying/base-asset balances" in balance_description
+
+
 def test_registered_metadata_tool_can_be_called_without_dune_key(monkeypatch):
     monkeypatch.delenv("DUNE_API_KEY", raising=False)
     server_module = _server_module()
@@ -211,11 +228,17 @@ def test_live_capable_tool_planning_mode_does_not_require_dune_key(monkeypatch):
         "0x1111111111111111111111111111111111111111",
         execute_live=False,
     )
+    unified_balance_result = server_module.get_etherfi_address_balances(
+        "0x1111111111111111111111111111111111111111",
+        execute_live=False,
+    )
 
     assert "suggested_sql" in result
     assert "rows" not in result
     assert "suggested_sql" in cash_safe_result
     assert cash_safe_result["executed_live"] is False
+    assert unified_balance_result["tool_name"] == "get_etherfi_address_balances"
+    assert unified_balance_result["executed_live"] is False
 
 
 def test_live_capable_tool_fails_clearly_without_dune_key(monkeypatch):

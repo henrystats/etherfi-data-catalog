@@ -395,7 +395,9 @@ Dataset search can now also surface freshness and status hints through the MCP s
 Dataset status lookup is now also available through the MCP server.
 Stale dataset listing is now also available through the MCP server.
 Stale warnings now also include a suggested next action.
-Use planning mode by calling `get_assets_under_management_balances(address)` and live mode by setting `DUNE_API_KEY` and calling `get_assets_under_management_balances(address, execute_live=true)`.
+Unified ether.fi address balance lookup is available through `get_etherfi_address_balances(addresses, source="auto", token_symbols=None, token_addresses=None, as_of_date=None, start_date=None, end_date=None, include_defi=false, mode="summary", limit=100, execute_live=false)`.
+Use this tool for address balances, holdings, investments, positions, and "how much does this address have in ether.fi?" prompts. In `source="auto"`, live mode first checks the public Cash-safe registry `dune.ether_fi.result_etherfi_cash_addresses`; Cash safes use AUM balances from `dune.ether_fi.result_etherfi_assets_under_management`, while non-Cash addresses use protocol holder balances. Latest mode uses the table-level completed snapshot day from `date_trunc('day', max(last_updated) - interval '1' hour)` instead of latest-per-token/chain rows, so old nonzero balances are not resurrected after a zero-balance day. Use `include_defi=true` or `source="protocol_holders_with_defi"` only when downstream/tracked DeFi holder exposure is explicitly requested. Direct protocol holder USD values are estimated with `dune.ether_fi.result_tokens_prices_enriched_daily` using `COALESCE(token_usd, token_usd_rate)` when coverage exists; AUM rows already include USD values and do not need a price join. Default summaries show token balances and USD values; token addresses and underlying/base-asset balances remain available in raw rows but should only be shown when explicitly requested or needed to disambiguate duplicate symbols. Planning mode does not execute Dune and must not be treated as verified live Cash-safe status or live balances.
+Legacy AUM lookup remains available through `get_assets_under_management_balances(address)` for explicit managed/internal/AUM workflows, but generic address balance prompts should use `get_etherfi_address_balances`.
 Top ether.fi Cash user ranking is available through `get_top_cash_users(as_of_date=None, limit=10, min_total_usd=None, token_symbol=None, token_address=None, blockchain=None, execute_live=false)`.
 Example Cash ranking prompts:
 
@@ -457,8 +459,11 @@ Example protocol-TVL time-series prompts:
 - "Show daily TVL history for liquidETH and eETH over the last 90 days."
 - "Compare liquidUSD vs eBTC TVL over time."
 
-Protocol token holder and wallet lookups are available through `get_protocol_token_holders(address=None, token_symbol=None, token_address=None, as_of_date=None, include_defi=false, exclude_identified_defi=false, mode="summary", limit=100, execute_live=false)`.
-Use `address` by itself for generic "how much does this wallet have in ether.fi?" prompts; add `token_symbol` or `token_address` only when the user asks for one token. The direct holder table returns token balances, not USD values, unless `include_defi=true` is explicitly requested for the broader tracked-DeFi exposure table.
+Protocol token holder rankings and explicit holder-source lookups are available through `get_protocol_token_holders(address=None, token_symbol=None, token_address=None, as_of_date=None, include_defi=false, exclude_identified_defi=false, mode="summary", limit=100, execute_live=false)`.
+Use this when the user explicitly asks for protocol holders, direct holders, top holders, or direct-vs-with-DeFi holder analysis. For address summaries, lead with token symbols, balances, and USD values; token addresses are raw/technical detail unless requested or needed for duplicate symbols. For generic address balance or investment prompts, prefer `get_etherfi_address_balances` so Cash-safe auto classification can run first.
+
+Protocol event summaries are available through `get_protocol_events(project=None, strategy_symbol=None, strategy_address=None, address=None, addresses=None, event_type=None, start_date=None, end_date=None, mode="summary", limit=100, execute_live=false)`.
+Use this when the user asks how much an address deposited, withdrew, or requested to withdraw from ether.fi. Historical deposit prompts should route to `get_protocol_events(event_type="deposit", address="0x...")`, not to current balance tools.
 
 Cash-safe profile lookup is available through `get_cash_safe_profile(address, as_of_date=None, recent_days=30, validate_cash_identity=false, execute_live=false)`.
 Cash-safe address validation is available through `check_cash_safe_address(address, blockchain=None, execute_live=false)`. Use this for explicit "is this address an ether.fi Cash safe?" prompts; it uses the public `dune.ether_fi.result_etherfi_cash_addresses` registry instead of private/internal protocol address tables.
@@ -479,6 +484,7 @@ with these tools:
 - `get_dashboard_status`
 - `get_catalog_health_summary`
 - `plan_etherfi_query`
+- `get_etherfi_address_balances`
 - `get_assets_under_management_balances`
 - `get_cash_holdings_timeseries`
 - `get_cash_safe_profile`
@@ -515,7 +521,7 @@ Example planning outputs to expect:
 - "Create a Dune query for weekly USDC Cash spend volume." -> Cash events, `event_type='spend'`, `token_symbol='USDC'`, weekly grain, bar chart, concise Cash-event query description.
 - "Is this address an ether.fi Cash safe? 0x..." -> public Cash-safe registry, `address=0x...`, one-row-per-blockchain validation scope.
 - "Show monthly TVL for eETH and liquidETH over the last year." -> protocol TVL time series, monthly grain, line chart with grouped-bar alternative, month-end snapshot description.
-- "How much does this address have in ether.fi? 0x..." -> protocol token holders, `address=0x...`, direct current holder snapshot, token-level breakdown.
+- "How much does this address have in ether.fi? 0x..." -> `get_etherfi_address_balances(source='auto')`, public Cash-safe registry check first, Cash safes to AUM, non-Cash addresses to protocol holders, token-level breakdown.
 - "Create a query for the top 100 ether.fi protocol token holders today." -> holder datasets plus direct-vs-`with_defi` ambiguity, `identified_defi_contract` caveat, table or horizontal-bar recommendation.
 - "Build a shareable dashboard view for monthly Cash balances by category." -> Cash AUM balances, `cash_balance_buckets` category preset, grouped/stacked bar guidance, dashboard description.
 - "How much of liquidUSD is held in Aave?" -> AUM deployment footprint, `parent_symbol='liquidUSD'`, `token_project='Aave'`, net lending treatment using `secondary_trait`.
@@ -545,11 +551,17 @@ Example Cash workflow prompts:
 - "Validate this user_safe against the public Cash-safe registry."
 - "What does user_safe mean in ether.fi Cash events?"
 
-Example holder workflow prompts:
+Example address-balance workflow prompts:
 
 - "How much does this address have in ether.fi? 0x..."
 - "How much has 0x... invested in ether.fi?"
 - "What ether.fi tokens does 0x... hold?"
+- "Show ether.fi balances for 0x... and 0x..."
+- "Show only eETH and weETH balances for 0x..."
+- "What were the ether.fi balances for 0x... as of 2026-06-30?"
+
+Example holder workflow prompts:
+
 - "Show this address's direct eETH balance in ether.fi."
 - "Who are the top eETH holders today?"
 - "Show the top eETH holders including DeFi exposure."
@@ -559,6 +571,8 @@ Example holder workflow prompts:
 Example protocol-event workflow prompts:
 
 - "Show recent eETH protocol deposits."
+- "How much did 0x... deposit into ether.fi?"
+- "Show deposits for these two addresses."
 - "Summarize withdrawal requests for liquidETH."
 - "Show recent protocol activity for this strategy."
 - "Should I filter protocol events by project or strategy_symbol?"
