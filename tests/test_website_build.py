@@ -809,7 +809,8 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert 'href="../datasets/protocol_token_holders.html"' in eeth_staking_page
     assert 'href="../datasets/protocol_token_holders_with_defi.html"' in eeth_staking_page
     assert 'href="../datasets/tokens_transfers.html"' in eeth_staking_page
-    assert "decoded contract calls and events" not in eeth_staking_page
+    assert '<section class="detail-panel dataset-detail-section dashboard-notes-panel">' in eeth_staking_page
+    assert "decoded contract calls and events" in eeth_staking_page
 
     weeth_l2s_page = (tmp_path / "dashboards" / "weeth_l2s.html").read_text(
         encoding="utf-8"
@@ -820,7 +821,7 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert 'href="../datasets/protocol_token_holders.html"' in weeth_l2s_page
     assert 'href="../datasets/lrts_restaking_dex_pools_balances.html"' in weeth_l2s_page
     assert 'href="../datasets/lrts_restaking_trades.html"' in weeth_l2s_page
-    assert "prices.usd" not in weeth_l2s_page
+    assert "prices.usd" in weeth_l2s_page
 
     weeth_utilization_page = (
         tmp_path / "dashboards" / "weeth_utilization.html"
@@ -831,8 +832,8 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert 'href="../datasets/protocol_token_holders.html"' in weeth_utilization_page
     assert 'href="../datasets/tokens_prices_tokens_list.html"' in weeth_utilization_page
     assert 'href="../datasets/tokens_transfers.html"' in weeth_utilization_page
-    assert "bridge contracts" not in weeth_utilization_page
-    assert "prices.usd" not in weeth_utilization_page
+    assert "bridge contracts" in weeth_utilization_page
+    assert "prices.usd" in weeth_utilization_page
 
     liquid_vaults_page = (tmp_path / "dashboards" / "liquid_vaults.html").read_text(
         encoding="utf-8"
@@ -842,7 +843,7 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert 'href="../datasets/etherfi_protocol_token_tvl.html"' in liquid_vaults_page
     assert 'href="../datasets/protocol_token_holders_with_defi.html"' in liquid_vaults_page
     assert 'href="../datasets/tokens_rates_oracle_pegs.html"' in liquid_vaults_page
-    assert "boringonchainqueue" not in liquid_vaults_page.lower()
+    assert "boringonchainqueue" in liquid_vaults_page.lower()
 
     related_liquid_vaults = [
         "ebtc",
@@ -866,7 +867,7 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
         assert 'class="dashboard-category-chip liquid"' in dashboard_page
         assert 'href="../datasets/etherfi_protocol_token_tvl.html"' in dashboard_page
         assert 'href="../datasets/protocol_token_holders_with_defi.html"' in dashboard_page
-        assert "BoringOnChainQueue" not in dashboard_page
+        assert "BoringOnChainQueue" in dashboard_page
 
     cash_page = (tmp_path / "dashboards" / "etherfi_cash.html").read_text(
         encoding="utf-8"

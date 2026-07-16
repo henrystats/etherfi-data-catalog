@@ -1065,10 +1065,13 @@ DUNE_API_KEY = "your_dune_api_key_here"
     )
 
 
-def render_home_preview_card(title: str, description: str, href: str, label: str) -> str:
+def render_home_preview_card(
+    title: str, description: str, href: str, label: str, index: int
+) -> str:
     return (
         '<article class="home-preview-card">'
         "<div>"
+        f'<span class="home-route-index" aria-hidden="true">0{index}</span>'
         f"<h2>{escape(title)}</h2>"
         f"<p>{escape(description)}</p>"
         "</div>"
@@ -1112,24 +1115,28 @@ def render_home_page(
                 "Find cataloged tables and open schema/freshness details.",
                 "datasets.html",
                 "Explore datasets",
+                1,
             ),
             render_home_preview_card(
                 "Dashboards",
                 "Find existing Dune dashboards before building new views.",
                 "dashboards.html",
                 "View dashboards",
+                2,
             ),
             render_home_preview_card(
                 "Freshness",
                 "Check dataset freshness and source query links.",
                 "freshness.html",
                 "Check freshness",
+                3,
             ),
             render_home_preview_card(
                 "MCP",
                 "Set up the catalog MCP alongside Dune MCP.",
                 "mcp.html",
                 "Learn about MCP",
+                4,
             ),
         ]
     )
@@ -1178,6 +1185,23 @@ def render_freshness_page(
     ]
     rows = sorted(rows, key=freshness_sort_key)
 
+    summary_counts = {status: 0 for status in ("fresh", "delayed", "stale", "unknown")}
+    for row in rows:
+        display_status, _ = freshness_display_status(row)
+        summary_counts[display_status] = summary_counts.get(display_status, 0) + 1
+
+    summary_cards = "".join(
+        f'<div class="freshness-summary-item {escape(status)}">'
+        f'<span>{escape(label)}</span><strong>{summary_counts.get(status, 0)}</strong>'
+        "</div>"
+        for status, label in [
+            ("fresh", "Fresh"),
+            ("delayed", "Delayed"),
+            ("stale", "Stale"),
+            ("unknown", "Unknown"),
+        ]
+    )
+
     hero = (
         '<section class="freshness-hero detail-panel">'
         '<div>'
@@ -1185,6 +1209,7 @@ def render_freshness_page(
         "<h1>Freshness</h1>"
         "<p>Search cataloged ether.fi datasets and check whether each one is fresh enough for reporting, dashboards, or agent-assisted Dune queries.</p>"
         "</div>"
+        f'<div class="freshness-summary" aria-label="Freshness summary">{summary_cards}</div>'
         "</section>"
     )
 
@@ -2387,6 +2412,15 @@ def render_dashboard_page(
         if url
         else f'<span class="missing">{NOT_DOCUMENTED}</span>'
     )
+    notes = data.get("notes")
+    notes_section = (
+        '<section class="detail-panel dataset-detail-section dashboard-notes-panel">'
+        "<h2>Notes</h2>"
+        f"{render_metadata_list(notes)}"
+        "</section>"
+        if notes
+        else ""
+    )
 
     return (
         '<section class="page dashboard-detail-page">'
@@ -2408,6 +2442,7 @@ def render_dashboard_page(
         f"{render_tag_list(data.get('tags'))}"
         "</section>"
         f"{linked_section}"
+        f"{notes_section}"
         "</div>"
         "</section>"
     )
