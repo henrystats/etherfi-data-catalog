@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#f4f6f1">
     <meta name="description" content="$description">
     <title>$title | ether.fi Data Catalog</title>
-    <link rel="stylesheet" href="${asset_prefix}assets/styles.css">
+    <link rel="stylesheet" href="${asset_prefix}assets/styles.css?v=$styles_version">
   </head>
   <body class="$body_class">
     <a class="skip-link" href="#main-content">Skip to content</a>

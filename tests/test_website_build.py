@@ -49,6 +49,8 @@ def test_build_website_outputs_core_pages(tmp_path):
     assert (tmp_path / "assets" / "styles.css").exists()
 
     index_html = (tmp_path / "index.html").read_text(encoding="utf-8")
+    assert 'href="assets/styles.css?v=' in index_html
+    assert 'class="nav-link active" href="index.html" aria-current="page"' in index_html
     assert 'data-home-page' in index_html
     assert '<span class="brand-mark">ether.fi</span>' in index_html
     assert '<span class="brand-mark">e.fi</span>' not in index_html
@@ -273,6 +275,8 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     holder_page = (tmp_path / "datasets" / "protocol_token_holders.html").read_text(encoding="utf-8")
     css = (tmp_path / "assets" / "styles.css").read_text(encoding="utf-8")
     assert "../assets/styles.css" in holder_page
+    assert '../assets/styles.css?v=' in holder_page
+    assert 'class="nav-link active" href="../datasets.html" aria-current="page"' in holder_page
     assert "Back to datasets" in holder_page
     assert "At a glance" in holder_page
     assert "dataset-detail-hero-meta" in holder_page
@@ -1723,5 +1727,6 @@ def test_generated_website_local_links_resolve(tmp_path):
         for href in re.findall(r'href="([^"]+)"', html):
             if href.startswith(("http://", "https://", "mailto:", "#")):
                 continue
-            target = (html_file.parent / href.split("#", 1)[0]).resolve()
+            local_href = href.split("#", 1)[0].split("?", 1)[0]
+            target = (html_file.parent / local_href).resolve()
             assert target.exists(), f"{html_file.relative_to(tmp_path)} links to missing {href}"

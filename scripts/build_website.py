@@ -209,9 +209,10 @@ def render_nav(pages: list[Page], active_slug: str, link_prefix: str = "") -> st
     links = []
     for page in pages:
         active = " active" if page.slug == active_slug else ""
+        current = ' aria-current="page"' if page.slug == active_slug else ""
         href = f"{link_prefix}{page.output_name}"
         links.append(
-            f'<a class="nav-link{active}" href="{href}">{escape(page.nav_label)}</a>'
+            f'<a class="nav-link{active}" href="{href}"{current}>{escape(page.nav_label)}</a>'
         )
     return "\n".join(links)
 
@@ -2044,9 +2045,10 @@ def render_dataset_page(
     display_status, _ = freshness_display_status(row)
     source_href = dataset_source_query_href(data)
     source_button = (
-        f'<a class="dune-action" href="{escape(source_href)}">Dune</a>'
+        f'<a class="dune-action detail-dune-action" href="{escape(source_href)}" '
+        f'aria-label="Open the source query for {escape(title)} on Dune">Open in Dune</a>'
         if source_href
-        else '<span class="dune-action disabled" aria-disabled="true">Dune</span>'
+        else '<span class="dune-action detail-dune-action disabled" aria-disabled="true">No Dune source</span>'
     )
     table_name = data.get("table_name") or data.get("name")
     summary_text = dataset_summary_text(entry)
@@ -2408,7 +2410,8 @@ def render_dashboard_page(
     )
 
     dashboard_link = (
-        f'<a class="dune-action" href="{escape(str(url))}">Dune</a>'
+        f'<a class="dune-action detail-dune-action" href="{escape(str(url))}" '
+        f'aria-label="Open {escape(title)} on Dune">Open in Dune</a>'
         if url
         else f'<span class="missing">{NOT_DOCUMENTED}</span>'
     )
@@ -2667,7 +2670,9 @@ def build_site(
     output_dir = Path(output_dir)
     use_generated_catalog_pages = source_dir.resolve() == DEFAULT_SOURCE_DIR.resolve()
     pages = load_pages(source_dir)
-    template = Template((source_dir / "templates" / "base.html.tpl").read_text(encoding="utf-8"))
+    styles_version = asset_cache_version(source_dir / "assets" / "styles.css")
+    template_source = (source_dir / "templates" / "base.html.tpl").read_text(encoding="utf-8")
+    template = Template(Template(template_source).safe_substitute(styles_version=styles_version))
     dataset_entries = load_dataset_entries(Path(datasets_dir)) if datasets_dir is not None else []
     dashboard_entries = (
         load_dashboard_entries(Path(dashboard_registry_path))
