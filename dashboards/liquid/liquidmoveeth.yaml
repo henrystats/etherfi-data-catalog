@@ -1,0 +1,25 @@
+name: liquidmoveeth
+title: Liquid Move ETH Vault
+url: https://dune.com/ether_fi/liquidmoveeth
+category: liquid
+description: Overview of the Liquid Move ETH vault, including TVL, deposits, holders, withdrawals, requests, APR estimates, and netflows.
+tags:
+  - liquid
+  - vaults
+  - tvl
+  - deposits
+  - withdrawals
+  - withdrawal-requests
+  - holders
+  - apr
+  - netflows
+  - move
+  - eth
+datasets:
+  - dune.ether_fi.result_etherfi_protocol_token_tvl
+  - dune.ether_fi.result_etherfi_protocol_events
+  - dune.ether_fi.result_etherfi_protocol_token_holders_with_defi
+  - dune.ether_fi.result_tokens_rates_oracle_pegs
+  - dune.ether_fi.result_etherfi_assets_under_management
+notes:
+  - This dashboard may also use Veda vault metadata and raw BoringOnChainQueue request, solve, and cancel event tables outside the current catalog.

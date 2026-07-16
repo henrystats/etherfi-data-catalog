@@ -12,6 +12,9 @@ _SEARCH_STOPWORDS = {
     "an",
     "and",
     "are",
+    "by",
+    "dashboard",
+    "dashboards",
     "for",
     "from",
     "how",
@@ -29,6 +32,7 @@ _SEARCH_STOPWORDS = {
     "to",
     "with",
     "why",
+    "where",
 }
 
 _DASHBOARD_CATEGORY_ORDER = {
@@ -127,6 +131,10 @@ def _search_terms(text: str) -> list[str]:
     for term in re.findall(r"[a-z0-9_]+", text.lower()):
         if term in _SEARCH_STOPWORDS:
             continue
+        if term == "held":
+            term = "holder"
+        elif term in {"usage", "used"}:
+            term = "utilization"
         if len(term) > 3 and term.endswith("ing"):
             term = term[:-3]
         elif len(term) > 3 and term.endswith("s"):
@@ -771,6 +779,7 @@ def search_dashboards(query, registry=None, datasets=None, freshness_registry=No
     datasets = datasets or load_datasets()
     dashboards = registry.get("dashboards", [])
     query_text = query.lower()
+    query_terms = _search_terms(query_text)
     matches: list[dict] = []
 
     for dashboard in dashboards:
@@ -780,11 +789,16 @@ def search_dashboards(query, registry=None, datasets=None, freshness_registry=No
             dashboard.get("category", ""),
             dashboard.get("description", ""),
             dashboard.get("url", ""),
+            dashboard.get("notes", []),
         ]
         searchable_values.extend(dashboard.get("tags", []))
         searchable_values.extend(dashboard.get("datasets", []))
 
-        if any(query_text in str(value).lower() for value in searchable_values):
+        searchable_text = " ".join(str(value).lower() for value in searchable_values)
+        searchable_terms = set(_search_terms(searchable_text))
+        if query_text in searchable_text or (
+            query_terms and all(term in searchable_terms for term in query_terms)
+        ):
             details = dict(dashboard)
             linked_dataset_warnings: list[dict] = []
 

@@ -2171,6 +2171,8 @@ def dashboard_search_text(
         data.get("description"),
         data.get("url"),
         data.get("tags"),
+        data.get("notes"),
+        "dashboard",
         "core" if dashboard_is_core(entry) else "",
         dashboard_linked_dataset_values(data.get("datasets") or [], dataset_reference_index),
     ]

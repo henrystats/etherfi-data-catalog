@@ -1,0 +1,26 @@
+name: weeth_l2s
+title: weETH on L2s + BNB
+url: https://dune.com/ether_fi/weeth-l2s
+category: stake
+description: Overview of weETH across L2 chains and BNB Chain, including chain-level supply, DEX volume, DeFi utilization, holder distribution, and exchange-rate comparisons.
+tags:
+  - weeth
+  - l2
+  - bnb
+  - stake
+  - staking
+  - supply
+  - holders
+  - defi
+  - dex-volume
+  - exchange-rates
+  - chain-breakdown
+  - cross-chain
+datasets:
+  - dune.ether_fi.result_etherfi_protocol_token_holders
+  - dune.ether_fi.result_etherfi_protocol_token_tvl
+  - dune.ether_fi.result_lrts_restaking_dex_pools_balances
+  - dune.ether_fi.result_lrts_restaking_trades
+  - dune.ether_fi.result_addresses_traits
+notes:
+  - The dashboard also uses Dune's `prices.usd` table outside the current catalog.

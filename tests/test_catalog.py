@@ -1210,6 +1210,108 @@ def test_default_dashboard_registry_loads_etherfi_cash_from_cash_category():
     assert "dune.ether_fi.result_etherfi_cash_events" in dashboards["etherfi_cash"]["datasets"]
 
 
+def test_default_dashboard_registry_loads_eeth_staking_from_stake_category():
+    dashboards = {
+        dashboard["name"]: dashboard
+        for dashboard in load_dashboard_registry().get("dashboards", [])
+    }
+
+    dashboard = dashboards["eeth_staking"]
+    assert dashboard["title"] == "eETH Staking"
+    assert dashboard["category"] == "stake"
+    assert dashboard["url"] == "https://dune.com/ether_fi/eeth-staking"
+    assert "weeth" in dashboard["tags"]
+    assert "dune.ether_fi.result_etherfi_protocol_token_holders_with_defi" in dashboard["datasets"]
+    assert "decoded contract calls and events" in dashboard["notes"][0]
+
+
+def test_default_dashboard_registry_loads_weeth_l2s_from_stake_category():
+    dashboards = {
+        dashboard["name"]: dashboard
+        for dashboard in load_dashboard_registry().get("dashboards", [])
+    }
+
+    dashboard = dashboards["weeth_l2s"]
+    assert dashboard["title"] == "weETH on L2s + BNB"
+    assert dashboard["category"] == "stake"
+    assert dashboard["url"] == "https://dune.com/ether_fi/weeth-l2s"
+    assert "chain-breakdown" in dashboard["tags"]
+    assert "dune.ether_fi.result_lrts_restaking_dex_pools_balances" in dashboard["datasets"]
+    assert "prices.usd" in dashboard["notes"][0]
+
+
+def test_default_dashboard_registry_loads_weeth_utilization_from_stake_category():
+    dashboards = {
+        dashboard["name"]: dashboard
+        for dashboard in load_dashboard_registry().get("dashboards", [])
+    }
+
+    dashboard = dashboards["weeth_utilization"]
+    assert dashboard["title"] == "weETH Utilization"
+    assert dashboard["category"] == "stake"
+    assert dashboard["url"] == "https://dune.com/ether_fi/weeth-utilization"
+    assert "integrations" in dashboard["tags"]
+    assert dashboard["datasets"].count("dune.ether_fi.result_etherfi_protocol_token_tvl") == 1
+    assert "dune.ether_fi.result_tokens_prices_tokens_list" in dashboard["datasets"]
+    assert "eETH supply measured in weETH terms" in dashboard["notes"][0]
+    assert "fixed chain list" in dashboard["notes"][1]
+    assert "bridge contracts" in dashboard["notes"][2]
+    assert "prices.usd" in dashboard["notes"][3]
+
+
+def test_default_dashboard_registry_loads_liquid_vaults_from_liquid_category():
+    dashboards = {
+        dashboard["name"]: dashboard
+        for dashboard in load_dashboard_registry().get("dashboards", [])
+    }
+
+    dashboard = dashboards["liquid_vaults"]
+    assert dashboard["title"] == "Liquid Vaults"
+    assert dashboard["category"] == "liquid"
+    assert dashboard["url"] == "https://dune.com/ether_fi/liquid-vaults"
+    assert "netflows" in dashboard["tags"]
+    assert "dune.ether_fi.result_tokens_rates_oracle_pegs" in dashboard["datasets"]
+    assert "appears truncated" in dashboard["notes"][1]
+
+
+@pytest.mark.parametrize(
+    ("name", "title", "product_tag"),
+    [
+        ("ebtc", "eBTC LRT Vault", "ebtc"),
+        ("weeths", "weETHs LRT Vault", "weeths"),
+        ("weethk", "weETHk LRT Vault", "weethk"),
+        ("liquidberabtc", "The Bera BTC Vault", "bera"),
+        ("liquidberaeth", "The Bera ETH Vault", "bera"),
+        ("liquidusd", "Liquid USD Vault", "usd"),
+        ("liquidbtc", "Liquid BTC Vault", "btc"),
+        ("ultrausd", "UltraYield Stablecoin Vault", "stablecoin"),
+        ("liquidmoveeth", "Liquid Move ETH Vault", "move"),
+        ("liquidkatanaeth", "Liquid Katana ETH Vault", "katana"),
+        ("liquideth", "Liquid ETH Vault", "eth"),
+        ("liquidrwa", "Liquid RWA Vault", "rwa"),
+    ],
+)
+def test_default_dashboard_registry_loads_related_liquid_vaults(name, title, product_tag):
+    dashboards = {
+        dashboard["name"]: dashboard
+        for dashboard in load_dashboard_registry().get("dashboards", [])
+    }
+
+    dashboard = dashboards[name]
+    assert dashboard["title"] == title
+    assert dashboard["category"] == "liquid"
+    assert dashboard["url"] == f"https://dune.com/ether_fi/{name}"
+    assert product_tag in dashboard["tags"]
+    assert dashboard["datasets"] == [
+        "dune.ether_fi.result_etherfi_protocol_token_tvl",
+        "dune.ether_fi.result_etherfi_protocol_events",
+        "dune.ether_fi.result_etherfi_protocol_token_holders_with_defi",
+        "dune.ether_fi.result_tokens_rates_oracle_pegs",
+        "dune.ether_fi.result_etherfi_assets_under_management",
+    ]
+    assert "BoringOnChainQueue" in dashboard["notes"][0]
+
+
 def test_search_dashboards_includes_linked_dataset_warnings_for_stale_datasets():
     last_updated = datetime(2026, 1, 1, 0, 0, 0)
     results = search_dashboards(
@@ -1292,8 +1394,116 @@ def test_search_dashboards_finds_etherfi_overview_by_name_and_dataset():
     name_results = search_dashboards("etherfi")
     dataset_results = search_dashboards("result_etherfi_protocol_token_holders")
 
-    assert [dashboard["name"] for dashboard in name_results] == ["etherfi_overview", "etherfi_cash"]
-    assert [dashboard["name"] for dashboard in dataset_results] == ["etherfi_overview"]
+    assert "etherfi_overview" in [dashboard["name"] for dashboard in name_results]
+    assert "etherfi_overview" in [dashboard["name"] for dashboard in dataset_results]
+
+
+@pytest.mark.parametrize(
+    "prompt",
+    [
+        "eETH staking dashboard",
+        "weETH holders dashboard",
+        "staking TVL dashboard",
+        "eETH APR dashboard",
+        "withdrawals dashboard",
+        "peg dashboard",
+        "DeFi utilization for eETH",
+    ],
+)
+def test_search_dashboards_finds_eeth_staking_from_natural_prompts(prompt):
+    results = search_dashboards(prompt)
+
+    assert "eeth_staking" in [dashboard["name"] for dashboard in results]
+
+
+@pytest.mark.parametrize(
+    "prompt",
+    [
+        "weETH on L2s",
+        "weETH BNB dashboard",
+        "weETH supply by chain",
+        "weETH DEX volume by chain",
+        "weETH DeFi utilization",
+        "where is weETH held on L2s",
+        "weETH exchange rates comparison",
+        "cross-chain weETH dashboard",
+    ],
+)
+def test_search_dashboards_finds_weeth_l2s_from_natural_prompts(prompt):
+    results = search_dashboards(prompt)
+
+    assert "weeth_l2s" in [dashboard["name"] for dashboard in results]
+
+
+@pytest.mark.parametrize(
+    "prompt",
+    [
+        "weETH utilization",
+        "weETH DeFi dashboard",
+        "where is weETH used",
+        "weETH supply share",
+        "weETH integrations",
+        "weETH across DeFi protocols",
+        "cross-chain weETH utilization",
+        "weETH holder distribution",
+        "weETH bridge contracts excluded",
+        "weETH supply measured in eETH terms",
+    ],
+)
+def test_search_dashboards_finds_weeth_utilization_from_natural_prompts(prompt):
+    results = search_dashboards(prompt)
+
+    assert "weeth_utilization" in [dashboard["name"] for dashboard in results]
+
+
+@pytest.mark.parametrize(
+    "prompt",
+    [
+        "Liquid Vaults dashboard",
+        "ether.fi Liquid dashboard",
+        "Liquid TVL",
+        "Liquid deposits and withdrawals",
+        "Liquid withdrawal requests",
+        "Liquid Vault APR",
+        "Liquid netflows",
+        "vault holders dashboard",
+    ],
+)
+def test_search_dashboards_finds_liquid_vaults_from_natural_prompts(prompt):
+    results = search_dashboards(prompt)
+
+    assert "liquid_vaults" in [dashboard["name"] for dashboard in results]
+
+
+@pytest.mark.parametrize(
+    ("prompt", "expected_name"),
+    [
+        ("eBTC vault dashboard", "ebtc"),
+        ("weETHs vault", "weeths"),
+        ("weETHk dashboard", "weethk"),
+        ("Bera BTC vault", "liquidberabtc"),
+        ("Bera ETH vault", "liquidberaeth"),
+        ("Liquid USD", "liquidusd"),
+        ("Liquid BTC", "liquidbtc"),
+        ("UltraYield Stablecoin Vault", "ultrausd"),
+        ("Liquid Move ETH", "liquidmoveeth"),
+        ("Liquid Katana ETH", "liquidkatanaeth"),
+        ("Liquid ETH Vault", "liquideth"),
+        ("Liquid RWA", "liquidrwa"),
+    ],
+)
+def test_search_dashboards_finds_related_liquid_vaults(prompt, expected_name):
+    results = search_dashboards(prompt)
+
+    assert expected_name in [dashboard["name"] for dashboard in results]
+
+
+@pytest.mark.parametrize("prompt", ["vault APR dashboard", "Liquid vault withdrawals"])
+def test_search_dashboards_finds_liquid_vault_family(prompt):
+    results = search_dashboards(prompt)
+    names = {dashboard["name"] for dashboard in results}
+
+    assert {"liquid_vaults", "ebtc", "liquidusd", "liquideth"} <= names
 
 
 def test_get_dashboard_details_returns_etherfi_overview():

@@ -101,6 +101,10 @@ def test_build_website_outputs_core_pages(tmp_path):
     assert len(dataset_pages) == len(dataset_entries)
     assert (tmp_path / "dashboards" / "etherfi_overview.html").exists()
     assert (tmp_path / "dashboards" / "etherfi_cash.html").exists()
+    assert (tmp_path / "dashboards" / "eeth_staking.html").exists()
+    assert (tmp_path / "dashboards" / "weeth_l2s.html").exists()
+    assert (tmp_path / "dashboards" / "weeth_utilization.html").exists()
+    assert (tmp_path / "dashboards" / "liquid_vaults.html").exists()
 
     freshness_html = (tmp_path / "freshness.html").read_text(encoding="utf-8")
     assert '<span class="brand-mark">ether.fi</span>' in freshness_html
@@ -733,12 +737,24 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert "Core contains the top dashboards" in dashboard_index
     assert "ether.fi" in dashboard_index
     assert "ether.fi Cash" in dashboard_index
+    assert "eETH Staking" in dashboard_index
+    assert "weETH on L2s + BNB" in dashboard_index
+    assert "weETH Utilization" in dashboard_index
+    assert "Liquid Vaults" in dashboard_index
     assert dashboard_index.count('href="dashboards/etherfi_overview.html"') >= 2
     assert dashboard_index.count('href="dashboards/etherfi_cash.html"') >= 2
     assert 'href="dashboards/etherfi_overview.html"' in dashboard_index
     assert 'href="dashboards/etherfi_cash.html"' in dashboard_index
+    assert 'href="dashboards/eeth_staking.html"' in dashboard_index
+    assert 'href="dashboards/weeth_l2s.html"' in dashboard_index
+    assert 'href="dashboards/weeth_utilization.html"' in dashboard_index
+    assert 'href="dashboards/liquid_vaults.html"' in dashboard_index
     assert 'href="https://dune.com/ether_fi/etherfi"' in dashboard_index
     assert 'href="https://dune.com/ether_fi/etherfi-cash"' in dashboard_index
+    assert 'href="https://dune.com/ether_fi/eeth-staking"' in dashboard_index
+    assert 'href="https://dune.com/ether_fi/weeth-l2s"' in dashboard_index
+    assert 'href="https://dune.com/ether_fi/weeth-utilization"' in dashboard_index
+    assert 'href="https://dune.com/ether_fi/liquid-vaults"' in dashboard_index
     assert 'data-dashboard-card' in dashboard_index
     assert 'data-dashboard-core-card' in dashboard_index
     assert 'data-search=' in dashboard_index
@@ -784,6 +800,73 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert "dashboards/stake/etherfi_overview.yaml" not in overview_page
     assert "Use this dashboard if" not in overview_page
     assert "dashboards/registry.yaml" not in overview_page
+
+    eeth_staking_page = (tmp_path / "dashboards" / "eeth_staking.html").read_text(
+        encoding="utf-8"
+    )
+    assert "eETH Staking" in eeth_staking_page
+    assert "Core eETH and weETH staking dashboard" in eeth_staking_page
+    assert 'href="../datasets/protocol_token_holders.html"' in eeth_staking_page
+    assert 'href="../datasets/protocol_token_holders_with_defi.html"' in eeth_staking_page
+    assert 'href="../datasets/tokens_transfers.html"' in eeth_staking_page
+    assert "decoded contract calls and events" not in eeth_staking_page
+
+    weeth_l2s_page = (tmp_path / "dashboards" / "weeth_l2s.html").read_text(
+        encoding="utf-8"
+    )
+    assert "weETH on L2s + BNB" in weeth_l2s_page
+    assert "Overview of weETH across L2 chains and BNB Chain" in weeth_l2s_page
+    assert 'class="dashboard-category-chip stake"' in weeth_l2s_page
+    assert 'href="../datasets/protocol_token_holders.html"' in weeth_l2s_page
+    assert 'href="../datasets/lrts_restaking_dex_pools_balances.html"' in weeth_l2s_page
+    assert 'href="../datasets/lrts_restaking_trades.html"' in weeth_l2s_page
+    assert "prices.usd" not in weeth_l2s_page
+
+    weeth_utilization_page = (
+        tmp_path / "dashboards" / "weeth_utilization.html"
+    ).read_text(encoding="utf-8")
+    assert "weETH Utilization" in weeth_utilization_page
+    assert "Overview of weETH utilization across DeFi protocols" in weeth_utilization_page
+    assert 'class="dashboard-category-chip stake"' in weeth_utilization_page
+    assert 'href="../datasets/protocol_token_holders.html"' in weeth_utilization_page
+    assert 'href="../datasets/tokens_prices_tokens_list.html"' in weeth_utilization_page
+    assert 'href="../datasets/tokens_transfers.html"' in weeth_utilization_page
+    assert "bridge contracts" not in weeth_utilization_page
+    assert "prices.usd" not in weeth_utilization_page
+
+    liquid_vaults_page = (tmp_path / "dashboards" / "liquid_vaults.html").read_text(
+        encoding="utf-8"
+    )
+    assert "Liquid Vaults" in liquid_vaults_page
+    assert "Overview of ether.fi Liquid Vaults" in liquid_vaults_page
+    assert 'href="../datasets/etherfi_protocol_token_tvl.html"' in liquid_vaults_page
+    assert 'href="../datasets/protocol_token_holders_with_defi.html"' in liquid_vaults_page
+    assert 'href="../datasets/tokens_rates_oracle_pegs.html"' in liquid_vaults_page
+    assert "boringonchainqueue" not in liquid_vaults_page.lower()
+
+    related_liquid_vaults = [
+        "ebtc",
+        "weeths",
+        "weethk",
+        "liquidberabtc",
+        "liquidberaeth",
+        "liquidusd",
+        "liquidbtc",
+        "ultrausd",
+        "liquidmoveeth",
+        "liquidkatanaeth",
+        "liquideth",
+        "liquidrwa",
+    ]
+    for dashboard_name in related_liquid_vaults:
+        assert f'href="dashboards/{dashboard_name}.html"' in dashboard_index
+        dashboard_page = (tmp_path / "dashboards" / f"{dashboard_name}.html").read_text(
+            encoding="utf-8"
+        )
+        assert 'class="dashboard-category-chip liquid"' in dashboard_page
+        assert 'href="../datasets/etherfi_protocol_token_tvl.html"' in dashboard_page
+        assert 'href="../datasets/protocol_token_holders_with_defi.html"' in dashboard_page
+        assert "BoringOnChainQueue" not in dashboard_page
 
     cash_page = (tmp_path / "dashboards" / "etherfi_cash.html").read_text(
         encoding="utf-8"

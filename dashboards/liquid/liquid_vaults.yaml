@@ -1,0 +1,25 @@
+name: liquid_vaults
+title: Liquid Vaults
+url: https://dune.com/ether_fi/liquid-vaults
+category: liquid
+description: Overview of ether.fi Liquid Vaults, including TVL, deposits, users, active holders, withdrawals, withdrawal requests, estimated APRs, and netflows.
+tags:
+  - liquid
+  - vaults
+  - tvl
+  - deposits
+  - withdrawals
+  - withdrawal-requests
+  - holders
+  - users
+  - apr
+  - netflows
+datasets:
+  - dune.ether_fi.result_etherfi_protocol_token_tvl
+  - dune.ether_fi.result_etherfi_protocol_events
+  - dune.ether_fi.result_etherfi_protocol_token_holders_with_defi
+  - dune.ether_fi.result_tokens_rates_oracle_pegs
+  - dune.ether_fi.result_etherfi_assets_under_management
+notes:
+  - The dashboard also uses Veda vault metadata and raw BoringOnChainQueue withdrawal request, solve, and cancellation events outside this catalog.
+  - The copied source `veda_optimism.boringonchainqueue_evt_oncchain` appears truncated and should be verified before it is documented as a full table name.
