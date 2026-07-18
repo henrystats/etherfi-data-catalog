@@ -3004,6 +3004,13 @@ pre {
 }
 
 .code-snippet code {
+  display: block;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+  overflow-wrap: normal;
   white-space: pre-wrap;
 }
 
@@ -3560,7 +3567,7 @@ main {
 .button.primary::after,
 .dataset-detail-action::after {
   margin-left: 8px;
-  content: "\2197";
+  content: "\2192";
   font-size: 0.9em;
 }
 
@@ -3939,7 +3946,7 @@ main {
 .schema-table-toolbar {
   position: sticky;
   left: 0;
-  min-width: 620px;
+  min-width: 680px;
   padding: 13px 16px;
 }
 
@@ -4146,7 +4153,7 @@ a:focus-visible,
 button:focus-visible,
 input:focus-visible,
 [tabindex]:focus-visible {
-  outline: 3px solid rgba(40, 166, 106, 0.35);
+  outline: 3px solid var(--accent-deep);
   outline-offset: 3px;
 }
 
@@ -4259,6 +4266,11 @@ input:focus-visible,
   .dataset-browser-card,
   .dashboard-browser-card {
     padding: 17px;
+  }
+
+  .dataset-browser-card {
+    grid-template-columns: 1fr;
+    align-items: start;
   }
 
   .dataset-card-side,
@@ -4716,6 +4728,13 @@ body {
   box-shadow: var(--shadow-sm);
 }
 
+.dataset-browser-card:focus-within,
+.dashboard-browser-card:focus-within,
+.registry-card:focus-within {
+  border-color: rgba(23, 111, 73, 0.42);
+  box-shadow: 0 0 0 2px rgba(23, 111, 73, 0.14), var(--shadow-sm);
+}
+
 .dataset-browser-card:hover .dataset-card-title,
 .dashboard-browser-card:hover .dashboard-card-title {
   color: var(--accent-deep);
@@ -4750,6 +4769,7 @@ body {
 
 /* Dashboard registry: compact two-column product cards on wide screens. */
 .dashboard-category-view {
+  --dashboard-group-accent: var(--accent);
   position: relative;
   overflow: hidden;
 }
@@ -4758,39 +4778,70 @@ body {
   position: absolute;
   inset: 0 0 auto;
   height: 4px;
-  background: var(--accent);
+  background: var(--dashboard-group-accent);
   content: "";
 }
 
-.dashboard-category-view[data-dashboard-group="cash"]::before {
-  background: var(--amber);
+.dashboard-category-view[data-dashboard-group="cash"] {
+  --dashboard-group-accent: var(--amber);
 }
 
-.dashboard-category-view[data-dashboard-group="liquid"]::before {
-  background: var(--cobalt);
+.dashboard-category-view[data-dashboard-group="liquid"] {
+  --dashboard-group-accent: var(--cobalt);
 }
 
-.dashboard-category-view[data-dashboard-group="others"]::before {
-  background: var(--unknown);
+.dashboard-category-view[data-dashboard-group="others"] {
+  --dashboard-group-accent: var(--unknown);
 }
 
 .dashboard-category-view[data-dashboard-group="core"]::before {
   background: linear-gradient(90deg, var(--lime), var(--accent), var(--cobalt));
 }
 
+.dashboard-category-view .dataset-view-heading {
+  align-items: flex-start;
+  padding-bottom: 19px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.dashboard-category-view .dataset-view-heading p {
+  max-width: 680px;
+}
+
 .dashboard-browser-list {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
   align-items: stretch;
-  gap: 14px;
+  gap: 16px;
 }
 
 .dashboard-browser-card {
+  position: relative;
+  overflow: hidden;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr auto;
   align-items: stretch;
   min-height: 260px;
   padding: 21px;
   background: var(--surface-raised);
+}
+
+.dashboard-browser-card::before {
+  position: absolute;
+  inset: 20px auto 20px 0;
+  width: 3px;
+  border-radius: 0 99px 99px 0;
+  background: var(--accent);
+  content: "";
+  opacity: 0.72;
+}
+
+.dashboard-browser-card:has(.dashboard-category-chip.cash)::before {
+  background: var(--amber);
+}
+
+.dashboard-browser-card:has(.dashboard-category-chip.liquid)::before {
+  background: var(--cobalt);
 }
 
 .dashboard-browser-card.featured {
@@ -4807,29 +4858,46 @@ body {
 }
 
 .dashboard-card-main {
+  grid-template-rows: auto auto 1fr auto;
   align-content: start;
   gap: 11px;
 }
 
 .dashboard-card-title {
+  min-height: 2.28em;
   margin-top: 8px;
   font-size: 21px;
   line-height: 1.14;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
 }
 
 .dashboard-card-description {
+  min-height: 4.5em;
+  line-height: 1.5;
   -webkit-line-clamp: 3;
 }
 
 .dashboard-card-side {
   min-width: 0;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-self: end;
   margin-top: 18px;
   padding-top: 15px;
   padding-left: 0;
   border-top: 1px solid var(--border-subtle);
   border-left: 0;
+}
+
+.dashboard-card-side .dune-action,
+.dashboard-card-side .dataset-detail-action {
+  min-height: 36px;
+}
+
+.dune-action:not(.disabled)::after {
+  margin-left: 6px;
+  content: "\2197";
+  font-size: 0.9em;
 }
 
 .dashboard-tag-row {
@@ -4962,15 +5030,17 @@ body {
 
 .related-resource {
   position: relative;
+  max-width: 100%;
   padding-right: 28px;
   box-shadow: var(--shadow-xs);
+  overflow-wrap: anywhere;
 }
 
 a.related-resource::after {
   position: absolute;
   top: 50%;
   right: 11px;
-  content: "\2197";
+  content: "\2192";
   font-size: 10px;
   transform: translateY(-50%);
 }
@@ -5207,6 +5277,16 @@ a.related-resource::after {
     box-shadow: var(--shadow-xs);
   }
 
+  .dashboard-browser-page .dataset-category-panel {
+    overscroll-behavior-inline: contain;
+    scroll-padding-inline: 17px;
+    scroll-snap-type: inline proximity;
+  }
+
+  .dashboard-browser-page .dataset-nav-button {
+    scroll-snap-align: start;
+  }
+
   .dataset-browser-toolbar .dataset-count {
     justify-self: start;
     width: fit-content;
@@ -5249,6 +5329,11 @@ a.related-resource::after {
 
   .dashboard-browser-card {
     min-height: 230px;
+  }
+
+  .dashboard-card-title,
+  .dashboard-card-description {
+    min-height: 0;
   }
 
   .dataset-detail-header::after {

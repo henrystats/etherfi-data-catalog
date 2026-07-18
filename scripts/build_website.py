@@ -1314,7 +1314,7 @@ def render_freshness_page(
         '<div class="filter-groups">'
         '<div class="filter-group">'
         '<span class="filter-group-label">Status</span>'
-        f'<div class="filter-chip-row" aria-label="Dataset status filters">{status_filter_buttons}</div>'
+        f'<div class="filter-chip-row" role="group" aria-label="Dataset status filters">{status_filter_buttons}</div>'
         "</div>"
         "</div>"
         "</section>"
@@ -1324,7 +1324,7 @@ def render_freshness_page(
         "<h2>Dataset registry</h2>"
         "<p>One card per generated catalog entry, with freshness, refresh cadence, source query, and dataset detail links.</p>"
         "</div>"
-        f'<span id="dataset-count" data-freshness-count>{len(rows)} shown</span>'
+        f'<span id="dataset-count" data-freshness-count role="status" aria-live="polite" aria-atomic="true">{len(rows)} shown</span>'
         "</div>"
         f'<div class="registry-list">{registry_html}</div>'
         '<div id="dataset-empty-state" class="freshness-empty-state" data-freshness-empty hidden>No datasets match your search.</div>'
@@ -1544,7 +1544,8 @@ def render_compact_dataset_card(
         )
     source_query_attr = f' data-source-query-id="{escape(str(query_id))}"' if query_id else ""
     source_link = (
-        f'<a class="dune-action" href="{escape(source_href)}">Dune</a>'
+        f'<a class="dune-action" href="{escape(source_href)}" '
+        f'aria-label="Open source Dune query for {escape(dataset_title(entry))}">Dune</a>'
         if source_href
         else '<span class="dune-action disabled" aria-disabled="true">Dune</span>'
     )
@@ -1561,7 +1562,8 @@ def render_compact_dataset_card(
         "</div>"
         '<div class="dataset-card-side">'
         f"{source_link}"
-        f'<a class="dataset-detail-action" href="{escape(dataset_href(entry))}">Details</a>'
+        f'<a class="dataset-detail-action" href="{escape(dataset_href(entry))}" '
+        f'aria-label="View {escape(dataset_title(entry))} dataset details">Details</a>'
         "</div>"
         "</article>"
     )
@@ -1662,7 +1664,7 @@ def render_dataset_index(
     return (
         '<section class="page dataset-browser-page" data-datasets-page>'
         '<div class="wrap dataset-browser-shell">'
-        '<aside class="dataset-category-panel">'
+        '<aside class="dataset-category-panel" aria-label="Dataset categories">'
         '<div class="dataset-category-panel-header">'
         "<span>Dataset categories</span>"
         "<strong>Catalog</strong>"
@@ -1675,7 +1677,7 @@ def render_dataset_index(
         '<label for="dataset-search">Search datasets</label>'
         '<input id="dataset-search" type="search" placeholder="Search by dataset, table name, column, category, or query ID..." data-dataset-search>'
         "</div>"
-        f'<span id="dataset-count" class="dataset-count">{len(entries)} datasets</span>'
+        f'<span id="dataset-count" class="dataset-count" role="status" aria-live="polite" aria-atomic="true">{len(entries)} datasets</span>'
         "</section>"
         '<section class="dataset-overview-view" data-dataset-overview>'
         '<div class="dataset-overview-copy">'
@@ -1830,13 +1832,13 @@ def render_schema_table(schema, important_columns=None) -> str:
             "</tr>"
         )
     return (
-        '<div class="schema-table-wrap">'
+        '<div class="schema-table-wrap" role="region" aria-label="Dataset schema" tabindex="0">'
         '<div class="schema-table-toolbar">'
         "<span>Columns</span>"
         f"<strong>{len(columns)}</strong>"
         "</div>"
         '<table class="schema-table">'
-        "<thead><tr><th>Column</th><th>Type</th><th>Description</th></tr></thead>"
+        '<thead><tr><th scope="col">Column</th><th scope="col">Type</th><th scope="col">Description</th></tr></thead>'
         f"<tbody>{''.join(rows)}</tbody>"
         "</table>"
         "</div>"
@@ -2211,15 +2213,30 @@ def dashboard_search_text(
     ).lower()
 
 
-def render_dashboard_tag_chips(tags, *, limit: int = 4) -> str:
+def render_dashboard_tag_chips(
+    tags,
+    *,
+    limit: int = 4,
+    prefer_distinctive_tail: bool = False,
+) -> str:
     if not tags:
         return ""
+
+    tag_values = list(tags)
+    visible_tags = tag_values[:limit]
+    if prefer_distinctive_tail and len(tag_values) > limit and limit >= 2:
+        head_count = limit // 2
+        tail_count = limit - head_count
+        visible_tags = tag_values[:head_count] + tag_values[-tail_count:]
+
     chips = [
         f'<span class="dashboard-tag">{escape(str(tag))}</span>'
-        for tag in list(tags)[:limit]
+        for tag in visible_tags
     ]
-    if len(tags) > limit:
-        chips.append(f'<span class="dashboard-tag muted">+{len(tags) - limit}</span>')
+    if len(tag_values) > len(visible_tags):
+        chips.append(
+            f'<span class="dashboard-tag muted">+{len(tag_values) - len(visible_tags)}</span>'
+        )
     return '<div class="dashboard-tag-row">' + "".join(chips) + "</div>"
 
 
@@ -2235,7 +2252,8 @@ def render_dashboard_card(
     internal_datasets = resolve_dashboard_dataset_entries(datasets, dataset_reference_index)
     source_href = dashboard_url(entry)
     source_link = (
-        f'<a class="dune-action" href="{escape(source_href)}">Dune</a>'
+        f'<a class="dune-action" href="{escape(source_href)}" '
+        f'aria-label="Open {escape(dashboard_title(entry))} on Dune">Dune</a>'
         if source_href
         else '<span class="dune-action disabled" aria-disabled="true">Dune</span>'
     )
@@ -2256,11 +2274,12 @@ def render_dashboard_card(
         "</div>"
         f'<a class="dashboard-card-title" href="{escape(dashboard_href(entry))}">{escape(dashboard_title(entry))}</a>'
         f'<p class="dashboard-card-description">{render_field_value(data.get("description"))}</p>'
-        f'{render_dashboard_tag_chips(data.get("tags") or [])}'
+        f'{render_dashboard_tag_chips(data.get("tags") or [], prefer_distinctive_tail=entry.category == "liquid")}'
         "</div>"
         '<div class="dashboard-card-side">'
         f"{source_link}"
-        f'<a class="dataset-detail-action" href="{escape(dashboard_href(entry))}">Details</a>'
+        f'<a class="dataset-detail-action" href="{escape(dashboard_href(entry))}" '
+        f'aria-label="View {escape(dashboard_title(entry))} dashboard details">Details</a>'
         "</div>"
         "</article>"
     )
@@ -2303,7 +2322,9 @@ def render_dashboard_index(
         active_class = " active" if group == "core" else ""
         pressed = "true" if group == "core" else "false"
         nav_buttons.append(
-            f'<button class="dataset-nav-button{active_class}" type="button" data-dashboard-nav="{escape(group)}" aria-pressed="{pressed}">'
+            f'<button class="dataset-nav-button{active_class}" type="button" '
+            f'data-dashboard-nav="{escape(group)}" aria-pressed="{pressed}" '
+            f'aria-controls="dashboard-group-{escape(group)}">'
             f'<span>{escape(titleize_dashboard_category(group))}</span>'
             f"<strong>{count}</strong>"
             "</button>"
@@ -2325,17 +2346,19 @@ def render_dashboard_index(
             else ""
         )
         description = (
-            "Core contains the top dashboards teammates should check first."
+            "Most used, most updated, and most informative ether.fi dashboards."
             if core
             else f"{len(section_entries)} dashboard{'s' if len(section_entries) != 1 else ''} in the {titleize_dashboard_category(group)} product area."
         )
         hidden = "" if core else " hidden"
         core_attr = " data-dashboard-core" if core else ""
         return (
-            f'<section class="dashboard-category-view" data-dashboard-section data-dashboard-group="{escape(group)}"{core_attr}{hidden}>'
+            f'<section id="dashboard-group-{escape(group)}" class="dashboard-category-view" '
+            f'data-dashboard-section data-dashboard-group="{escape(group)}" '
+            f'aria-labelledby="dashboard-heading-{escape(group)}"{core_attr}{hidden}>'
             '<div class="dataset-view-heading">'
             "<div>"
-            f"<h2>{escape(titleize_dashboard_category(group))}</h2>"
+            f'<h2 id="dashboard-heading-{escape(group)}">{escape(titleize_dashboard_category(group))}</h2>'
             f"<p>{escape(description)}</p>"
             "</div>"
             f'<span class="dataset-view-count">{len(section_entries)} dashboard{"s" if len(section_entries) != 1 else ""}</span>'
@@ -2356,7 +2379,7 @@ def render_dashboard_index(
     return (
         '<section class="page dashboard-browser-page" data-dashboards-page>'
         '<div class="wrap dataset-browser-shell">'
-        '<aside class="dataset-category-panel">'
+        '<aside class="dataset-category-panel" aria-label="Dashboard groups">'
         '<div class="dataset-category-panel-header">'
         "<span>Dashboard groups</span>"
         "<strong>Registry</strong>"
@@ -2374,9 +2397,9 @@ def render_dashboard_index(
         '<section class="catalog-toolbar dataset-browser-toolbar">'
         '<div class="catalog-search">'
         '<label for="dashboard-search">Search dashboards</label>'
-        '<input id="dashboard-search" type="search" placeholder="Search by dashboard, category, tag, URL, or linked dataset..." data-dashboard-search>'
+        '<input id="dashboard-search" type="search" placeholder="Search by dashboard, tag, dataset, or URL..." data-dashboard-search>'
         "</div>"
-        f'<span id="dashboard-count" class="dataset-count">{len(core_entries)} dashboard{"s" if len(core_entries) != 1 else ""}</span>'
+        f'<span id="dashboard-count" class="dataset-count" role="status" aria-live="polite" aria-atomic="true">{len(core_entries)} dashboard{"s" if len(core_entries) != 1 else ""}</span>'
         "</section>"
         f'{"".join(sections)}'
         '<div id="dashboard-empty-state" class="freshness-empty-state dashboard-empty-state" hidden>No dashboards match your search.</div>'

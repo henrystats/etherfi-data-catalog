@@ -204,7 +204,7 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     build_site(output_dir=tmp_path)
 
     dataset_index = (tmp_path / "datasets.html").read_text(encoding="utf-8")
-    assert 'class="dataset-category-panel"' in dataset_index
+    assert 'class="dataset-category-panel" aria-label="Dataset categories"' in dataset_index
     assert 'data-datasets-page' in dataset_index
     assert 'data-dataset-nav="overview"' in dataset_index
     assert 'data-dataset-nav="activity"' in dataset_index
@@ -234,6 +234,7 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     assert "Browse categories on the left to explore the full catalog." not in dataset_index
     assert 'id="dataset-search"' in dataset_index
     assert 'id="dataset-count"' in dataset_index
+    assert 'id="dataset-count" class="dataset-count" role="status" aria-live="polite" aria-atomic="true"' in dataset_index
     assert 'id="dataset-empty-state"' in dataset_index
     assert 'data-dataset-category-section data-category="activity"' in dataset_index
     assert 'data-dataset-card' in dataset_index
@@ -259,7 +260,9 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     assert '<span>Last refreshed</span>' in holder_card_html
     assert '<span>Status</span>' in holder_card_html
     assert 'href="https://dune.com/queries/6213381"' in holder_card_html
+    assert 'aria-label="Open source Dune query for Protocol Token Holders"' in holder_card_html
     assert 'href="datasets/protocol_token_holders.html"' in holder_card_html
+    assert 'aria-label="View Protocol Token Holders dataset details"' in holder_card_html
     assert "Details" in holder_card_html
     assert "dataset-card-kicker" not in dataset_index
     assert "dataset-table-inline" not in dataset_index
@@ -289,6 +292,7 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     assert 'aria-label="Copy full table name"' in holder_page
     assert 'src="../assets/dataset-detail.js?v=' in holder_page
     assert "schema-table-toolbar" in holder_page
+    assert 'class="schema-table-wrap" role="region" aria-label="Dataset schema" tabindex="0"' in holder_page
     assert "<h2>Caveats</h2>" in holder_page
     assert "<span>Live query</span>" not in holder_page
     assert "Live query table" not in holder_page
@@ -323,7 +327,7 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     assert "Direct user/wallet holders of ether.fi protocol tokens by address" in holder_page
     assert "one row per address per token per snapshot date" in holder_page
     assert "Schema" in holder_page
-    assert "<th>Description</th>" in holder_page
+    assert '<th scope="col">Column</th><th scope="col">Type</th><th scope="col">Description</th>' in holder_page
     assert "<td><code>address</code></td><td>varbinary</td>" in holder_page
     assert '<td class="schema-description">holder wallet or contract address</td>' in holder_page
     assert "Related datasets and dashboards" in holder_page
@@ -644,7 +648,7 @@ def test_dataset_schema_descriptions_render_from_schema_and_important_columns(tm
         encoding="utf-8"
     )
     css = (tmp_path / "site" / "assets" / "styles.css").read_text(encoding="utf-8")
-    assert "<th>Column</th><th>Type</th><th>Description</th>" in mapping_page
+    assert '<th scope="col">Column</th><th scope="col">Type</th><th scope="col">Description</th>' in mapping_page
     assert "<td><code>user_safe</code></td><td>varbinary</td>" in mapping_page
     assert (
         "<td><code>this_is_a_very_long_schema_column_name_that_should_wrap_inside_the_column_cell_without_breaking_layout</code></td><td>varchar</td>"
@@ -658,13 +662,18 @@ def test_dataset_schema_descriptions_render_from_schema_and_important_columns(tm
     assert "Important columns" not in mapping_page
     assert "table-layout: fixed;" in css
     assert ".schema-table td:first-child code" in css
+    assert re.search(
+        r"\.schema-table-toolbar\s*\{[^}]*min-width:\s*680px;",
+        css,
+        re.S,
+    )
     assert "overflow-wrap: anywhere;" in css
     assert "word-break: break-word;" in css
 
     list_page = (tmp_path / "site" / "datasets" / "list_schema.html").read_text(
         encoding="utf-8"
     )
-    assert "<th>Column</th><th>Type</th><th>Description</th>" in list_page
+    assert '<th scope="col">Column</th><th scope="col">Type</th><th scope="col">Description</th>' in list_page
     assert '<td class="schema-description">Cash safe address</td>' in list_page
     assert '<td class="schema-description">Schema balance description</td>' in list_page
     assert "Important balance fallback should not win" not in list_page
@@ -718,7 +727,9 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     build_site(output_dir=tmp_path)
 
     dashboard_index = (tmp_path / "dashboards.html").read_text(encoding="utf-8")
+    css = (tmp_path / "assets" / "styles.css").read_text(encoding="utf-8")
     assert 'data-dashboards-page' in dashboard_index
+    assert 'class="dataset-category-panel" aria-label="Dashboard groups"' in dashboard_index
     assert '<h1>Dashboards</h1>' in dashboard_index
     assert "Find existing ether.fi Dune dashboards by product area, tag, or linked catalog dataset." in dashboard_index
     assert "Browse ether.fi Dune dashboards by product area and linked datasets." not in dashboard_index
@@ -731,6 +742,16 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert 'data-dashboard-nav="cash"' in dashboard_index
     assert 'data-dashboard-nav="liquid"' in dashboard_index
     assert 'data-dashboard-nav="others"' in dashboard_index
+    for group in ["core", "stake", "cash", "liquid", "others"]:
+        nav_button = re.search(
+            rf'<button[^>]*data-dashboard-nav="{group}"[^>]*>',
+            dashboard_index,
+        )
+        assert nav_button
+        assert f'aria-controls="dashboard-group-{group}"' in nav_button.group(0)
+        assert f'id="dashboard-group-{group}"' in dashboard_index
+        assert f'aria-labelledby="dashboard-heading-{group}"' in dashboard_index
+        assert f'id="dashboard-heading-{group}"' in dashboard_index
     assert dashboard_index.find("<span>Core</span>") < dashboard_index.find("<span>Stake</span>")
     assert dashboard_index.find("<span>Stake</span>") < dashboard_index.find("<span>Cash</span>")
     assert dashboard_index.find("<span>Cash</span>") < dashboard_index.find("<span>Liquid</span>")
@@ -738,7 +759,15 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert 'data-dashboard-section data-dashboard-group="core"' in dashboard_index
     assert 'data-dashboard-section data-dashboard-group="stake"' in dashboard_index
     assert 'data-dashboard-section data-dashboard-group="cash"' in dashboard_index
-    assert "Core contains the top dashboards" in dashboard_index
+    core_section = re.search(
+        r'<section id="dashboard-group-core".*?</section>',
+        dashboard_index,
+        re.S,
+    )
+    assert core_section
+    assert "Most used, most updated, and most informative ether.fi dashboards." in core_section.group(0)
+    assert "Core contains the top dashboards teammates should check first." not in dashboard_index
+    assert "teammates" not in core_section.group(0)
     assert "ether.fi" in dashboard_index
     assert "ether.fi Cash" in dashboard_index
     assert "eETH Staking" in dashboard_index
@@ -770,11 +799,70 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert "user_safe" in dashboard_index
     assert 'id="dashboard-search"' in dashboard_index
     assert 'id="dashboard-count"' in dashboard_index
+    assert 'id="dashboard-count" class="dataset-count" role="status" aria-live="polite" aria-atomic="true"' in dashboard_index
     assert 'id="dashboard-empty-state"' in dashboard_index
     assert 'src="assets/dashboards.js?v=' in dashboard_index
     assert "No dashboards documented in this group yet." in dashboard_index
     assert "No dashboards match your search." in dashboard_index
     assert "generated from dashboards/registry.yaml" not in dashboard_index
+
+    core_cards = re.findall(
+        r'<article class="dashboard-browser-card featured" data-dashboard-core-card>(.*?)</article>',
+        core_section.group(0),
+        re.S,
+    )
+    overview_card = next(card for card in core_cards if ">ether.fi</a>" in card)
+    assert '<span class="dashboard-category-chip stake">Stake</span>' in overview_card
+    assert re.search(r'<span class="dashboard-linked-count">\d+ linked datasets</span>', overview_card)
+    assert '<div class="dashboard-tag-row">' in overview_card
+    assert '<span class="dashboard-tag">overview</span>' in overview_card
+    assert 'href="https://dune.com/ether_fi/etherfi" aria-label="Open ether.fi on Dune">Dune</a>' in overview_card
+    assert (
+        'href="dashboards/etherfi_overview.html" '
+        'aria-label="View ether.fi dashboard details">Details</a>'
+        in overview_card
+    )
+
+    dashboard_cards = re.findall(
+        r'<article class="dashboard-browser-card"[^>]*>(.*?)</article>',
+        dashboard_index,
+        re.S,
+    )
+    ebtc_card = next(card for card in dashboard_cards if 'href="dashboards/ebtc.html"' in card)
+    assert '<span class="dashboard-tag">liquid</span>' in ebtc_card
+    assert '<span class="dashboard-tag">vaults</span>' in ebtc_card
+    assert '<span class="dashboard-tag">ebtc</span>' in ebtc_card
+    assert '<span class="dashboard-tag">btc</span>' in ebtc_card
+    assert '<span class="dashboard-tag">deposits</span>' not in ebtc_card
+    assert '<span class="dashboard-tag muted">+7</span>' in ebtc_card
+
+    assert re.search(
+        r"\.button\.primary::after,\s*\.dataset-detail-action::after\s*\{[^}]*content:\s*\"\\2192\";",
+        css,
+        re.S,
+    )
+    assert re.search(
+        r"\.dune-action:not\(\.disabled\)::after\s*\{[^}]*content:\s*\"\\2197\";",
+        css,
+        re.S,
+    )
+    assert re.search(
+        r"a\.related-resource::after\s*\{[^}]*content:\s*\"\\2192\";",
+        css,
+        re.S,
+    )
+    assert re.search(
+        r"\.dashboard-card-title\s*\{[^}]*overflow-wrap:\s*anywhere;",
+        css,
+        re.S,
+    )
+    assert "outline: 3px solid var(--accent-deep);" in css
+    assert "scroll-snap-type: inline proximity;" in css
+    assert re.search(
+        r"\.code-snippet code\s*\{[^}]*background:\s*transparent;[^}]*color:\s*inherit;",
+        css,
+        re.S,
+    )
 
     overview_page = (tmp_path / "dashboards" / "etherfi_overview.html").read_text(
         encoding="utf-8"
@@ -795,6 +883,18 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert 'href="../datasets/protocol_token_holders.html"' in overview_page
     assert 'href="../datasets/etherfi_protocol_token_tvl.html"' in overview_page
     assert "Ether.fi Protocol Token TVL" in overview_page
+    linked_dataset_section = re.search(
+        r"<h2>Linked datasets</h2>(.*?)</section>",
+        overview_page,
+        re.S,
+    )
+    assert linked_dataset_section
+    assert (
+        '<a class="related-resource" href="../datasets/protocol_token_holders.html">'
+        "Protocol Token Holders</a>"
+        in linked_dataset_section.group(1)
+    )
+    assert 'target="_blank"' not in linked_dataset_section.group(1)
     assert "Dataset used by the main ether.fi overview dashboard for protocol token TVL" not in overview_page
     assert "<span>Refresh</span>" not in overview_page
     assert "utils.days" not in overview_page
@@ -991,6 +1091,7 @@ def test_build_website_generates_freshness_status_page(tmp_path):
     assert 'data-status-filter="delayed"' in freshness_page
     assert 'data-status-filter="stale"' in freshness_page
     assert 'data-status-filter="unknown"' in freshness_page
+    assert 'class="filter-chip-row" role="group" aria-label="Dataset status filters"' in freshness_page
     assert "<table" not in freshness_page
     assert "catalog-table" not in freshness_page
     assert "Dataset registry" in freshness_page
@@ -1005,6 +1106,7 @@ def test_build_website_generates_freshness_status_page(tmp_path):
     assert 'id="dataset-search"' in freshness_page
     assert 'id="dataset-count"' in freshness_page
     assert 'data-freshness-count' in freshness_page
+    assert 'data-freshness-count role="status" aria-live="polite" aria-atomic="true"' in freshness_page
     assert 'id="dataset-empty-state"' in freshness_page
     assert "Source queries" not in freshness_page
     assert "Fresh" in freshness_page
