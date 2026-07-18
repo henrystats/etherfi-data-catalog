@@ -50,6 +50,8 @@ def test_build_website_outputs_core_pages(tmp_path):
 
     index_html = (tmp_path / "index.html").read_text(encoding="utf-8")
     assert 'href="assets/styles.css?v=' in index_html
+    assert "<title>ether.fi Data Catalog</title>" in index_html
+    assert "ether.fi Data Catalog | ether.fi Data Catalog" not in index_html
     assert 'class="nav-link active" href="index.html" aria-current="page"' in index_html
     assert 'data-home-page' in index_html
     assert '<span class="brand-mark">ether.fi</span>' in index_html
@@ -57,9 +59,12 @@ def test_build_website_outputs_core_pages(tmp_path):
     assert "ether.fi Data Catalog" in index_html
     assert "A polished, repo-backed catalog for finding ether.fi datasets, checking freshness, discovering dashboards, and giving AI agents the right context before Dune execution." in index_html
     assert 'href="datasets.html">Explore datasets</a>' in index_html
-    assert 'href="dashboards.html">View dashboards</a>' in index_html
+    assert '<a class="home-preview-card" href="dashboards.html">' in index_html
+    assert '<span class="dataset-detail-action">View dashboards</span>' in index_html
     assert 'href="freshness.html">Check freshness</a>' in index_html
-    assert 'href="mcp.html">Learn about MCP</a>' in index_html
+    assert '<a class="home-preview-card" href="mcp.html">' in index_html
+    assert '<span class="dataset-detail-action">Learn about MCP</span>' in index_html
+    assert index_html.count('<a class="home-preview-card" href=') == 4
     assert 'href="mcp.html">MCP</a>' in index_html
     assert 'href="agent-workflow.html"' not in index_html
     assert "Agent Workflow" not in index_html
@@ -97,6 +102,10 @@ def test_build_website_outputs_core_pages(tmp_path):
     assert "Monday demo path" not in index_html
     assert "Built for three audiences" not in index_html
     assert "Questions this makes safer" not in index_html
+    core_css = (tmp_path / "assets" / "styles.css").read_text(encoding="utf-8")
+    assert ".home-command-preview" not in core_css
+    assert ".command-preview-" not in core_css
+    assert ".home-stat-grid" not in core_css
 
     dataset_entries = load_dataset_entries()
     dataset_pages = list((tmp_path / "datasets").glob("*.html"))
@@ -109,6 +118,7 @@ def test_build_website_outputs_core_pages(tmp_path):
     assert (tmp_path / "dashboards" / "liquid_vaults.html").exists()
 
     freshness_html = (tmp_path / "freshness.html").read_text(encoding="utf-8")
+    assert "<title>Freshness | ether.fi Data Catalog</title>" in freshness_html
     assert '<span class="brand-mark">ether.fi</span>' in freshness_html
     assert '<span class="brand-mark">e.fi</span>' not in freshness_html
     assert "<h1>Freshness</h1>" in freshness_html
@@ -117,10 +127,210 @@ def test_build_website_outputs_core_pages(tmp_path):
     assert "No live Dune call in the browser" not in freshness_html
 
 
+def test_generated_pages_include_global_theme_contract(tmp_path):
+    build_site(output_dir=tmp_path)
+
+    html_files = sorted(tmp_path.glob("**/*.html"))
+    assert html_files
+    assert (tmp_path / "assets" / "theme.js").exists()
+
+    for html_file in html_files:
+        html = html_file.read_text(encoding="utf-8")
+        relative_path = html_file.relative_to(tmp_path)
+        asset_prefix = "../" if len(relative_path.parts) > 1 else ""
+        head = re.search(r"<head>(.*?)</head>", html, re.S)
+
+        assert head
+        assert html.count("data-theme-init") == 1
+        assert html.count("data-theme-toggle") == 1
+        assert html.count("assets/theme.js?v=") == 1
+        assert head.group(1).find("data-theme-init") < head.group(1).find('rel="stylesheet"')
+        assert 'type="button" data-theme-toggle aria-pressed="false"' in html
+        assert 'aria-label="Dark theme"' in html
+        assert f'src="{asset_prefix}assets/theme.js?v=' in html
+
+    index_html = (tmp_path / "index.html").read_text(encoding="utf-8")
+    init_script = re.search(r"<script data-theme-init>(.*?)</script>", index_html, re.S)
+    assert init_script
+    assert "etherfi-data-catalog-theme" in init_script.group(1)
+    assert '(prefers-color-scheme: dark)' in init_script.group(1)
+    assert 'root.setAttribute("data-theme", theme)' in init_script.group(1)
+
+    css = (tmp_path / "assets" / "styles.css").read_text(encoding="utf-8")
+    dark_tokens = re.search(r'html\[data-theme="dark"\] \{(.*?)\n\}', css, re.S)
+    assert dark_tokens
+    for token in [
+        "bg",
+        "surface",
+        "surface-muted",
+        "border",
+        "text",
+        "muted",
+        "accent",
+        "accent-deep",
+        "accent-soft",
+        "ink-soft",
+        "canvas",
+        "surface-raised",
+        "surface-glass",
+        "border-subtle",
+        "border-strong",
+        "green-wash",
+        "blue-wash",
+        "amber-wash",
+        "danger-wash",
+        "shadow-xs",
+        "shadow-sm",
+        "shadow-md",
+    ]:
+        assert f"--{token}:" in dark_tokens.group(1)
+    assert "color-scheme: dark;" in dark_tokens.group(1)
+    assert 'html[data-theme="dark"] .site-header' in css
+    assert 'html[data-theme="dark"] .catalog-search input' in css
+    assert 'html[data-theme="dark"] .schema-table-toolbar' in css
+    assert 'html[data-theme="dark"] .code-snippet' in css
+    assert 'html[data-theme="dark"] .site-footer' in css
+    assert ".freshness-summary" not in css
+    assert "@media (prefers-reduced-motion: reduce)" in css
+
+
+def test_theme_scripts_handle_preferences_persistence_and_storage_failures(tmp_path):
+    node = shutil.which("node")
+    if node is None:
+        return
+
+    build_site(output_dir=tmp_path)
+    index_html = (tmp_path / "index.html").read_text(encoding="utf-8")
+    init_source = re.search(r"<script data-theme-init>(.*?)</script>", index_html, re.S)
+    assert init_source
+    theme_source = (tmp_path / "assets" / "theme.js").read_text(encoding="utf-8")
+
+    script = """
+const vm = require("vm");
+const initSource = __INIT_SOURCE__;
+const themeSource = __THEME_SOURCE__;
+
+function fakeElement(initial) {
+  return {
+    attrs: Object.assign({}, initial || {}),
+    listeners: {},
+    setAttribute(name, value) { this.attrs[name] = String(value); },
+    getAttribute(name) { return Object.prototype.hasOwnProperty.call(this.attrs, name) ? this.attrs[name] : null; },
+    addEventListener(name, callback) { this.listeners[name] = callback; },
+  };
+}
+
+function runInit(options) {
+  const root = fakeElement();
+  const browserWindow = {
+    matchMedia() {
+      if (options.mediaThrows) throw new Error("media unavailable");
+      return { matches: options.systemDark };
+    },
+  };
+  Object.defineProperty(browserWindow, "localStorage", {
+    get() {
+      if (options.storageThrows) throw new Error("storage unavailable");
+      return { getItem() { return options.saved; } };
+    },
+  });
+  vm.runInNewContext(initSource, { document: { documentElement: root }, window: browserWindow });
+  return root.attrs["data-theme"];
+}
+
+const root = fakeElement({ "data-theme": "light" });
+const toggle = fakeElement({ "aria-pressed": "false", "aria-label": "Dark theme" });
+const themeColor = fakeElement({ content: "#f4f6f1" });
+const windowListeners = {};
+let attemptedStoredTheme = null;
+const browserWindow = {
+  localStorage: {
+    getItem() { return null; },
+    setItem(key, value) {
+      attemptedStoredTheme = value;
+      throw new Error("storage write blocked");
+    },
+  },
+  matchMedia() { return { matches: false, addEventListener() {} }; },
+  addEventListener(name, callback) { windowListeners[name] = callback; },
+};
+const documentObject = {
+  documentElement: root,
+  querySelector(selector) {
+    if (selector === "[data-theme-toggle]") return toggle;
+    if (selector === "[data-theme-color]") return themeColor;
+    return null;
+  },
+};
+vm.runInNewContext(themeSource, { document: documentObject, window: browserWindow });
+const initialControl = {
+  theme: root.attrs["data-theme"],
+  pressed: toggle.attrs["aria-pressed"],
+  label: toggle.attrs["aria-label"],
+};
+toggle.listeners.click();
+const clickedControl = {
+  theme: root.attrs["data-theme"],
+  pressed: toggle.attrs["aria-pressed"],
+  label: toggle.attrs["aria-label"],
+  title: toggle.attrs.title,
+  themeColor: themeColor.attrs.content,
+  attemptedStoredTheme,
+};
+windowListeners.storage({ key: "etherfi-data-catalog-theme", newValue: "light" });
+
+console.log(JSON.stringify({
+  init: {
+    savedDark: runInit({ saved: "dark", systemDark: false }),
+    savedLight: runInit({ saved: "light", systemDark: true }),
+    systemDark: runInit({ saved: null, systemDark: true }),
+    storageFailure: runInit({ saved: null, systemDark: true, storageThrows: true }),
+    mediaFailure: runInit({ saved: null, systemDark: false, mediaThrows: true }),
+  },
+  initialControl,
+  clickedControl,
+  storageTheme: root.attrs["data-theme"],
+}));
+""".replace("__INIT_SOURCE__", json.dumps(init_source.group(1))).replace(
+        "__THEME_SOURCE__", json.dumps(theme_source)
+    )
+    result = subprocess.run(
+        [node, "-e", script],
+        cwd=Path(__file__).resolve().parents[1],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    behavior = json.loads(result.stdout)
+
+    assert behavior["init"] == {
+        "savedDark": "dark",
+        "savedLight": "light",
+        "systemDark": "dark",
+        "storageFailure": "dark",
+        "mediaFailure": "light",
+    }
+    assert behavior["initialControl"] == {
+        "theme": "light",
+        "pressed": "false",
+        "label": "Dark theme",
+    }
+    assert behavior["clickedControl"] == {
+        "theme": "dark",
+        "pressed": "true",
+        "label": "Dark theme",
+        "title": "Switch to light theme",
+        "themeColor": "#0d130f",
+        "attemptedStoredTheme": "dark",
+    }
+    assert behavior["storageTheme"] == "light"
+
+
 def test_build_website_generates_polished_mcp_page_from_current_tools(tmp_path):
     build_site(output_dir=tmp_path)
 
     mcp_page = (tmp_path / "mcp.html").read_text(encoding="utf-8")
+    mcp_js = (tmp_path / "assets" / "mcp.js").read_text(encoding="utf-8")
     assert 'data-mcp-page' in mcp_page
     assert "<h1>ether.fi Catalog MCP</h1>" in mcp_page
     assert "Connect AI agents to ether.fi dataset metadata, dashboards, freshness context, and query-planning guidance." in mcp_page
@@ -141,6 +351,10 @@ def test_build_website_generates_polished_mcp_page_from_current_tools(tmp_path):
     assert "Client configs" in mcp_page
     assert "uvx --from git+https://github.com/henrystats/etherfi-data-catalog.git etherfi-catalog-mcp" in mcp_page
     assert 'data-snippet-copy' in mcp_page
+    assert mcp_page.count('data-copy-announcer role="status" aria-live="polite" aria-atomic="true"') == 3
+    assert '<pre tabindex="0" role="region" aria-label="Install command code snippet">' in mcp_page
+    assert '<pre tabindex="0" role="region" aria-label="Codex TOML code snippet">' in mcp_page
+    assert '<pre tabindex="0" role="region" aria-label="Claude JSON code snippet">' in mcp_page
     assert "Install Dune MCP separately using Dune&rsquo;s official instructions." in mcp_page
     assert "Use ether.fi Catalog MCP for dataset semantics" in mcp_page
     assert "Use Dune MCP for execution, saved queries, charts, and dashboards." in mcp_page
@@ -191,6 +405,8 @@ def test_build_website_generates_polished_mcp_page_from_current_tools(tmp_path):
     assert 'data-mcp-tool="' not in mcp_page
     assert ".venv/bin/python -m etherfi_catalog.server" not in mcp_page
     assert 'src="assets/mcp.js?v=' in mcp_page
+    assert "data-copy-announcer" in mcp_js
+    assert 'label === "Copy" ? "" : label' in mcp_js
     assert "DUNE_API_KEY" in mcp_page
     assert "Best practices" not in mcp_page
 
@@ -212,12 +428,27 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     assert 'data-dataset-nav="prices"' in dataset_index
     assert 'data-dataset-nav="metadata"' in dataset_index
     assert 'data-dataset-nav="lrt_restaking"' in dataset_index
+    for category, section_id in [
+        ("overview", "overview"),
+        ("activity", "activity"),
+        ("etherfi_protocol", "etherfi-protocol"),
+        ("prices", "prices"),
+        ("metadata", "metadata"),
+        ("lrt_restaking", "lrt-restaking"),
+    ]:
+        nav_button = re.search(
+            rf'<button[^>]*data-dataset-nav="{category}"[^>]*>',
+            dataset_index,
+        )
+        assert nav_button
+        assert f'aria-controls="dataset-view-{section_id}"' in nav_button.group(0)
+        assert f'id="dataset-view-{section_id}"' in dataset_index
     assert dataset_index.find("<span>Overview</span>") < dataset_index.find("<span>Activity</span>")
     assert dataset_index.find("<span>Activity</span>") < dataset_index.find("<span>Ether.fi Protocol</span>")
     assert dataset_index.find("<span>Ether.fi Protocol</span>") < dataset_index.find("<span>Prices</span>")
     assert dataset_index.find("<span>Prices</span>") < dataset_index.find("<span>Metadata</span>")
     assert dataset_index.find("<span>Metadata</span>") < dataset_index.find("<span>LRT / Restaking</span>")
-    assert "<h1>Dataset catalog</h1>" in dataset_index
+    assert '<h1 id="dataset-heading-overview">Dataset catalog</h1>' in dataset_index
     assert "Search or browse ether.fi materialized views, then open a detail page" in dataset_index
     assert "This page documents ether.fi materialized views and supporting datasets." not in dataset_index
     assert "dataset-overview-routes" not in dataset_index
@@ -290,8 +521,10 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     assert "dune.ether_fi.result_etherfi_protocol_token_holders" in holder_page
     assert 'data-copy-text="dune.ether_fi.result_etherfi_protocol_token_holders"' in holder_page
     assert 'aria-label="Copy full table name"' in holder_page
+    assert 'data-copy-announcer role="status" aria-live="polite" aria-atomic="true"' in holder_page
     assert 'src="../assets/dataset-detail.js?v=' in holder_page
     assert "schema-table-toolbar" in holder_page
+    assert '<span class="schema-scroll-hint" aria-hidden="true">Scroll for type + description &rarr;</span>' in holder_page
     assert 'class="schema-table-wrap" role="region" aria-label="Dataset schema" tabindex="0"' in holder_page
     assert "<h2>Caveats</h2>" in holder_page
     assert "<span>Live query</span>" not in holder_page
@@ -328,6 +561,22 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     assert "one row per address per token per snapshot date" in holder_page
     assert "Schema" in holder_page
     assert '<th scope="col">Column</th><th scope="col">Type</th><th scope="col">Description</th>' in holder_page
+
+    addresses_entry = next(
+        entry for entry in load_dataset_entries() if entry.slug == "etherfi_addresses"
+    )
+    addresses_caveats = list(addresses_entry.data.get("caveats") or [])
+    assert len(addresses_caveats) > 5
+    addresses_page = (tmp_path / "datasets" / "etherfi_addresses.html").read_text(
+        encoding="utf-8"
+    )
+    caveat_section = re.search(
+        r'<section class="detail-panel dataset-detail-section dataset-caveat-panel warning">(.*?)</section>',
+        addresses_page,
+        re.S,
+    )
+    assert caveat_section
+    assert caveat_section.group(1).count("<li>") == len(addresses_caveats)
     assert "<td><code>address</code></td><td>varbinary</td>" in holder_page
     assert '<td class="schema-description">holder wallet or contract address</td>' in holder_page
     assert "Related datasets and dashboards" in holder_page
@@ -814,6 +1063,7 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     overview_card = next(card for card in core_cards if ">ether.fi</a>" in card)
     assert '<span class="dashboard-category-chip stake">Stake</span>' in overview_card
     assert re.search(r'<span class="dashboard-linked-count">\d+ linked datasets</span>', overview_card)
+    assert '<h3 class="dashboard-card-heading"><a class="dashboard-card-title"' in overview_card
     assert '<div class="dashboard-tag-row">' in overview_card
     assert '<span class="dashboard-tag">overview</span>' in overview_card
     assert 'href="https://dune.com/ether_fi/etherfi" aria-label="Open ether.fi on Dune">Dune</a>' in overview_card
@@ -915,6 +1165,8 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert 'href="../datasets/tokens_transfers.html"' in eeth_staking_page
     assert '<section class="detail-panel dataset-detail-section dashboard-notes-panel">' in eeth_staking_page
     assert "decoded contract calls and events" in eeth_staking_page
+    assert eeth_staking_page.find("<h2>Notes</h2>") < eeth_staking_page.find("<h2>Tags</h2>")
+    assert eeth_staking_page.find("<h2>Notes</h2>") < eeth_staking_page.find("<h2>Linked datasets</h2>")
 
     weeth_l2s_page = (tmp_path / "dashboards" / "weeth_l2s.html").read_text(
         encoding="utf-8"
@@ -1082,6 +1334,32 @@ def test_build_website_generates_freshness_status_page(tmp_path):
     assert "Fresh datasets" not in freshness_page
     assert "Stale datasets" not in freshness_page
     assert "Unknown datasets" not in freshness_page
+    freshness_hero = re.search(
+        r'<section class="freshness-hero detail-panel">(.*?)</section>',
+        freshness_page,
+        re.S,
+    )
+    assert freshness_hero
+    assert 'class="freshness-source-panel"' in freshness_hero.group(1)
+    assert (
+        "Freshness is sourced from a Dune tracker query and refreshed through the GitHub Actions workflow."
+        in freshness_hero.group(1)
+    )
+    assert re.search(
+        r'<a class="freshness-source-link dune" href="https://dune\.com/queries/7625551"[^>]*>'
+        r'.*?<strong>View freshness query</strong>.*?</a>',
+        freshness_hero.group(1),
+        re.S,
+    )
+    assert re.search(
+        r'<a class="freshness-source-link workflow" '
+        r'href="https://github\.com/henrystats/etherfi-data-catalog/actions/workflows/refresh-freshness\.yml"[^>]*>'
+        r'.*?<strong>Open refresh workflow</strong>.*?</a>',
+        freshness_hero.group(1),
+        re.S,
+    )
+    assert "freshness-summary" not in freshness_hero.group(1)
+    assert "freshness-summary-item" not in freshness_page
     assert "Search datasets" in freshness_page
     assert "Search by dataset, table name, category, status, or query ID..." in freshness_page
     assert "Dataset category filters" not in freshness_page
@@ -1091,10 +1369,23 @@ def test_build_website_generates_freshness_status_page(tmp_path):
     assert 'data-status-filter="delayed"' in freshness_page
     assert 'data-status-filter="stale"' in freshness_page
     assert 'data-status-filter="unknown"' in freshness_page
+    assert '<button class="filter-chip active" type="button" data-status-filter="all" aria-pressed="true">All</button>' in freshness_page
+    for status, label in [
+        ("fresh", "Fresh"),
+        ("delayed", "Delayed"),
+        ("stale", "Stale"),
+        ("unknown", "Unknown"),
+    ]:
+        assert (
+            f'<button class="filter-chip" type="button" data-status-filter="{status}" '
+            f'aria-pressed="false">{label}</button>'
+            in freshness_page
+        )
     assert 'class="filter-chip-row" role="group" aria-label="Dataset status filters"' in freshness_page
     assert "<table" not in freshness_page
     assert "catalog-table" not in freshness_page
     assert "Dataset registry" in freshness_page
+    assert "including supporting tables not shown in the main dataset browser" in freshness_page
     assert 'class="registry-list"' in freshness_page
     assert 'class="registry-card freshness-dataset-card stale"' in freshness_page
     assert 'class="registry-card freshness-dataset-card fresh"' in freshness_page
@@ -1149,11 +1440,13 @@ def test_build_website_generates_freshness_status_page(tmp_path):
     assert "Not documented yetNot documented yet" not in freshness_page
     assert '<span class="meta-chip updated" title="Not documented"><span>Last refreshed</span><strong>Not documented</strong></span>' in freshness_page
     assert "Next expected" not in freshness_page
-    assert "No datasets match your search." in freshness_page
+    assert "No datasets match these filters." in freshness_page
     assert 'src="assets/freshness.js?v=' in freshness_page
     assert 'src="assets/freshness.js" defer' not in freshness_page
     assert freshness_page.find("Ether.fi Protocol Token TVL") < freshness_page.find("Protocol Token Holders")
     assert (tmp_path / "site" / "assets" / "freshness.js").exists()
+    freshness_css = (tmp_path / "site" / "assets" / "styles.css").read_text(encoding="utf-8")
+    assert ".freshness-summary" not in freshness_css
 
 
 def test_default_built_freshness_output_uses_current_search_asset():
@@ -1195,8 +1488,11 @@ def test_dataset_browser_output_uses_search_asset_and_stable_selectors(tmp_path)
     assert "data-dataset-nav" in datasets_js
     assert "data-dataset-category-section" in datasets_js
     assert "applyFilters" in datasets_js
+    assert "activeNavForState" in datasets_js
+    assert "selectCategory" in datasets_js
     assert "__etherfiDatasetBrowserDebug" in datasets_js
     assert "data-copy-text" in dataset_detail_js
+    assert "data-copy-announcer" in dataset_detail_js
     assert "navigator.clipboard.writeText" in dataset_detail_js
     assert "execCommand" in dataset_detail_js
     assert "Copy failed" in dataset_detail_js
@@ -1224,6 +1520,10 @@ const cards = [
   },
 ];
 const names = (state) => browser.filterCards(cards, state).map((result) => result.visible);
+const categoryState = { activeCategory: "activity", query: "prices" };
+const categoryInput = { value: "prices" };
+const activeNavDuringSearch = browser.activeNavForState(categoryState);
+browser.selectCategory(categoryState, categoryInput, "prices");
 console.log(JSON.stringify({
   title: names({ activeCategory: "all", query: "protocol tvl" }).filter(Boolean).length,
   category: names({ activeCategory: "all", query: "prices" }).filter(Boolean).length,
@@ -1236,6 +1536,11 @@ console.log(JSON.stringify({
   categoryAndSearch: names({ activeCategory: "prices", query: "oracle" }).filter(Boolean).length,
   categoryMiss: names({ activeCategory: "metadata", query: "oracle" }).filter(Boolean).length,
   noMatch: names({ activeCategory: "all", query: "zzzz-no-match" }).filter(Boolean).length,
+  activeNavDuringSearch,
+  selectedCategoryAfterClick: categoryState.activeCategory,
+  activeNavAfterClick: browser.activeNavForState(categoryState),
+  queryAfterClick: categoryState.query,
+  inputAfterClick: categoryInput.value,
 }));
 """
     result = subprocess.run(
@@ -1259,6 +1564,11 @@ console.log(JSON.stringify({
         "categoryAndSearch": 1,
         "categoryMiss": 0,
         "noMatch": 0,
+        "activeNavDuringSearch": "",
+        "selectedCategoryAfterClick": "prices",
+        "activeNavAfterClick": "prices",
+        "queryAfterClick": "",
+        "inputAfterClick": "",
     }
 
 
@@ -1284,6 +1594,10 @@ const cards = [
   },
 ];
 const shown = (query) => browser.filterCards(cards, query).filter((result) => result.visible).length;
+const groupState = { activeGroup: "cash", query: "liquid" };
+const groupInput = { value: "liquid" };
+const activeNavDuringSearch = browser.activeNavForState(groupState);
+browser.selectGroup(groupState, groupInput, "liquid");
 console.log(JSON.stringify({
   title: shown("ether.fi cash"),
   category: shown("cash"),
@@ -1297,6 +1611,11 @@ console.log(JSON.stringify({
   tag: shown("borrow"),
   partial: shown("liquideth"),
   noMatch: shown("zzzz-no-match"),
+  activeNavDuringSearch,
+  selectedGroupAfterClick: groupState.activeGroup,
+  activeNavAfterClick: browser.activeNavForState(groupState),
+  queryAfterClick: groupState.query,
+  inputAfterClick: groupInput.value,
 }));
 """
     result = subprocess.run(
@@ -1321,6 +1640,11 @@ console.log(JSON.stringify({
         "tag": 1,
         "partial": 1,
         "noMatch": 0,
+        "activeNavDuringSearch": "",
+        "selectedGroupAfterClick": "liquid",
+        "activeNavAfterClick": "liquid",
+        "queryAfterClick": "",
+        "inputAfterClick": "",
     }
 
 

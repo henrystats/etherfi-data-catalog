@@ -48,6 +48,22 @@
     });
   }
 
+  function activeNavForState(state) {
+    if (termsFor(state && state.query).length > 0) {
+      return "";
+    }
+    return (state && state.activeCategory) || "overview";
+  }
+
+  function selectCategory(state, searchInput, category) {
+    state.activeCategory = category || "overview";
+    state.query = "";
+    if (searchInput) {
+      searchInput.value = "";
+    }
+    return state;
+  }
+
   function cardDataFromElement(element) {
     return {
       category: element.dataset.category || "",
@@ -127,6 +143,7 @@
 
         sections.forEach((section) => {
           setVisible(section, Boolean(visibleByCategory.get(section.dataset.category || "")));
+          setVisible(section.querySelector(".dataset-view-count"), false);
         });
       } else {
         setVisible(overview, state.activeCategory === "overview");
@@ -139,13 +156,14 @@
           if (visible) {
             visibleCount = section.querySelectorAll(CARD_SELECTOR).length;
           }
+          setVisible(section.querySelector(".dataset-view-count"), true);
         });
         if (state.activeCategory === "overview") {
           visibleCount = cards.length;
         }
       }
 
-      setActiveNav(navButtons, state.activeCategory);
+      setActiveNav(navButtons, activeNavForState(state));
       if (count) {
         count.textContent = hasQuery ? `${visibleCount} shown` : `${visibleCount} datasets`;
       }
@@ -158,6 +176,8 @@
       root.__etherfiDatasetBrowserDebug = () => ({
         inputFound: Boolean(searchInput),
         cardCount: cards.length,
+        activeNav: activeNavForState(state),
+        query: state.query,
         selectedCategory: state.activeCategory,
         visibleCount: cards.filter((card) => !card.element.hidden && card.element.style.display !== "none").length,
       });
@@ -169,7 +189,7 @@
 
     navButtons.forEach((button) => {
       button.addEventListener("click", () => {
-        state.activeCategory = button.dataset.datasetNav || "overview";
+        selectCategory(state, searchInput, button.dataset.datasetNav);
         applyFilters();
       });
     });
@@ -186,11 +206,13 @@
   }
 
   return {
+    activeNavForState,
     filterCards,
     matchesSearch,
     mount,
     normalize,
     ready,
+    selectCategory,
     termsFor,
   };
 });

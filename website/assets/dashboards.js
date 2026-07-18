@@ -71,6 +71,22 @@
     });
   }
 
+  function activeNavForState(state) {
+    if (termsFor(state && state.query).length > 0) {
+      return "";
+    }
+    return (state && state.activeGroup) || "core";
+  }
+
+  function selectGroup(state, searchInput, group) {
+    state.activeGroup = group || "core";
+    state.query = "";
+    if (searchInput) {
+      searchInput.value = "";
+    }
+    return state;
+  }
+
   function countVisibleCards(section) {
     if (!section) {
       return 0;
@@ -129,6 +145,7 @@
         sections.forEach((section) => {
           const group = section.dataset.dashboardGroup || "";
           setVisible(section, group !== "core" && Boolean(visibleByCategory.get(group)));
+          setVisible(section.querySelector(".dataset-view-count"), false);
         });
       } else {
         cards.forEach((card) => setVisible(card.element, true));
@@ -139,10 +156,11 @@
           if (visible) {
             visibleCount = countVisibleCards(section);
           }
+          setVisible(section.querySelector(".dataset-view-count"), true);
         });
       }
 
-      setActiveNav(navButtons, state.activeGroup);
+      setActiveNav(navButtons, activeNavForState(state));
       if (count) {
         const suffix = visibleCount === 1 ? "dashboard" : "dashboards";
         count.textContent = hasQuery ? `${visibleCount} shown` : `${visibleCount} ${suffix}`;
@@ -157,6 +175,8 @@
         inputFound: Boolean(searchInput),
         cardCount: cards.length,
         coreCardCount: coreCards.length,
+        activeNav: activeNavForState(state),
+        query: state.query,
         selectedGroup: state.activeGroup,
         visibleCount: cards.filter((card) => !card.element.hidden && card.element.style.display !== "none").length,
       });
@@ -168,7 +188,7 @@
 
     navButtons.forEach((button) => {
       button.addEventListener("click", () => {
-        state.activeGroup = button.dataset.dashboardNav || "core";
+        selectGroup(state, searchInput, button.dataset.dashboardNav);
         applyFilters();
       });
     });
@@ -185,11 +205,13 @@
   }
 
   return {
+    activeNavForState,
     filterCards,
     matchesSearch,
     mount,
     normalize,
     ready,
+    selectGroup,
     termsFor,
   };
 });

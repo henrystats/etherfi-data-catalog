@@ -1,6 +1,7 @@
 (function () {
   const COPY_SELECTOR = "[data-copy-text]";
   const FEEDBACK_SELECTOR = "[data-copy-feedback]";
+  const ANNOUNCER_SELECTOR = "[data-copy-announcer]";
   const RESET_DELAY_MS = 1400;
 
   function copyWithFallback(text) {
@@ -38,6 +39,12 @@
       return;
     }
     feedback.textContent = label;
+    const announcer = button.parentElement
+      ? button.parentElement.querySelector(ANNOUNCER_SELECTOR)
+      : null;
+    if (announcer) {
+      announcer.textContent = label === "Copy" ? "" : label;
+    }
   }
 
   function resetFeedback(button) {

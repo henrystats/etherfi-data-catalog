@@ -217,6 +217,11 @@ def render_nav(pages: list[Page], active_slug: str, link_prefix: str = "") -> st
     return "\n".join(links)
 
 
+def format_document_title(title: str) -> str:
+    site_title = "ether.fi Data Catalog"
+    return site_title if title == site_title else f"{title} | {site_title}"
+
+
 def render_page(
     page: Page,
     pages: list[Page],
@@ -228,6 +233,7 @@ def render_page(
 ) -> str:
     return template.safe_substitute(
         title=escape(page.title),
+        document_title=escape(format_document_title(page.title)),
         description=escape(page.description),
         body_class=escape(page.body_class),
         asset_prefix=asset_prefix,
@@ -250,6 +256,7 @@ def render_generated_page(
 ) -> str:
     return template.safe_substitute(
         title=escape(title),
+        document_title=escape(format_document_title(title)),
         description=escape(description),
         body_class=escape(body_class),
         asset_prefix=asset_prefix,
@@ -504,6 +511,11 @@ COPY_ICON_SVG = (
     "</svg>"
 )
 
+COPY_ANNOUNCER_HTML = (
+    '<span class="copy-announcer" data-copy-announcer role="status" '
+    'aria-live="polite" aria-atomic="true"></span>'
+)
+
 
 def render_copy_button(value: object, label: str) -> str:
     value_text = value_or_missing(value)
@@ -515,6 +527,7 @@ def render_copy_button(value: object, label: str) -> str:
         f"{COPY_ICON_SVG}"
         '<span class="copy-value-label" data-copy-feedback>Copy</span>'
         "</button>"
+        f"{COPY_ANNOUNCER_HTML}"
     )
 
 
@@ -594,31 +607,6 @@ def render_tag_list(values) -> str:
         return f'<p class="missing">{NOT_DOCUMENTED}</p>'
     tags = "\n".join(f'<span class="tag">{escape(str(value))}</span>' for value in values)
     return f'<div class="tag-list">{tags}</div>'
-
-
-def render_fact_grid(fields: list[tuple[str, object]], class_name: str = "fact-grid") -> str:
-    facts = []
-    for label, value in fields:
-        facts.append(
-            "<div class=\"fact\">"
-            f"<span>{escape(label)}</span>"
-            f"<strong>{render_field_value(value)}</strong>"
-            "</div>"
-        )
-    return f'<div class="{escape(class_name)}">' + "\n".join(facts) + "</div>"
-
-
-def render_stat_grid(stats: list[tuple[str, object, str]]) -> str:
-    rendered_stats = []
-    for label, value, helper in stats:
-        rendered_stats.append(
-            '<div class="stat">'
-            f"<span>{escape(label)}</span>"
-            f"<strong>{escape(str(value))}</strong>"
-            f"<p>{escape(helper)}</p>"
-            "</div>"
-        )
-    return '<div class="stat-grid">' + "\n".join(rendered_stats) + "</div>"
 
 
 def parse_freshness_timestamp(value) -> datetime | None:
@@ -904,8 +892,9 @@ def render_mcp_code_block(value: str, label: str = "Snippet") -> str:
         f"{COPY_ICON_SVG}"
         '<span class="copy-value-label" data-copy-feedback>Copy</span>'
         "</button>"
+        f"{COPY_ANNOUNCER_HTML}"
         "</div>"
-        f"<pre><code>{escape(stripped)}</code></pre>"
+        f'<pre tabindex="0" role="region" aria-label="{escape(label)} code snippet"><code>{escape(stripped)}</code></pre>'
         "</div>"
     )
 
@@ -1070,35 +1059,14 @@ def render_home_preview_card(
     title: str, description: str, href: str, label: str, index: int
 ) -> str:
     return (
-        '<article class="home-preview-card">'
+        f'<a class="home-preview-card" href="{escape(href)}">'
         "<div>"
         f'<span class="home-route-index" aria-hidden="true">0{index}</span>'
         f"<h2>{escape(title)}</h2>"
         f"<p>{escape(description)}</p>"
         "</div>"
-        f'<a class="dataset-detail-action" href="{escape(href)}">{escape(label)}</a>'
-        "</article>"
-    )
-
-
-def render_home_command_preview() -> str:
-    return (
-        '<aside class="home-command-preview" aria-label="Catalog workflow preview">'
-        '<div class="command-preview-bar">'
-        "<span></span><span></span><span></span>"
-        "<strong>ether.fi catalog</strong>"
-        "</div>"
-        '<div class="command-preview-query">'
-        "<span>Teammate question</span>"
-        "<strong>Which table backs Cash activity and is it fresh enough?</strong>"
-        "</div>"
-        '<div class="command-preview-footer">'
-        "<span>Dataset context</span>"
-        "<span>Freshness status</span>"
-        "<span>MCP-ready</span>"
-        "<span>Static generated</span>"
-        "</div>"
-        "</aside>"
+        f'<span class="dataset-detail-action">{escape(label)}</span>'
+        "</a>"
     )
 
 
@@ -1186,21 +1154,21 @@ def render_freshness_page(
     ]
     rows = sorted(rows, key=freshness_sort_key)
 
-    summary_counts = {status: 0 for status in ("fresh", "delayed", "stale", "unknown")}
-    for row in rows:
-        display_status, _ = freshness_display_status(row)
-        summary_counts[display_status] = summary_counts.get(display_status, 0) + 1
-
-    summary_cards = "".join(
-        f'<div class="freshness-summary-item {escape(status)}">'
-        f'<span>{escape(label)}</span><strong>{summary_counts.get(status, 0)}</strong>'
+    source_panel = (
+        '<aside class="freshness-source-panel" aria-label="Freshness sources and automation">'
+        '<p class="freshness-source-kicker">Source &amp; automation</p>'
+        '<p class="freshness-source-copy">Freshness is sourced from a Dune tracker query and refreshed through the GitHub Actions workflow.</p>'
+        '<div class="freshness-source-actions">'
+        '<a class="freshness-source-link dune" href="https://dune.com/queries/7625551" '
+        'aria-label="View freshness query on Dune">'
+        '<span>Dune tracker</span><strong>View freshness query</strong>'
+        "</a>"
+        '<a class="freshness-source-link workflow" href="https://github.com/henrystats/etherfi-data-catalog/actions/workflows/refresh-freshness.yml" '
+        'aria-label="Open freshness refresh workflow on GitHub">'
+        '<span>GitHub Actions</span><strong>Open refresh workflow</strong>'
+        "</a>"
         "</div>"
-        for status, label in [
-            ("fresh", "Fresh"),
-            ("delayed", "Delayed"),
-            ("stale", "Stale"),
-            ("unknown", "Unknown"),
-        ]
+        "</aside>"
     )
 
     hero = (
@@ -1210,12 +1178,13 @@ def render_freshness_page(
         "<h1>Freshness</h1>"
         "<p>Search cataloged ether.fi datasets and check whether each one is fresh enough for reporting, dashboards, or agent-assisted Dune queries.</p>"
         "</div>"
-        f'<div class="freshness-summary" aria-label="Freshness summary">{summary_cards}</div>'
+        f"{source_panel}"
         "</section>"
     )
 
     status_filter_buttons = "\n".join(
-        f'<button class="filter-chip" type="button" data-status-filter="{escape(value)}">{escape(label)}</button>'
+        f'<button class="filter-chip{" active" if value == "all" else ""}" type="button" '
+        f'data-status-filter="{escape(value)}" aria-pressed="{"true" if value == "all" else "false"}">{escape(label)}</button>'
         for value, label in [
             ("all", "All"),
             ("fresh", "Fresh"),
@@ -1322,12 +1291,12 @@ def render_freshness_page(
         '<div class="registry-section-header">'
         "<div>"
         "<h2>Dataset registry</h2>"
-        "<p>One card per generated catalog entry, with freshness, refresh cadence, source query, and dataset detail links.</p>"
+        "<p>One card per generated catalog entry, including supporting tables not shown in the main dataset browser, with freshness, refresh cadence, source query, and dataset detail links.</p>"
         "</div>"
         f'<span id="dataset-count" data-freshness-count role="status" aria-live="polite" aria-atomic="true">{len(rows)} shown</span>'
         "</div>"
         f'<div class="registry-list">{registry_html}</div>'
-        '<div id="dataset-empty-state" class="freshness-empty-state" data-freshness-empty hidden>No datasets match your search.</div>'
+        '<div id="dataset-empty-state" class="freshness-empty-state" data-freshness-empty hidden>No datasets match these filters.</div>'
         "</section>"
         f'<script src="{escape(freshness_js_src)}" defer></script>'
         "</div>"
@@ -1622,14 +1591,17 @@ def render_dataset_index(
 
     sorted_categories = sorted(grouped.items(), key=category_sort_key)
     nav_buttons = [
-        '<button class="dataset-nav-button active" type="button" data-dataset-nav="overview" aria-pressed="true">'
+        '<button class="dataset-nav-button active" type="button" data-dataset-nav="overview" '
+        'aria-pressed="true" aria-controls="dataset-view-overview">'
         '<span>Overview</span>'
         f'<strong>{len(entries)}</strong>'
         "</button>"
     ]
     for category, category_entries in sorted_categories:
+        category_id = category.replace("_", "-")
         nav_buttons.append(
-            f'<button class="dataset-nav-button" type="button" data-dataset-nav="{escape(category)}" aria-pressed="false">'
+            f'<button class="dataset-nav-button" type="button" data-dataset-nav="{escape(category)}" '
+            f'aria-pressed="false" aria-controls="dataset-view-{escape(category_id)}">'
             f'<span>{escape(titleize_category(category))}</span>'
             f'<strong>{len(category_entries)}</strong>'
             "</button>"
@@ -1642,15 +1614,18 @@ def render_dataset_index(
 
     category_sections = []
     for category, category_entries in sorted_categories:
+        category_id = category.replace("_", "-")
         cards = "".join(
             render_compact_dataset_card(entry, freshness_registry, now=now)
             for entry in category_entries
         )
         category_sections.append(
-            f'<section class="dataset-category-view" data-dataset-category-section data-category="{escape(category)}" hidden>'
+            f'<section id="dataset-view-{escape(category_id)}" class="dataset-category-view" '
+            f'data-dataset-category-section data-category="{escape(category)}" '
+            f'aria-labelledby="dataset-heading-{escape(category_id)}" hidden>'
             '<div class="dataset-view-heading">'
             "<div>"
-            f"<h2>{escape(titleize_category(category))}</h2>"
+            f'<h2 id="dataset-heading-{escape(category_id)}">{escape(titleize_category(category))}</h2>'
             f"<p>{escape(category_description(category, len(category_entries)))}</p>"
             "</div>"
             f'<span class="dataset-view-count">{len(category_entries)} datasets</span>'
@@ -1679,9 +1654,10 @@ def render_dataset_index(
         "</div>"
         f'<span id="dataset-count" class="dataset-count" role="status" aria-live="polite" aria-atomic="true">{len(entries)} datasets</span>'
         "</section>"
-        '<section class="dataset-overview-view" data-dataset-overview>'
+        '<section id="dataset-view-overview" class="dataset-overview-view" '
+        'data-dataset-overview aria-labelledby="dataset-heading-overview">'
         '<div class="dataset-overview-copy">'
-        "<h1>Dataset catalog</h1>"
+        '<h1 id="dataset-heading-overview">Dataset catalog</h1>'
         "<p>Search or browse ether.fi materialized views, then open a detail page for grain, freshness, schema, source query, and related resources.</p>"
         "</div>"
         '<section class="dataset-featured-section">'
@@ -1835,6 +1811,7 @@ def render_schema_table(schema, important_columns=None) -> str:
         '<div class="schema-table-wrap" role="region" aria-label="Dataset schema" tabindex="0">'
         '<div class="schema-table-toolbar">'
         "<span>Columns</span>"
+        '<span class="schema-scroll-hint" aria-hidden="true">Scroll for type + description &rarr;</span>'
         f"<strong>{len(columns)}</strong>"
         "</div>"
         '<table class="schema-table">'
@@ -1843,16 +1820,6 @@ def render_schema_table(schema, important_columns=None) -> str:
         "</table>"
         "</div>"
     )
-
-
-def render_limited_metadata_list(values, *, limit: int = 6) -> str:
-    if not values:
-        return f'<p class="missing">{NOT_DOCUMENTED}</p>'
-    if isinstance(values, str):
-        values = [values]
-    visible = list(values)[:limit]
-    items = "\n".join(f"<li>{render_inline_markdown(format_metadata_item(value))}</li>" for value in visible)
-    return f"<ul>{items}</ul>"
 
 
 def compact_about_text(text: str, *, max_chars: int = 260) -> str:
@@ -2079,7 +2046,7 @@ def render_dataset_page(
     caveats_html = (
         '<section class="detail-panel dataset-detail-section dataset-caveat-panel warning">'
         "<h2>Caveats</h2>"
-        f"{render_limited_metadata_list(data.get('caveats'), limit=5)}"
+        f"{render_metadata_list(data.get('caveats'))}"
         "</section>"
         if data.get("caveats")
         else ""
@@ -2272,7 +2239,9 @@ def render_dashboard_card(
         f'<span class="dashboard-category-chip {escape(entry.category)}">{escape(dashboard_category_label(entry))}</span>'
         f'<span class="dashboard-linked-count">{len(internal_datasets)} linked datasets</span>'
         "</div>"
+        '<h3 class="dashboard-card-heading">'
         f'<a class="dashboard-card-title" href="{escape(dashboard_href(entry))}">{escape(dashboard_title(entry))}</a>'
+        "</h3>"
         f'<p class="dashboard-card-description">{render_field_value(data.get("description"))}</p>'
         f'{render_dashboard_tag_chips(data.get("tags") or [], prefer_distinctive_tail=entry.category == "liquid")}'
         "</div>"
@@ -2463,12 +2432,12 @@ def render_dashboard_page(
         "</div>"
         f"{dashboard_link}"
         "</header>"
+        f"{notes_section}"
         '<section class="detail-panel dataset-detail-section">'
         "<h2>Tags</h2>"
         f"{render_tag_list(data.get('tags'))}"
         "</section>"
         f"{linked_section}"
-        f"{notes_section}"
         "</div>"
         "</section>"
     )
@@ -2694,8 +2663,14 @@ def build_site(
     use_generated_catalog_pages = source_dir.resolve() == DEFAULT_SOURCE_DIR.resolve()
     pages = load_pages(source_dir)
     styles_version = asset_cache_version(source_dir / "assets" / "styles.css")
+    theme_js_version = asset_cache_version(source_dir / "assets" / "theme.js")
     template_source = (source_dir / "templates" / "base.html.tpl").read_text(encoding="utf-8")
-    template = Template(Template(template_source).safe_substitute(styles_version=styles_version))
+    template = Template(
+        Template(template_source).safe_substitute(
+            styles_version=styles_version,
+            theme_js_version=theme_js_version,
+        )
+    )
     dataset_entries = load_dataset_entries(Path(datasets_dir)) if datasets_dir is not None else []
     dashboard_entries = (
         load_dashboard_entries(Path(dashboard_registry_path))
