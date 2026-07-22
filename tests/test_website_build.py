@@ -683,7 +683,7 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     holder_with_defi_page = (
         tmp_path / "datasets" / "protocol_token_holders_with_defi.html"
     ).read_text(encoding="utf-8")
-    assert "Ether.fi Protocol Token Holders With DeFi" in holder_with_defi_page
+    assert "Protocol Token Holders with DeFi" in holder_with_defi_page
     assert "Freshness &amp; Refresh Interval" in holder_with_defi_page
     assert "Freshness &amp; Interval" not in holder_with_defi_page
     assert "Every 4h" in holder_with_defi_page

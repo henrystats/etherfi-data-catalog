@@ -62,7 +62,7 @@ def test_load_datasets_reads_existing_yaml_files():
     )
     assert (
         catalog["etherfi_protocol_token_holders_with_defi"]["display_name"]
-        == "Ether.fi Protocol Token Holders With DeFi"
+        == "Protocol Token Holders with DeFi"
     )
 
 

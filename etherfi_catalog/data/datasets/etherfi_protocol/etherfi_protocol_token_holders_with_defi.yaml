@@ -7,7 +7,7 @@ aliases:
   - top eETH holders including defi
   - holders with defi exposure
   - exclude known defi contracts
-display_name: Ether.fi Protocol Token Holders With DeFi
+display_name: Protocol Token Holders with DeFi
 description: Holder exposure table that includes direct balances plus balances attributable to tracked defi deposits
 refresh_interval_minutes: 240
 freshness_timestamp_column: last_updated

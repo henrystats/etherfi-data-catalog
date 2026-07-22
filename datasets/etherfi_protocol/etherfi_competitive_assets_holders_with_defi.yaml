@@ -4,7 +4,7 @@ aliases:
   - competitive_assets_holders_with_defi
   - competitive asset holders
   - competitive holders with defi
-display_name: Ether.fi Competitive Asset Holders With Defi
+display_name: Competitive Assets Holders with DeFi
 description: Dataset for ether.fi competitive asset holders including tracked defi exposure
 refresh_interval_minutes: 360
 freshness_timestamp_column: last_updated
