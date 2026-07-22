@@ -409,6 +409,7 @@ def normalize_dashboard_data(data: dict, *, source_path: Path, category: str | N
     normalized["category"] = normalize_dashboard_category(normalized.get("category") or category)
     normalized["tags"] = list(normalized.get("tags") or [])
     normalized["datasets"] = list(normalized.get("datasets") or [])
+    normalized["metrics"] = list(normalized.get("metrics") or [])
     normalized["show_in_core"] = bool(
         normalized.get("show_in_core")
         or normalized.get("featured")
@@ -679,6 +680,19 @@ def format_compact_relative_age(minutes: float | None) -> str:
     return f"{days}d {hours}h ago" if hours and days < 2 else f"{days}d ago"
 
 
+def format_compact_duration(minutes: float | None) -> str:
+    if minutes is None:
+        return ""
+    rounded_minutes = max(0, int(round(minutes)))
+    if rounded_minutes < 60:
+        return f"{max(1, rounded_minutes)}m"
+    if rounded_minutes < 24 * 60:
+        rounded_hours = max(1, int(round(rounded_minutes / 60)))
+        if rounded_hours < 24:
+            return f"{rounded_hours}hr"
+    return f"{max(1, int(round(rounded_minutes / (24 * 60))))}d"
+
+
 def freshness_status_for_entry(
     entry: DatasetEntry,
     freshness_registry: dict,
@@ -800,6 +814,20 @@ def freshness_display_status(row: dict) -> tuple[str, str]:
     if status == "not-documented":
         return "unknown", "Unknown"
     return status, str(row["label"])
+
+
+def dataset_card_status_label(row: dict) -> str:
+    display_status, status_label = freshness_display_status(row)
+    if display_status not in {"delayed", "stale"}:
+        return status_label
+
+    lag_minutes = row.get("lag_minutes")
+    refresh_interval = row.get("refresh_interval_minutes")
+    if lag_minutes is None or refresh_interval is None:
+        return status_label
+
+    overdue_label = format_compact_duration(max(0, lag_minutes - refresh_interval))
+    return f"{status_label} {overdue_label}" if overdue_label else status_label
 
 
 def freshness_meter_for_row(row: dict) -> dict:
@@ -1499,10 +1527,11 @@ def render_compact_dataset_card(
 ) -> str:
     data = entry.data
     row = dataset_freshness_row(entry, freshness_registry, now=now)
-    display_status, display_status_label = freshness_display_status(row)
-    relative_last_refreshed = format_relative_age(row["lag_minutes"])
+    display_status, _ = freshness_display_status(row)
+    display_status_label = dataset_card_status_label(row)
     source_href = dataset_source_query_href(data)
     query_id = data.get("source_query_id")
+    category_class = entry.category.replace("_", "-")
     attrs = ""
     if include_search_attrs:
         attrs = (
@@ -1521,13 +1550,14 @@ def render_compact_dataset_card(
     return (
         f'<article class="{escape(class_name)}"{attrs}{source_query_attr}>'
         '<div class="dataset-card-main">'
+        '<div class="dataset-card-topline">'
+        f'<span class="dataset-category-chip {escape(category_class)}">{escape(titleize_category(entry.category))}</span>'
+        f'<span class="dataset-card-status {escape(display_status)}">{escape(display_status_label)}</span>'
+        '</div>'
+        '<h3 class="dataset-card-heading">'
         f'<a class="dataset-card-title" href="{escape(dataset_href(entry))}">{escape(dataset_title(entry))}</a>'
-        f'<p>{render_field_value(data.get("description"))}</p>'
-        '<div class="registry-meta-row">'
-        f'{render_meta_chip("Refresh", escape(dataset_refresh_label(data)), "interval")}'
-        f'{render_meta_chip("Last refreshed", escape(relative_last_refreshed), "updated", format_freshness_table_timestamp(row["last_updated"]))}'
-        f'{render_meta_chip("Status", escape(display_status_label), display_status)}'
-        "</div>"
+        '</h3>'
+        f'<p class="dataset-card-description">{render_field_value(data.get("description"))}</p>'
         "</div>"
         '<div class="dataset-card-side">'
         f"{source_link}"
@@ -1558,17 +1588,18 @@ def featured_dataset_entries(entries: list[DatasetEntry]) -> list[DatasetEntry]:
         "ether.fi assets under management",
         "ether.fi protocol token tvl",
         "ether.fi cash events",
+        "tokens traits",
     ]
     entries_by_title = {dataset_title(entry).lower(): entry for entry in entries}
     featured = [entries_by_title[name] for name in preferred if name in entries_by_title]
-    if len(featured) >= 3:
-        return featured[:3]
+    if len(featured) >= 4:
+        return featured[:4]
     for entry in entries:
         if entry not in featured and entry.data.get("query_ready"):
             featured.append(entry)
-        if len(featured) == 3:
+        if len(featured) == 4:
             break
-    return featured[:3]
+    return featured[:4]
 
 
 def category_description(category: str, count: int) -> str:
@@ -1654,20 +1685,15 @@ def render_dataset_index(
         "</div>"
         f'<span id="dataset-count" class="dataset-count" role="status" aria-live="polite" aria-atomic="true">{len(entries)} datasets</span>'
         "</section>"
-        '<section id="dataset-view-overview" class="dataset-overview-view" '
+        '<section id="dataset-view-overview" class="dataset-overview-view dataset-featured-view" '
         'data-dataset-overview aria-labelledby="dataset-heading-overview">'
-        '<div class="dataset-overview-copy">'
-        '<h1 id="dataset-heading-overview">Dataset catalog</h1>'
-        "<p>Search or browse ether.fi materialized views, then open a detail page for grain, freshness, schema, source query, and related resources.</p>"
-        "</div>"
-        '<section class="dataset-featured-section">'
         '<div class="dataset-view-heading">'
         "<div>"
-        "<h2>Featured datasets</h2>"
+        '<h2 id="dataset-heading-overview">Featured datasets</h2>'
+        "<p>Our most used datasets.</p>"
         "</div>"
         "</div>"
         f'<div class="dataset-browser-list featured-list">{featured_cards}</div>'
-        "</section>"
         "</section>"
         f'{"".join(category_sections)}'
         '<div id="dataset-empty-state" class="freshness-empty-state dataset-empty-state" hidden>No datasets match your search.</div>'
@@ -2168,6 +2194,7 @@ def dashboard_search_text(
         data.get("url"),
         data.get("tags"),
         data.get("notes"),
+        data.get("metrics"),
         "dashboard",
         "core" if dashboard_is_core(entry) else "",
         dashboard_linked_dataset_values(data.get("datasets") or [], dataset_reference_index),
@@ -2274,6 +2301,28 @@ def render_dashboard_dataset_links(
     return '<div class="related-resource-list">' + "\n".join(links) + "</div>"
 
 
+def render_dashboard_metrics(metrics) -> str:
+    if not metrics:
+        return ""
+
+    items = "".join(
+        f'<li><span>{escape(str(metric))}</span></li>'
+        for metric in metrics
+    )
+    return (
+        '<section class="detail-panel dataset-detail-section dashboard-metrics-panel">'
+        '<div class="dashboard-metrics-heading">'
+        '<div>'
+        '<p class="eyebrow">Dashboard coverage</p>'
+        '<h2>Metrics displayed</h2>'
+        '</div>'
+        f'<span class="dashboard-metrics-count">{len(metrics)} metrics</span>'
+        '</div>'
+        f'<ul class="dashboard-metrics-grid">{items}</ul>'
+        '</section>'
+    )
+
+
 def render_dashboard_index(
     entries: list[DashboardEntry],
     dataset_reference_index: dict[str, DatasetEntry],
@@ -2356,13 +2405,6 @@ def render_dashboard_index(
         f'{"".join(nav_buttons)}'
         "</aside>"
         '<div class="dataset-browser-main">'
-        '<section class="dashboard-browser-header">'
-        '<div>'
-        '<p class="eyebrow">Dashboard registry</p>'
-        "<h1>Dashboards</h1>"
-        "<p>Find existing ether.fi Dune dashboards by product area, tag, or linked catalog dataset.</p>"
-        "</div>"
-        "</section>"
         '<section class="catalog-toolbar dataset-browser-toolbar">'
         '<div class="catalog-search">'
         '<label for="dashboard-search">Search dashboards</label>'
@@ -2407,15 +2449,7 @@ def render_dashboard_page(
         if url
         else f'<span class="missing">{NOT_DOCUMENTED}</span>'
     )
-    notes = data.get("notes")
-    notes_section = (
-        '<section class="detail-panel dataset-detail-section dashboard-notes-panel">'
-        "<h2>Notes</h2>"
-        f"{render_metadata_list(notes)}"
-        "</section>"
-        if notes
-        else ""
-    )
+    metrics_section = render_dashboard_metrics(data.get("metrics"))
 
     return (
         '<section class="page dashboard-detail-page">'
@@ -2432,7 +2466,7 @@ def render_dashboard_page(
         "</div>"
         f"{dashboard_link}"
         "</header>"
-        f"{notes_section}"
+        f"{metrics_section}"
         '<section class="detail-panel dataset-detail-section">'
         "<h2>Tags</h2>"
         f"{render_tag_list(data.get('tags'))}"

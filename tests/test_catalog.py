@@ -1271,6 +1271,13 @@ def test_default_dashboard_registry_loads_liquid_vaults_from_liquid_category():
     assert dashboard["url"] == "https://dune.com/ether_fi/liquid-vaults"
     assert "netflows" in dashboard["tags"]
     assert "dune.ether_fi.result_tokens_rates_oracle_pegs" in dashboard["datasets"]
+    assert len(dashboard["metrics"]) == 18
+    assert dashboard["metrics"][1] == "Current All-Time Unique Depositors"
+    assert "Daily Withdrawal Requests" in dashboard["metrics"]
+    assert "Daily Liquid Vaults Deposits grouped by Liquid Vault" in dashboard["metrics"]
+    assert dashboard["metrics"][-1] == (
+        "LiquidETH, LiquidUSD, and LiquidBTC TVL, withdrawal times, and APR"
+    )
     assert "appears truncated" in dashboard["notes"][1]
 
 
@@ -1476,6 +1483,32 @@ def test_search_dashboards_finds_liquid_vaults_from_natural_prompts(prompt):
 
 
 @pytest.mark.parametrize(
+    "prompt",
+    [
+        "what dashboard can i use to find weekly top liquid vaults deposits?",
+        "daily liquid vault deposits by vault",
+        "liquid vault netflows dashboard",
+        "liquid vault withdrawal requests",
+        "liquid vault active holders",
+        "LiquidETH LiquidUSD LiquidBTC APR",
+        "where can I find liquid vault deposits breakdown?",
+        "protocol deposits breakdown for liquid vaults",
+    ],
+)
+def test_search_dashboards_finds_liquid_vaults_by_displayed_metrics(prompt):
+    results = search_dashboards(prompt)
+
+    liquid_vaults = next(
+        dashboard for dashboard in results if dashboard["name"] == "liquid_vaults"
+    )
+    assert "Daily Liquid Vaults Deposits grouped by Liquid Vault" in liquid_vaults["metrics"]
+
+
+def test_search_dashboards_does_not_match_only_discovery_modifiers():
+    assert search_dashboards("what dashboard can i use to find weekly top") == []
+
+
+@pytest.mark.parametrize(
     ("prompt", "expected_name"),
     [
         ("eBTC vault dashboard", "ebtc"),
@@ -1511,6 +1544,14 @@ def test_get_dashboard_details_returns_etherfi_overview():
 
     assert dashboard is not None
     assert dashboard["name"] == "etherfi_overview"
+
+
+def test_get_dashboard_details_exposes_liquid_vault_metrics():
+    dashboard = get_dashboard_details("liquid_vaults")
+
+    assert dashboard is not None
+    assert dashboard["metrics"][0] == "Current Total Liquid Vaults TVL"
+    assert "Latest Protocol Deposits Breakdown" in dashboard["metrics"]
 
 
 def test_get_dashboard_status_returns_linked_dataset_warnings_for_stale_datasets():

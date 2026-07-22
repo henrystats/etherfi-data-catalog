@@ -42,6 +42,15 @@ _DASHBOARD_CATEGORY_ORDER = {
     "others": 3,
 }
 
+_DASHBOARD_DISCOVERY_MODIFIERS = {
+    "can",
+    "find",
+    "top",
+    "use",
+    "weekly",
+    "what",
+}
+
 _DEFAULT_DATASETS_DIR = "datasets"
 _DEFAULT_DASHBOARDS_DIR = "dashboards"
 _DEFAULT_FRESHNESS_REGISTRY_PATH = "status/dataset_freshness.yaml"
@@ -176,6 +185,7 @@ def _normalize_dashboard_metadata(dashboard: dict, *, source_path, category: str
     normalized["category"] = _normalize_dashboard_category(normalized.get("category") or category)
     normalized["tags"] = list(normalized.get("tags") or [])
     normalized["datasets"] = list(normalized.get("datasets") or [])
+    normalized["metrics"] = list(normalized.get("metrics") or [])
     normalized["source_path"] = str(source_path)
     normalized["show_in_core"] = bool(
         normalized.get("show_in_core")
@@ -779,7 +789,11 @@ def search_dashboards(query, registry=None, datasets=None, freshness_registry=No
     datasets = datasets or load_datasets()
     dashboards = registry.get("dashboards", [])
     query_text = query.lower()
-    query_terms = _search_terms(query_text)
+    query_terms = [
+        term
+        for term in _search_terms(query_text)
+        if term not in _DASHBOARD_DISCOVERY_MODIFIERS
+    ]
     matches: list[dict] = []
 
     for dashboard in dashboards:
@@ -790,6 +804,7 @@ def search_dashboards(query, registry=None, datasets=None, freshness_registry=No
             dashboard.get("description", ""),
             dashboard.get("url", ""),
             dashboard.get("notes", []),
+            dashboard.get("metrics", []),
         ]
         searchable_values.extend(dashboard.get("tags", []))
         searchable_values.extend(dashboard.get("datasets", []))

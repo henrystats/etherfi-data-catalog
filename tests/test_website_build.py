@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import json
 from pathlib import Path
 import re
@@ -9,12 +9,15 @@ from scripts.build_website import (
     DEFAULT_OUTPUT_DIR,
     NOT_DOCUMENTED,
     build_site,
+    dataset_card_status_label,
     dataset_freshness_interval_summary,
+    format_compact_duration,
     format_relative_age,
     freshness_meter_for_row,
     load_dashboard_entries,
     load_dataset_entries,
     load_pages,
+    render_compact_dataset_card,
 )
 
 
@@ -420,6 +423,7 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     build_site(output_dir=tmp_path)
 
     dataset_index = (tmp_path / "datasets.html").read_text(encoding="utf-8")
+    css = (tmp_path / "assets" / "styles.css").read_text(encoding="utf-8")
     assert 'class="dataset-category-panel" aria-label="Dataset categories"' in dataset_index
     assert 'data-datasets-page' in dataset_index
     assert 'data-dataset-nav="overview"' in dataset_index
@@ -448,8 +452,8 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     assert dataset_index.find("<span>Ether.fi Protocol</span>") < dataset_index.find("<span>Prices</span>")
     assert dataset_index.find("<span>Prices</span>") < dataset_index.find("<span>Metadata</span>")
     assert dataset_index.find("<span>Metadata</span>") < dataset_index.find("<span>LRT / Restaking</span>")
-    assert '<h1 id="dataset-heading-overview">Dataset catalog</h1>' in dataset_index
-    assert "Search or browse ether.fi materialized views, then open a detail page" in dataset_index
+    assert '<h1 id="dataset-heading-overview">Dataset catalog</h1>' not in dataset_index
+    assert "Search or browse ether.fi materialized views, then open a detail page" not in dataset_index
     assert "This page documents ether.fi materialized views and supporting datasets." not in dataset_index
     assert "dataset-overview-routes" not in dataset_index
     assert "Search spans schema fields, table names, source query IDs, and related catalog metadata." not in dataset_index
@@ -458,10 +462,25 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     assert "Categories" not in dataset_index
     assert "Query ready" not in dataset_index
     assert "Source queries documented" not in dataset_index
-    assert "Featured datasets" in dataset_index
+    assert 'class="dataset-overview-view dataset-featured-view"' in dataset_index
+    assert '<h2 id="dataset-heading-overview">Featured datasets</h2>' in dataset_index
+    assert "Our most used datasets." in dataset_index
+    assert "dataset-featured-section" not in dataset_index
     assert "Ether.fi Assets Under Management" in dataset_index
     assert "Ether.fi Protocol Token TVL" in dataset_index
     assert "Ether.fi Cash Events" in dataset_index
+    assert "Tokens Traits" in dataset_index
+    overview_end = dataset_index.find('<section id="dataset-view-activity"')
+    assert overview_end > 0
+    overview_html = dataset_index[:overview_end]
+    assert overview_html.count('class="dataset-browser-card featured"') == 4
+    assert 'href="datasets/tokens_traits.html"' in overview_html
+    assert dataset_index.find('class="catalog-toolbar dataset-browser-toolbar"') < dataset_index.find('id="dataset-view-overview"')
+    assert dataset_index.find('id="dataset-view-overview"') < overview_end
+    assert ".dataset-featured-view::before" in css
+    assert "background: linear-gradient(90deg, var(--lime), var(--accent), var(--cobalt));" in css
+    assert ".dataset-featured-view .dataset-view-heading" in css
+    assert 'html[data-theme="dark"] .dataset-overview-view.dataset-featured-view' in css
     assert "Browse categories on the left to explore the full catalog." not in dataset_index
     assert 'id="dataset-search"' in dataset_index
     assert 'id="dataset-count"' in dataset_index
@@ -486,28 +505,56 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     holder_card_html = holder_card.group(1)
     assert "Protocol Token Holders" in holder_card_html
     assert "Direct user/wallet holders of ether.fi protocol tokens by address" in holder_card_html
-    assert '<span>Refresh</span>' in holder_card_html
-    assert '<strong>4h</strong>' in holder_card_html
-    assert '<span>Last refreshed</span>' in holder_card_html
-    assert '<span>Status</span>' in holder_card_html
+    assert re.search(
+        r'<span class="dataset-card-status stale">Stale \d+(?:m|hr|d)</span>',
+        holder_card_html,
+    )
+    assert '<dl class="dataset-card-meta"' not in holder_card_html
+    assert '<dt>Refresh interval</dt>' not in holder_card_html
+    assert '<dt>Last refreshed</dt>' not in holder_card_html
+    assert "registry-meta-row" not in holder_card_html
     assert 'href="https://dune.com/queries/6213381"' in holder_card_html
     assert 'aria-label="Open source Dune query for Protocol Token Holders"' in holder_card_html
     assert 'href="datasets/protocol_token_holders.html"' in holder_card_html
     assert 'aria-label="View Protocol Token Holders dataset details"' in holder_card_html
+    assert '<span class="dataset-category-chip etherfi-protocol">Ether.fi Protocol</span>' in holder_card_html
+    assert '<code class="dataset-card-table"' not in holder_card_html
+    assert "dune.ether_fi.result_etherfi_protocol_token_holders" not in holder_card_html
+    assert '<h3 class="dataset-card-heading">' in holder_card_html
+    assert '<p class="dataset-card-description">' in holder_card_html
+    assert '<div class="dataset-card-side">' in holder_card_html
+    assert holder_card_html.find('class="dataset-category-chip etherfi-protocol"') < holder_card_html.find('class="dataset-card-status stale"')
+    assert holder_card_html.find('class="dataset-card-status stale"') < holder_card_html.find('class="dataset-card-heading"')
+    assert re.search(
+        r"\.dataset-browser-list\s*\{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\);",
+        css,
+        re.S,
+    )
+    for status in ["fresh", "delayed", "stale", "unknown"]:
+        assert f".dataset-card-status.{status}" in css
+        assert f'html[data-theme="dark"] .dataset-card-status.{status}' in css
+    assert re.search(
+        r"\.dataset-card-description\s*\{[^}]*-webkit-line-clamp:\s*2;",
+        css,
+        re.S,
+    )
+    assert ".dataset-card-meta" not in css
+    assert ".dataset-featured-view::before," in css
+    assert ".dataset-category-view::before" in css
+    for category in ["activity", "prices", "metadata", "lrt_restaking"]:
+        assert f'.dataset-category-view[data-category="{category}"]' in css
     assert "Details" in holder_card_html
     assert "dataset-card-kicker" not in dataset_index
     assert "dataset-table-inline" not in dataset_index
     assert 'class="meta-chip subtle"' not in dataset_index
     assert "<span>Related</span>" not in dataset_index
     assert "<span>Category</span>" not in holder_card_html
-    assert "dune.ether_fi.result_etherfi_protocol_token_holders" not in holder_card_html
     assert "related datasets</strong>" not in holder_card_html
     assert "dashboards</strong>" not in holder_card_html
     assert "dune.ether_fi.result_etherfi_protocol_token_holders" in dataset_index
     assert "etherfi_protocol_token_holders" in dataset_index
 
     holder_page = (tmp_path / "datasets" / "protocol_token_holders.html").read_text(encoding="utf-8")
-    css = (tmp_path / "assets" / "styles.css").read_text(encoding="utf-8")
     assert "../assets/styles.css" in holder_page
     assert '../assets/styles.css?v=' in holder_page
     assert 'class="nav-link active" href="../datasets.html" aria-current="page"' in holder_page
@@ -979,8 +1026,10 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     css = (tmp_path / "assets" / "styles.css").read_text(encoding="utf-8")
     assert 'data-dashboards-page' in dashboard_index
     assert 'class="dataset-category-panel" aria-label="Dashboard groups"' in dashboard_index
-    assert '<h1>Dashboards</h1>' in dashboard_index
-    assert "Find existing ether.fi Dune dashboards by product area, tag, or linked catalog dataset." in dashboard_index
+    assert '<section class="dashboard-browser-header">' not in dashboard_index
+    assert '<p class="eyebrow">Dashboard registry</p>' not in dashboard_index
+    assert '<h1>Dashboards</h1>' not in dashboard_index
+    assert "Find existing ether.fi Dune dashboards by product area, tag, or linked catalog dataset." not in dashboard_index
     assert "Browse ether.fi Dune dashboards by product area and linked datasets." not in dashboard_index
     assert "Total dashboards" not in dashboard_index
     assert "Core dashboards" not in dashboard_index
@@ -1051,6 +1100,7 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert 'id="dashboard-count" class="dataset-count" role="status" aria-live="polite" aria-atomic="true"' in dashboard_index
     assert 'id="dashboard-empty-state"' in dashboard_index
     assert 'src="assets/dashboards.js?v=' in dashboard_index
+    assert dashboard_index.find('class="catalog-toolbar dataset-browser-toolbar"') < dashboard_index.find('id="dashboard-group-core"')
     assert "No dashboards documented in this group yet." in dashboard_index
     assert "No dashboards match your search." in dashboard_index
     assert "generated from dashboards/registry.yaml" not in dashboard_index
@@ -1163,10 +1213,9 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert 'href="../datasets/protocol_token_holders.html"' in eeth_staking_page
     assert 'href="../datasets/protocol_token_holders_with_defi.html"' in eeth_staking_page
     assert 'href="../datasets/tokens_transfers.html"' in eeth_staking_page
-    assert '<section class="detail-panel dataset-detail-section dashboard-notes-panel">' in eeth_staking_page
-    assert "decoded contract calls and events" in eeth_staking_page
-    assert eeth_staking_page.find("<h2>Notes</h2>") < eeth_staking_page.find("<h2>Tags</h2>")
-    assert eeth_staking_page.find("<h2>Notes</h2>") < eeth_staking_page.find("<h2>Linked datasets</h2>")
+    assert '<section class="detail-panel dataset-detail-section dashboard-notes-panel">' not in eeth_staking_page
+    assert "<h2>Notes</h2>" not in eeth_staking_page
+    assert "decoded contract calls and events" not in eeth_staking_page
 
     weeth_l2s_page = (tmp_path / "dashboards" / "weeth_l2s.html").read_text(
         encoding="utf-8"
@@ -1177,7 +1226,8 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert 'href="../datasets/protocol_token_holders.html"' in weeth_l2s_page
     assert 'href="../datasets/lrts_restaking_dex_pools_balances.html"' in weeth_l2s_page
     assert 'href="../datasets/lrts_restaking_trades.html"' in weeth_l2s_page
-    assert "prices.usd" in weeth_l2s_page
+    assert "prices.usd" not in weeth_l2s_page
+    assert "<h2>Notes</h2>" not in weeth_l2s_page
 
     weeth_utilization_page = (
         tmp_path / "dashboards" / "weeth_utilization.html"
@@ -1188,8 +1238,9 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert 'href="../datasets/protocol_token_holders.html"' in weeth_utilization_page
     assert 'href="../datasets/tokens_prices_tokens_list.html"' in weeth_utilization_page
     assert 'href="../datasets/tokens_transfers.html"' in weeth_utilization_page
-    assert "bridge contracts" in weeth_utilization_page
-    assert "prices.usd" in weeth_utilization_page
+    assert "bridge contracts" not in weeth_utilization_page
+    assert "prices.usd" not in weeth_utilization_page
+    assert "<h2>Notes</h2>" not in weeth_utilization_page
 
     liquid_vaults_page = (tmp_path / "dashboards" / "liquid_vaults.html").read_text(
         encoding="utf-8"
@@ -1199,7 +1250,20 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert 'href="../datasets/etherfi_protocol_token_tvl.html"' in liquid_vaults_page
     assert 'href="../datasets/protocol_token_holders_with_defi.html"' in liquid_vaults_page
     assert 'href="../datasets/tokens_rates_oracle_pegs.html"' in liquid_vaults_page
-    assert "boringonchainqueue" in liquid_vaults_page.lower()
+    assert "boringonchainqueue" not in liquid_vaults_page.lower()
+    assert "<h2>Notes</h2>" not in liquid_vaults_page
+    assert '<section class="detail-panel dataset-detail-section dashboard-metrics-panel">' in liquid_vaults_page
+    assert "<h2>Metrics displayed</h2>" in liquid_vaults_page
+    assert '<span class="dashboard-metrics-count">18 metrics</span>' in liquid_vaults_page
+    assert '<ul class="dashboard-metrics-grid">' in liquid_vaults_page
+    assert "Use these metrics to confirm the dashboard covers the analysis you need before opening Dune." not in liquid_vaults_page
+    assert "dashboard-metrics-intro" not in liquid_vaults_page
+    assert "Current All-Time Unique Depositors" in liquid_vaults_page
+    assert "Daily Withdrawal Requests" in liquid_vaults_page
+    assert "Daily Liquid Vaults Deposits grouped by Liquid Vault" in liquid_vaults_page
+    assert "Daily Protocol Deposits Breakdown" in liquid_vaults_page
+    assert "LiquidETH, LiquidUSD, and LiquidBTC TVL, withdrawal times, and APR" in liquid_vaults_page
+    assert liquid_vaults_page.find("<h2>Metrics displayed</h2>") < liquid_vaults_page.find("<h2>Tags</h2>")
 
     related_liquid_vaults = [
         "ebtc",
@@ -1223,7 +1287,8 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
         assert 'class="dashboard-category-chip liquid"' in dashboard_page
         assert 'href="../datasets/etherfi_protocol_token_tvl.html"' in dashboard_page
         assert 'href="../datasets/protocol_token_holders_with_defi.html"' in dashboard_page
-        assert "BoringOnChainQueue" in dashboard_page
+        assert "BoringOnChainQueue" not in dashboard_page
+        assert "<h2>Notes</h2>" not in dashboard_page
 
     cash_page = (tmp_path / "dashboards" / "etherfi_cash.html").read_text(
         encoding="utf-8"
@@ -2017,6 +2082,52 @@ def test_freshness_relative_age_and_meter_buckets():
     unknown_meter = freshness_meter_for_row({"refresh_interval_minutes": None, "ratio": None, "lag_minutes": None})
     assert unknown_meter["phase"] == "unknown"
     assert unknown_meter["filled"] == 0
+
+
+def test_dataset_card_status_chip_uses_compact_overdue_duration():
+    assert format_compact_duration(30) == "30m"
+    assert format_compact_duration(50) == "50m"
+    assert format_compact_duration(61) == "1hr"
+    assert format_compact_duration(119) == "2hr"
+    assert format_compact_duration(24 * 60) == "1d"
+    assert format_compact_duration(48 * 60) == "2d"
+    assert format_compact_duration(None) == ""
+
+    assert dataset_card_status_label({"status": "fresh", "label": "Fresh"}) == "Fresh"
+    assert dataset_card_status_label(
+        {
+            "status": "delayed",
+            "label": "Delayed",
+            "lag_minutes": 90,
+            "refresh_interval_minutes": 60,
+        }
+    ) == "Delayed 30m"
+    assert dataset_card_status_label(
+        {
+            "status": "stale",
+            "label": "Stale",
+            "lag_minutes": 3_000,
+            "refresh_interval_minutes": 120,
+        }
+    ) == "Stale 2d"
+    assert dataset_card_status_label({"status": "unknown", "label": "Unknown"}) == "Unknown"
+    assert dataset_card_status_label({"status": "delayed", "label": "Delayed"}) == "Delayed"
+
+    entry = next(
+        entry for entry in load_dataset_entries() if entry.slug == "protocol_token_holders"
+    )
+    now = datetime(2026, 7, 22, 12, 0, tzinfo=timezone.utc)
+    registry = {
+        entry.data["name"]: {
+            "last_updated": (now - timedelta(minutes=270)).isoformat(),
+            "query_id": entry.data["source_query_id"],
+        }
+    }
+    card_html = render_compact_dataset_card(entry, registry, now=now)
+
+    assert '<span class="dataset-card-status delayed">Delayed 30m</span>' in card_html
+    assert "Refresh interval" not in card_html
+    assert "Last refreshed" not in card_html
 
 
 def test_dataset_freshness_interval_summary_uses_dedicated_status_pills():

@@ -1364,11 +1364,6 @@ h1 {
   margin-top: 2px;
 }
 
-.dataset-featured-section {
-  display: grid;
-  gap: 12px;
-}
-
 .dataset-view-heading {
   display: flex;
   align-items: end;
@@ -4585,6 +4580,53 @@ body {
     #fffefa;
 }
 
+.dataset-overview-view.dataset-featured-view,
+.dataset-category-view {
+  --dataset-section-accent: var(--accent);
+  position: relative;
+  overflow: hidden;
+}
+
+.dataset-overview-view.dataset-featured-view {
+  background: var(--surface);
+}
+
+.dataset-featured-view::before,
+.dataset-category-view::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: var(--dataset-section-accent);
+  content: "";
+}
+
+.dataset-featured-view::before {
+  background: linear-gradient(90deg, var(--lime), var(--accent), var(--cobalt));
+}
+
+.dataset-category-view[data-category="activity"] {
+  --dataset-section-accent: #7250a8;
+}
+
+.dataset-category-view[data-category="prices"] {
+  --dataset-section-accent: var(--cobalt);
+}
+
+.dataset-category-view[data-category="metadata"] {
+  --dataset-section-accent: var(--unknown);
+}
+
+.dataset-category-view[data-category="lrt_restaking"] {
+  --dataset-section-accent: var(--coral);
+}
+
+.dataset-featured-view .dataset-view-heading,
+.dataset-category-view .dataset-view-heading {
+  align-items: flex-start;
+  padding-bottom: 19px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
 .dataset-overview-copy h1,
 .dashboard-browser-header h1 {
   line-height: 0.95;
@@ -4615,17 +4657,182 @@ body {
   color: var(--accent-deep);
 }
 
-.dataset-browser-card.featured {
-  position: relative;
-  overflow: hidden;
+.dataset-browser-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  align-items: stretch;
+  gap: 16px;
 }
 
-.dataset-browser-card.featured::before {
+.dataset-browser-card {
+  --dataset-card-accent: var(--accent);
+  position: relative;
+  overflow: hidden;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr auto;
+  align-items: stretch;
+  min-height: 230px;
+  padding: 21px;
+  background: var(--surface-raised);
+}
+
+.dataset-browser-card::before {
   position: absolute;
-  inset: 0 auto 0 0;
-  width: 4px;
-  background: linear-gradient(180deg, var(--lime), var(--accent));
+  inset: 20px auto 20px 0;
+  width: 3px;
+  border-radius: 0 99px 99px 0;
+  background: var(--dataset-card-accent);
   content: "";
+  opacity: 0.76;
+}
+
+.dataset-browser-card:has(.dataset-category-chip.activity) {
+  --dataset-card-accent: #7250a8;
+}
+
+.dataset-browser-card:has(.dataset-category-chip.prices) {
+  --dataset-card-accent: var(--cobalt);
+}
+
+.dataset-browser-card:has(.dataset-category-chip.metadata) {
+  --dataset-card-accent: var(--unknown);
+}
+
+.dataset-browser-card:has(.dataset-category-chip.lrt-restaking) {
+  --dataset-card-accent: var(--coral);
+}
+
+.dataset-browser-card.featured {
+  background: linear-gradient(145deg, rgba(223, 245, 232, 0.82), rgba(255, 255, 252, 0.96) 64%);
+}
+
+.dataset-card-main {
+  grid-template-rows: 28px auto 3em;
+  align-content: start;
+  gap: 11px;
+}
+
+.dataset-card-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
+.dataset-category-chip {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border: 1px solid rgba(40, 166, 106, 0.17);
+  border-radius: 999px;
+  padding: 5px 9px;
+  background: var(--green-wash);
+  color: var(--accent-deep);
+  font-size: 11px;
+  font-weight: 850;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.dataset-category-chip.activity {
+  border-color: rgba(114, 80, 168, 0.18);
+  background: var(--plum);
+  color: #4f367e;
+}
+
+.dataset-category-chip.prices {
+  border-color: rgba(36, 88, 216, 0.18);
+  background: var(--blue-wash);
+  color: var(--cobalt);
+}
+
+.dataset-category-chip.metadata {
+  border-color: var(--border-subtle);
+  background: var(--surface-muted);
+  color: var(--muted);
+}
+
+.dataset-category-chip.lrt-restaking {
+  border-color: rgba(255, 117, 88, 0.18);
+  background: rgba(255, 117, 88, 0.09);
+  color: #a74331;
+}
+
+.dataset-card-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: fit-content;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 5px 9px;
+  background: var(--surface-muted);
+  color: var(--unknown);
+  font-size: 11px;
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.dataset-card-status::before {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  content: "";
+  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 13%, transparent);
+}
+
+.dataset-card-status.fresh {
+  border-color: rgba(31, 168, 106, 0.24);
+  background: #eaf9ef;
+  color: #166242;
+}
+
+.dataset-card-status.delayed {
+  border-color: rgba(245, 188, 67, 0.28);
+  background: #fff7df;
+  color: #8a5b08;
+}
+
+.dataset-card-status.stale {
+  border-color: rgba(217, 77, 53, 0.2);
+  background: #fff0eb;
+  color: #9c351b;
+}
+
+.dataset-card-status.unknown {
+  border-color: rgba(17, 26, 22, 0.1);
+  background: #eef3f0;
+  color: var(--unknown);
+}
+
+.dataset-card-heading {
+  min-height: 2.28em;
+  margin: 2px 0 0;
+  font: inherit;
+}
+
+.dataset-card-title {
+  font-size: 21px;
+  line-height: 1.14;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+.dataset-card-description {
+  display: -webkit-box;
+  min-height: 3em;
+  max-height: 3em;
+  margin: 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .meta-chip {
@@ -4640,6 +4847,22 @@ body {
 .dashboard-card-side {
   min-width: 142px;
   justify-content: flex-end;
+}
+
+.dataset-card-side {
+  min-width: 0;
+  justify-content: space-between;
+  align-self: end;
+  margin-top: 18px;
+  padding-top: 15px;
+  padding-left: 0;
+  border-top: 1px solid var(--border-subtle);
+  border-left: 0;
+}
+
+.dataset-card-side .dune-action,
+.dataset-card-side .dataset-detail-action {
+  min-height: 36px;
 }
 
 /* Dashboard registry: compact two-column product cards on wide screens. */
@@ -4930,6 +5153,80 @@ a.related-resource::after {
     linear-gradient(135deg, rgba(255, 248, 229, 0.96), rgba(255, 254, 250, 0.96));
 }
 
+.dashboard-metrics-panel {
+  background:
+    radial-gradient(circle at 96% 4%, rgba(54, 89, 201, 0.1), transparent 19rem),
+    var(--surface-raised);
+}
+
+.dashboard-metrics-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.dashboard-metrics-heading .eyebrow {
+  margin: 0 0 6px;
+}
+
+.dashboard-metrics-heading h2 {
+  margin: 0;
+}
+
+.dashboard-metrics-count {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  border: 1px solid rgba(54, 89, 201, 0.16);
+  border-radius: 999px;
+  padding: 5px 10px;
+  background: var(--blue-wash);
+  color: var(--cobalt);
+  font-size: 11px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.dashboard-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dashboard-metrics-grid li {
+  position: relative;
+  min-width: 0;
+  min-height: 72px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 14px 14px 14px 30px;
+  background: rgba(255, 255, 252, 0.74);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 720;
+  line-height: 1.4;
+  box-shadow: var(--shadow-xs);
+  overflow-wrap: anywhere;
+}
+
+.dashboard-metrics-grid li::before {
+  position: absolute;
+  top: 20px;
+  left: 14px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cobalt);
+  box-shadow: 0 0 0 4px rgba(54, 89, 201, 0.1);
+  content: "";
+}
+
 .dashboard-notes-panel ul,
 .dataset-caveat-panel ul {
   display: grid;
@@ -5094,6 +5391,7 @@ a.related-resource::after {
 }
 
 @media (max-width: 1120px) {
+  .dataset-browser-list,
   .dashboard-browser-list {
     grid-template-columns: 1fr;
   }
@@ -5104,6 +5402,10 @@ a.related-resource::after {
 
   .registry-list {
     grid-template-columns: 1fr;
+  }
+
+  .dashboard-metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .registry-card {
@@ -5160,6 +5462,7 @@ a.related-resource::after {
     width: fit-content;
   }
 
+  .dataset-browser-list,
   .dashboard-browser-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -5187,6 +5490,7 @@ a.related-resource::after {
   }
 
   .home-preview-grid,
+  .dataset-browser-list,
   .dashboard-browser-list {
     grid-template-columns: 1fr;
   }
@@ -5195,13 +5499,29 @@ a.related-resource::after {
     min-height: 220px;
   }
 
+  .dataset-browser-card,
   .dashboard-browser-card {
     min-height: 230px;
   }
 
+  .dataset-card-heading,
+  .dataset-card-description,
   .dashboard-card-heading,
   .dashboard-card-description {
     min-height: 0;
+  }
+
+  .dataset-card-main {
+    grid-template-rows: auto;
+  }
+
+  .dashboard-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-metrics-heading {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .dataset-detail-header::after {
@@ -5754,6 +6074,10 @@ html[data-theme="dark"] .dashboard-browser-header {
     #141d17;
 }
 
+html[data-theme="dark"] .dataset-overview-view.dataset-featured-view {
+  background: var(--surface-raised);
+}
+
 html[data-theme="dark"] .dataset-browser-card,
 html[data-theme="dark"] .dashboard-browser-card,
 html[data-theme="dark"] .registry-card {
@@ -5765,6 +6089,36 @@ html[data-theme="dark"] .dataset-browser-card.featured,
 html[data-theme="dark"] .dashboard-browser-card.featured {
   border-color: rgba(85, 214, 149, 0.25);
   background: linear-gradient(145deg, rgba(23, 60, 42, 0.88), var(--surface-raised) 66%);
+}
+
+html[data-theme="dark"] .dataset-category-chip {
+  border-color: rgba(85, 214, 149, 0.2);
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+}
+
+html[data-theme="dark"] .dataset-category-chip.activity {
+  border-color: rgba(192, 166, 242, 0.22);
+  background: var(--plum);
+  color: #d7c2ff;
+}
+
+html[data-theme="dark"] .dataset-category-chip.prices {
+  border-color: rgba(148, 173, 255, 0.22);
+  background: var(--sky);
+  color: #b7c7ff;
+}
+
+html[data-theme="dark"] .dataset-category-chip.metadata {
+  border-color: var(--border-subtle);
+  background: #202a24;
+  color: var(--muted);
+}
+
+html[data-theme="dark"] .dataset-category-chip.lrt-restaking {
+  border-color: rgba(255, 139, 113, 0.2);
+  background: #3b2421;
+  color: #ffad99;
 }
 
 html[data-theme="dark"] .dashboard-browser-card:has(.dashboard-category-chip.cash) {
@@ -5812,6 +6166,30 @@ html[data-theme="dark"] .meta-chip.activity {
 
 html[data-theme="dark"] .meta-chip.lrt-restaking {
   background: #3b2421;
+}
+
+html[data-theme="dark"] .dataset-card-status.fresh {
+  border-color: rgba(85, 214, 149, 0.3);
+  background: #173c2a;
+  color: #86e8b6;
+}
+
+html[data-theme="dark"] .dataset-card-status.delayed {
+  border-color: rgba(242, 198, 101, 0.3);
+  background: #3c321d;
+  color: #f4ce7d;
+}
+
+html[data-theme="dark"] .dataset-card-status.stale {
+  border-color: rgba(255, 128, 107, 0.28);
+  background: #3b2421;
+  color: #ff9b89;
+}
+
+html[data-theme="dark"] .dataset-card-status.unknown {
+  border-color: var(--border-subtle);
+  background: #202a24;
+  color: #bdc8c0;
 }
 
 html[data-theme="dark"] .dataset-detail-header {
@@ -5890,6 +6268,29 @@ html[data-theme="dark"] .related-resource {
 html[data-theme="dark"] .related-resource:hover {
   border-color: rgba(85, 214, 149, 0.3);
   background: var(--accent-soft);
+}
+
+html[data-theme="dark"] .dashboard-metrics-panel {
+  background:
+    radial-gradient(circle at 96% 4%, rgba(148, 173, 255, 0.12), transparent 19rem),
+    var(--surface-raised);
+}
+
+html[data-theme="dark"] .dashboard-metrics-count {
+  border-color: rgba(148, 173, 255, 0.2);
+  background: var(--sky);
+  color: #b7c7ff;
+}
+
+html[data-theme="dark"] .dashboard-metrics-grid li {
+  border-color: var(--border-subtle);
+  background: #18221c;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), var(--shadow-xs);
+}
+
+html[data-theme="dark"] .dashboard-metrics-grid li::before {
+  background: #94adff;
+  box-shadow: 0 0 0 4px rgba(148, 173, 255, 0.11);
 }
 
 html[data-theme="dark"] code {

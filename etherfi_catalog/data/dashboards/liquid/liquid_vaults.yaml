@@ -20,6 +20,29 @@ datasets:
   - dune.ether_fi.result_etherfi_protocol_token_holders_with_defi
   - dune.ether_fi.result_tokens_rates_oracle_pegs
   - dune.ether_fi.result_etherfi_assets_under_management
+metrics:
+  - Current Total Liquid Vaults TVL
+  - Current All-Time Unique Depositors
+  - Current Active Liquid Vaults Holders
+
+  - Daily Liquid Vaults TVL
+  - Daily Liquid Vaults Depositors
+  - Daily Active Liquid Vaults Holders
+  - Daily Deposits
+  - Daily Withdrawal Requests
+  - Daily Withdrawals Processed
+
+  - Latest Liquid Vaults TVL grouped by Liquid Vault
+  - Daily Liquid Vaults TVL grouped by Liquid Vault
+  - Daily Liquid Vaults Deposits grouped by Liquid Vault
+  - Daily Liquid Vaults Holders grouped by Liquid Vault
+  - Daily Liquid Vaults Netflows grouped by Liquid Vault
+
+  - Latest Protocol Deposits Breakdown
+  - Daily Protocol Deposits Breakdown
+
+  - Core Liquid Vaults Data
+  - LiquidETH, LiquidUSD, and LiquidBTC TVL, withdrawal times, and APR
 notes:
   - The dashboard also uses Veda vault metadata and raw BoringOnChainQueue withdrawal request, solve, and cancellation events outside this catalog.
   - The copied source `veda_optimism.boringonchainqueue_evt_oncchain` appears truncated and should be verified before it is documented as a full table name.
