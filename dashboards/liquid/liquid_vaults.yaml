@@ -2,6 +2,7 @@ name: liquid_vaults
 title: Liquid Vaults
 url: https://dune.com/ether_fi/liquid-vaults
 category: liquid
+show_in_core: true
 description: Overview of ether.fi Liquid Vaults, including TVL, deposits, users, active holders, withdrawals, withdrawal requests, estimated APRs, and netflows.
 tags:
   - liquid

@@ -22,5 +22,30 @@ datasets:
   - dune.ether_fi.result_lrts_restaking_dex_pools_balances
   - dune.ether_fi.result_lrts_restaking_trades
   - dune.ether_fi.result_addresses_traits
+metrics:
+  - Arbitrum weETH Metrics
+  - Avalanche weETH Metrics
+  - Base weETH Metrics
+  - Berachain weETH Metrics
+  - Blast weETH Metrics
+  - BNB Chain weETH Metrics
+  - Katana weETH Metrics
+  - Linea weETH Metrics
+  - Mode weETH Metrics
+  - Optimism weETH Metrics
+  - Scroll weETH Metrics
+  - Unichain weETH Metrics
+  - weETH Supply on L2s
+  - Percentage of weETH Supply on L2s
+  - weETH Holders on L2s
+  - weETH Supply Netflows Across Blockchains
+  - weETH Liquidity Reserves on L2s
+  - weETH DEX Volumes on L2s
+  - weETH/ETH Ratio on L2s
+  - Percentage of weETH Supply in DeFi on L2s
+  - Percentage of New weETH Holders on L2s
+  - weETH in DEXes on L2s
+  - Top Protocols and Holders of weETH on L2s
+  - Top Sectors Holding weETH on L2s
 notes:
   - The dashboard also uses Dune's `prices.usd` table outside the current catalog.

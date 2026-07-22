@@ -115,6 +115,8 @@ def test_build_website_outputs_core_pages(tmp_path):
     assert len(dataset_pages) == len(dataset_entries)
     assert (tmp_path / "dashboards" / "etherfi_overview.html").exists()
     assert (tmp_path / "dashboards" / "etherfi_cash.html").exists()
+    assert (tmp_path / "dashboards" / "etherfi_cash_swaps.html").exists()
+    assert (tmp_path / "dashboards" / "etherfi_users.html").exists()
     assert (tmp_path / "dashboards" / "eeth_staking.html").exists()
     assert (tmp_path / "dashboards" / "weeth_l2s.html").exists()
     assert (tmp_path / "dashboards" / "weeth_utilization.html").exists()
@@ -1108,6 +1110,20 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
         assert f'id="dashboard-group-{group}"' in dashboard_index
         assert f'aria-labelledby="dashboard-heading-{group}"' in dashboard_index
         assert f'id="dashboard-heading-{group}"' in dashboard_index
+    for group, expected_count in {
+        "core": 4,
+        "stake": 5,
+        "cash": 2,
+        "liquid": 13,
+        "others": 1,
+    }.items():
+        nav = re.search(
+            rf'<button[^>]*data-dashboard-nav="{group}"[^>]*>(.*?)</button>',
+            dashboard_index,
+            re.S,
+        )
+        assert nav
+        assert f"<strong>{expected_count}</strong>" in nav.group(1)
     assert dashboard_index.find("<span>Core</span>") < dashboard_index.find("<span>Stake</span>")
     assert dashboard_index.find("<span>Stake</span>") < dashboard_index.find("<span>Cash</span>")
     assert dashboard_index.find("<span>Cash</span>") < dashboard_index.find("<span>Liquid</span>")
@@ -1121,34 +1137,62 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
         re.S,
     )
     assert core_section
+    cash_section = re.search(
+        r'<section id="dashboard-group-cash".*?</section>',
+        dashboard_index,
+        re.S,
+    )
+    assert cash_section
+    assert "2 dashboards in the Cash product area." in cash_section.group(0)
+    assert 'href="dashboards/etherfi_cash_swaps.html"' in cash_section.group(0)
+    assert 'href="dashboards/etherfi_cash_swaps.html"' not in core_section.group(0)
+    others_section = re.search(
+        r'<section id="dashboard-group-others".*?</section>',
+        dashboard_index,
+        re.S,
+    )
+    assert others_section
+    assert "1 dashboard in the Others product area." in others_section.group(0)
+    assert "No dashboards documented in this group yet." not in others_section.group(0)
     assert "Most used, most updated, and most informative ether.fi dashboards." in core_section.group(0)
     assert "Core contains the top dashboards teammates should check first." not in dashboard_index
     assert "teammates" not in core_section.group(0)
     assert "ether.fi" in dashboard_index
+    assert "ether.fi Users" in dashboard_index
     assert "ether.fi Cash" in dashboard_index
+    assert "ether.fi Cash Swaps" in dashboard_index
     assert "eETH Staking" in dashboard_index
     assert "weETH on L2s + BNB" in dashboard_index
     assert "weETH Utilization" in dashboard_index
     assert "Liquid Vaults" in dashboard_index
+    assert "Lido vs ether.fi Stakers" in dashboard_index
     assert dashboard_index.count('href="dashboards/etherfi_overview.html"') >= 2
+    assert dashboard_index.count('href="dashboards/etherfi_users.html"') >= 2
     assert dashboard_index.count('href="dashboards/etherfi_cash.html"') >= 2
     assert 'href="dashboards/etherfi_overview.html"' in dashboard_index
+    assert 'href="dashboards/etherfi_users.html"' in dashboard_index
     assert 'href="dashboards/etherfi_cash.html"' in dashboard_index
+    assert 'href="dashboards/etherfi_cash_swaps.html"' in dashboard_index
     assert 'href="dashboards/eeth_staking.html"' in dashboard_index
     assert 'href="dashboards/weeth_l2s.html"' in dashboard_index
     assert 'href="dashboards/weeth_utilization.html"' in dashboard_index
     assert 'href="dashboards/liquid_vaults.html"' in dashboard_index
+    assert 'href="dashboards/lido_vs_etherfi_stakers.html"' in dashboard_index
     assert 'href="https://dune.com/ether_fi/etherfi"' in dashboard_index
+    assert 'href="https://dune.com/ether_fi/etherfi-users"' in dashboard_index
     assert 'href="https://dune.com/ether_fi/etherfi-cash"' in dashboard_index
+    assert 'href="https://dune.com/ether_fi/cash-swaps-data"' in dashboard_index
     assert 'href="https://dune.com/ether_fi/eeth-staking"' in dashboard_index
     assert 'href="https://dune.com/ether_fi/weeth-l2s"' in dashboard_index
     assert 'href="https://dune.com/ether_fi/weeth-utilization"' in dashboard_index
     assert 'href="https://dune.com/ether_fi/liquid-vaults"' in dashboard_index
+    assert 'href="https://dune.com/ether_fi/lido-vs-etherfi-stakers"' in dashboard_index
     assert 'data-dashboard-card' in dashboard_index
     assert 'data-dashboard-core-card' in dashboard_index
     assert 'data-search=' in dashboard_index
     assert 'data-dashboard-category="stake"' in dashboard_index
     assert 'data-dashboard-category="cash"' in dashboard_index
+    assert 'data-dashboard-category="others"' in dashboard_index
     assert "cashback" in dashboard_index
     assert "spend" in dashboard_index
     assert "lending" in dashboard_index
@@ -1156,10 +1200,15 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert 'id="dashboard-search"' in dashboard_index
     assert 'id="dashboard-count"' in dashboard_index
     assert 'id="dashboard-count" class="dataset-count" role="status" aria-live="polite" aria-atomic="true"' in dashboard_index
+    assert (
+        'id="dashboard-count" class="dataset-count" role="status" aria-live="polite" '
+        'aria-atomic="true">4 dashboards</span>'
+        in dashboard_index
+    )
     assert 'id="dashboard-empty-state"' in dashboard_index
     assert 'src="assets/dashboards.js?v=' in dashboard_index
     assert dashboard_index.find('class="catalog-toolbar dataset-browser-toolbar"') < dashboard_index.find('id="dashboard-group-core"')
-    assert "No dashboards documented in this group yet." in dashboard_index
+    assert "No dashboards documented in this group yet." not in dashboard_index
     assert "No dashboards match your search." in dashboard_index
     assert "generated from dashboards/registry.yaml" not in dashboard_index
 
@@ -1168,6 +1217,7 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
         core_section.group(0),
         re.S,
     )
+    assert len(core_cards) == 4
     overview_card = next(card for card in core_cards if ">ether.fi</a>" in card)
     assert '<span class="dashboard-category-chip stake">Stake</span>' in overview_card
     assert re.search(r'<span class="dashboard-linked-count">\d+ linked datasets</span>', overview_card)
@@ -1180,12 +1230,159 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
         'aria-label="View ether.fi dashboard details">Details</a>'
         in overview_card
     )
+    users_core_card = next(
+        card
+        for card in core_cards
+        if 'href="dashboards/etherfi_users.html"' in card
+    )
+    assert '<span class="dashboard-category-chip stake">Stake</span>' in users_core_card
+    assert '<span class="dashboard-linked-count">7 linked datasets</span>' in users_core_card
+    assert (
+        'href="dashboards/etherfi_users.html" '
+        'aria-label="View ether.fi Users dashboard details">Details</a>'
+        in users_core_card
+    )
+    liquid_vaults_core_card = next(
+        card
+        for card in core_cards
+        if 'href="dashboards/liquid_vaults.html"' in card
+    )
+    assert (
+        '<span class="dashboard-category-chip liquid">Liquid</span>'
+        in liquid_vaults_core_card
+    )
 
     dashboard_cards = re.findall(
         r'<article class="dashboard-browser-card"[^>]*>(.*?)</article>',
         dashboard_index,
         re.S,
     )
+    dashboard_search_cards = re.findall(
+        r'(<article class="dashboard-browser-card" data-dashboard-card[^>]*>.*?</article>)',
+        dashboard_index,
+        re.S,
+    )
+    overview_search_card = next(
+        card
+        for card in dashboard_search_cards
+        if 'href="dashboards/etherfi_overview.html"' in card
+    )
+    for metric_search_text in [
+        "protocol revenue",
+        "ethfi buybacks",
+        "weeth trading volume",
+        "daily deposits across stake and liquid products",
+    ]:
+        assert metric_search_text in overview_search_card.lower()
+    users_search_card = next(
+        card
+        for card in dashboard_search_cards
+        if 'href="dashboards/etherfi_users.html"' in card
+    )
+    assert 'data-dashboard-category="stake"' in users_search_card
+    for search_text in [
+        "unique depositors",
+        "active holders",
+        "new vs old",
+        "retention rates",
+        "top onboarding products",
+    ]:
+        assert search_text in users_search_card.lower()
+    eeth_staking_search_card = next(
+        card
+        for card in dashboard_search_cards
+        if 'href="dashboards/eeth_staking.html"' in card
+    )
+    for metric_search_text in [
+        "staking apr",
+        "weeth peg",
+        "withdrawal processing wait time",
+        "weeth dex trading volume",
+        "weeth defi utilization",
+    ]:
+        assert metric_search_text in eeth_staking_search_card.lower()
+    weeth_utilization_search_card = next(
+        card
+        for card in dashboard_search_cards
+        if 'href="dashboards/weeth_utilization.html"' in card
+    )
+    for metric_search_text in [
+        "weeth supply in defi",
+        "percentage of eeth wrapped as weeth",
+        "weeth netflows by protocol",
+        "weeth top holders with labels",
+        "weeth integrations on aave and pendle",
+    ]:
+        assert metric_search_text in weeth_utilization_search_card.lower()
+    weeth_l2s_search_card = next(
+        card
+        for card in dashboard_search_cards
+        if 'href="dashboards/weeth_l2s.html"' in card
+    )
+    for metric_search_text in [
+        "arbitrum weeth metrics",
+        "bnb chain weeth metrics",
+        "weeth dex volumes on l2s",
+        "weeth/eth ratio on l2s",
+        "top sectors holding weeth on l2s",
+    ]:
+        assert metric_search_text in weeth_l2s_search_card.lower()
+    cash_search_card = next(
+        card
+        for card in dashboard_search_cards
+        if 'href="dashboards/etherfi_cash.html"' in card
+    )
+    for metric_search_text in [
+        "cash spend volume",
+        "cashbacks",
+        "active cards",
+        "onramp volume",
+        "outstanding cash borrows",
+    ]:
+        assert metric_search_text in cash_search_card.lower()
+    cash_swaps_search_card = next(
+        card
+        for card in dashboard_search_cards
+        if 'href="dashboards/etherfi_cash_swaps.html"' in card
+    )
+    assert 'data-dashboard-category="cash"' in cash_swaps_search_card
+    assert '<span class="dashboard-linked-count">4 linked datasets</span>' in cash_swaps_search_card
+    for search_text in [
+        "cash swaps",
+        "swap volume",
+        "top dexes",
+        "token pairs",
+        "cash safe",
+    ]:
+        assert search_text in cash_swaps_search_card.lower()
+    lido_search_card = next(
+        card
+        for card in dashboard_search_cards
+        if 'href="dashboards/lido_vs_etherfi_stakers.html"' in card
+    )
+    for search_text in [
+        "lido vs ether.fi stakers",
+        "compare lido and ether.fi",
+        "new depositors",
+        "7-day moving deposit sum",
+        "deposit and withdrawal size buckets",
+        "deposits and withdrawals by size bucket",
+        "market-comparison",
+    ]:
+        assert search_text in lido_search_card.lower()
+    liquid_vaults_search_card = next(
+        card
+        for card in dashboard_search_cards
+        if 'href="dashboards/liquid_vaults.html"' in card
+    )
+    assert 'data-dashboard-category="liquid"' in liquid_vaults_search_card
+    lido_card = next(
+        card
+        for card in dashboard_cards
+        if 'href="dashboards/lido_vs_etherfi_stakers.html"' in card
+    )
+    assert '<span class="dashboard-category-chip others">Others</span>' in lido_card
+    assert '<span class="dashboard-linked-count">7 linked datasets</span>' in lido_card
     ebtc_card = next(card for card in dashboard_cards if 'href="dashboards/ebtc.html"' in card)
     assert '<span class="dashboard-tag">liquid</span>' in ebtc_card
     assert '<span class="dashboard-tag">vaults</span>' in ebtc_card
@@ -1232,6 +1429,18 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert "protocol" in overview_page
     assert "At a glance" not in overview_page
     assert "Core display" not in overview_page
+    assert '<section class="detail-panel dataset-detail-section dashboard-metrics-panel">' in overview_page
+    assert "<h2>Metrics displayed</h2>" in overview_page
+    assert '<span class="dashboard-metrics-count">18 metrics</span>' in overview_page
+    assert '<ul class="dashboard-metrics-grid">' in overview_page
+    assert "Latest ether.fi TVL" in overview_page
+    assert "weETH in DeFi Protocols" in overview_page
+    assert "Daily Withdrawal Requests Across Stake and Liquid Products" in overview_page
+    assert "weETH Liquidity in DEXes" in overview_page
+    assert "weETH/ETH Ratio" in overview_page
+    assert "ETHFI Buybacks" in overview_page
+    assert "ether.fi Protocol Revenue" in overview_page
+    assert "<h2>Notes</h2>" not in overview_page
     assert "Linked datasets" in overview_page
     assert "Linked datasets and references" not in overview_page
     assert 'class="related-resource-list"' in overview_page
@@ -1263,6 +1472,39 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert "Use this dashboard if" not in overview_page
     assert "dashboards/registry.yaml" not in overview_page
 
+    users_page = (tmp_path / "dashboards" / "etherfi_users.html").read_text(
+        encoding="utf-8"
+    )
+    assert "ether.fi Users" in users_page
+    assert "https://dune.com/ether_fi/etherfi-users" in users_page
+    assert "Protocol-wide ether.fi user dashboard" in users_page
+    assert 'aria-label="Open ether.fi Users on Dune"' in users_page
+    assert '<span class="dashboard-category-chip stake">Stake</span>' in users_page
+    assert '<section class="detail-panel dataset-detail-section dashboard-metrics-panel">' in users_page
+    assert "<h2>Metrics displayed</h2>" in users_page
+    assert '<span class="dashboard-metrics-count">16 metrics</span>' in users_page
+    assert '<ul class="dashboard-metrics-grid">' in users_page
+    assert "Total Protocol Unique Depositors" in users_page
+    assert "Protocol Active Holders" in users_page
+    assert "Daily Deposits by Depositor Type" in users_page
+    assert "Protocol Retention Rates" in users_page
+    assert "Deposits by New Depositors Across All ether.fi Products" in users_page
+    assert "Top Onboarding Products" in users_page
+    assert users_page.find("<h2>Metrics displayed</h2>") < users_page.find("<h2>Tags</h2>")
+    assert "<h2>Notes</h2>" not in users_page
+    assert "new vs old" not in users_page
+    assert "at least $10 worth" not in users_page
+    for dataset_slug in [
+        "etherfi_protocol_events",
+        "protocol_token_holders",
+        "protocol_token_holders_with_defi",
+        "etherfi_protocol_token_tvl",
+        "etherfi_assets_under_management",
+        "etherfi_addresses",
+        "addresses_traits",
+    ]:
+        assert f'href="../datasets/{dataset_slug}.html"' in users_page
+
     eeth_staking_page = (tmp_path / "dashboards" / "eeth_staking.html").read_text(
         encoding="utf-8"
     )
@@ -1271,6 +1513,22 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert 'href="../datasets/protocol_token_holders.html"' in eeth_staking_page
     assert 'href="../datasets/protocol_token_holders_with_defi.html"' in eeth_staking_page
     assert 'href="../datasets/tokens_transfers.html"' in eeth_staking_page
+    assert '<section class="detail-panel dataset-detail-section dashboard-metrics-panel">' in eeth_staking_page
+    assert "<h2>Metrics displayed</h2>" in eeth_staking_page
+    assert '<span class="dashboard-metrics-count">18 metrics</span>' in eeth_staking_page
+    assert '<ul class="dashboard-metrics-grid">' in eeth_staking_page
+    assert "eETH TVL" in eeth_staking_page
+    assert "eETH User Staking APR" in eeth_staking_page
+    assert "weETH Peg" in eeth_staking_page
+    assert "7-Day Moving Average Withdrawal Processing Time" in eeth_staking_page
+    assert "Instant Withdrawal Fees" in eeth_staking_page
+    assert "eETH and weETH Holder Distribution" in eeth_staking_page
+    assert "eETH and weETH Retention Rates" in eeth_staking_page
+    assert "weETH DEX Trading Volume" in eeth_staking_page
+    assert "weETH DeFi Utilization" in eeth_staking_page
+    assert eeth_staking_page.find("<h2>Metrics displayed</h2>") < eeth_staking_page.find(
+        "<h2>Tags</h2>"
+    )
     assert '<section class="detail-panel dataset-detail-section dashboard-notes-panel">' not in eeth_staking_page
     assert "<h2>Notes</h2>" not in eeth_staking_page
     assert "decoded contract calls and events" not in eeth_staking_page
@@ -1284,6 +1542,35 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert 'href="../datasets/protocol_token_holders.html"' in weeth_l2s_page
     assert 'href="../datasets/lrts_restaking_dex_pools_balances.html"' in weeth_l2s_page
     assert 'href="../datasets/lrts_restaking_trades.html"' in weeth_l2s_page
+    assert '<section class="detail-panel dataset-detail-section dashboard-metrics-panel">' in weeth_l2s_page
+    assert "<h2>Metrics displayed</h2>" in weeth_l2s_page
+    assert '<span class="dashboard-metrics-count">24 metrics</span>' in weeth_l2s_page
+    assert '<ul class="dashboard-metrics-grid">' in weeth_l2s_page
+    for chain_metric in [
+        "Arbitrum weETH Metrics",
+        "Avalanche weETH Metrics",
+        "Base weETH Metrics",
+        "Berachain weETH Metrics",
+        "Blast weETH Metrics",
+        "BNB Chain weETH Metrics",
+        "Katana weETH Metrics",
+        "Linea weETH Metrics",
+        "Mode weETH Metrics",
+        "Optimism weETH Metrics",
+        "Scroll weETH Metrics",
+        "Unichain weETH Metrics",
+    ]:
+        assert chain_metric in weeth_l2s_page
+    assert weeth_l2s_page.find("Arbitrum weETH Metrics") < weeth_l2s_page.find(
+        "Unichain weETH Metrics"
+    ) < weeth_l2s_page.find("weETH Supply on L2s")
+    assert "weETH DEX Volumes on L2s" in weeth_l2s_page
+    assert "weETH/ETH Ratio on L2s" in weeth_l2s_page
+    assert "Percentage of weETH Supply in DeFi on L2s" in weeth_l2s_page
+    assert "Top Sectors Holding weETH on L2s" in weeth_l2s_page
+    assert weeth_l2s_page.find("<h2>Metrics displayed</h2>") < weeth_l2s_page.find(
+        "<h2>Tags</h2>"
+    )
     assert "prices.usd" not in weeth_l2s_page
     assert "<h2>Notes</h2>" not in weeth_l2s_page
 
@@ -1296,6 +1583,18 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert 'href="../datasets/protocol_token_holders.html"' in weeth_utilization_page
     assert 'href="../datasets/tokens_prices_tokens_list.html"' in weeth_utilization_page
     assert 'href="../datasets/tokens_transfers.html"' in weeth_utilization_page
+    assert '<section class="detail-panel dataset-detail-section dashboard-metrics-panel">' in weeth_utilization_page
+    assert "<h2>Metrics displayed</h2>" in weeth_utilization_page
+    assert '<span class="dashboard-metrics-count">11 metrics</span>' in weeth_utilization_page
+    assert '<ul class="dashboard-metrics-grid">' in weeth_utilization_page
+    assert "weETH Supply in DeFi" in weeth_utilization_page
+    assert "Percentage of eETH Wrapped as weETH" in weeth_utilization_page
+    assert "weETH Netflows by Protocol" in weeth_utilization_page
+    assert "weETH Top Holders with Labels" in weeth_utilization_page
+    assert "weETH Integrations on Aave and Pendle" in weeth_utilization_page
+    assert weeth_utilization_page.find(
+        "<h2>Metrics displayed</h2>"
+    ) < weeth_utilization_page.find("<h2>Tags</h2>")
     assert "bridge contracts" not in weeth_utilization_page
     assert "prices.usd" not in weeth_utilization_page
     assert "<h2>Notes</h2>" not in weeth_utilization_page
@@ -1359,6 +1658,19 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert "user_safe" in cash_page
     assert "At a glance" not in cash_page
     assert "Core display" not in cash_page
+    assert '<section class="detail-panel dataset-detail-section dashboard-metrics-panel">' in cash_page
+    assert "<h2>Metrics displayed</h2>" in cash_page
+    assert '<span class="dashboard-metrics-count">20 metrics</span>' in cash_page
+    assert '<ul class="dashboard-metrics-grid">' in cash_page
+    assert "Total Cash Spend Volume" in cash_page
+    assert "Total Cashbacks" in cash_page
+    assert "Daily Cashback Volume" in cash_page
+    assert "Daily New Cards" in cash_page
+    assert "Total Cash User Safe Balances" in cash_page
+    assert "Outstanding Cash Borrows" in cash_page
+    assert "Cash Transaction Profiles" in cash_page
+    assert "Most Active Cash Spend Hours" in cash_page
+    assert "<h2>Notes</h2>" not in cash_page
     assert "Linked datasets" in cash_page
     assert "Linked datasets and references" not in cash_page
     assert 'class="related-resource-list"' in cash_page
@@ -1377,6 +1689,61 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert "<span>Refresh</span>" not in cash_page
     assert "<h2>Source</h2>" not in cash_page
     assert "utils.days" not in cash_page
+
+    cash_swaps_page = (
+        tmp_path / "dashboards" / "etherfi_cash_swaps.html"
+    ).read_text(encoding="utf-8")
+    assert "ether.fi Cash Swaps" in cash_swaps_page
+    assert "https://dune.com/ether_fi/cash-swaps-data" in cash_swaps_page
+    assert "Dashboard tracking swap activity by ether.fi Cash safes" in cash_swaps_page
+    assert 'aria-label="Open ether.fi Cash Swaps on Dune"' in cash_swaps_page
+    assert '<span class="dashboard-category-chip cash">Cash</span>' in cash_swaps_page
+    assert '<span class="dashboard-linked-count">4 linked datasets</span>' in cash_swaps_page
+    assert '<section class="detail-panel dataset-detail-section dashboard-metrics-panel">' in cash_swaps_page
+    assert "<h2>Metrics displayed</h2>" in cash_swaps_page
+    assert '<span class="dashboard-metrics-count">5 metrics</span>' in cash_swaps_page
+    assert '<ul class="dashboard-metrics-grid">' in cash_swaps_page
+    assert "Total Cash Swap Volume" in cash_swaps_page
+    assert "Total Cash Swaps" in cash_swaps_page
+    assert "Daily Cash Swap Volume" in cash_swaps_page
+    assert "Top DEXes for Cash Swaps" in cash_swaps_page
+    assert "Top Cash Swap Token Pairs" in cash_swaps_page
+    assert cash_swaps_page.find("<h2>Metrics displayed</h2>") < cash_swaps_page.find(
+        "<h2>Tags</h2>"
+    )
+    assert "<h2>Notes</h2>" not in cash_swaps_page
+    assert 'href="../datasets/etherfi_cash_addresses.html"' in cash_swaps_page
+    assert 'href="../datasets/etherfi_assets_under_management.html"' in cash_swaps_page
+    assert 'href="../datasets/etherfi_cash_events.html"' in cash_swaps_page
+    assert 'href="../datasets/tokens_prices_usd.html"' in cash_swaps_page
+
+    lido_page = (
+        tmp_path / "dashboards" / "lido_vs_etherfi_stakers.html"
+    ).read_text(encoding="utf-8")
+    assert "Lido vs ether.fi Stakers" in lido_page
+    assert "https://dune.com/ether_fi/lido-vs-etherfi-stakers" in lido_page
+    assert "Compare Lido and ether.fi staking performance" in lido_page
+    assert 'aria-label="Open Lido vs ether.fi Stakers on Dune"' in lido_page
+    assert '<span class="dashboard-category-chip others">Others</span>' in lido_page
+    assert '<section class="detail-panel dataset-detail-section dashboard-metrics-panel">' in lido_page
+    assert "<h2>Metrics displayed</h2>" in lido_page
+    assert '<span class="dashboard-metrics-count">16 metrics</span>' in lido_page
+    assert '<ul class="dashboard-metrics-grid">' in lido_page
+    assert "Daily ether.fi TVL and Lido TVL" in lido_page
+    assert "Total Deposits by New Users" in lido_page
+    assert "7-Day Moving Median Deposit Amount" in lido_page
+    assert "Deposits and Withdrawals by Size Bucket" in lido_page
+    assert lido_page.find("<h2>Metrics displayed</h2>") < lido_page.find("<h2>Tags</h2>")
+    assert '<h2>Notes</h2>' not in lido_page
+    assert "outside the ether.fi catalog" not in lido_page
+    assert "lido_ethereum.steth_evt_submitted" not in lido_page
+    assert 'href="../datasets/etherfi_protocol_events.html"' in lido_page
+    assert 'href="../datasets/etherfi_protocol_token_tvl.html"' in lido_page
+    assert 'href="../datasets/protocol_token_holders.html"' in lido_page
+    assert 'href="../datasets/etherfi_assets_under_management.html"' in lido_page
+    assert 'href="../datasets/etherfi_addresses.html"' in lido_page
+    assert 'href="../datasets/tokens_prices_tokens_list.html"' in lido_page
+    assert 'href="../datasets/tokens_prices_usd.html"' in lido_page
 
 
 def test_dashboard_detail_omits_linked_dataset_section_without_internal_matches(tmp_path):

@@ -1,0 +1,23 @@
+name: etherfi_cash_swaps
+title: ether.fi Cash Swaps
+url: https://dune.com/ether_fi/cash-swaps-data
+category: cash
+description: Dashboard tracking swap activity by ether.fi Cash safes, including Cash safe swap volume, transaction count, DEX routing, and token-pair activity.
+tags:
+  - cash
+  - swaps
+  - swap-volume
+  - dex
+  - token-pairs
+  - user-safes
+datasets:
+  - dune.ether_fi.result_etherfi_cash_addresses
+  - dune.ether_fi.result_etherfi_assets_under_management
+  - dune.ether_fi.result_etherfi_cash_events
+  - dune.ether_fi.result_tokens_prices_usd
+metrics:
+  - Total Cash Swap Volume
+  - Total Cash Swaps
+  - Daily Cash Swap Volume
+  - Top DEXes for Cash Swaps
+  - Top Cash Swap Token Pairs

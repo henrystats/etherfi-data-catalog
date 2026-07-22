@@ -1259,6 +1259,209 @@ def test_default_dashboard_registry_loads_etherfi_cash_from_cash_category():
     assert "cashback" in dashboards["etherfi_cash"]["tags"]
     assert "user_safe" in dashboards["etherfi_cash"]["tags"]
     assert "dune.ether_fi.result_etherfi_cash_events" in dashboards["etherfi_cash"]["datasets"]
+    assert dashboards["etherfi_cash"]["metrics"] == [
+        "Total Cash Spend Volume",
+        "Total Cashbacks",
+        "Total Cash Transactions",
+        "Total Active Cards",
+        "Daily Cash Spend Volume",
+        "Daily Cashback Volume",
+        "Daily Cash Transactions",
+        "Daily Active Cards",
+        "Daily New Cards",
+        "Total Onramp Volume",
+        "Daily Onramp Volume",
+        "Total Offramp Volume",
+        "Daily Offramp Volume",
+        "Total Cash User Safe Balances",
+        "Daily Cash User Safe Balances",
+        "Historical Cash Borrows",
+        "Outstanding Cash Borrows",
+        "Daily Cash Borrows",
+        "Cash Transaction Profiles",
+        "Most Active Cash Spend Hours",
+    ]
+
+
+def test_default_dashboard_registry_loads_etherfi_cash_swaps():
+    dashboards = {
+        dashboard["name"]: dashboard
+        for dashboard in load_dashboard_registry().get("dashboards", [])
+    }
+    catalog = load_datasets()
+    dashboard = dashboards["etherfi_cash_swaps"]
+
+    assert dashboard["title"] == "ether.fi Cash Swaps"
+    assert dashboard["url"] == "https://dune.com/ether_fi/cash-swaps-data"
+    assert dashboard["category"] == "cash"
+    assert dashboard["show_in_core"] is False
+    assert dashboard["tags"] == [
+        "cash",
+        "swaps",
+        "swap-volume",
+        "dex",
+        "token-pairs",
+        "user-safes",
+    ]
+    assert dashboard["datasets"] == [
+        "dune.ether_fi.result_etherfi_cash_addresses",
+        "dune.ether_fi.result_etherfi_assets_under_management",
+        "dune.ether_fi.result_etherfi_cash_events",
+        "dune.ether_fi.result_tokens_prices_usd",
+    ]
+    assert all(resolve_dataset_name(name, catalog) for name in dashboard["datasets"])
+    assert "dune.ether_fi.result_etherfi_cash_swaps" not in dashboard["datasets"]
+    assert dashboard["metrics"] == [
+        "Total Cash Swap Volume",
+        "Total Cash Swaps",
+        "Daily Cash Swap Volume",
+        "Top DEXes for Cash Swaps",
+        "Top Cash Swap Token Pairs",
+    ]
+
+
+def test_default_dashboard_registry_loads_etherfi_overview_metrics():
+    dashboards = {
+        dashboard["name"]: dashboard
+        for dashboard in load_dashboard_registry().get("dashboards", [])
+    }
+
+    assert dashboards["etherfi_overview"]["metrics"] == [
+        "Latest ether.fi TVL",
+        "weETH in DeFi Protocols",
+        "Daily ether.fi TVL",
+        "ether.fi TVL Breakdown",
+        "ether.fi Market Share",
+        "Daily Deposits Across Stake and Liquid Products",
+        "Daily Withdrawal Requests Across Stake and Liquid Products",
+        "Daily Withdrawals Processed Across Stake and Liquid Products",
+        "Daily Netflows Across Stake and Liquid Products",
+        "eETH and weETH Holder Count",
+        "weETH Liquidity in DEXes",
+        "weETH Liquidity Reserves",
+        "weETH Trading Volume",
+        "weETH/ETH Ratio",
+        "Top Depositors Across eETH, eBTC, and weETHs",
+        "ether.fi Events Stream Across All Products",
+        "ETHFI Buybacks",
+        "ether.fi Protocol Revenue",
+    ]
+
+
+def test_default_dashboard_registry_loads_etherfi_users():
+    dashboards = {
+        dashboard["name"]: dashboard
+        for dashboard in load_dashboard_registry().get("dashboards", [])
+    }
+    catalog = load_datasets()
+    dashboard = dashboards["etherfi_users"]
+
+    assert dashboard["title"] == "ether.fi Users"
+    assert dashboard["url"] == "https://dune.com/ether_fi/etherfi-users"
+    assert dashboard["category"] == "stake"
+    assert dashboard["show_in_core"] is True
+    assert dashboard["tags"] == [
+        "users",
+        "holders",
+        "depositors",
+        "active-holders",
+        "retention",
+        "deposits",
+        "balances",
+        "onboarding",
+        "stake",
+        "liquid",
+        "lrt",
+        "protocol-wide",
+    ]
+    assert dashboard["datasets"] == [
+        "dune.ether_fi.result_etherfi_protocol_events",
+        "dune.ether_fi.result_etherfi_protocol_token_holders",
+        "dune.ether_fi.result_etherfi_protocol_token_holders_with_defi",
+        "dune.ether_fi.result_etherfi_protocol_token_tvl",
+        "dune.ether_fi.result_etherfi_assets_under_management",
+        "dune.ether_fi.result_etherfi_addresses",
+        "dune.ether_fi.result_addresses_traits",
+    ]
+    assert all(resolve_dataset_name(name, catalog) for name in dashboard["datasets"])
+    assert dashboard["metrics"] == [
+        "Total Protocol Unique Depositors",
+        "Total Protocol Unique Holders",
+        "Protocol Active Holders",
+        "Daily Unique Depositors by Depositor Type",
+        "Daily Deposits by Depositor Type",
+        "Daily Unique Holders by Holder Type",
+        "Daily Balances by Holder Type",
+        "ether.fi LRT Holders",
+        "ether.fi Liquid Holders",
+        "Protocol Retention Rates",
+        "LRT Retention Rates",
+        "Liquid Retention Rates",
+        "All Product Deposit Events",
+        "Deposits by New Depositors Across All ether.fi Products",
+        "Unique New Depositors",
+        "Top Onboarding Products",
+    ]
+    assert len(dashboard["notes"]) == 7
+    assert "new vs old" in dashboard["notes"][1]
+    assert "at least $10 worth" in dashboard["notes"][3]
+    assert all("Copy link" not in note for note in dashboard["notes"])
+
+
+def test_default_dashboard_registry_loads_lido_vs_etherfi_stakers():
+    dashboards = {
+        dashboard["name"]: dashboard
+        for dashboard in load_dashboard_registry().get("dashboards", [])
+    }
+    catalog = load_datasets()
+    dashboard = dashboards["lido_vs_etherfi_stakers"]
+
+    assert dashboard["title"] == "Lido vs ether.fi Stakers"
+    assert dashboard["url"] == "https://dune.com/ether_fi/lido-vs-etherfi-stakers"
+    assert dashboard["category"] == "others"
+    assert dashboard["show_in_core"] is False
+    assert dashboard["tags"] == [
+        "lido",
+        "etherfi",
+        "staking",
+        "stakers",
+        "tvl",
+        "deposits",
+        "withdrawals",
+        "new-depositors",
+        "moving-average",
+        "deposit-size",
+        "market-comparison",
+    ]
+    assert dashboard["datasets"] == [
+        "dune.ether_fi.result_etherfi_protocol_events",
+        "dune.ether_fi.result_etherfi_protocol_token_tvl",
+        "dune.ether_fi.result_etherfi_protocol_token_holders",
+        "dune.ether_fi.result_etherfi_assets_under_management",
+        "dune.ether_fi.result_etherfi_addresses",
+        "dune.ether_fi.result_tokens_prices_tokens_list",
+        "dune.ether_fi.result_tokens_prices_usd",
+    ]
+    assert all(resolve_dataset_name(name, catalog) for name in dashboard["datasets"])
+    assert dashboard["metrics"] == [
+        "Daily ether.fi TVL and Lido TVL",
+        "ether.fi TVL Breakdown",
+        "Lido TVL Breakdown",
+        "Total Deposits for Lido and ether.fi",
+        "Daily Deposits for Lido and ether.fi",
+        "Total Deposits by New Users",
+        "Daily Deposits by New Users",
+        "Total New Depositors",
+        "Daily New Depositors",
+        "7-Day Moving Deposit Sum",
+        "7-Day Moving Deposit Sum from New Users",
+        "7-Day Moving New Depositors",
+        "7-Day Moving Median Deposit Amount",
+        "7-Day Moving Average Deposit Amount",
+        "Daily Withdrawals",
+        "Deposits and Withdrawals by Size Bucket",
+    ]
+    assert "prices.usd outside the ether.fi catalog" in dashboard["notes"][0]
 
 
 def test_default_dashboard_registry_loads_eeth_staking_from_stake_category():
@@ -1273,6 +1476,26 @@ def test_default_dashboard_registry_loads_eeth_staking_from_stake_category():
     assert dashboard["url"] == "https://dune.com/ether_fi/eeth-staking"
     assert "weeth" in dashboard["tags"]
     assert "dune.ether_fi.result_etherfi_protocol_token_holders_with_defi" in dashboard["datasets"]
+    assert dashboard["metrics"] == [
+        "eETH TVL",
+        "eETH Staking Flows",
+        "eETH Deposits",
+        "eETH Withdrawals",
+        "eETH User Staking APR",
+        "weETH Peg",
+        "eETH Withdrawal Processing Wait Time",
+        "7-Day Moving Average Withdrawal Processing Time",
+        "Withdrawals Processed by Wait Time Category",
+        "Instant Withdrawal Fees",
+        "eETH and weETH Holders",
+        "eETH and weETH Holder Distribution",
+        "eETH and weETH All-Time Unique Holders",
+        "eETH and weETH Active Holders",
+        "eETH and weETH Top Holders",
+        "eETH and weETH Retention Rates",
+        "weETH DEX Trading Volume",
+        "weETH DeFi Utilization",
+    ]
     assert "decoded contract calls and events" in dashboard["notes"][0]
 
 
@@ -1288,6 +1511,33 @@ def test_default_dashboard_registry_loads_weeth_l2s_from_stake_category():
     assert dashboard["url"] == "https://dune.com/ether_fi/weeth-l2s"
     assert "chain-breakdown" in dashboard["tags"]
     assert "dune.ether_fi.result_lrts_restaking_dex_pools_balances" in dashboard["datasets"]
+    assert dashboard["metrics"] == [
+        "Arbitrum weETH Metrics",
+        "Avalanche weETH Metrics",
+        "Base weETH Metrics",
+        "Berachain weETH Metrics",
+        "Blast weETH Metrics",
+        "BNB Chain weETH Metrics",
+        "Katana weETH Metrics",
+        "Linea weETH Metrics",
+        "Mode weETH Metrics",
+        "Optimism weETH Metrics",
+        "Scroll weETH Metrics",
+        "Unichain weETH Metrics",
+        "weETH Supply on L2s",
+        "Percentage of weETH Supply on L2s",
+        "weETH Holders on L2s",
+        "weETH Supply Netflows Across Blockchains",
+        "weETH Liquidity Reserves on L2s",
+        "weETH DEX Volumes on L2s",
+        "weETH/ETH Ratio on L2s",
+        "Percentage of weETH Supply in DeFi on L2s",
+        "Percentage of New weETH Holders on L2s",
+        "weETH in DEXes on L2s",
+        "Top Protocols and Holders of weETH on L2s",
+        "Top Sectors Holding weETH on L2s",
+    ]
+    assert all(metric.isascii() for metric in dashboard["metrics"])
     assert "prices.usd" in dashboard["notes"][0]
 
 
@@ -1304,6 +1554,19 @@ def test_default_dashboard_registry_loads_weeth_utilization_from_stake_category(
     assert "integrations" in dashboard["tags"]
     assert dashboard["datasets"].count("dune.ether_fi.result_etherfi_protocol_token_tvl") == 1
     assert "dune.ether_fi.result_tokens_prices_tokens_list" in dashboard["datasets"]
+    assert dashboard["metrics"] == [
+        "weETH Supply",
+        "weETH Supply in DeFi",
+        "Percentage of eETH Wrapped as weETH",
+        "eETH and weETH Supplies",
+        "weETH Supply Share by Category",
+        "weETH Netflows by Category",
+        "weETH Supply by Protocol",
+        "weETH Netflows by Protocol",
+        "weETH Top Holders with Labels",
+        "weETH Top Categories",
+        "weETH Integrations on Aave and Pendle",
+    ]
     assert "eETH supply measured in weETH terms" in dashboard["notes"][0]
     assert "fixed chain list" in dashboard["notes"][1]
     assert "bridge contracts" in dashboard["notes"][2]
@@ -1319,6 +1582,7 @@ def test_default_dashboard_registry_loads_liquid_vaults_from_liquid_category():
     dashboard = dashboards["liquid_vaults"]
     assert dashboard["title"] == "Liquid Vaults"
     assert dashboard["category"] == "liquid"
+    assert dashboard["show_in_core"] is True
     assert dashboard["url"] == "https://dune.com/ether_fi/liquid-vaults"
     assert "netflows" in dashboard["tags"]
     assert "dune.ether_fi.result_tokens_rates_oracle_pegs" in dashboard["datasets"]
@@ -1459,13 +1723,103 @@ def test_search_dashboards_finds_etherfi_overview_by_name_and_dataset():
 @pytest.mark.parametrize(
     "prompt",
     [
+        "protocol revenue",
+        "ETHFI buybacks",
+        "weETH trading volume",
+        "daily deposits across stake and liquid",
+    ],
+)
+def test_search_dashboards_finds_etherfi_overview_from_metrics(prompt):
+    results = search_dashboards(prompt)
+
+    assert "etherfi_overview" in [dashboard["name"] for dashboard in results]
+
+
+@pytest.mark.parametrize(
+    "prompt",
+    [
+        "ether.fi users dashboard",
+        "unique depositors",
+        "active holders",
+        "daily unique depositors by new vs old",
+        "protocol retention rates",
+        "top onboarding products",
+    ],
+)
+def test_search_dashboards_finds_etherfi_users(prompt):
+    results = search_dashboards(prompt)
+
+    assert "etherfi_users" in [dashboard["name"] for dashboard in results]
+
+
+@pytest.mark.parametrize(
+    "prompt",
+    [
+        "cash spend volume",
+        "cashbacks",
+        "active cards",
+        "onramp volume",
+        "outstanding borrows",
+    ],
+)
+def test_search_dashboards_finds_etherfi_cash_from_metrics(prompt):
+    results = search_dashboards(prompt)
+
+    assert "etherfi_cash" in [dashboard["name"] for dashboard in results]
+
+
+@pytest.mark.parametrize(
+    "prompt",
+    [
+        "ether.fi Cash swaps",
+        "Cash swap volume",
+        "daily Cash swap volume",
+        "top DEXes for Cash swaps",
+        "top Cash swap token pairs",
+        "swaps by Cash safes",
+        "Cash safe swaps dashboard",
+    ],
+)
+def test_search_dashboards_finds_etherfi_cash_swaps(prompt):
+    results = search_dashboards(prompt)
+
+    assert "etherfi_cash_swaps" in [dashboard["name"] for dashboard in results]
+
+
+@pytest.mark.parametrize(
+    "prompt",
+    [
+        "Lido vs ether.fi",
+        "compare Lido and ether.fi TVL",
+        "new depositors",
+        "7-day moving deposits",
+        "deposit size buckets",
+        "deposit and withdrawal size buckets",
+    ],
+)
+def test_search_dashboards_finds_lido_vs_etherfi_stakers(prompt):
+    results = search_dashboards(prompt)
+
+    assert "lido_vs_etherfi_stakers" in [dashboard["name"] for dashboard in results]
+
+
+@pytest.mark.parametrize(
+    "prompt",
+    [
         "eETH staking dashboard",
-        "weETH holders dashboard",
-        "staking TVL dashboard",
-        "eETH APR dashboard",
-        "withdrawals dashboard",
-        "peg dashboard",
-        "DeFi utilization for eETH",
+        "eETH TVL",
+        "eETH staking flows",
+        "eETH deposits and withdrawals",
+        "eETH staking APR",
+        "staking APR",
+        "weETH peg",
+        "withdrawal processing wait time",
+        "instant withdrawal fees",
+        "eETH holders",
+        "weETH holders distribution",
+        "eETH retention rates",
+        "weETH DEX trading volume",
+        "weETH DeFi utilization",
     ],
 )
 def test_search_dashboards_finds_eeth_staking_from_natural_prompts(prompt):
@@ -1478,6 +1832,14 @@ def test_search_dashboards_finds_eeth_staking_from_natural_prompts(prompt):
     "prompt",
     [
         "weETH on L2s",
+        "Arbitrum weETH",
+        "BNB Chain weETH",
+        "Base weETH supply",
+        "weETH holders on L2s",
+        "weETH DEX volumes on L2s",
+        "weETH ETH ratio on L2s",
+        "weETH supply in DeFi on L2s",
+        "top protocols holding weETH on L2s",
         "weETH BNB dashboard",
         "weETH supply by chain",
         "weETH DEX volume by chain",
@@ -1497,6 +1859,12 @@ def test_search_dashboards_finds_weeth_l2s_from_natural_prompts(prompt):
     "prompt",
     [
         "weETH utilization",
+        "weETH supply",
+        "weETH supply in DeFi",
+        "percentage of eETH wrapped",
+        "weETH netflows by protocol",
+        "weETH top holders",
+        "Aave Pendle weETH integrations",
         "weETH DeFi dashboard",
         "where is weETH used",
         "weETH supply share",

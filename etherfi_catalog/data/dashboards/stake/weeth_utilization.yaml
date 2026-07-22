@@ -26,6 +26,18 @@ datasets:
   - tokens_transfers_hourly
   - tokens_transfers
   - dune.ether_fi.result_tokens_exchange_rates_daily
+metrics:
+  - weETH Supply
+  - weETH Supply in DeFi
+  - Percentage of eETH Wrapped as weETH
+  - eETH and weETH Supplies
+  - weETH Supply Share by Category
+  - weETH Netflows by Category
+  - weETH Supply by Protocol
+  - weETH Netflows by Protocol
+  - weETH Top Holders with Labels
+  - weETH Top Categories
+  - weETH Integrations on Aave and Pendle
 notes:
   - A weETH supply percentage or share refers to eETH supply measured in weETH terms; for example, 50% means 50% of eETH supply expressed as weETH.
   - The dashboard tracks utilization across Ethereum and L2 ecosystems without treating a fixed chain list as complete.

@@ -50,3 +50,22 @@ datasets:
   - veda_ethereum.accountant_evt_managementfeeupdated
   - dune.ether_fi.result_tokens_rates_oracle_pegs
   - dune.veda.result_vaults_base_assets
+metrics:
+  - Latest ether.fi TVL
+  - weETH in DeFi Protocols
+  - Daily ether.fi TVL
+  - ether.fi TVL Breakdown
+  - ether.fi Market Share
+  - Daily Deposits Across Stake and Liquid Products
+  - Daily Withdrawal Requests Across Stake and Liquid Products
+  - Daily Withdrawals Processed Across Stake and Liquid Products
+  - Daily Netflows Across Stake and Liquid Products
+  - eETH and weETH Holder Count
+  - weETH Liquidity in DEXes
+  - weETH Liquidity Reserves
+  - weETH Trading Volume
+  - weETH/ETH Ratio
+  - Top Depositors Across eETH, eBTC, and weETHs
+  - ether.fi Events Stream Across All Products
+  - ETHFI Buybacks
+  - ether.fi Protocol Revenue

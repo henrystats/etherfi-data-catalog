@@ -31,3 +31,24 @@ datasets:
   - dune.ether_fi.result_etherfi_assets_under_management
   - dune.ether_fi.result_etherfi_cash_borrow_index
   - utils.days
+metrics:
+  - Total Cash Spend Volume
+  - Total Cashbacks
+  - Total Cash Transactions
+  - Total Active Cards
+  - Daily Cash Spend Volume
+  - Daily Cashback Volume
+  - Daily Cash Transactions
+  - Daily Active Cards
+  - Daily New Cards
+  - Total Onramp Volume
+  - Daily Onramp Volume
+  - Total Offramp Volume
+  - Daily Offramp Volume
+  - Total Cash User Safe Balances
+  - Daily Cash User Safe Balances
+  - Historical Cash Borrows
+  - Outstanding Cash Borrows
+  - Daily Cash Borrows
+  - Cash Transaction Profiles
+  - Most Active Cash Spend Hours

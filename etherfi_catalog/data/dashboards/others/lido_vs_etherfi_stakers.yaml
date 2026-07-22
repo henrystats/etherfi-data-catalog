@@ -1,0 +1,44 @@
+name: lido_vs_etherfi_stakers
+title: Lido vs ether.fi Stakers
+url: https://dune.com/ether_fi/lido-vs-etherfi-stakers
+category: others
+description: Compare Lido and ether.fi staking performance across TVL, deposits, withdrawals, depositor growth, deposit and withdrawal size buckets, and TVL composition.
+tags:
+  - lido
+  - etherfi
+  - staking
+  - stakers
+  - tvl
+  - deposits
+  - withdrawals
+  - new-depositors
+  - moving-average
+  - deposit-size
+  - market-comparison
+datasets:
+  - dune.ether_fi.result_etherfi_protocol_events
+  - dune.ether_fi.result_etherfi_protocol_token_tvl
+  - dune.ether_fi.result_etherfi_protocol_token_holders
+  - dune.ether_fi.result_etherfi_assets_under_management
+  - dune.ether_fi.result_etherfi_addresses
+  - dune.ether_fi.result_tokens_prices_tokens_list
+  - dune.ether_fi.result_tokens_prices_usd
+metrics:
+  - Daily ether.fi TVL and Lido TVL
+  - ether.fi TVL Breakdown
+  - Lido TVL Breakdown
+  - Total Deposits for Lido and ether.fi
+  - Daily Deposits for Lido and ether.fi
+  - Total Deposits by New Users
+  - Daily Deposits by New Users
+  - Total New Depositors
+  - Daily New Depositors
+  - 7-Day Moving Deposit Sum
+  - 7-Day Moving Deposit Sum from New Users
+  - 7-Day Moving New Depositors
+  - 7-Day Moving Median Deposit Amount
+  - 7-Day Moving Average Deposit Amount
+  - Daily Withdrawals
+  - Deposits and Withdrawals by Size Bucket
+notes:
+  - Also uses decoded Lido staking and withdrawal queue events, decoded ether.fi events, Ethereum transfer/log tables, Dune utility tables, ENS labels, and prices.usd outside the ether.fi catalog.

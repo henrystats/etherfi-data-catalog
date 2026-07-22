@@ -26,5 +26,24 @@ datasets:
   - dune.ether_fi.result_lrts_restaking_trades
   - dune.ether_fi.result_etherfi_assets_under_management
   - dune.ether_fi.result_etherfi_protocol_events
+metrics:
+  - eETH TVL
+  - eETH Staking Flows
+  - eETH Deposits
+  - eETH Withdrawals
+  - eETH User Staking APR
+  - weETH Peg
+  - eETH Withdrawal Processing Wait Time
+  - 7-Day Moving Average Withdrawal Processing Time
+  - Withdrawals Processed by Wait Time Category
+  - Instant Withdrawal Fees
+  - eETH and weETH Holders
+  - eETH and weETH Holder Distribution
+  - eETH and weETH All-Time Unique Holders
+  - eETH and weETH Active Holders
+  - eETH and weETH Top Holders
+  - eETH and weETH Retention Rates
+  - weETH DEX Trading Volume
+  - weETH DeFi Utilization
 notes:
   - The dashboard also uses decoded contract calls and events, chain logs, Dune utility tables, labels, prices, and an external restaking-contract result outside this catalog.
