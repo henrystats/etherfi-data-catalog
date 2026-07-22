@@ -420,7 +420,18 @@ def test_build_website_generates_polished_mcp_page_from_current_tools(tmp_path):
 
 
 def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
-    build_site(output_dir=tmp_path)
+    freshness_path = tmp_path / "dataset_freshness.fixture.yaml"
+    freshness_path.write_text(
+        "etherfi_protocol_token_holders:\n"
+        "  last_updated: '2026-06-22T20:00:00Z'\n"
+        "  query_id: 6213381\n",
+        encoding="utf-8",
+    )
+    build_site(
+        output_dir=tmp_path,
+        freshness_registry_path=freshness_path,
+        now=datetime(2026, 6, 24, tzinfo=timezone.utc),
+    )
 
     dataset_index = (tmp_path / "datasets.html").read_text(encoding="utf-8")
     css = (tmp_path / "assets" / "styles.css").read_text(encoding="utf-8")
