@@ -502,7 +502,7 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     assert 'data-search=' in dataset_index
     assert 'data-status=' in dataset_index
     assert 'href="datasets/protocol_token_holders.html"' in dataset_index
-    assert "Protocol Token Holders" in dataset_index
+    assert "Ether.fi Protocol Token Holders" in dataset_index
     assert 'href="https://dune.com/queries/6213381"' in dataset_index
     assert 'data-source-query-id="6213381"' in dataset_index
     assert 'src="assets/datasets.js?v=' in dataset_index
@@ -514,7 +514,7 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     )
     assert holder_card
     holder_card_html = holder_card.group(1)
-    assert "Protocol Token Holders" in holder_card_html
+    assert "Ether.fi Protocol Token Holders" in holder_card_html
     assert "Direct user/wallet holders of ether.fi protocol tokens by address" in holder_card_html
     assert re.search(
         r'<span class="dataset-card-status stale">Stale \d+(?:m|hr|d)</span>',
@@ -525,9 +525,15 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     assert '<dt>Last refreshed</dt>' not in holder_card_html
     assert "registry-meta-row" not in holder_card_html
     assert 'href="https://dune.com/queries/6213381"' in holder_card_html
-    assert 'aria-label="Open source Dune query for Protocol Token Holders"' in holder_card_html
+    assert (
+        'aria-label="Open source Dune query for Ether.fi Protocol Token Holders"'
+        in holder_card_html
+    )
     assert 'href="datasets/protocol_token_holders.html"' in holder_card_html
-    assert 'aria-label="View Protocol Token Holders dataset details"' in holder_card_html
+    assert (
+        'aria-label="View Ether.fi Protocol Token Holders dataset details"'
+        in holder_card_html
+    )
     assert '<span class="dataset-category-chip etherfi-protocol">Ether.fi Protocol</span>' in holder_card_html
     assert '<code class="dataset-card-table"' not in holder_card_html
     assert "dune.ether_fi.result_etherfi_protocol_token_holders" not in holder_card_html
@@ -550,6 +556,9 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
         re.S,
     )
     assert ".dataset-card-meta" not in css
+    assert ".dataset-browser-card::before" not in css
+    assert "--dataset-card-accent" not in css
+    assert ".dashboard-browser-card::before" in css
     assert ".dataset-featured-view::before," in css
     assert ".dataset-category-view::before" in css
     for category in ["activity", "prices", "metadata", "lrt_restaking"]:
@@ -570,32 +579,62 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     assert '../assets/styles.css?v=' in holder_page
     assert 'class="nav-link active" href="../datasets.html" aria-current="page"' in holder_page
     assert "Back to datasets" in holder_page
-    assert "At a glance" in holder_page
+    assert "At a glance" not in holder_page
     assert "dataset-detail-hero-meta" in holder_page
-    assert "Full table name" in holder_page
-    assert 'class="dataset-glance-card full-table-name copyable-table-name"' in holder_page
-    assert 'class="dataset-glance-card glance-grain"' in holder_page
-    assert 'class="table-pill table-pill-block"' in holder_page
-    assert "dune.ether_fi.result_etherfi_protocol_token_holders" in holder_page
-    assert 'data-copy-text="dune.ether_fi.result_etherfi_protocol_token_holders"' in holder_page
-    assert 'aria-label="Copy full table name"' in holder_page
-    assert 'data-copy-announcer role="status" aria-live="polite" aria-atomic="true"' in holder_page
+    holder_hero = re.search(
+        r'<header class="dataset-detail-header">(.*?)</header>',
+        holder_page,
+        re.S,
+    )
+    assert holder_hero
+    holder_hero_html = holder_hero.group(1)
+    assert (
+        '<div class="dataset-detail-hero-glance" role="group" '
+        'aria-label="Dataset metadata">'
+        in holder_hero_html
+    )
+    assert "Ether.fi Protocol Token Holders" in holder_hero_html
+    assert (
+        '<a class="dune-action detail-dune-action" href="https://dune.com/queries/6213381" '
+        'aria-label="Open the source query for Ether.fi Protocol Token Holders on Dune">'
+        "Open in Dune</a>"
+        in holder_hero_html
+    )
+    holder_glance = re.search(
+        r'<div class="dataset-detail-hero-glance" role="group" '
+        r'aria-label="Dataset metadata">(.*)</div>$',
+        holder_hero_html,
+        re.S,
+    )
+    assert holder_glance
+    holder_glance_html = holder_glance.group(1)
+    assert "Full table name" in holder_glance_html
+    assert 'class="dataset-glance-card full-table-name copyable-table-name"' in holder_glance_html
+    assert 'class="dataset-glance-card glance-grain"' in holder_glance_html
+    assert 'class="table-pill table-pill-block"' in holder_glance_html
+    assert "dune.ether_fi.result_etherfi_protocol_token_holders" in holder_glance_html
+    assert (
+        'data-copy-text="dune.ether_fi.result_etherfi_protocol_token_holders"'
+        in holder_glance_html
+    )
+    assert 'aria-label="Copy full table name"' in holder_glance_html
+    assert (
+        'data-copy-announcer role="status" aria-live="polite" aria-atomic="true"'
+        in holder_glance_html
+    )
     assert 'src="../assets/dataset-detail.js?v=' in holder_page
     assert "schema-table-toolbar" in holder_page
     assert '<span class="schema-scroll-hint" aria-hidden="true">Scroll for type + description &rarr;</span>' in holder_page
     assert 'class="schema-table-wrap" role="region" aria-label="Dataset schema" tabindex="0"' in holder_page
     assert "<h2>Caveats</h2>" in holder_page
-    assert "<span>Live query</span>" not in holder_page
+    assert holder_glance_html.count("<span>Live query</span>") == 1
+    assert 'class="dataset-glance-card copyable-table-name live-query-card"' in holder_glance_html
+    assert "query_6815122" in holder_glance_html
+    assert 'data-copy-text="query_6815122"' in holder_glance_html
+    assert 'aria-label="Copy live query table name"' in holder_glance_html
     assert "Live query table" not in holder_page
     assert "Live query ID" not in holder_page
     assert ".dataset-glance-grid:not(:has(.live-query-card)) .dataset-glance-card.full-table-name" in css
-    holder_glance = re.search(
-        r"<h2>At a glance</h2><div class=\"dataset-glance-grid\">(.*?)</div></section>",
-        holder_page,
-        re.S,
-    )
-    assert holder_glance
-    holder_glance_html = holder_glance.group(1)
     assert "<span>Category</span>" not in holder_glance_html
     assert "<span>Query ready</span>" not in holder_glance_html
     assert "<span>Freshness column</span>" not in holder_glance_html
@@ -644,7 +683,7 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     holder_with_defi_page = (
         tmp_path / "datasets" / "protocol_token_holders_with_defi.html"
     ).read_text(encoding="utf-8")
-    assert "Protocol Token Holders With Defi" in holder_with_defi_page
+    assert "Ether.fi Protocol Token Holders With DeFi" in holder_with_defi_page
     assert "Freshness &amp; Refresh Interval" in holder_with_defi_page
     assert "Freshness &amp; Interval" not in holder_with_defi_page
     assert "Every 4h" in holder_with_defi_page
@@ -664,9 +703,17 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     transfers_page = (tmp_path / "datasets" / "addresses_transfers.html").read_text(
         encoding="utf-8"
     )
-    transfers_glance = re.search(
-        r"<h2>At a glance</h2><div class=\"dataset-glance-grid\">(.*?)</div></section>",
+    assert "At a glance" not in transfers_page
+    transfers_hero = re.search(
+        r'<header class="dataset-detail-header">(.*?)</header>',
         transfers_page,
+        re.S,
+    )
+    assert transfers_hero
+    transfers_glance = re.search(
+        r'<div class="dataset-detail-hero-glance" role="group" '
+        r'aria-label="Dataset metadata">(.*)</div>$',
+        transfers_hero.group(1),
         re.S,
     )
     assert transfers_glance
@@ -1202,7 +1249,7 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert linked_dataset_section
     assert (
         '<a class="related-resource" href="../datasets/protocol_token_holders.html">'
-        "Protocol Token Holders</a>"
+        "Ether.fi Protocol Token Holders</a>"
         in linked_dataset_section.group(1)
     )
     assert 'target="_blank"' not in linked_dataset_section.group(1)
@@ -1481,7 +1528,7 @@ def test_build_website_generates_freshness_status_page(tmp_path):
     assert "Unknown" in freshness_page
     assert 'href="datasets/protocol_token_holders.html"' in freshness_page
     assert 'href="datasets/etherfi_protocol_token_tvl.html"' in freshness_page
-    assert "Protocol Token Holders" in freshness_page
+    assert "Ether.fi Protocol Token Holders" in freshness_page
     assert "Ether.fi Protocol Token TVL" in freshness_page
     assert "table-pill" not in freshness_page
     assert "<span>Category</span>" not in freshness_page
@@ -1493,7 +1540,7 @@ def test_build_website_generates_freshness_status_page(tmp_path):
     assert "Ether.fi Protocol Token TVLdune.ether_fi.result_etherfi_protocol_token_tvl" not in freshness_page
     assert "https://dune.com/queries/6213381" in freshness_page
     assert (
-        'data-search="etherfi_protocol_token_holders protocol token holders ether.fi protocol fresh protocol 6213381 '
+        'data-search="etherfi_protocol_token_holders ether.fi protocol token holders ether.fi protocol fresh protocol 6213381 '
         "https://dune.com/queries/6213381 4h dune.ether_fi.result_etherfi_protocol_token_holders"
         in freshness_page
     )
@@ -1519,7 +1566,9 @@ def test_build_website_generates_freshness_status_page(tmp_path):
     assert "No datasets match these filters." in freshness_page
     assert 'src="assets/freshness.js?v=' in freshness_page
     assert 'src="assets/freshness.js" defer' not in freshness_page
-    assert freshness_page.find("Ether.fi Protocol Token TVL") < freshness_page.find("Protocol Token Holders")
+    assert freshness_page.find("Ether.fi Protocol Token TVL") < freshness_page.find(
+        "Ether.fi Protocol Token Holders"
+    )
     assert (tmp_path / "site" / "assets" / "freshness.js").exists()
     freshness_css = (tmp_path / "site" / "assets" / "styles.css").read_text(encoding="utf-8")
     assert ".freshness-summary" not in freshness_css
@@ -2015,7 +2064,7 @@ assert(debug.selectedStatus === "all", "Debug hook should start with all status"
 search("protocol tvl");
 assert(visibleCards().length > 0 && visibleCards().length < total, "Non-contiguous dataset search should narrow cards");
 assert(visibleCards().some((card) => card.textContent.includes("Ether.fi Protocol Token TVL")), "Non-contiguous dataset search should include Protocol Token TVL");
-assert(!visibleCards().some((card) => card.textContent.includes("Protocol Token Holders")), "Non-contiguous dataset search should hide unrelated holders card");
+assert(!visibleCards().some((card) => card.textContent.includes("Ether.fi Protocol Token Holders")), "Non-contiguous dataset search should hide unrelated holders card");
 assert(doc.count.textContent === `${visibleCards().length} shown`, "Non-contiguous search count did not update");
 
 search("protocol token tvl");
@@ -2193,21 +2242,44 @@ def test_build_website_dataset_pages_show_missing_fields_without_breaking(tmp_pa
     assert "Minimal Dataset" in detail_page
     assert NOT_DOCUMENTED in detail_page
     assert "A deliberately sparse dataset for docs generation." in detail_page
-    assert "At a glance" in detail_page
-    assert "Freshness &amp; Refresh Interval" in detail_page
-    assert "Freshness &amp; Interval" not in detail_page
-    assert '<div class="glance-value freshness-refresh-value">' in detail_page
-    assert '<span class="freshness-status-pill status-unknown">Unknown</span>' in detail_page
-    assert '<span class="freshness-refresh-text">Not documented · Interval not documented</span>' in detail_page
-    assert "Not documented · Interval not documented" in detail_page
-    assert "<span>Category</span>" not in detail_page
-    assert "<span>Query ready</span>" not in detail_page
-    assert "<span>Freshness column</span>" not in detail_page
-    assert "<span>Source query ID</span>" not in detail_page
-    assert "<span>Refresh interval</span>" not in detail_page
+    assert "At a glance" not in detail_page
+    detail_hero = re.search(
+        r'<header class="dataset-detail-header">(.*?)</header>',
+        detail_page,
+        re.S,
+    )
+    assert detail_hero
+    detail_glance = re.search(
+        r'<div class="dataset-detail-hero-glance" role="group" '
+        r'aria-label="Dataset metadata">(.*)</div>$',
+        detail_hero.group(1),
+        re.S,
+    )
+    assert detail_glance
+    detail_glance_html = detail_glance.group(1)
+    assert "Freshness &amp; Refresh Interval" in detail_glance_html
+    assert "Freshness &amp; Interval" not in detail_glance_html
+    assert '<div class="glance-value freshness-refresh-value">' in detail_glance_html
+    assert (
+        '<span class="freshness-status-pill status-unknown">Unknown</span>'
+        in detail_glance_html
+    )
+    assert (
+        '<span class="freshness-refresh-text">Not documented · Interval not documented</span>'
+        in detail_glance_html
+    )
+    assert "Not documented · Interval not documented" in detail_glance_html
+    assert "<span>Category</span>" not in detail_glance_html
+    assert "<span>Query ready</span>" not in detail_glance_html
+    assert "<span>Freshness column</span>" not in detail_glance_html
+    assert "<span>Source query ID</span>" not in detail_glance_html
+    assert "<span>Refresh interval</span>" not in detail_glance_html
     assert "About this table" in detail_page
-    assert 'class="dataset-glance-card full-table-name copyable-table-name"' in detail_page
-    assert 'class="table-pill table-pill-block"' in detail_page
+    assert (
+        'class="dataset-glance-card full-table-name copyable-table-name"'
+        in detail_glance_html
+    )
+    assert 'class="table-pill table-pill-block"' in detail_glance_html
     assert "Schema" in detail_page
     assert "Related datasets and dashboards" in detail_page
     assert "What this table contains" not in detail_page

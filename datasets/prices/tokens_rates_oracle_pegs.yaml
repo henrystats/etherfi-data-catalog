@@ -8,6 +8,14 @@ source_query_url: https://dune.com/queries/5849669
 freshness_source_name: Tokens Exchange Rates
 table_name: dune.ether_fi.result_tokens_rates_oracle_pegs
 query_ready: true
+live_query:
+  query_id: 6923623
+  query_url: https://dune.com/queries/6923623
+  table_name: query_6923623
+  defaults_to_table_name: true
+  notes:
+    - This live query is used for fresher token exchange-rate coverage.
+    - The table name intentionally uses `query_6923623` because this output is queried as a saved query result rather than a materialized view.
 query_patterns:
   - token underlying exchange rates
   - oracle and protocol exchange rates

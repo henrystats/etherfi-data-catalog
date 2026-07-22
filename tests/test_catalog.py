@@ -56,7 +56,14 @@ def test_load_datasets_reads_existing_yaml_files():
     assert "protocol_token_holders_with_defi" not in catalog
     assert "dune.ether_fi.result_etherfi_addresses" in catalog
     assert catalog["etherfi_cash_addresses"]["table_name"] == "dune.ether_fi.result_etherfi_cash_addresses"
-    assert catalog["etherfi_protocol_token_holders"]["display_name"] == "Protocol Token Holders"
+    assert (
+        catalog["etherfi_protocol_token_holders"]["display_name"]
+        == "Ether.fi Protocol Token Holders"
+    )
+    assert (
+        catalog["etherfi_protocol_token_holders_with_defi"]["display_name"]
+        == "Ether.fi Protocol Token Holders With DeFi"
+    )
 
 
 def test_default_loaders_use_packaged_metadata_outside_repo_root(monkeypatch, tmp_path):
@@ -185,6 +192,48 @@ def test_all_dataset_metadata_links_and_refresh_fields_are_valid():
             assert dashboard_name in dashboard_names
 
 
+def test_targeted_live_query_metadata_preserves_materialized_view_sources():
+    catalog = load_datasets()
+    expected = {
+        "dune.ether_fi.result_etherfi_cash_events": {
+            "source_query_id": 6819736,
+            "table_name": "dune.ether_fi.result_etherfi_cash_events",
+            "live_query_id": 6819800,
+        },
+        "etherfi_protocol_token_holders": {
+            "source_query_id": 6213381,
+            "table_name": "dune.ether_fi.result_etherfi_protocol_token_holders",
+            "live_query_id": 6815122,
+        },
+        "dune.ether_fi.result_tokens_rates_oracle_pegs": {
+            "source_query_id": 5849669,
+            "table_name": "dune.ether_fi.result_tokens_rates_oracle_pegs",
+            "live_query_id": 6923623,
+        },
+        "dune.ether_fi.result_tokens_prices_usd": {
+            "source_query_id": 6147662,
+            "table_name": "dune.ether_fi.result_tokens_prices_usd",
+            "live_query_id": 6815262,
+        },
+    }
+
+    for dataset_name, fields in expected.items():
+        dataset = catalog[dataset_name]
+        live_query_id = fields["live_query_id"]
+        live_query = dataset["live_query"]
+
+        assert dataset["source_query_id"] == fields["source_query_id"]
+        assert dataset["source_query_url"] == (
+            f"https://dune.com/queries/{fields['source_query_id']}"
+        )
+        assert dataset["table_name"] == fields["table_name"]
+        assert live_query["query_id"] == live_query_id
+        assert live_query["query_url"] == f"https://dune.com/queries/{live_query_id}"
+        assert live_query["table_name"] == f"query_{live_query_id}"
+        assert live_query["defaults_to_table_name"] is True
+        assert "defaults_to_mat_view" not in live_query
+
+
 def test_addresses_transfers_subtable_metadata_and_search_behavior():
     catalog = load_datasets()
 
@@ -253,8 +302,9 @@ def test_addresses_transfers_subtable_metadata_and_search_behavior():
         assert resolve_dataset_name(dataset_name, catalog) is not None
 
     cash_events = catalog["dune.ether_fi.result_etherfi_cash_events"]
-    assert cash_events["live_query"]["query_id"] == cash_events["source_query_id"]
-    assert cash_events["live_query"]["defaults_to_mat_view"] is True
+    assert cash_events["live_query"]["query_id"] == 6819800
+    assert cash_events["live_query"]["table_name"] == "query_6819800"
+    assert cash_events["live_query"]["defaults_to_table_name"] is True
 
     broad_results = {dataset["name"] for dataset in search_datasets("address transfers", datasets=catalog, freshness_registry={})}
     assert "addresses_transfers" in broad_results
@@ -508,8 +558,9 @@ def test_event_dataset_monitoring_metadata_is_available():
     assert protocol_events["monitoring"]["metrics"]["usd_volume"]["column"] == "amount_usd"
     assert protocol_events["monitoring"]["raw_source_sanity"]["contract_dimension"] == "strategy_address"
 
-    assert cash_events["live_query"]["query_id"] == cash_events["source_query_id"]
-    assert cash_events["live_query"]["defaults_to_mat_view"] is True
+    assert cash_events["live_query"]["query_id"] == 6819800
+    assert cash_events["live_query"]["table_name"] == "query_6819800"
+    assert cash_events["live_query"]["defaults_to_table_name"] is True
     assert cash_events["backups"]["weekly"]["query_id"] is None
     assert cash_events["backups"]["monthly"]["query_id"] is None
     assert cash_events["monitoring"]["reconciliation_dimensions"] == [
@@ -4214,11 +4265,14 @@ def test_cash_events_planner_defaults_recent_prompts_to_live_query():
 
     assert plan["recommended_datasets"][0]["name"] == "dune.ether_fi.result_etherfi_cash_events"
     assert plan["data_access"]["selected_data_access"] == "live_query"
-    assert plan["data_access"]["live_query"]["defaults_to_mat_view"] is True
-    assert any(
-        "currently defaults to the same materialized-view" in note
-        for note in plan["data_access"]["data_access_notes"]
+    assert plan["data_access"]["selected_table_name"] == "query_6819800"
+    assert plan["data_access"]["live_query"]["query_id"] == 6819800
+    assert plan["data_access"]["live_query"]["defaults_to_table_name"] is True
+    assert plan["data_access"]["mat_view"]["table_name"] == (
+        "dune.ether_fi.result_etherfi_cash_events"
     )
+    assert plan["data_access"]["mat_view"]["source_query_id"] == 6819736
+    assert "FROM query_6819800" in plan["suggested_sql_skeleton"]
 
 
 def test_cash_events_planner_prefers_mat_view_for_historical_prompts():

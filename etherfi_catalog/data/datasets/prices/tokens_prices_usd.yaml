@@ -8,6 +8,14 @@ source_query_url: https://dune.com/queries/6147662
 freshness_source_name: Tokens Prices USD (Minute)
 table_name: dune.ether_fi.result_tokens_prices_usd
 query_ready: true
+live_query:
+  query_id: 6815262
+  query_url: https://dune.com/queries/6815262
+  table_name: query_6815262
+  defaults_to_table_name: true
+  notes:
+    - This live query is used for fresher minute-level direct USD price coverage.
+    - The table name intentionally uses `query_6815262` because this output is queried as a saved query result rather than a materialized view.
 query_patterns:
   - raw minute-level USD token prices
   - direct USD price feed

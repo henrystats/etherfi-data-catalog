@@ -2082,7 +2082,7 @@ def render_dataset_page(
         '<section class="page dataset-page">'
         '<div class="wrap dataset-detail-layout">'
         '<header class="dataset-detail-header">'
-        '<div>'
+        '<div class="dataset-detail-hero-copy">'
         '<a class="dataset-back-link" href="../datasets.html">Back to datasets</a>'
         '<div class="dataset-detail-hero-meta">'
         f'<span class="category-pill {escape(entry.category.replace("_", "-"))}">{escape(titleize_category(entry.category))}</span>'
@@ -2092,11 +2092,10 @@ def render_dataset_page(
         f"<p>{render_inline_markdown(summary_text)}</p>"
         "</div>"
         f"{source_button}"
-        "</header>"
-        '<section class="detail-panel dataset-detail-section">'
-        "<h2>At a glance</h2>"
+        '<div class="dataset-detail-hero-glance" role="group" aria-label="Dataset metadata">'
         f"{at_a_glance}"
-        "</section>"
+        "</div>"
+        "</header>"
         '<section class="detail-panel dataset-detail-section">'
         "<h2>About this table</h2>"
         f"{render_about_table(entry)}"

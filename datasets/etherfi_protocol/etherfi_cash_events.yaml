@@ -14,13 +14,13 @@ freshness_source_name: ether.fi Cash Events
 table_name: dune.ether_fi.result_etherfi_cash_events
 query_ready: true
 live_query:
-  query_id: 6819736
-  query_url: https://dune.com/queries/6819736
-  table_name: dune.ether_fi.result_etherfi_cash_events
-  defaults_to_mat_view: true
+  query_id: 6819800
+  query_url: https://dune.com/queries/6819800
+  table_name: query_6819800
+  defaults_to_table_name: true
   notes:
-    - Current live-query metadata intentionally points to the existing materialized-view query/table.
-    - Future live-query logic can combine this scheduled baseline with fresher recent Cash events.
+    - This live query is used for fresher ether.fi Cash event coverage.
+    - The table name intentionally uses `query_6819800` because this output is queried as a saved query result rather than a materialized view.
 backups:
   weekly:
     query_id:

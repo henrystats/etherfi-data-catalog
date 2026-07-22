@@ -6,7 +6,7 @@ aliases:
   - result_etherfi_protocol_token_holders
   - direct protocol token holders
   - top eETH holders
-display_name: Protocol Token Holders
+display_name: Ether.fi Protocol Token Holders
 description: Direct user/wallet holders of ether.fi protocol tokens by address; default dataset for generic "how much does this address have in ether.fi?" prompts
 refresh_interval_minutes: 240
 freshness_timestamp_column: last_updated
@@ -15,6 +15,14 @@ source_query_url: https://dune.com/queries/6213381
 freshness_source_name: ether.fi Protocol Token Holders
 table_name: dune.ether_fi.result_etherfi_protocol_token_holders
 query_ready: true
+live_query:
+  query_id: 6815122
+  query_url: https://dune.com/queries/6815122
+  table_name: query_6815122
+  defaults_to_table_name: true
+  notes:
+    - This live query is used for fresher direct protocol token holder coverage.
+    - The table name intentionally uses `query_6815122` because this output is queried as a saved query result rather than a materialized view.
 query_patterns:
   - top holders by token
   - latest protocol token holders
