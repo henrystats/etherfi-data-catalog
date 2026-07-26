@@ -101,7 +101,6 @@
     if (!page || page.dataset.dashboardsMounted === "true") {
       return;
     }
-    page.dataset.dashboardsMounted = "true";
 
     const searchInput = page.querySelector(SEARCH_SELECTOR);
     const cards = [...page.querySelectorAll(CARD_SELECTOR)].map(cardDataFromElement);
@@ -122,7 +121,11 @@
         countFound: Boolean(count),
         emptyStateFound: Boolean(emptyState),
       });
+      return;
     }
+    sections.forEach((section) => {
+      section.removeAttribute("data-default-hidden");
+    });
 
     function applyFilters() {
       state.query = searchInput ? searchInput.value : "";
@@ -163,7 +166,13 @@
       setActiveNav(navButtons, activeNavForState(state));
       if (count) {
         const suffix = visibleCount === 1 ? "dashboard" : "dashboards";
-        count.textContent = hasQuery ? `${visibleCount} shown` : `${visibleCount} ${suffix}`;
+        if (hasQuery) {
+          count.textContent = `${visibleCount} dashboard ${visibleCount === 1 ? "result" : "results"} across all categories`;
+        } else if (state.activeGroup === "core") {
+          count.textContent = `${visibleCount} core dashboards shown`;
+        } else {
+          count.textContent = `${visibleCount} ${suffix} shown in the selected category`;
+        }
       }
       if (emptyState) {
         setVisible(emptyState, hasQuery && visibleCount === 0);
@@ -194,10 +203,14 @@
     });
 
     applyFilters();
+    page.dataset.dashboardsMounted = "true";
   }
 
   function ready(scope) {
-    if (!scope || scope.readyState === "loading") {
+    if (!scope) {
+      return;
+    }
+    if (scope.readyState === "loading") {
       scope.addEventListener("DOMContentLoaded", () => mount(scope), { once: true });
       return;
     }

@@ -18,6 +18,7 @@
   const OVERVIEW_SELECTOR = "[data-dataset-overview]";
   const COUNT_SELECTOR = "#dataset-count";
   const EMPTY_SELECTOR = "#dataset-empty-state";
+  const CATEGORY_FRAGMENT_PREFIX = "dataset-view-";
 
   function normalize(value) {
     return String(value || "")
@@ -29,6 +30,38 @@
   function termsFor(query) {
     const normalized = normalize(query);
     return normalized === "" ? [] : normalized.split(" ");
+  }
+
+  function normalizedFragment(hash) {
+    const raw = String(hash || "").replace(/^#/, "");
+    if (!raw) {
+      return "";
+    }
+    try {
+      return decodeURIComponent(raw);
+    } catch (error) {
+      return raw;
+    }
+  }
+
+  function categoryFragment(category) {
+    const value = String(category || "overview").replace(/_/g, "-");
+    return `${CATEGORY_FRAGMENT_PREFIX}${value}`;
+  }
+
+  function categoryForHash(hash, availableCategories) {
+    const fragment = normalizedFragment(hash);
+    const categories = Array.isArray(availableCategories) ? availableCategories : [];
+    return categories.find((category) => categoryFragment(category) === fragment) || "";
+  }
+
+  function categoryTargetForHash(hash, availableCategories) {
+    const fragment = normalizedFragment(hash);
+    const category = categoryForHash(hash, availableCategories);
+    if (fragment && !category) {
+      return null;
+    }
+    return category || "overview";
   }
 
   function matchesSearch(card, query) {
@@ -62,6 +95,36 @@
       searchInput.value = "";
     }
     return state;
+  }
+
+  function shouldRestoreCategoryFocus(activeElement, navButtons) {
+    if (!activeElement) {
+      return false;
+    }
+    const buttons = Array.isArray(navButtons) ? navButtons : [];
+    if (buttons.includes(activeElement)) {
+      return true;
+    }
+    return Boolean(
+      typeof activeElement.closest === "function" &&
+      activeElement.closest(`${OVERVIEW_SELECTOR}, ${SECTION_SELECTOR}`),
+    );
+  }
+
+  function updateCategoryHash(category, replace) {
+    if (!root || !root.location) {
+      return;
+    }
+    const nextHash = `#${encodeURIComponent(categoryFragment(category))}`;
+    if (root.location.hash === nextHash) {
+      return;
+    }
+    const method = replace ? "replaceState" : "pushState";
+    if (root.history && typeof root.history[method] === "function") {
+      root.history[method](null, "", nextHash);
+      return;
+    }
+    root.location.hash = nextHash;
   }
 
   function cardDataFromElement(element) {
@@ -100,17 +163,26 @@
     if (!page || page.dataset.datasetsMounted === "true") {
       return;
     }
-    page.dataset.datasetsMounted = "true";
 
     const searchInput = page.querySelector(SEARCH_SELECTOR);
     const cards = [...page.querySelectorAll(CARD_SELECTOR)].map(cardDataFromElement);
     const navButtons = [...page.querySelectorAll(NAV_SELECTOR)];
     const sections = [...page.querySelectorAll(SECTION_SELECTOR)];
     const overview = page.querySelector(OVERVIEW_SELECTOR);
+    const featuredCount = overview
+      ? overview.querySelectorAll(".dataset-browser-card").length
+      : 0;
     const count = page.querySelector(COUNT_SELECTOR);
     const emptyState = page.querySelector(EMPTY_SELECTOR);
+    const availableCategories = navButtons.map(
+      (button) => button.dataset.datasetNav,
+    );
+    const initialCategory = categoryForHash(
+      root && root.location ? root.location.hash : "",
+      availableCategories,
+    );
     const state = {
-      activeCategory: "overview",
+      activeCategory: initialCategory || "overview",
       query: "",
     };
 
@@ -121,7 +193,11 @@
         countFound: Boolean(count),
         emptyStateFound: Boolean(emptyState),
       });
+      return;
     }
+    sections.forEach((section) => {
+      section.removeAttribute("data-default-hidden");
+    });
 
     function applyFilters() {
       state.query = searchInput ? searchInput.value : "";
@@ -159,16 +235,78 @@
           setVisible(section.querySelector(".dataset-view-count"), true);
         });
         if (state.activeCategory === "overview") {
-          visibleCount = cards.length;
+          visibleCount = featuredCount;
         }
       }
 
       setActiveNav(navButtons, activeNavForState(state));
       if (count) {
-        count.textContent = hasQuery ? `${visibleCount} shown` : `${visibleCount} datasets`;
+        if (hasQuery) {
+          count.textContent = `${visibleCount} dataset ${visibleCount === 1 ? "result" : "results"} across all categories`;
+        } else if (state.activeCategory === "overview") {
+          count.textContent = `${featuredCount} featured datasets shown`;
+        } else {
+          count.textContent = `${visibleCount} ${visibleCount === 1 ? "dataset" : "datasets"} shown in the selected category`;
+        }
       }
       if (emptyState) {
         setVisible(emptyState, hasQuery && visibleCount === 0);
+      }
+    }
+
+    function scrollToCategory(category) {
+      const fragment = categoryFragment(category);
+      const target = page.querySelector(`#${fragment}`);
+      if (!target || typeof target.scrollIntoView !== "function") {
+        return;
+      }
+      const activeButton = navButtons.find(
+        (button) => button.dataset.datasetNav === category,
+      );
+      const scroll = () => {
+        target.scrollIntoView({ block: "start" });
+        if (activeButton && typeof activeButton.scrollIntoView === "function") {
+          activeButton.scrollIntoView({ block: "nearest", inline: "nearest" });
+        }
+      };
+      if (root && typeof root.requestAnimationFrame === "function") {
+        root.requestAnimationFrame(() => root.requestAnimationFrame(scroll));
+      } else {
+        scroll();
+      }
+    }
+
+    function syncFromLocation() {
+      const hash = root && root.location ? root.location.hash : "";
+      const nextCategory = categoryTargetForHash(hash, availableCategories);
+      if (!nextCategory) {
+        return;
+      }
+      const searchValue = searchInput ? searchInput.value : "";
+      if (
+        state.activeCategory === nextCategory &&
+        !state.query &&
+        !searchValue
+      ) {
+        return;
+      }
+      const activeElement = scope.activeElement;
+      const restoreFocus = shouldRestoreCategoryFocus(
+        activeElement,
+        navButtons,
+      );
+      selectCategory(state, searchInput, nextCategory);
+      applyFilters();
+      if (restoreFocus) {
+        const activeButton = navButtons.find(
+          (button) => button.dataset.datasetNav === nextCategory,
+        );
+        if (activeButton && typeof activeButton.focus === "function") {
+          activeButton.focus();
+        }
+      }
+      if (normalizedFragment(hash)) {
+        scrollToCategory(nextCategory);
       }
     }
 
@@ -189,16 +327,30 @@
 
     navButtons.forEach((button) => {
       button.addEventListener("click", () => {
-        selectCategory(state, searchInput, button.dataset.datasetNav);
+        const category = button.dataset.datasetNav;
+        selectCategory(state, searchInput, category);
         applyFilters();
+        updateCategoryHash(category, false);
+        scrollToCategory(category);
       });
     });
 
     applyFilters();
+    page.dataset.datasetsMounted = "true";
+    if (initialCategory) {
+      scrollToCategory(initialCategory);
+    }
+    if (root && typeof root.addEventListener === "function") {
+      root.addEventListener("hashchange", syncFromLocation);
+      root.addEventListener("popstate", syncFromLocation);
+    }
   }
 
   function ready(scope) {
-    if (!scope || scope.readyState === "loading") {
+    if (!scope) {
+      return;
+    }
+    if (scope.readyState === "loading") {
       scope.addEventListener("DOMContentLoaded", () => mount(scope), { once: true });
       return;
     }
@@ -207,12 +359,16 @@
 
   return {
     activeNavForState,
+    categoryForHash,
+    categoryFragment,
+    categoryTargetForHash,
     filterCards,
     matchesSearch,
     mount,
     normalize,
     ready,
     selectCategory,
+    shouldRestoreCategoryFocus,
     termsFor,
   };
 });

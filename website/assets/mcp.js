@@ -3,34 +3,8 @@
   const FEEDBACK_SELECTOR = "[data-copy-feedback]";
   const ANNOUNCER_SELECTOR = "[data-copy-announcer]";
   const RESET_DELAY_MS = 1400;
-
-  function copyWithFallback(text) {
-    const textarea = document.createElement("textarea");
-    textarea.value = text;
-    textarea.setAttribute("readonly", "");
-    textarea.style.position = "fixed";
-    textarea.style.top = "-9999px";
-    textarea.style.left = "-9999px";
-    document.body.appendChild(textarea);
-    textarea.select();
-
-    try {
-      return Promise.resolve(Boolean(document.execCommand("copy")));
-    } finally {
-      document.body.removeChild(textarea);
-    }
-  }
-
-  function copyText(text) {
-    if (
-      window.navigator &&
-      window.navigator.clipboard &&
-      typeof window.navigator.clipboard.writeText === "function"
-    ) {
-      return window.navigator.clipboard.writeText(text).then(() => true);
-    }
-    return copyWithFallback(text);
-  }
+  const resetTimers = new WeakMap();
+  document.documentElement.dataset.mcpMounted = "true";
 
   function selectSnippetText(button) {
     const snippet = button.closest(".code-snippet");
@@ -61,10 +35,16 @@
   }
 
   function resetButton(button) {
-    window.setTimeout(() => {
+    const existingTimer = resetTimers.get(button);
+    if (existingTimer) {
+      window.clearTimeout(existingTimer);
+    }
+    const timer = window.setTimeout(() => {
       button.classList.remove("copied", "copy-selected", "copy-failed");
       setFeedback(button, "Copy");
+      resetTimers.delete(button);
     }, RESET_DELAY_MS);
+    resetTimers.set(button, timer);
   }
 
   async function handleCopy(button) {
@@ -74,7 +54,9 @@
     }
 
     try {
-      const copied = await copyText(text);
+      const copied = window.CatalogUI && typeof window.CatalogUI.copyText === "function"
+        ? await window.CatalogUI.copyText(text, document)
+        : false;
       const selected = copied ? false : selectSnippetText(button);
       button.classList.toggle("copied", copied);
       button.classList.toggle("copy-selected", selected);

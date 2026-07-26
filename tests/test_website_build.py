@@ -9,6 +9,7 @@ from scripts.build_website import (
     DEFAULT_OUTPUT_DIR,
     NOT_DOCUMENTED,
     build_site,
+    category_description,
     dataset_card_status_label,
     dataset_freshness_interval_summary,
     format_compact_duration,
@@ -32,6 +33,15 @@ def test_website_pages_include_expected_navigation_entries():
         "Dashboards",
         "Freshness",
     ]
+
+
+def test_dataset_category_description_uses_dynamic_singular_and_plural_grammar():
+    assert category_description("metadata", 1) == (
+        "1 dataset in the Metadata catalog group."
+    )
+    assert category_description("prices", 7) == (
+        "7 datasets in the Prices catalog group."
+    )
 
 
 def test_build_website_outputs_core_pages(tmp_path):
@@ -60,7 +70,13 @@ def test_build_website_outputs_core_pages(tmp_path):
     assert '<span class="brand-mark">ether.fi</span>' in index_html
     assert '<span class="brand-mark">e.fi</span>' not in index_html
     assert "ether.fi Data Catalog" in index_html
-    assert "A polished, repo-backed catalog for finding ether.fi datasets, checking freshness, discovering dashboards, and giving AI agents the right context before Dune execution." in index_html
+    assert (
+        "A polished, repo-backed catalog for finding ether.fi datasets, checking "
+        "freshness, discovering dashboards, and giving AI agents the right context "
+        "before Dune execution."
+        in index_html
+    )
+    assert "ind the right ether.fi dataset" not in index_html
     assert 'href="datasets.html">Explore datasets</a>' in index_html
     assert '<a class="home-preview-card" href="dashboards.html">' in index_html
     assert '<span class="dataset-detail-action">View dashboards</span>' in index_html
@@ -78,24 +94,25 @@ def test_build_website_outputs_core_pages(tmp_path):
     )
     assert hero_html
     assert "ether.fi Data Catalog" in hero_html.group(1)
-    assert "A polished, repo-backed catalog" in hero_html.group(1)
+    assert "Data discovery &amp; operations" not in hero_html.group(1)
     assert "ether.fi data command center" not in hero_html.group(1).lower()
     assert "home-command-preview" not in hero_html.group(1)
     assert "Which table backs Cash activity and is it fresh enough?" not in hero_html.group(1)
     assert 'href="datasets.html">Explore datasets</a>' in hero_html.group(1)
+    assert 'href="dashboards.html">Find dashboards</a>' in hero_html.group(1)
     assert 'href="freshness.html">Check freshness</a>' in hero_html.group(1)
-    assert 'href="mcp.html">Set up MCP</a>' in hero_html.group(1)
+    assert 'href="mcp.html">Connect MCP</a>' in hero_html.group(1)
     assert "catalog-summary-card" not in hero_html.group(1)
     assert "Total datasets" not in index_html
     assert "Total dashboards" not in index_html
     assert "Fresh datasets" not in index_html
     assert "MCP tools" not in index_html
-    assert "Explore the data catalog" in index_html
+    assert "Choose a workflow" in index_html
     assert "Start from the surface that matches the question in front of you." not in index_html
     assert "Jump straight into the page that matches the question in front of you." not in index_html
-    assert "Find cataloged tables and open schema/freshness details." in index_html
+    assert "Find cataloged tables, inspect caveats, and review schemas." in index_html
     assert "Find existing Dune dashboards before building new views." in index_html
-    assert "Check dataset freshness and source query links." in index_html
+    assert "Verify freshness, cadence, and source-query context." in index_html
     assert "Set up the catalog MCP alongside Dune MCP." in index_html
     assert "How this fits together" not in index_html
     assert "A short path through the catalog without duplicating the full MCP guide." not in index_html
@@ -126,7 +143,16 @@ def test_build_website_outputs_core_pages(tmp_path):
     assert "<title>Freshness | ether.fi Data Catalog</title>" in freshness_html
     assert '<span class="brand-mark">ether.fi</span>' in freshness_html
     assert '<span class="brand-mark">e.fi</span>' not in freshness_html
-    assert "<h1>Freshness</h1>" in freshness_html
+    assert (
+        '<h1 id="freshness-page-title" class="visually-hidden">Freshness</h1>'
+        in freshness_html
+    )
+    assert (
+        '<h2 id="freshness-source-title" class="freshness-source-title">'
+        "Source &amp; automation</h2>"
+        in freshness_html
+    )
+    assert "<h1>Freshness</h1>" not in freshness_html
     assert "Static site" not in freshness_html
     assert "Runtime snapshot aware" not in freshness_html
     assert "No live Dune call in the browser" not in freshness_html
@@ -146,13 +172,18 @@ def test_generated_pages_include_global_theme_contract(tmp_path):
         head = re.search(r"<head>(.*?)</head>", html, re.S)
 
         assert head
+        assert len(re.findall(r"<h1(?:\s|>)", html)) == 1
         assert html.count("data-theme-init") == 1
         assert html.count("data-theme-toggle") == 1
         assert html.count("assets/theme.js?v=") == 1
+        assert html.count("assets/catalog-ui.js?v=") == 1
         assert head.group(1).find("data-theme-init") < head.group(1).find('rel="stylesheet"')
         assert 'type="button" data-theme-toggle aria-pressed="false"' in html
         assert 'aria-label="Dark theme"' in html
         assert f'src="{asset_prefix}assets/theme.js?v=' in html
+        assert f'src="{asset_prefix}assets/catalog-ui.js?v=' in html
+        assert "assets/catalog-ui.js?v=" in head.group(1)
+        assert '<main id="main-content" tabindex="-1">' in html
 
     index_html = (tmp_path / "index.html").read_text(encoding="utf-8")
     init_script = re.search(r"<script data-theme-init>(.*?)</script>", index_html, re.S)
@@ -160,10 +191,17 @@ def test_generated_pages_include_global_theme_contract(tmp_path):
     assert "etherfi-data-catalog-theme" in init_script.group(1)
     assert '(prefers-color-scheme: dark)' in init_script.group(1)
     assert 'root.setAttribute("data-theme", theme)' in init_script.group(1)
+    assert 'root.setAttribute("data-js", "")' in init_script.group(1)
+    assert 'root.setAttribute("data-theme-ready", "")' not in init_script.group(1)
+    theme_js = (tmp_path / "assets" / "theme.js").read_text(encoding="utf-8")
+    assert 'root.setAttribute("data-theme-ready", "")' in theme_js
 
     css = (tmp_path / "assets" / "styles.css").read_text(encoding="utf-8")
     dark_tokens = re.search(r'html\[data-theme="dark"\] \{(.*?)\n\}', css, re.S)
     assert dark_tokens
+    assert "--focus-ring: #147a4c;" in css
+    assert ".dataset-glance-card .inline-info-hint:focus-visible {" in css
+    assert css.count("outline: 3px solid var(--focus-ring);") >= 3
     for token in [
         "bg",
         "surface",
@@ -342,14 +380,27 @@ def test_build_website_generates_polished_mcp_page_from_current_tools(tmp_path):
 
     assert "What it does" in mcp_page
     assert "mcp-plain-list" in mcp_page
-    assert "Find the right ether.fi dataset" in mcp_page
-    assert "Check freshness context before reporting or querying." in mcp_page
+    assert (
+        'Find the right ether.fi <a href="datasets.html">dataset</a> or '
+        '<a href="dashboards.html">dashboard</a>.'
+        in mcp_page
+    )
+    assert (
+        'Check <a href="freshness.html">freshness context</a> and caveats before '
+        "reporting or querying."
+        in mcp_page
+    )
     assert "Plan safer DuneSQL with documented caveats and table semantics." in mcp_page
     assert "Use Dune MCP for execution, saved queries, charts, and dashboards." in mcp_page
     assert "Search the catalog and understand what each table represents." not in mcp_page
     assert "See whether datasets are fresh, stale, or missing freshness data." not in mcp_page
 
     assert "Recommended setup" in mcp_page
+    assert (
+        '<strong>Before you install:</strong> <code>uvx</code> is required. '
+        '<code>DUNE_API_KEY</code> is needed only for live Dune-backed tools.'
+        in mcp_page
+    )
     assert "mcp-preview-panel" not in mcp_page
     assert "mcp-capability-grid" not in mcp_page
     assert "mcp-capability-card" not in mcp_page
@@ -411,9 +462,38 @@ def test_build_website_generates_polished_mcp_page_from_current_tools(tmp_path):
     assert ".venv/bin/python -m etherfi_catalog.server" not in mcp_page
     assert 'src="assets/mcp.js?v=' in mcp_page
     assert "data-copy-announcer" in mcp_js
+    assert 'dataset.mcpMounted = "true"' in mcp_js
     assert 'label === "Copy" ? "" : label' in mcp_js
     assert "DUNE_API_KEY" in mcp_page
     assert "Best practices" not in mcp_page
+
+    mcp_nav = re.search(
+        r'<nav class="detail-section-nav" aria-label="MCP guide sections">(.*?)</nav>',
+        mcp_page,
+        re.S,
+    )
+    assert mcp_nav
+    nav_positions = [
+        mcp_nav.group(1).find('href="#what-it-does"'),
+        mcp_nav.group(1).find('href="#recommended-setup"'),
+        mcp_nav.group(1).find('href="#client-configs"'),
+        mcp_nav.group(1).find('href="#test-it-works"'),
+        mcp_nav.group(1).find('href="#dune-workflow"'),
+        mcp_nav.group(1).find('href="#live-dune-tools"'),
+        mcp_nav.group(1).find('href="#troubleshooting"'),
+    ]
+    section_positions = [
+        mcp_page.find('id="what-it-does"'),
+        mcp_page.find('id="recommended-setup"'),
+        mcp_page.find('id="client-configs"'),
+        mcp_page.find('id="test-it-works"'),
+        mcp_page.find('id="dune-workflow"'),
+        mcp_page.find('id="live-dune-tools"'),
+        mcp_page.find('id="troubleshooting"'),
+    ]
+    assert all(position >= 0 for position in nav_positions)
+    assert nav_positions == sorted(nav_positions)
+    assert section_positions == sorted(section_positions)
 
     assert (tmp_path / "datasets.html").exists()
     assert (tmp_path / "dashboards.html").exists()
@@ -437,14 +517,36 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
 
     dataset_index = (tmp_path / "datasets.html").read_text(encoding="utf-8")
     css = (tmp_path / "assets" / "styles.css").read_text(encoding="utf-8")
-    assert 'class="dataset-category-panel" aria-label="Dataset categories"' in dataset_index
+    assert (
+        'class="dataset-category-panel" aria-labelledby="dataset-categories-title"'
+        in dataset_index
+    )
     assert 'data-datasets-page' in dataset_index
+    assert '<header class="catalog-index-header' not in dataset_index
+    assert '<p class="eyebrow">Dataset registry</p>' not in dataset_index
+    assert '<h1 id="datasets-page-title" class="visually-hidden">Datasets</h1>' in dataset_index
+    assert "Find trusted ether.fi tables by product area" not in dataset_index
+    assert "browsable datasets across" not in dataset_index
+    assert (
+        '<h2 id="dataset-categories-title" class="dataset-category-panel-header">'
+        "Dataset categories</h2>"
+        in dataset_index
+    )
+    assert "<strong>Catalog</strong>" not in dataset_index
+    assert 'aria-labelledby="datasets-page-title"' in dataset_index
     assert 'data-dataset-nav="overview"' in dataset_index
     assert 'data-dataset-nav="activity"' in dataset_index
     assert 'data-dataset-nav="etherfi_protocol"' in dataset_index
     assert 'data-dataset-nav="prices"' in dataset_index
     assert 'data-dataset-nav="metadata"' in dataset_index
     assert 'data-dataset-nav="lrt_restaking"' in dataset_index
+    overview_nav = re.search(
+        r'<button[^>]*data-dataset-nav="overview"[^>]*>(.*?)</button>',
+        dataset_index,
+        re.S,
+    )
+    assert overview_nav
+    assert "<strong>4</strong>" in overview_nav.group(1)
     for category, section_id in [
         ("overview", "overview"),
         ("activity", "activity"),
@@ -460,6 +562,23 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
         assert nav_button
         assert f'aria-controls="dataset-view-{section_id}"' in nav_button.group(0)
         assert f'id="dataset-view-{section_id}"' in dataset_index
+        if category != "overview":
+            section = re.search(
+                rf'<section id="dataset-view-{section_id}".*?</section>',
+                dataset_index,
+                re.S,
+            )
+            assert section
+            count_match = re.search(
+                r'<span class="dataset-view-count">(\d+) datasets?</span>',
+                section.group(0),
+            )
+            assert count_match
+            count = int(count_match.group(1))
+            assert (
+                f"<p>{category_description(category, count)}</p>"
+                in section.group(0)
+            )
     assert dataset_index.find("<span>Overview</span>") < dataset_index.find("<span>Activity</span>")
     assert dataset_index.find("<span>Activity</span>") < dataset_index.find("<span>Ether.fi Protocol</span>")
     assert dataset_index.find("<span>Ether.fi Protocol</span>") < dataset_index.find("<span>Prices</span>")
@@ -496,10 +615,22 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     assert 'html[data-theme="dark"] .dataset-overview-view.dataset-featured-view' in css
     assert "Browse categories on the left to explore the full catalog." not in dataset_index
     assert 'id="dataset-search"' in dataset_index
+    assert 'data-catalog-search aria-keyshortcuts="/"' in dataset_index
+    assert 'aria-describedby="dataset-count"' in dataset_index
+    assert 'data-search-clear aria-label="Clear dataset search"' in dataset_index
     assert 'id="dataset-count"' in dataset_index
-    assert 'id="dataset-count" class="dataset-count" role="status" aria-live="polite" aria-atomic="true"' in dataset_index
+    assert (
+        'id="dataset-count" class="visually-hidden" role="status" '
+        'aria-live="polite" aria-atomic="true"'
+        in dataset_index
+    )
+    assert ">Featured datasets shown</span>" in dataset_index
+    assert "featured &middot;" not in dataset_index
+    assert " total</span>" not in dataset_index
     assert 'id="dataset-empty-state"' in dataset_index
     assert 'data-dataset-category-section data-category="activity"' in dataset_index
+    assert 'data-category="activity" aria-labelledby="dataset-heading-activity" data-default-hidden' in dataset_index
+    assert '<noscript><p class="no-js-note">' in dataset_index
     assert 'data-dataset-card' in dataset_index
     assert 'data-search=' in dataset_index
     assert 'data-status=' in dataset_index
@@ -542,6 +673,12 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     assert '<h3 class="dataset-card-heading">' in holder_card_html
     assert '<p class="dataset-card-description">' in holder_card_html
     assert '<div class="dataset-card-side">' in holder_card_html
+    assert "dataset-card-relationships" not in holder_card_html
+    assert "related dataset" not in holder_card_html
+    assert "linked dataset" not in holder_card_html
+    assert "linked dashboard" not in holder_card_html
+    assert 'title="Completeness: complete">Full coverage</span>' in holder_card_html
+    assert '<div class="dataset-card-actions">' in holder_card_html
     assert holder_card_html.find('class="dataset-category-chip etherfi-protocol"') < holder_card_html.find('class="dataset-card-status stale"')
     assert holder_card_html.find('class="dataset-card-status stale"') < holder_card_html.find('class="dataset-card-heading"')
     assert re.search(
@@ -558,8 +695,11 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
         re.S,
     )
     assert ".dataset-card-meta" not in css
-    assert ".dataset-browser-card::before" not in css
-    assert "--dataset-card-accent" not in css
+    assert ".dataset-browser-card::before" in css
+    assert '.dataset-browser-card[data-category="activity"]::before' in css
+    assert '.dataset-browser-card[data-category="prices"]::before' in css
+    assert '.dataset-browser-card[data-category="metadata"]::before' in css
+    assert '.dataset-browser-card[data-category="lrt_restaking"]::before' in css
     assert ".dashboard-browser-card::before" in css
     assert ".dataset-featured-view::before," in css
     assert ".dataset-category-view::before" in css
@@ -575,12 +715,28 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     assert "dashboards</strong>" not in holder_card_html
     assert "dune.ether_fi.result_etherfi_protocol_token_holders" in dataset_index
     assert "etherfi_protocol_token_holders" in dataset_index
+    assert "dataset-card-relationships" not in dataset_index
+    assert "High coverage" in dataset_index
+    defi_holder_card = re.search(
+        r'<article class="dataset-browser-card"[^>]*data-source-query-id="6221932"[^>]*>(.*?)</article>',
+        dataset_index,
+        re.S,
+    )
+    assert defi_holder_card
+    assert "Partial coverage" in defi_holder_card.group(1)
+    assert 'title="Completeness: partial"' in defi_holder_card.group(1)
 
     holder_page = (tmp_path / "datasets" / "protocol_token_holders.html").read_text(encoding="utf-8")
     assert "../assets/styles.css" in holder_page
     assert '../assets/styles.css?v=' in holder_page
     assert 'class="nav-link active" href="../datasets.html" aria-current="page"' in holder_page
     assert "Back to datasets" in holder_page
+    assert (
+        '<a class="dataset-back-link" '
+        'href="../datasets.html#dataset-view-etherfi-protocol" '
+        'aria-label="Back to Ether.fi Protocol datasets">Back to datasets</a>'
+        in holder_page
+    )
     assert "At a glance" not in holder_page
     assert "dataset-detail-hero-meta" in holder_page
     holder_hero = re.search(
@@ -628,12 +784,24 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     assert "schema-table-toolbar" in holder_page
     assert '<span class="schema-scroll-hint" aria-hidden="true">Scroll for type + description &rarr;</span>' in holder_page
     assert 'class="schema-table-wrap" role="region" aria-label="Dataset schema" tabindex="0"' in holder_page
-    assert "<h2>Caveats</h2>" in holder_page
+    assert "<h3>Caveats</h3>" not in holder_page
     assert holder_glance_html.count("<span>Live query</span>") == 1
     assert 'class="dataset-glance-card copyable-table-name live-query-card"' in holder_glance_html
     assert "query_6815122" in holder_glance_html
     assert 'data-copy-text="query_6815122"' in holder_glance_html
     assert 'aria-label="Copy live query table name"' in holder_glance_html
+    assert (
+        '<button class="inline-info-hint" type="button" aria-expanded="false" '
+        in holder_glance_html
+    )
+    assert 'aria-label="About live queries"' in holder_glance_html
+    assert 'aria-describedby="live-query-hint-description"' in holder_glance_html
+    assert (
+        '<span class="inline-info-tooltip" id="live-query-hint-description" '
+        'role="tooltip">Live queries are saved-query outputs'
+        in holder_glance_html
+    )
+    assert 'class="inline-info-hint" type="button" title=' not in holder_glance_html
     assert "Live query table" not in holder_page
     assert "Live query ID" not in holder_page
     assert ".dataset-glance-grid:not(:has(.live-query-card)) .dataset-glance-card.full-table-name" in css
@@ -655,30 +823,72 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     assert "Every 4h" in holder_glance_html
     assert any(status in holder_glance_html for status in ["Fresh", "Delayed", "Stale", "Unknown"])
     assert "daily" not in holder_page
-    assert "About this table" in holder_page
+    assert "What this dataset represents" not in holder_page
+    assert "Use this dataset when" not in holder_page
+    assert "Choose another dataset when" not in holder_page
     assert "Direct user/wallet holders of ether.fi protocol tokens by address" in holder_page
     assert "one row per address per token per snapshot date" in holder_page
     assert "Schema" in holder_page
+    assert 'class="detail-section-nav" aria-label="On this page"' not in holder_page
+    assert (
+        'class="detail-tab-interface" data-detail-tabs data-default-tab="schema" '
+        'data-detail-tabs-label="Dataset detail sections"'
+        in holder_page
+    )
+    assert (
+        'class="detail-tab-list" data-detail-tab-list hidden'
+        in holder_page
+    )
+    assert (
+        'data-detail-tab="schema" data-detail-tab-controls="schema"'
+        in holder_page
+    )
+    assert (
+        'data-detail-tab="about" data-detail-tab-controls="about"'
+        in holder_page
+    )
+    assert (
+        'data-detail-tab="about" data-detail-tab-controls="about">'
+        "Methodology and Notes</button>"
+        in holder_page
+    )
+    assert 'data-detail-tab-controls="about">About</button>' not in holder_page
+    assert (
+        'data-detail-tab="related-resources" '
+        'data-detail-tab-controls="related-resources"'
+        in holder_page
+    )
+    assert 'id="about" class="detail-tab-panel detail-panel"' in holder_page
+    assert 'id="schema" class="detail-tab-panel detail-panel"' in holder_page
+    methodology_panel = re.search(
+        r'<section id="about" class="detail-tab-panel detail-panel" '
+        r'data-detail-tab-panel="about" '
+        r'data-detail-tab-labelledby="dataset-detail-tab-about" '
+        r'data-empty-tab-panel="true"></section>',
+        holder_page,
+    )
+    assert methodology_panel
+    assert 'id="about-table"' not in holder_page
+    assert 'id="dataset-schema"' in holder_page
+    assert 'id="dataset-caveats"' not in holder_page
+    assert 'id="related-resources"' in holder_page
+    for panel_id in ["about", "schema", "related-resources"]:
+        panel_tag = re.search(rf'<section id="{panel_id}"[^>]*>', holder_page)
+        assert panel_tag
+        assert " hidden" not in panel_tag.group(0)
+    assert holder_page.find('id="about"') < holder_page.find('id="dataset-schema"')
+    assert holder_page.find('id="dataset-schema"') < holder_page.find('id="related-resources"')
     assert '<th scope="col">Column</th><th scope="col">Type</th><th scope="col">Description</th>' in holder_page
 
-    addresses_entry = next(
-        entry for entry in load_dataset_entries() if entry.slug == "etherfi_addresses"
-    )
-    addresses_caveats = list(addresses_entry.data.get("caveats") or [])
-    assert len(addresses_caveats) > 5
     addresses_page = (tmp_path / "datasets" / "etherfi_addresses.html").read_text(
         encoding="utf-8"
     )
-    caveat_section = re.search(
-        r'<section class="detail-panel dataset-detail-section dataset-caveat-panel warning">(.*?)</section>',
-        addresses_page,
-        re.S,
-    )
-    assert caveat_section
-    assert caveat_section.group(1).count("<li>") == len(addresses_caveats)
-    assert "<td><code>address</code></td><td>varbinary</td>" in holder_page
+    assert 'data-empty-tab-panel="true"></section>' in addresses_page
+    assert 'id="dataset-caveats"' not in addresses_page
+    assert '<th scope="row"><code>address</code></th><td>varbinary</td>' in holder_page
     assert '<td class="schema-description">holder wallet or contract address</td>' in holder_page
-    assert "Related datasets and dashboards" in holder_page
+    assert "Related resources" in holder_page
+    assert "<h2>Related resources</h2>" not in holder_page
     assert 'class="related-resource-list"' in holder_page
     assert 'class="related-resource"' in holder_page
 
@@ -686,6 +896,7 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
         tmp_path / "datasets" / "protocol_token_holders_with_defi.html"
     ).read_text(encoding="utf-8")
     assert "Protocol Token Holders with DeFi" in holder_with_defi_page
+    assert '<span class="dataset-coverage-chip partial" title="Completeness: partial">Partial coverage</span>' in holder_with_defi_page
     assert "Freshness &amp; Refresh Interval" in holder_with_defi_page
     assert "Freshness &amp; Interval" not in holder_with_defi_page
     assert "Every 4h" in holder_with_defi_page
@@ -695,8 +906,8 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     assert "Important columns" not in holder_page
     assert "Query notes" not in holder_page
     assert "Query notes / caveats" not in holder_page
-    assert "<h2>Caveats</h2>" in holder_page
-    assert "This table does not include broader routed exposure" in holder_page
+    assert "<h3>Caveats</h3>" not in holder_page
+    assert "This table does not include broader routed exposure" not in holder_page
     assert "Use when" not in holder_page
     assert "Do not use when" not in holder_page
     assert "Example prompts" not in holder_page
@@ -828,6 +1039,11 @@ def test_dataset_index_hides_token_transfer_subtables_and_parent_page_links_them
 
     parent_page = (tmp_path / "datasets" / "tokens_transfers.html").read_text(encoding="utf-8")
     assert "Supporting sub-tables" in parent_page
+    assert "<h2>Related resources</h2>" not in parent_page
+    assert "<h2>Supporting sub-tables</h2>" in parent_page
+    assert parent_page.find("<h2>Related datasets</h2>") < parent_page.find(
+        "<h2>Supporting sub-tables</h2>"
+    )
     assert 'href="../datasets/tokens_transfers_daily.html"' in parent_page
     assert 'href="../datasets/tokens_transfers_hourly.html"' in parent_page
     assert 'href="../datasets/tokens_transfers_intermediate.html"' in parent_page
@@ -874,7 +1090,7 @@ def test_contract_activity_dataset_pages_render_registry_relationships(tmp_path)
     assert "https://dune.com/queries/6090018" in logs_page
     assert "Event signature topic for the log." in logs_page
     assert "Freshness timestamp column for this dataset." in logs_page
-    assert "Related datasets and dashboards" in logs_page
+    assert "Related resources" in logs_page
     assert 'class="related-resource-list"' in logs_page
     assert 'href="../datasets/contracts_addresses_list.html"' in logs_page
     assert 'href="../datasets/contracts_traces.html"' in logs_page
@@ -942,9 +1158,9 @@ def test_cash_addresses_dataset_page_renders_public_registry_metadata(tmp_path):
     assert "one row per blockchain and Cash safe address" in page
     assert "Every 4h" in page
     assert "last_updated" in page
-    assert "<td><code>blockchain</code></td><td>varchar</td>" in page
+    assert '<th scope="row"><code>blockchain</code></th><td>varchar</td>' in page
     assert '<td class="schema-description">Chain where the Cash safe exists.</td>' in page
-    assert "<td><code>address</code></td><td>varbinary</td>" in page
+    assert '<th scope="row"><code>address</code></th><td>varbinary</td>' in page
     assert '<td class="schema-description">Cash safe address.</td>' in page
     assert 'href="../datasets/etherfi_cash_events.html"' in page
     assert 'href="../datasets/etherfi_assets_under_management.html"' in page
@@ -1005,9 +1221,9 @@ def test_dataset_schema_descriptions_render_from_schema_and_important_columns(tm
     )
     css = (tmp_path / "site" / "assets" / "styles.css").read_text(encoding="utf-8")
     assert '<th scope="col">Column</th><th scope="col">Type</th><th scope="col">Description</th>' in mapping_page
-    assert "<td><code>user_safe</code></td><td>varbinary</td>" in mapping_page
+    assert '<th scope="row"><code>user_safe</code></th><td>varbinary</td>' in mapping_page
     assert (
-        "<td><code>this_is_a_very_long_schema_column_name_that_should_wrap_inside_the_column_cell_without_breaking_layout</code></td><td>varchar</td>"
+        '<th scope="row"><code>this_is_a_very_long_schema_column_name_that_should_wrap_inside_the_column_cell_without_breaking_layout</code></th><td>varchar</td>'
         in mapping_page
     )
     assert '<td class="schema-description">Schema safe address description</td>' in mapping_page
@@ -1017,7 +1233,7 @@ def test_dataset_schema_descriptions_render_from_schema_and_important_columns(tm
     assert '<span class="schema-description-empty">&mdash;</span>' in mapping_page
     assert "Important columns" not in mapping_page
     assert "table-layout: fixed;" in css
-    assert ".schema-table td:first-child code" in css
+    assert ".schema-table tbody th:first-child code" in css
     assert re.search(
         r"\.schema-table-toolbar\s*\{[^}]*min-width:\s*680px;",
         css,
@@ -1034,7 +1250,7 @@ def test_dataset_schema_descriptions_render_from_schema_and_important_columns(tm
     assert '<td class="schema-description">Schema balance description</td>' in list_page
     assert "Important balance fallback should not win" not in list_page
     assert '<td class="schema-description">Block number fallback</td>' in list_page
-    assert '<td><code>no_description_column</code></td><td>varchar</td>' in list_page
+    assert '<th scope="row"><code>no_description_column</code></th><td>varchar</td>' in list_page
     assert '<span class="schema-description-empty">&mdash;</span>' in list_page
     assert "Important columns" not in list_page
 
@@ -1085,14 +1301,30 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     dashboard_index = (tmp_path / "dashboards.html").read_text(encoding="utf-8")
     css = (tmp_path / "assets" / "styles.css").read_text(encoding="utf-8")
     assert 'data-dashboards-page' in dashboard_index
-    assert 'class="dataset-category-panel" aria-label="Dashboard groups"' in dashboard_index
+    assert (
+        'class="dataset-category-panel" aria-labelledby="dashboard-categories-title"'
+        in dashboard_index
+    )
     assert '<section class="dashboard-browser-header">' not in dashboard_index
+    assert '<header class="catalog-index-header' not in dashboard_index
     assert '<p class="eyebrow">Dashboard registry</p>' not in dashboard_index
-    assert '<h1>Dashboards</h1>' not in dashboard_index
+    assert (
+        '<h1 id="dashboards-page-title" class="visually-hidden">Dashboards</h1>'
+        in dashboard_index
+    )
+    assert 'aria-labelledby="dashboards-page-title"' in dashboard_index
+    assert "Search curated Dune dashboards by product area" not in dashboard_index
+    assert "dashboards across <strong>" not in dashboard_index
+    assert (
+        '<h2 id="dashboard-categories-title" class="dataset-category-panel-header">'
+        "Dashboard categories</h2>"
+        in dashboard_index
+    )
+    assert "Dashboard groups" not in dashboard_index
+    assert "<strong>Registry</strong>" not in dashboard_index
     assert "Find existing ether.fi Dune dashboards by product area, tag, or linked catalog dataset." not in dashboard_index
     assert "Browse ether.fi Dune dashboards by product area and linked datasets." not in dashboard_index
     assert "Total dashboards" not in dashboard_index
-    assert "Core dashboards" not in dashboard_index
     assert "Categories" not in dashboard_index
     assert "Linked datasets" not in dashboard_index
     assert 'data-dashboard-nav="core"' in dashboard_index
@@ -1154,7 +1386,10 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert others_section
     assert "1 dashboard in the Others product area." in others_section.group(0)
     assert "No dashboards documented in this group yet." not in others_section.group(0)
-    assert "Most used, most updated, and most informative ether.fi dashboards." in core_section.group(0)
+    assert (
+        "Most used, most updated, and most informative ether.fi dashboards."
+        in core_section.group(0)
+    )
     assert "Core contains the top dashboards teammates should check first." not in dashboard_index
     assert "teammates" not in core_section.group(0)
     assert "ether.fi" in dashboard_index
@@ -1198,15 +1433,21 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert "lending" in dashboard_index
     assert "user_safe" in dashboard_index
     assert 'id="dashboard-search"' in dashboard_index
+    assert 'data-catalog-search aria-keyshortcuts="/"' in dashboard_index
+    assert 'aria-describedby="dashboard-count"' in dashboard_index
+    assert 'data-search-clear aria-label="Clear dashboard search"' in dashboard_index
     assert 'id="dashboard-count"' in dashboard_index
-    assert 'id="dashboard-count" class="dataset-count" role="status" aria-live="polite" aria-atomic="true"' in dashboard_index
     assert (
-        'id="dashboard-count" class="dataset-count" role="status" aria-live="polite" '
-        'aria-atomic="true">4 dashboards</span>'
+        'id="dashboard-count" class="visually-hidden" role="status" '
+        'aria-live="polite" aria-atomic="true">Core dashboards shown</span>'
         in dashboard_index
     )
+    assert "core &middot;" not in dashboard_index
+    assert " total</span>" not in dashboard_index
     assert 'id="dashboard-empty-state"' in dashboard_index
     assert 'src="assets/dashboards.js?v=' in dashboard_index
+    assert 'data-dashboard-group="stake" aria-labelledby="dashboard-heading-stake" data-default-hidden' in dashboard_index
+    assert '<noscript><p class="no-js-note">' in dashboard_index
     assert dashboard_index.find('class="catalog-toolbar dataset-browser-toolbar"') < dashboard_index.find('id="dashboard-group-core"')
     assert "No dashboards documented in this group yet." not in dashboard_index
     assert "No dashboards match your search." in dashboard_index
@@ -1220,7 +1461,7 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert len(core_cards) == 4
     overview_card = next(card for card in core_cards if ">ether.fi</a>" in card)
     assert '<span class="dashboard-category-chip stake">Stake</span>' in overview_card
-    assert re.search(r'<span class="dashboard-linked-count">\d+ linked datasets</span>', overview_card)
+    assert re.search(r'<span class="dashboard-linked-count">\d+ catalog datasets</span>', overview_card)
     assert '<h3 class="dashboard-card-heading"><a class="dashboard-card-title"' in overview_card
     assert '<div class="dashboard-tag-row">' in overview_card
     assert '<span class="dashboard-tag">overview</span>' in overview_card
@@ -1236,7 +1477,7 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
         if 'href="dashboards/etherfi_users.html"' in card
     )
     assert '<span class="dashboard-category-chip stake">Stake</span>' in users_core_card
-    assert '<span class="dashboard-linked-count">7 linked datasets</span>' in users_core_card
+    assert '<span class="dashboard-linked-count">7 catalog datasets</span>' in users_core_card
     assert (
         'href="dashboards/etherfi_users.html" '
         'aria-label="View ether.fi Users dashboard details">Details</a>'
@@ -1346,7 +1587,7 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
         if 'href="dashboards/etherfi_cash_swaps.html"' in card
     )
     assert 'data-dashboard-category="cash"' in cash_swaps_search_card
-    assert '<span class="dashboard-linked-count">4 linked datasets</span>' in cash_swaps_search_card
+    assert '<span class="dashboard-linked-count">4 catalog datasets</span>' in cash_swaps_search_card
     for search_text in [
         "cash swaps",
         "swap volume",
@@ -1382,7 +1623,7 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
         if 'href="dashboards/lido_vs_etherfi_stakers.html"' in card
     )
     assert '<span class="dashboard-category-chip others">Others</span>' in lido_card
-    assert '<span class="dashboard-linked-count">7 linked datasets</span>' in lido_card
+    assert '<span class="dashboard-linked-count">7 catalog datasets</span>' in lido_card
     ebtc_card = next(card for card in dashboard_cards if 'href="dashboards/ebtc.html"' in card)
     assert '<span class="dashboard-tag">liquid</span>' in ebtc_card
     assert '<span class="dashboard-tag">vaults</span>' in ebtc_card
@@ -1411,7 +1652,7 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
         css,
         re.S,
     )
-    assert "outline: 3px solid var(--accent-deep);" in css
+    assert "outline: 3px solid var(--focus-ring);" in css
     assert "scroll-snap-type: inline proximity;" in css
     assert re.search(
         r"\.code-snippet code\s*\{[^}]*background:\s*transparent;[^}]*color:\s*inherit;",
@@ -1429,9 +1670,37 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert "protocol" in overview_page
     assert "At a glance" not in overview_page
     assert "Core display" not in overview_page
-    assert '<section class="detail-panel dataset-detail-section dashboard-metrics-panel">' in overview_page
+    assert '<div id="dashboard-metrics" class="dashboard-metrics-panel">' in overview_page
+    assert 'class="detail-section-nav" aria-label="On this page"' not in overview_page
+    assert (
+        'class="detail-tab-interface" data-detail-tabs data-default-tab="metrics" '
+        'data-detail-tabs-label="Dashboard detail sections"'
+        in overview_page
+    )
+    assert (
+        'class="detail-tab-list" data-detail-tab-list hidden'
+        in overview_page
+    )
+    assert (
+        'data-detail-tab="metrics" data-detail-tab-controls="metrics"'
+        in overview_page
+    )
+    assert (
+        'data-detail-tab="linked-datasets" '
+        'data-detail-tab-controls="linked-datasets"'
+        in overview_page
+    )
+    assert (
+        'data-detail-tab="tags" data-detail-tab-controls="tags"'
+        in overview_page
+    )
+    for panel_id in ["metrics", "linked-datasets", "tags"]:
+        panel_tag = re.search(rf'<section id="{panel_id}"[^>]*>', overview_page)
+        assert panel_tag
+        assert " hidden" not in panel_tag.group(0)
     assert "<h2>Metrics displayed</h2>" in overview_page
-    assert '<span class="dashboard-metrics-count">18 metrics</span>' in overview_page
+    assert "Dashboard coverage" not in overview_page
+    assert '<span class="dashboard-metrics-count">18 documented metrics</span>' in overview_page
     assert '<ul class="dashboard-metrics-grid">' in overview_page
     assert "Latest ether.fi TVL" in overview_page
     assert "weETH in DeFi Protocols" in overview_page
@@ -1441,21 +1710,36 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert "ETHFI Buybacks" in overview_page
     assert "ether.fi Protocol Revenue" in overview_page
     assert "<h2>Notes</h2>" not in overview_page
+    assert overview_page.find('id="metrics"') < overview_page.find('id="linked-datasets"')
+    assert overview_page.find('id="linked-datasets"') < overview_page.find('id="tags"')
+    assert "<h2>Linked datasets</h2>" not in overview_page
+    assert '<h2 class="detail-tab-source-heading">Linked datasets</h2>' in overview_page
+    assert "<h3>Catalog datasets</h3>" not in overview_page
     assert "Linked datasets" in overview_page
     assert "Linked datasets and references" not in overview_page
     assert 'class="related-resource-list"' in overview_page
     assert 'class="related-resource"' in overview_page
     assert "dashboard-linked-dataset-card" not in overview_page
     assert "dashboard-linked-dataset-grid" not in overview_page
+    assert (
+        '[data-detail-tabs-mounted="true"] .detail-tab-source-heading'
+        in css
+    )
     assert 'href="../datasets/protocol_token_holders.html"' in overview_page
     assert 'href="../datasets/etherfi_protocol_token_tvl.html"' in overview_page
     assert "Ether.fi Protocol Token TVL" in overview_page
     linked_dataset_section = re.search(
-        r"<h2>Linked datasets</h2>(.*?)</section>",
+        r'<section id="linked-datasets"[^>]*>(.*?)</section>',
         overview_page,
         re.S,
     )
     assert linked_dataset_section
+    linked_dataset_hrefs = re.findall(
+        r'<a class="related-resource" href="([^"]+)">',
+        linked_dataset_section.group(1),
+    )
+    assert linked_dataset_hrefs
+    assert len(linked_dataset_hrefs) == len(set(linked_dataset_hrefs))
     assert (
         '<a class="related-resource" href="../datasets/protocol_token_holders.html">'
         "Ether.fi Protocol Token Holders</a>"
@@ -1480,9 +1764,9 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert "Protocol-wide ether.fi user dashboard" in users_page
     assert 'aria-label="Open ether.fi Users on Dune"' in users_page
     assert '<span class="dashboard-category-chip stake">Stake</span>' in users_page
-    assert '<section class="detail-panel dataset-detail-section dashboard-metrics-panel">' in users_page
+    assert '<div id="dashboard-metrics" class="dashboard-metrics-panel">' in users_page
     assert "<h2>Metrics displayed</h2>" in users_page
-    assert '<span class="dashboard-metrics-count">16 metrics</span>' in users_page
+    assert '<span class="dashboard-metrics-count">16 documented metrics</span>' in users_page
     assert '<ul class="dashboard-metrics-grid">' in users_page
     assert "Total Protocol Unique Depositors" in users_page
     assert "Protocol Active Holders" in users_page
@@ -1490,7 +1774,7 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert "Protocol Retention Rates" in users_page
     assert "Deposits by New Depositors Across All ether.fi Products" in users_page
     assert "Top Onboarding Products" in users_page
-    assert users_page.find("<h2>Metrics displayed</h2>") < users_page.find("<h2>Tags</h2>")
+    assert users_page.find("<h2>Metrics displayed</h2>") < users_page.find('id="tags"')
     assert "<h2>Notes</h2>" not in users_page
     assert "new vs old" not in users_page
     assert "at least $10 worth" not in users_page
@@ -1513,9 +1797,9 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert 'href="../datasets/protocol_token_holders.html"' in eeth_staking_page
     assert 'href="../datasets/protocol_token_holders_with_defi.html"' in eeth_staking_page
     assert 'href="../datasets/tokens_transfers.html"' in eeth_staking_page
-    assert '<section class="detail-panel dataset-detail-section dashboard-metrics-panel">' in eeth_staking_page
+    assert '<div id="dashboard-metrics" class="dashboard-metrics-panel">' in eeth_staking_page
     assert "<h2>Metrics displayed</h2>" in eeth_staking_page
-    assert '<span class="dashboard-metrics-count">18 metrics</span>' in eeth_staking_page
+    assert '<span class="dashboard-metrics-count">18 documented metrics</span>' in eeth_staking_page
     assert '<ul class="dashboard-metrics-grid">' in eeth_staking_page
     assert "eETH TVL" in eeth_staking_page
     assert "eETH User Staking APR" in eeth_staking_page
@@ -1527,7 +1811,7 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert "weETH DEX Trading Volume" in eeth_staking_page
     assert "weETH DeFi Utilization" in eeth_staking_page
     assert eeth_staking_page.find("<h2>Metrics displayed</h2>") < eeth_staking_page.find(
-        "<h2>Tags</h2>"
+        'id="tags"'
     )
     assert '<section class="detail-panel dataset-detail-section dashboard-notes-panel">' not in eeth_staking_page
     assert "<h2>Notes</h2>" not in eeth_staking_page
@@ -1542,9 +1826,9 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert 'href="../datasets/protocol_token_holders.html"' in weeth_l2s_page
     assert 'href="../datasets/lrts_restaking_dex_pools_balances.html"' in weeth_l2s_page
     assert 'href="../datasets/lrts_restaking_trades.html"' in weeth_l2s_page
-    assert '<section class="detail-panel dataset-detail-section dashboard-metrics-panel">' in weeth_l2s_page
+    assert '<div id="dashboard-metrics" class="dashboard-metrics-panel">' in weeth_l2s_page
     assert "<h2>Metrics displayed</h2>" in weeth_l2s_page
-    assert '<span class="dashboard-metrics-count">24 metrics</span>' in weeth_l2s_page
+    assert '<span class="dashboard-metrics-count">24 documented metrics</span>' in weeth_l2s_page
     assert '<ul class="dashboard-metrics-grid">' in weeth_l2s_page
     for chain_metric in [
         "Arbitrum weETH Metrics",
@@ -1569,7 +1853,7 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert "Percentage of weETH Supply in DeFi on L2s" in weeth_l2s_page
     assert "Top Sectors Holding weETH on L2s" in weeth_l2s_page
     assert weeth_l2s_page.find("<h2>Metrics displayed</h2>") < weeth_l2s_page.find(
-        "<h2>Tags</h2>"
+        'id="tags"'
     )
     assert "prices.usd" not in weeth_l2s_page
     assert "<h2>Notes</h2>" not in weeth_l2s_page
@@ -1583,9 +1867,9 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert 'href="../datasets/protocol_token_holders.html"' in weeth_utilization_page
     assert 'href="../datasets/tokens_prices_tokens_list.html"' in weeth_utilization_page
     assert 'href="../datasets/tokens_transfers.html"' in weeth_utilization_page
-    assert '<section class="detail-panel dataset-detail-section dashboard-metrics-panel">' in weeth_utilization_page
+    assert '<div id="dashboard-metrics" class="dashboard-metrics-panel">' in weeth_utilization_page
     assert "<h2>Metrics displayed</h2>" in weeth_utilization_page
-    assert '<span class="dashboard-metrics-count">11 metrics</span>' in weeth_utilization_page
+    assert '<span class="dashboard-metrics-count">11 documented metrics</span>' in weeth_utilization_page
     assert '<ul class="dashboard-metrics-grid">' in weeth_utilization_page
     assert "weETH Supply in DeFi" in weeth_utilization_page
     assert "Percentage of eETH Wrapped as weETH" in weeth_utilization_page
@@ -1594,7 +1878,7 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert "weETH Integrations on Aave and Pendle" in weeth_utilization_page
     assert weeth_utilization_page.find(
         "<h2>Metrics displayed</h2>"
-    ) < weeth_utilization_page.find("<h2>Tags</h2>")
+    ) < weeth_utilization_page.find('id="tags"')
     assert "bridge contracts" not in weeth_utilization_page
     assert "prices.usd" not in weeth_utilization_page
     assert "<h2>Notes</h2>" not in weeth_utilization_page
@@ -1609,9 +1893,9 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert 'href="../datasets/tokens_rates_oracle_pegs.html"' in liquid_vaults_page
     assert "boringonchainqueue" not in liquid_vaults_page.lower()
     assert "<h2>Notes</h2>" not in liquid_vaults_page
-    assert '<section class="detail-panel dataset-detail-section dashboard-metrics-panel">' in liquid_vaults_page
+    assert '<div id="dashboard-metrics" class="dashboard-metrics-panel">' in liquid_vaults_page
     assert "<h2>Metrics displayed</h2>" in liquid_vaults_page
-    assert '<span class="dashboard-metrics-count">18 metrics</span>' in liquid_vaults_page
+    assert '<span class="dashboard-metrics-count">18 documented metrics</span>' in liquid_vaults_page
     assert '<ul class="dashboard-metrics-grid">' in liquid_vaults_page
     assert "Use these metrics to confirm the dashboard covers the analysis you need before opening Dune." not in liquid_vaults_page
     assert "dashboard-metrics-intro" not in liquid_vaults_page
@@ -1620,7 +1904,7 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert "Daily Liquid Vaults Deposits grouped by Liquid Vault" in liquid_vaults_page
     assert "Daily Protocol Deposits Breakdown" in liquid_vaults_page
     assert "LiquidETH, LiquidUSD, and LiquidBTC TVL, withdrawal times, and APR" in liquid_vaults_page
-    assert liquid_vaults_page.find("<h2>Metrics displayed</h2>") < liquid_vaults_page.find("<h2>Tags</h2>")
+    assert liquid_vaults_page.find("<h2>Metrics displayed</h2>") < liquid_vaults_page.find('id="tags"')
 
     related_liquid_vaults = [
         "ebtc",
@@ -1658,9 +1942,9 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert "user_safe" in cash_page
     assert "At a glance" not in cash_page
     assert "Core display" not in cash_page
-    assert '<section class="detail-panel dataset-detail-section dashboard-metrics-panel">' in cash_page
+    assert '<div id="dashboard-metrics" class="dashboard-metrics-panel">' in cash_page
     assert "<h2>Metrics displayed</h2>" in cash_page
-    assert '<span class="dashboard-metrics-count">20 metrics</span>' in cash_page
+    assert '<span class="dashboard-metrics-count">20 documented metrics</span>' in cash_page
     assert '<ul class="dashboard-metrics-grid">' in cash_page
     assert "Total Cash Spend Volume" in cash_page
     assert "Total Cashbacks" in cash_page
@@ -1698,19 +1982,19 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert "Dashboard tracking swap activity by ether.fi Cash safes" in cash_swaps_page
     assert 'aria-label="Open ether.fi Cash Swaps on Dune"' in cash_swaps_page
     assert '<span class="dashboard-category-chip cash">Cash</span>' in cash_swaps_page
-    assert '<span class="dashboard-linked-count">4 linked datasets</span>' in cash_swaps_page
-    assert '<section class="detail-panel dataset-detail-section dashboard-metrics-panel">' in cash_swaps_page
+    assert "dashboard-linked-summary" not in cash_swaps_page
+    assert "catalog datasets linked" not in cash_swaps_page
+    assert '<div id="dashboard-metrics" class="dashboard-metrics-panel">' in cash_swaps_page
     assert "<h2>Metrics displayed</h2>" in cash_swaps_page
-    assert '<span class="dashboard-metrics-count">5 metrics</span>' in cash_swaps_page
+    assert '<span class="dashboard-metrics-count">5 documented metrics</span>' in cash_swaps_page
     assert '<ul class="dashboard-metrics-grid">' in cash_swaps_page
     assert "Total Cash Swap Volume" in cash_swaps_page
     assert "Total Cash Swaps" in cash_swaps_page
     assert "Daily Cash Swap Volume" in cash_swaps_page
     assert "Top DEXes for Cash Swaps" in cash_swaps_page
     assert "Top Cash Swap Token Pairs" in cash_swaps_page
-    assert cash_swaps_page.find("<h2>Metrics displayed</h2>") < cash_swaps_page.find(
-        "<h2>Tags</h2>"
-    )
+    assert cash_swaps_page.find('id="metrics"') < cash_swaps_page.find('id="linked-datasets"')
+    assert cash_swaps_page.find('id="linked-datasets"') < cash_swaps_page.find('id="tags"')
     assert "<h2>Notes</h2>" not in cash_swaps_page
     assert 'href="../datasets/etherfi_cash_addresses.html"' in cash_swaps_page
     assert 'href="../datasets/etherfi_assets_under_management.html"' in cash_swaps_page
@@ -1725,15 +2009,15 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert "Compare Lido and ether.fi staking performance" in lido_page
     assert 'aria-label="Open Lido vs ether.fi Stakers on Dune"' in lido_page
     assert '<span class="dashboard-category-chip others">Others</span>' in lido_page
-    assert '<section class="detail-panel dataset-detail-section dashboard-metrics-panel">' in lido_page
+    assert '<div id="dashboard-metrics" class="dashboard-metrics-panel">' in lido_page
     assert "<h2>Metrics displayed</h2>" in lido_page
-    assert '<span class="dashboard-metrics-count">16 metrics</span>' in lido_page
+    assert '<span class="dashboard-metrics-count">16 documented metrics</span>' in lido_page
     assert '<ul class="dashboard-metrics-grid">' in lido_page
     assert "Daily ether.fi TVL and Lido TVL" in lido_page
     assert "Total Deposits by New Users" in lido_page
     assert "7-Day Moving Median Deposit Amount" in lido_page
     assert "Deposits and Withdrawals by Size Bucket" in lido_page
-    assert lido_page.find("<h2>Metrics displayed</h2>") < lido_page.find("<h2>Tags</h2>")
+    assert lido_page.find("<h2>Metrics displayed</h2>") < lido_page.find('id="tags"')
     assert '<h2>Notes</h2>' not in lido_page
     assert "outside the ether.fi catalog" not in lido_page
     assert "lido_ethereum.steth_evt_submitted" not in lido_page
@@ -1746,7 +2030,7 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert 'href="../datasets/tokens_prices_usd.html"' in lido_page
 
 
-def test_dashboard_detail_omits_linked_dataset_section_without_internal_matches(tmp_path):
+def test_dashboard_detail_keeps_stable_tabs_without_internal_dataset_matches(tmp_path):
     dashboards_dir = tmp_path / "dashboards"
     others_dir = dashboards_dir / "others"
     others_dir.mkdir(parents=True)
@@ -1774,7 +2058,14 @@ def test_dashboard_detail_omits_linked_dataset_section_without_internal_matches(
     assert "https://dune.com/example/external-only" in detail_page
     assert "external" in detail_page
     assert "At a glance" not in detail_page
-    assert "Linked datasets" not in detail_page
+    assert "Linked datasets" in detail_page
+    assert 'data-detail-tabs data-default-tab="metrics"' in detail_page
+    assert 'data-detail-tab="linked-datasets"' in detail_page
+    assert "dashboard-linked-summary" not in detail_page
+    assert "catalog datasets linked" not in detail_page
+    assert "No linked catalog datasets are documented." in detail_page
+    assert '<span class="dashboard-metrics-count">0 documented metrics</span>' in detail_page
+    assert "Metrics are not documented in the catalog." in detail_page
     assert "Linked datasets and references" not in detail_page
     assert "dashboard-linked-dataset-card" not in detail_page
     assert "dashboard-linked-dataset-grid" not in detail_page
@@ -1824,34 +2115,43 @@ def test_build_website_generates_freshness_status_page(tmp_path):
     assert "Fresh datasets" not in freshness_page
     assert "Stale datasets" not in freshness_page
     assert "Unknown datasets" not in freshness_page
-    freshness_hero = re.search(
-        r'<section class="freshness-hero detail-panel">(.*?)</section>',
+    assert '<section class="freshness-hero detail-panel">' not in freshness_page
+    assert "<h1>Freshness</h1>" not in freshness_page
+    source_panel = re.search(
+        r'<section class="freshness-source-panel detail-panel"[^>]*>(.*?)</section>',
         freshness_page,
         re.S,
     )
-    assert freshness_hero
-    assert 'class="freshness-source-panel"' in freshness_hero.group(1)
+    assert source_panel
     assert (
-        "Freshness is sourced from a Dune tracker query and refreshed through the GitHub Actions workflow."
-        in freshness_hero.group(1)
+        '<h2 id="freshness-source-title" class="freshness-source-title">'
+        "Source &amp; automation</h2>"
+        in source_panel.group(1)
+    )
+    assert (
+        "Freshness is sourced from a Dune tracker query and refreshed through the "
+        "GitHub Actions workflow."
+        in source_panel.group(1)
     )
     assert re.search(
         r'<a class="freshness-source-link dune" href="https://dune\.com/queries/7625551"[^>]*>'
         r'.*?<strong>View freshness query</strong>.*?</a>',
-        freshness_hero.group(1),
+        source_panel.group(1),
         re.S,
     )
     assert re.search(
         r'<a class="freshness-source-link workflow" '
         r'href="https://github\.com/henrystats/etherfi-data-catalog/actions/workflows/refresh-freshness\.yml"[^>]*>'
         r'.*?<strong>Open refresh workflow</strong>.*?</a>',
-        freshness_hero.group(1),
+        source_panel.group(1),
         re.S,
     )
-    assert "freshness-summary" not in freshness_hero.group(1)
+    assert "freshness-summary" not in source_panel.group(1)
     assert "freshness-summary-item" not in freshness_page
     assert "Search datasets" in freshness_page
-    assert "Search by dataset, table name, category, status, or query ID..." in freshness_page
+    assert "Search datasets, tables, status, or query IDs..." in freshness_page
+    assert 'data-catalog-search aria-keyshortcuts="/"' in freshness_page
+    assert 'data-search-clear aria-label="Clear dataset search"' in freshness_page
     assert "Dataset category filters" not in freshness_page
     assert "data-category-filter" not in freshness_page
     assert 'data-status-filter="all"' in freshness_page
@@ -1859,7 +2159,11 @@ def test_build_website_generates_freshness_status_page(tmp_path):
     assert 'data-status-filter="delayed"' in freshness_page
     assert 'data-status-filter="stale"' in freshness_page
     assert 'data-status-filter="unknown"' in freshness_page
-    assert '<button class="filter-chip active" type="button" data-status-filter="all" aria-pressed="true">All</button>' in freshness_page
+    assert (
+        '<button class="filter-chip active" type="button" '
+        'data-status-filter="all" aria-pressed="true">All</button>'
+        in freshness_page
+    )
     for status, label in [
         ("fresh", "Fresh"),
         ("delayed", "Delayed"),
@@ -1871,15 +2175,50 @@ def test_build_website_generates_freshness_status_page(tmp_path):
             f'aria-pressed="false">{label}</button>'
             in freshness_page
         )
-    assert 'class="filter-chip-row" role="group" aria-label="Dataset status filters"' in freshness_page
+    card_statuses = re.findall(
+        r'<article class="registry-card freshness-dataset-card [^"]+" '
+        r'[^>]*data-status="([^"]+)"',
+        freshness_page,
+    )
+    assert card_statuses
+    filter_group = re.search(
+        r'<div class="filter-chip-row"[^>]*>(.*?)</div>',
+        freshness_page,
+        re.S,
+    )
+    assert filter_group
+    assert "<strong>" not in filter_group.group(1)
+    assert not re.search(r">\s*\d+\s*<", filter_group.group(1))
+    assert (
+        'class="filter-chip-row" role="group" '
+        'aria-labelledby="freshness-status-label"'
+        in freshness_page
+    )
+    assert "<noscript><p class=\"no-js-note\">" in freshness_page
+    assert 'aria-describedby="dataset-count"' in freshness_page
+    assert 'aria-describedby="dataset-count freshness-status-note"' not in freshness_page
+    assert 'aria-describedby="freshness-status-note"' not in freshness_page
+    assert 'id="freshness-status-note"' not in freshness_page
     assert "<table" not in freshness_page
     assert "catalog-table" not in freshness_page
-    assert "Dataset registry" in freshness_page
-    assert "including supporting tables not shown in the main dataset browser" in freshness_page
+    assert "Dataset registry" not in freshness_page
+    assert "One card per freshness-tracked catalog entry." not in freshness_page
+    assert (
+        '<section class="registry-section" '
+        'aria-labelledby="freshness-registry-title">'
+        in freshness_page
+    )
+    assert (
+        '<h2 id="freshness-registry-title" class="visually-hidden">'
+        "Freshness datasets</h2>"
+        in freshness_page
+    )
     assert 'class="registry-list"' in freshness_page
     assert 'class="registry-card freshness-dataset-card stale"' in freshness_page
     assert 'class="registry-card freshness-dataset-card fresh"' in freshness_page
     assert 'class="registry-card freshness-dataset-card unknown"' in freshness_page
+    assert 'class="freshness-card-heading"' in freshness_page
+    assert freshness_page.count('class="freshness-card-heading"') == len(card_statuses)
     assert "data-dataset-card" in freshness_page
     assert "data-search=" in freshness_page
     assert 'data-status="fresh"' in freshness_page
@@ -1900,7 +2239,11 @@ def test_build_website_generates_freshness_status_page(tmp_path):
     assert "table-pill" not in freshness_page
     assert "<span>Category</span>" not in freshness_page
     assert '<span class="meta-chip protocol"><span>Category</span>' not in freshness_page
-    assert '<span class="meta-chip interval"><span>Refresh</span><strong>1h</strong></span>' in freshness_page
+    assert (
+        '<span class="meta-chip interval"><span>Refresh</span>'
+        "<strong>1h</strong></span>"
+        in freshness_page
+    )
     assert "<code>dune.ether_fi.result_" not in freshness_page
     assert "dune.ether_fi.result_etherfi_protocol_token_tvl" in freshness_page
     assert "Dataset used by the main ether.fi overview dashboard for protocol token TVL" not in freshness_page
@@ -1922,11 +2265,41 @@ def test_build_website_generates_freshness_status_page(tmp_path):
     assert '<span class="meta-chip updated" title="2026-06-01 09:30 UTC"><span>Last refreshed</span><strong>2h 30m ago</strong></span>' in freshness_page
     assert 'class="freshness-meter fresh"' in freshness_page
     assert 'class="freshness-meter stale"' in freshness_page
-    assert "Freshness: 8/10 green bars, refreshed 1h ago, expected every 4h" in freshness_page
-    assert "Freshness: 10/10 red bars, refreshed 2h 30m ago, expected every 1h" in freshness_page
-    assert '<span class="status-badge freshness-badge fresh">Fresh</span>' in freshness_page
-    assert '<span class="status-badge freshness-badge stale">Stale</span>' in freshness_page
-    assert '<span class="status-badge freshness-badge unknown">Unknown</span>' in freshness_page
+    assert "Freshness status fresh; refreshed 1h ago; documented cadence 4h" in freshness_page
+    assert "Freshness status stale; refreshed 2h 30m ago; documented cadence 1h" in freshness_page
+    assert 'class="freshness-meter-marker"' not in freshness_page
+    assert 'class="freshness-meter-caption"' not in freshness_page
+    assert 'class="freshness-meter-track"' not in freshness_page
+    assert 'class="freshness-meter-segment filled"' in freshness_page
+    assert 'class="freshness-meter-label"' not in freshness_page
+    freshness_card = re.search(
+        r'<article class="registry-card freshness-dataset-card fresh".*?</article>',
+        freshness_page,
+        re.S,
+    )
+    assert freshness_card
+    assert freshness_card.group(0).find('class="freshness-meter fresh"') < freshness_card.group(0).find(
+        'class="status-badge freshness-badge fresh"'
+    )
+    assert freshness_card.group(0).find('class="status-badge freshness-badge fresh"') < freshness_card.group(0).find(
+        'class="dune-action"'
+    )
+    assert (
+        'class="status-badge freshness-badge fresh" '
+        'aria-label="Fresh: Within the expected refresh interval."'
+        in freshness_page
+    )
+    assert (
+        'class="status-badge freshness-badge stale" '
+        'aria-label="Stale: More than twice the expected refresh interval."'
+        in freshness_page
+    )
+    assert (
+        'class="status-badge freshness-badge unknown" '
+        'aria-label="Unknown: No latest Dune snapshot has been imported yet."'
+        in freshness_page
+    )
+    assert re.search(r'data-freshness-count[^>]*>\d+ of \d+ shown</span>', freshness_page)
     assert "Not documented yetNot documented yet" not in freshness_page
     assert '<span class="meta-chip updated" title="Not documented"><span>Last refreshed</span><strong>Not documented</strong></span>' in freshness_page
     assert "Next expected" not in freshness_page
@@ -1939,6 +2312,7 @@ def test_build_website_generates_freshness_status_page(tmp_path):
     assert (tmp_path / "site" / "assets" / "freshness.js").exists()
     freshness_css = (tmp_path / "site" / "assets" / "styles.css").read_text(encoding="utf-8")
     assert ".freshness-summary" not in freshness_css
+    assert ".freshness-meter-segment" in freshness_css
 
 
 def test_default_built_freshness_output_uses_current_search_asset():
@@ -1966,8 +2340,10 @@ def test_dataset_browser_output_uses_search_asset_and_stable_selectors(tmp_path)
     datasets_page = (tmp_path / "datasets.html").read_text(encoding="utf-8")
     datasets_js = (tmp_path / "assets" / "datasets.js").read_text(encoding="utf-8")
     dataset_detail_js = (tmp_path / "assets" / "dataset-detail.js").read_text(encoding="utf-8")
+    catalog_ui_js = (tmp_path / "assets" / "catalog-ui.js").read_text(encoding="utf-8")
 
     assert 'src="assets/datasets.js?v=' in datasets_page
+    assert 'src="assets/catalog-ui.js?v=' in datasets_page
     assert 'src="assets/datasets.js" defer' not in datasets_page
     assert 'id="dataset-search"' in datasets_page
     assert "data-dataset-card" in datasets_page
@@ -1985,9 +2361,566 @@ def test_dataset_browser_output_uses_search_asset_and_stable_selectors(tmp_path)
     assert "__etherfiDatasetBrowserDebug" in datasets_js
     assert "data-copy-text" in dataset_detail_js
     assert "data-copy-announcer" in dataset_detail_js
-    assert "navigator.clipboard.writeText" in dataset_detail_js
-    assert "execCommand" in dataset_detail_js
+    assert 'dataset.datasetDetailMounted = "true"' in dataset_detail_js
+    assert "window.CatalogUI.copyText" in dataset_detail_js
     assert "Copy failed" in dataset_detail_js
+    assert "browserNavigator.clipboard.writeText" in catalog_ui_js
+    assert "execCommand" in catalog_ui_js
+    assert "data-catalog-search" in catalog_ui_js
+    assert "data-search-clear" in catalog_ui_js
+
+
+def test_catalog_indexes_keep_content_available_without_javascript(tmp_path):
+    build_site(output_dir=tmp_path)
+
+    datasets_page = (tmp_path / "datasets.html").read_text(encoding="utf-8")
+    dashboards_page = (tmp_path / "dashboards.html").read_text(encoding="utf-8")
+    dataset_detail = (tmp_path / "datasets" / "protocol_token_holders.html").read_text(
+        encoding="utf-8"
+    )
+    dashboard_detail = (tmp_path / "dashboards" / "etherfi_overview.html").read_text(
+        encoding="utf-8"
+    )
+    css = (tmp_path / "assets" / "styles.css").read_text(encoding="utf-8")
+
+    dataset_sections = re.findall(
+        r"<section\b[^>]*\bdata-dataset-category-section\b[^>]*>",
+        datasets_page,
+    )
+    dashboard_sections = re.findall(
+        r"<section\b[^>]*\bdata-dashboard-section\b[^>]*>",
+        dashboards_page,
+    )
+
+    assert dataset_sections
+    assert dashboard_sections
+    assert any("data-default-hidden" in section for section in dataset_sections)
+    assert any("data-default-hidden" in section for section in dashboard_sections)
+    assert all(" hidden" not in section for section in dataset_sections)
+    assert all(" hidden" not in section for section in dashboard_sections)
+    assert "html[data-js] [data-default-hidden]" not in css
+    assert (
+        '[data-datasets-page]:not([data-datasets-mounted="true"]) '
+        ".dataset-category-panel"
+        in css
+    )
+    assert (
+        '[data-dashboards-page]:not([data-dashboards-mounted="true"]) '
+        ".dataset-browser-toolbar"
+        in css
+    )
+    assert (
+        '[data-freshness-page]:not([data-freshness-mounted="true"]) '
+        ".catalog-toolbar"
+        in css
+    )
+    assert 'html[data-catalog-ui-mounted="true"] .search-clear-button' in css
+    assert re.search(
+        r"\.copy-value-button\s*\{[^}]*display:\s*none;",
+        css,
+        re.S,
+    )
+    assert (
+        'html[data-dataset-detail-mounted="true"] .copy-value-button' in css
+    )
+    assert 'html[data-mcp-mounted="true"] .snippet-copy-button' in css
+    assert "<noscript>" in datasets_page
+    assert "<noscript>" in dashboards_page
+    for detail_html, panel_ids in [
+        (dataset_detail, ["about", "schema", "related-resources"]),
+        (dashboard_detail, ["metrics", "linked-datasets", "tags"]),
+    ]:
+        tab_list = re.search(r'<div class="detail-tab-list"[^>]*>', detail_html)
+        assert tab_list
+        assert " data-detail-tab-list hidden" in tab_list.group(0)
+        assert 'role="tablist"' not in tab_list.group(0)
+        for panel_id in panel_ids:
+            panel = re.search(rf'<section id="{panel_id}"[^>]*>', detail_html)
+            assert panel
+            assert " hidden" not in panel.group(0)
+            assert 'role="tabpanel"' not in panel.group(0)
+            assert 'tabindex="' not in panel.group(0)
+
+
+def test_generated_pages_have_single_h1_and_valid_detail_navigation_targets(tmp_path):
+    build_site(output_dir=tmp_path)
+
+    for relative_path in [
+        "index.html",
+        "datasets.html",
+        "dashboards.html",
+        "freshness.html",
+        "mcp.html",
+        "datasets/protocol_token_holders.html",
+        "datasets/etherfi_addresses.html",
+        "dashboards/etherfi_overview.html",
+        "dashboards/liquid_vaults.html",
+    ]:
+        html = (tmp_path / relative_path).read_text(encoding="utf-8")
+        assert len(re.findall(r"<h1(?:\s|>)", html)) == 1, relative_path
+
+        section_nav = re.search(
+            r'<nav class="detail-section-nav"[^>]*>(.*?)</nav>',
+            html,
+            re.S,
+        )
+        if not section_nav:
+            continue
+        fragment_ids = re.findall(r'href="#([^"]+)"', section_nav.group(1))
+        assert len(fragment_ids) >= 2, relative_path
+        for fragment_id in fragment_ids:
+            assert html.count(f'id="{fragment_id}"') == 1, (
+                relative_path,
+                fragment_id,
+            )
+
+
+def test_catalog_ui_shortcuts_and_copy_fallback():
+    node = shutil.which("node")
+    if node is None:
+        return
+
+    script = """
+let clipboardAttempted = false;
+globalThis.navigator = {
+  clipboard: {
+    writeText() {
+      clipboardAttempted = true;
+      return Promise.reject(new Error("clipboard unavailable"));
+    },
+  },
+};
+globalThis.isSecureContext = true;
+const ui = require("./website/assets/catalog-ui.js");
+let appended = false;
+let removed = false;
+let selected = false;
+let copiedCommand = "";
+const textarea = {
+  value: "",
+  style: {},
+  setAttribute() {},
+  select() { selected = true; },
+};
+const scope = {
+  body: {
+    appendChild(node) { appended = node === textarea; },
+    removeChild(node) { removed = node === textarea; },
+  },
+  createElement(name) { return name === "textarea" ? textarea : null; },
+  execCommand(command) {
+    copiedCommand = command;
+    return command === "copy";
+  },
+};
+
+let inputEvent = null;
+let inputFocused = false;
+class FakeEvent {
+  constructor(type, options) {
+    this.type = type;
+    this.bubbles = Boolean(options && options.bubbles);
+  }
+}
+const input = {
+  value: "oracle",
+  ownerDocument: { defaultView: { Event: FakeEvent } },
+  dispatchEvent(event) { inputEvent = event; },
+  focus() { inputFocused = true; },
+};
+ui.clearSearch(input, true);
+
+const hint = {
+  attrs: {},
+  open: false,
+  classList: {
+    toggle(name, enabled) {
+      if (name === "is-open") hint.open = enabled;
+    },
+  },
+  setAttribute(name, value) { this.attrs[name] = String(value); },
+};
+ui.setHintExpanded(hint, true);
+const expandedHint = { open: hint.open, expanded: hint.attrs["aria-expanded"] };
+ui.setHintExpanded(hint, false);
+const otherHint = {
+  attrs: {},
+  open: true,
+  classList: {
+    toggle(name, enabled) {
+      if (name === "is-open") otherHint.open = enabled;
+    },
+  },
+  setAttribute(name, value) { this.attrs[name] = String(value); },
+};
+ui.setHintExpanded(hint, true);
+ui.closeUnfocusedHints([hint, otherHint], {
+  closest(selector) { return selector === "[data-info-hint]" ? hint : null; },
+});
+const focusMovedBetweenHints = {
+  focusedOpen: hint.open,
+  otherOpen: otherHint.open,
+};
+ui.closeUnfocusedHints([hint, otherHint], { closest() { return null; } });
+const focusLeftHints = {
+  focusedOpen: hint.open,
+  otherOpen: otherHint.open,
+};
+
+ui.copyText("dune.ether_fi.result_example", scope).then((copied) => {
+  console.log(JSON.stringify({
+    copied,
+    clipboardAttempted,
+    copiedCommand,
+    appended,
+    removed,
+    selected,
+    textareaValue: textarea.value,
+    clearedValue: input.value,
+    inputEvent: inputEvent && inputEvent.type,
+    inputEventBubbles: inputEvent && inputEvent.bubbles,
+    inputFocused,
+    expandedHint,
+    collapsedHint: { open: hint.open, expanded: hint.attrs["aria-expanded"] },
+    focusMovedBetweenHints,
+    focusLeftHints,
+    slash: ui.shortcutAction({ key: "/" }, { hasSearch: true, editableTarget: false }),
+    slashInInput: ui.shortcutAction({ key: "/" }, { hasSearch: true, editableTarget: true }),
+    modifiedSlash: ui.shortcutAction(
+      { key: "/", metaKey: true },
+      { hasSearch: true, editableTarget: false }
+    ),
+    clear: ui.shortcutAction(
+      { key: "Escape" },
+      { activeSearch: true, searchHasValue: true }
+    ),
+    blur: ui.shortcutAction(
+      { key: "Escape" },
+      { activeSearch: true, searchHasValue: false }
+    ),
+    dismissHint: ui.shortcutAction(
+      { key: "Escape" },
+      { hintFocused: true, activeSearch: false }
+    ),
+    unrelated: ui.shortcutAction({ key: "Enter" }, { hasSearch: true }),
+    inputEditable: ui.isEditableTarget({
+      matches(selector) { return selector.includes("input"); },
+    }),
+    plainEditable: ui.isEditableTarget({ matches() { return false; } }),
+  }));
+});
+"""
+    result = subprocess.run(
+        [node, "-e", script],
+        cwd=Path(__file__).resolve().parents[1],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    behavior = json.loads(result.stdout)
+
+    assert behavior == {
+        "copied": True,
+        "clipboardAttempted": True,
+        "copiedCommand": "copy",
+        "appended": True,
+        "removed": True,
+        "selected": True,
+        "textareaValue": "dune.ether_fi.result_example",
+        "clearedValue": "",
+        "inputEvent": "input",
+        "inputEventBubbles": True,
+        "inputFocused": True,
+        "expandedHint": {"open": True, "expanded": "true"},
+        "collapsedHint": {"open": False, "expanded": "false"},
+        "focusMovedBetweenHints": {"focusedOpen": True, "otherOpen": False},
+        "focusLeftHints": {"focusedOpen": False, "otherOpen": False},
+        "slash": "focus-search",
+        "slashInInput": "none",
+        "modifiedSlash": "none",
+        "clear": "clear-search",
+        "blur": "blur-search",
+        "dismissHint": "dismiss-hint",
+        "unrelated": "none",
+        "inputEditable": True,
+        "plainEditable": False,
+    }
+
+
+def test_catalog_ui_detail_tabs_mount_keyboard_hash_and_fallback():
+    node = shutil.which("node")
+    if node is None:
+        return
+
+    script = r"""
+globalThis.location = { hash: "" };
+const historyCalls = [];
+globalThis.history = {
+  pushState(_state, _title, hash) {
+    historyCalls.push(["push", hash]);
+    globalThis.location.hash = hash;
+  },
+  replaceState(_state, _title, hash) {
+    historyCalls.push(["replace", hash]);
+    globalThis.location.hash = hash;
+  },
+};
+const windowListeners = {};
+globalThis.addEventListener = (type, listener) => {
+  (windowListeners[type] ||= []).push(listener);
+};
+
+const ui = require("./website/assets/catalog-ui.js");
+let focusedValue = "";
+let activeNode = null;
+const tabScrolls = [];
+
+class FakeNode {
+  constructor({ id = "", dataset = {}, hidden = false } = {}) {
+    this.id = id;
+    this.dataset = { ...dataset };
+    this.hidden = hidden;
+    this.attrs = {};
+    this.listeners = {};
+    this.classes = new Set();
+    this.classList = {
+      toggle: (name, enabled) => {
+        if (enabled) this.classes.add(name);
+        else this.classes.delete(name);
+      },
+    };
+  }
+  setAttribute(name, value) { this.attrs[name] = String(value); }
+  getAttribute(name) { return this.attrs[name] ?? null; }
+  removeAttribute(name) { delete this.attrs[name]; }
+  addEventListener(type, listener) {
+    (this.listeners[type] ||= []).push(listener);
+  }
+  focus() {
+    activeNode = this;
+    focusedValue = this.dataset.detailTab || "";
+  }
+}
+
+function makeGroup() {
+  const values = ["about", "schema", "related-resources"];
+  const tabs = values.map((value) => new FakeNode({
+    id: `dataset-detail-tab-${value}`,
+    dataset: {
+      detailTab: value,
+      detailTabControls: value,
+    },
+  }));
+  const panels = values.map((value, index) => new FakeNode({
+    id: value,
+    dataset: {
+      detailTabPanel: value,
+      detailTabLabelledby: tabs[index].id,
+      ...(value === "about" ? { emptyTabPanel: "true" } : {}),
+    },
+  }));
+  panels.forEach((panel) => {
+    panel.scrollIntoView = (options) => {
+      tabScrolls.push({ id: panel.id, block: options.block });
+    };
+  });
+  const tabList = new FakeNode({ hidden: true });
+  const group = new FakeNode({
+    dataset: {
+      defaultTab: "schema",
+      detailTabsLabel: "Dataset detail sections",
+    },
+  });
+  group.ownerDocument = {
+    get activeElement() { return activeNode; },
+  };
+  group.contains = (node) => tabs.includes(node) || panels.includes(node);
+  group.querySelector = (selector) => selector === "[data-detail-tab-list]" ? tabList : null;
+  group.querySelectorAll = (selector) => {
+    if (selector === "[data-detail-tab]") return tabs;
+    if (selector === "[data-detail-tab-panel]") return panels;
+    if (selector === "[id]") return panels;
+    return [];
+  };
+  return { group, panels, tabList, tabs, values };
+}
+
+const fixture = makeGroup();
+const scope = {
+  querySelectorAll(selector) {
+    return selector === "[data-detail-tabs]" ? [fixture.group] : [];
+  },
+};
+ui.mountDetailTabs(scope);
+
+const mounted = {
+  mounted: fixture.group.dataset.detailTabsMounted,
+  active: fixture.group.dataset.activeTab,
+  tabListHidden: fixture.tabList.hidden,
+  tabListRole: fixture.tabList.attrs.role,
+  tabListLabel: fixture.tabList.attrs["aria-label"],
+  selected: fixture.tabs.map((tab) => tab.attrs["aria-selected"]),
+  tabIndexes: fixture.tabs.map((tab) => tab.attrs.tabindex),
+  panelHidden: fixture.panels.map((panel) => panel.hidden),
+  panelRoles: fixture.panels.map((panel) => panel.attrs.role),
+  panelIndexes: fixture.panels.map((panel) => panel.attrs.tabindex || null),
+};
+
+fixture.tabs[0].listeners.click[0]();
+const clicked = {
+  active: fixture.group.dataset.activeTab,
+  activePanelTabIndex: fixture.panels[0].attrs.tabindex || null,
+  hash: globalThis.location.hash,
+  panelHidden: fixture.panels.map((panel) => panel.hidden),
+};
+
+let prevented = false;
+fixture.tabs[0].listeners.keydown[0]({
+  key: "End",
+  preventDefault() { prevented = true; },
+});
+const keyboard = {
+  active: fixture.group.dataset.activeTab,
+  focusedValue,
+  hash: globalThis.location.hash,
+  prevented,
+};
+
+globalThis.location.hash = "#main-content";
+windowListeners.hashchange[0]();
+const ignoredSkipLinkHash = {
+  active: fixture.group.dataset.activeTab,
+  relatedHidden: fixture.panels[2].hidden,
+};
+const tabScrollsAfterKeyboard = [...tabScrolls];
+
+globalThis.location.hash = "";
+windowListeners.popstate[0]();
+const returnedToDefault = {
+  active: fixture.group.dataset.activeTab,
+  focusedValue,
+  schemaHidden: fixture.panels[1].hidden,
+};
+
+const invalid = makeGroup();
+invalid.tabs[1].dataset.detailTab = "about";
+ui.mountDetailTabs({
+  querySelectorAll(selector) {
+    return selector === "[data-detail-tabs]" ? [invalid.group] : [];
+  },
+});
+
+let scrolledTo = null;
+const scrollTarget = new FakeNode({ id: "related-resources" });
+scrollTarget.scrollIntoView = (options) => {
+  scrolledTo = { id: scrollTarget.id, block: options.block };
+};
+ui.scrollToTabHash({
+  querySelectorAll(selector) {
+    return selector === "[id]" ? [scrollTarget] : [];
+  },
+}, "#related-resources");
+
+console.log(JSON.stringify({
+  mounted,
+  clicked,
+  keyboard,
+  ignoredSkipLinkHash,
+  tabScrollsAfterKeyboard,
+  returnedToDefault,
+  historyCalls,
+  aliases: {
+    caveat: ui.tabValueForHash("#dataset-caveats", fixture.values),
+    metrics: ui.tabValueForHash("#dashboard-metrics", ["metrics", "tags"]),
+    invalid: ui.tabValueForHash("#not-a-tab", fixture.values),
+  },
+  keyIndexes: {
+    rightWrap: ui.tabIndexForKey("ArrowRight", 2, 3),
+    leftWrap: ui.tabIndexForKey("ArrowLeft", 0, 3),
+    home: ui.tabIndexForKey("Home", 2, 3),
+    end: ui.tabIndexForKey("End", 0, 3),
+    ignored: ui.tabIndexForKey("Enter", 0, 3),
+  },
+  invalidFallback: {
+    tabListHidden: invalid.tabList.hidden,
+    mounted: invalid.group.dataset.detailTabsMounted || null,
+    panelHidden: invalid.panels.map((panel) => panel.hidden),
+    panelRoles: invalid.panels.map((panel) => panel.attrs.role || null),
+  },
+  scrolledTo,
+}));
+"""
+    result = subprocess.run(
+        [node, "-e", script],
+        cwd=Path(__file__).resolve().parents[1],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    behavior = json.loads(result.stdout)
+
+    assert behavior["mounted"] == {
+        "mounted": "true",
+        "active": "schema",
+        "tabListHidden": False,
+        "tabListRole": "tablist",
+        "tabListLabel": "Dataset detail sections",
+        "selected": ["false", "true", "false"],
+        "tabIndexes": ["-1", "0", "-1"],
+        "panelHidden": [True, False, True],
+        "panelRoles": ["tabpanel", "tabpanel", "tabpanel"],
+        "panelIndexes": [None, "0", None],
+    }
+    assert behavior["clicked"] == {
+        "active": "about",
+        "activePanelTabIndex": None,
+        "hash": "#about",
+        "panelHidden": [False, True, True],
+    }
+    assert behavior["keyboard"] == {
+        "active": "related-resources",
+        "focusedValue": "related-resources",
+        "hash": "#related-resources",
+        "prevented": True,
+    }
+    assert behavior["ignoredSkipLinkHash"] == {
+        "active": "related-resources",
+        "relatedHidden": False,
+    }
+    assert behavior["tabScrollsAfterKeyboard"] == [
+        {"id": "about", "block": "start"},
+    ]
+    assert behavior["returnedToDefault"] == {
+        "active": "schema",
+        "focusedValue": "schema",
+        "schemaHidden": False,
+    }
+    assert behavior["historyCalls"] == [
+        ["push", "#about"],
+        ["replace", "#related-resources"],
+    ]
+    assert behavior["aliases"] == {
+        "caveat": "about",
+        "metrics": "metrics",
+        "invalid": "",
+    }
+    assert behavior["keyIndexes"] == {
+        "rightWrap": 0,
+        "leftWrap": 2,
+        "home": 0,
+        "end": 2,
+        "ignored": -1,
+    }
+    assert behavior["invalidFallback"] == {
+        "tabListHidden": True,
+        "mounted": None,
+        "panelHidden": [False, False, False],
+        "panelRoles": [None, None, None],
+    }
+    assert behavior["scrolledTo"] == {
+        "id": "related-resources",
+        "block": "start",
+    }
 
 
 def test_dataset_browser_filter_script_matches_search_terms():
@@ -2033,6 +2966,44 @@ console.log(JSON.stringify({
   activeNavAfterClick: browser.activeNavForState(categoryState),
   queryAfterClick: categoryState.query,
   inputAfterClick: categoryInput.value,
+  fragments: {
+    prices: browser.categoryFragment("prices"),
+    lrt: browser.categoryFragment("lrt_restaking"),
+    valid: browser.categoryForHash(
+      "#dataset-view-lrt-restaking",
+      ["overview", "prices", "lrt_restaking"],
+    ),
+    invalid: browser.categoryForHash(
+      "#dataset-view-not-real",
+      ["overview", "prices", "lrt_restaking"],
+    ),
+    emptyTarget: browser.categoryTargetForHash(
+      "",
+      ["overview", "prices", "lrt_restaking"],
+    ),
+    ownedTarget: browser.categoryTargetForHash(
+      "#dataset-view-prices",
+      ["overview", "prices", "lrt_restaking"],
+    ),
+    unrelatedTarget: browser.categoryTargetForHash(
+      "#main-content",
+      ["overview", "prices", "lrt_restaking"],
+    ),
+  },
+  focusRestore: {
+    categoryButton: browser.shouldRestoreCategoryFocus(
+      categoryInput,
+      [categoryInput],
+    ),
+    categoryContent: browser.shouldRestoreCategoryFocus(
+      { closest(selector) { return selector.includes("dataset-category-section") ? {} : null; } },
+      [],
+    ),
+    outside: browser.shouldRestoreCategoryFocus(
+      { closest() { return null; } },
+      [],
+    ),
+  },
 }));
 """
     result = subprocess.run(
@@ -2061,6 +3032,20 @@ console.log(JSON.stringify({
         "activeNavAfterClick": "prices",
         "queryAfterClick": "",
         "inputAfterClick": "",
+        "fragments": {
+            "prices": "dataset-view-prices",
+            "lrt": "dataset-view-lrt-restaking",
+            "valid": "lrt_restaking",
+            "invalid": "",
+            "emptyTarget": "overview",
+            "ownedTarget": "prices",
+            "unrelatedTarget": None,
+        },
+        "focusRestore": {
+            "categoryButton": True,
+            "categoryContent": True,
+            "outside": False,
+        },
     }
 
 
@@ -2419,7 +3404,7 @@ function search(value) {
 
 const total = doc.cards.length;
 assert(total > 5, "Expected generated dataset cards");
-assert(doc.count.textContent === `${total} shown`, "Initial count did not match generated cards");
+assert(doc.count.textContent === `${total} of ${total} shown`, "Initial count did not match generated cards");
 assert(doc.empty.hidden === true, "Empty state should start hidden");
 assert(typeof context.window.__etherfiFreshnessSearchDebug === "function", "Debug hook was not exposed");
 let debug = context.window.__etherfiFreshnessSearchDebug();
@@ -2432,12 +3417,12 @@ search("protocol tvl");
 assert(visibleCards().length > 0 && visibleCards().length < total, "Non-contiguous dataset search should narrow cards");
 assert(visibleCards().some((card) => card.textContent.includes("Ether.fi Protocol Token TVL")), "Non-contiguous dataset search should include Protocol Token TVL");
 assert(!visibleCards().some((card) => card.textContent.includes("Ether.fi Protocol Token Holders")), "Non-contiguous dataset search should hide unrelated holders card");
-assert(doc.count.textContent === `${visibleCards().length} shown`, "Non-contiguous search count did not update");
+assert(doc.count.textContent === `${visibleCards().length} of ${total} shown`, "Non-contiguous search count did not update");
 
 search("protocol token tvl");
 assert(visibleCards().length === 1, "Dataset search should show one card");
 assert(visibleCards()[0].textContent.includes("Ether.fi Protocol Token TVL"), "Dataset search showed the wrong card");
-assert(doc.count.textContent === "1 shown", "Dataset search count did not update");
+assert(doc.count.textContent === `1 of ${total} shown`, "Dataset search count did not update");
 
 search("6216803");
 assert(visibleCards().length === 1, "Query ID search should show one card");
@@ -2451,7 +3436,7 @@ assert(visibleCards().length === 1, "Stale status + query search should show one
 
 clickStatus("fresh");
 assert(visibleCards().length === 0, "Fresh status + stale query search should show no cards");
-assert(doc.count.textContent === "0 shown", "No-match count did not update");
+assert(doc.count.textContent === `0 of ${total} shown`, "No-match count did not update");
 assert(doc.empty.hidden === false, "Empty state should be visible when no cards match");
 
 clickStatus("all");
@@ -2463,7 +3448,7 @@ assert(doc.empty.hidden === false, "Nonsense search should show empty state");
 
 search("");
 assert(visibleCards().length === total, "Clearing search should restore all cards for All status");
-assert(doc.count.textContent === `${total} shown`, "Clearing search should restore count");
+assert(doc.count.textContent === `${total} of ${total} shown`, "Clearing search should restore count");
 assert(doc.empty.hidden === true, "Empty state should hide after clearing search");
 debug = context.window.__etherfiFreshnessSearchDebug();
 assert(debug.visibleCount === total, "Debug hook visible count should update after clearing search");
@@ -2485,7 +3470,7 @@ console.log(JSON.stringify({ total, finalCount: doc.count.textContent }));
     behavior = json.loads(result.stdout)
 
     assert behavior["total"] > 5
-    assert behavior["finalCount"] == f'{behavior["total"]} shown'
+    assert behavior["finalCount"] == f'{behavior["total"]} of {behavior["total"]} shown'
 
 
 def test_freshness_relative_age_and_meter_buckets():
@@ -2539,7 +3524,6 @@ def test_dataset_card_status_chip_uses_compact_overdue_duration():
     ) == "Stale 2d"
     assert dataset_card_status_label({"status": "unknown", "label": "Unknown"}) == "Unknown"
     assert dataset_card_status_label({"status": "delayed", "label": "Delayed"}) == "Delayed"
-
     entry = next(
         entry for entry in load_dataset_entries() if entry.slug == "protocol_token_holders"
     )
@@ -2641,14 +3625,15 @@ def test_build_website_dataset_pages_show_missing_fields_without_breaking(tmp_pa
     assert "<span>Freshness column</span>" not in detail_glance_html
     assert "<span>Source query ID</span>" not in detail_glance_html
     assert "<span>Refresh interval</span>" not in detail_glance_html
-    assert "About this table" in detail_page
+    assert "What this dataset represents" not in detail_page
+    assert "Methodology and Notes" in detail_page
     assert (
         'class="dataset-glance-card full-table-name copyable-table-name"'
         in detail_glance_html
     )
     assert 'class="table-pill table-pill-block"' in detail_glance_html
     assert "Schema" in detail_page
-    assert "Related datasets and dashboards" in detail_page
+    assert "Related resources" in detail_page
     assert "What this table contains" not in detail_page
     assert "Important columns" not in detail_page
     assert "Query notes" not in detail_page
@@ -2660,8 +3645,13 @@ def test_build_website_dataset_pages_show_missing_fields_without_breaking(tmp_pa
         encoding="utf-8"
     )
     assert "Missing Description Dataset" in fallback_page
-    assert "About this table" in fallback_page
-    assert "This dataset documents Demo Category data for Missing Description Dataset." in fallback_page
+    assert "What this dataset represents" not in fallback_page
+    assert "Methodology and Notes" in fallback_page
+    fallback_methodology = re.search(
+        r'<section id="about"[^>]*data-empty-tab-panel="true"></section>',
+        fallback_page,
+    )
+    assert fallback_methodology
 
 
 def test_build_website_can_use_custom_source_and_output(tmp_path):

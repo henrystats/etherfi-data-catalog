@@ -11,7 +11,7 @@
       (function () {
         var root = document.documentElement;
         var theme = "light";
-        root.setAttribute("data-theme-ready", "");
+        root.setAttribute("data-js", "");
 
         try {
           var savedTheme = window.localStorage.getItem("etherfi-data-catalog-theme");
@@ -34,6 +34,7 @@
       }());
     </script>
     <link rel="stylesheet" href="${asset_prefix}assets/styles.css?v=$styles_version">
+    <script src="${asset_prefix}assets/catalog-ui.js?v=$catalog_ui_js_version" defer></script>
   </head>
   <body class="$body_class">
     <a class="skip-link" href="#main-content">Skip to content</a>
@@ -56,7 +57,7 @@
         </div>
       </div>
     </header>
-    <main id="main-content">
+    <main id="main-content" tabindex="-1">
       $content
     </main>
     <footer class="site-footer">

@@ -79,7 +79,6 @@
     if (page.dataset.freshnessMounted === "true") {
       return;
     }
-    page.dataset.freshnessMounted = "true";
 
     const searchInput = page.querySelector(SEARCH_SELECTOR);
     const statusButtons = [...page.querySelectorAll(STATUS_FILTER_SELECTOR)];
@@ -98,6 +97,7 @@
         countFound: Boolean(count),
         emptyStateFound: Boolean(emptyState),
       });
+      return;
     }
 
     function applyFilters() {
@@ -111,7 +111,7 @@
       });
 
       if (count) {
-        count.textContent = `${visibleCount} shown`;
+        count.textContent = `${visibleCount} of ${rows.length} shown`;
       }
       if (emptyState) {
         emptyState.hidden = visibleCount !== 0;
@@ -145,6 +145,7 @@
 
     setActive(statusButtons, state.status, "statusFilter");
     applyFilters();
+    page.dataset.freshnessMounted = "true";
   }
 
   function ready(scope) {
