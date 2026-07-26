@@ -2482,15 +2482,21 @@ def test_catalog_ui_shortcuts_and_copy_fallback():
 
     script = """
 let clipboardAttempted = false;
-globalThis.navigator = {
-  clipboard: {
-    writeText() {
-      clipboardAttempted = true;
-      return Promise.reject(new Error("clipboard unavailable"));
+Object.defineProperty(globalThis, "navigator", {
+  configurable: true,
+  value: {
+    clipboard: {
+      writeText() {
+        clipboardAttempted = true;
+        return Promise.reject(new Error("clipboard unavailable"));
+      },
     },
   },
-};
-globalThis.isSecureContext = true;
+});
+Object.defineProperty(globalThis, "isSecureContext", {
+  configurable: true,
+  value: true,
+});
 const ui = require("./website/assets/catalog-ui.js");
 let appended = false;
 let removed = false;
@@ -2644,6 +2650,163 @@ ui.copyText("dune.ether_fi.result_example", scope).then((copied) => {
         "unrelated": "none",
         "inputEditable": True,
         "plainEditable": False,
+    }
+
+
+def test_catalog_ui_copy_text_covers_clipboard_and_fallback_paths():
+    node = shutil.which("node")
+    if node is None:
+        return
+
+    script = """
+const ui = require("./website/assets/catalog-ui.js");
+
+function installNavigator(value, secure = true) {
+  Object.defineProperty(globalThis, "navigator", {
+    configurable: true,
+    value,
+  });
+  Object.defineProperty(globalThis, "isSecureContext", {
+    configurable: true,
+    value: secure,
+  });
+}
+
+function makeScope(execResult) {
+  const state = {
+    appended: false,
+    execCalls: 0,
+    removed: false,
+    selected: false,
+  };
+  const textarea = {
+    value: "",
+    style: {},
+    setAttribute() {},
+    select() { state.selected = true; },
+  };
+  return {
+    state,
+    scope: {
+      body: {
+        appendChild(node) { state.appended = node === textarea; },
+        removeChild(node) { state.removed = node === textarea; },
+      },
+      createElement(name) { return name === "textarea" ? textarea : null; },
+      execCommand(command) {
+        state.execCalls += 1;
+        return command === "copy" && execResult;
+      },
+    },
+  };
+}
+
+(async () => {
+  let successAttempts = 0;
+  installNavigator({
+    clipboard: {
+      writeText() {
+        successAttempts += 1;
+        return Promise.resolve();
+      },
+    },
+  });
+  const successFallback = makeScope(true);
+  const success = await ui.copyText("success", successFallback.scope);
+
+  let rejectionAttempts = 0;
+  installNavigator({
+    clipboard: {
+      writeText() {
+        rejectionAttempts += 1;
+        return Promise.reject(new Error("clipboard unavailable"));
+      },
+    },
+  });
+  const rejectionFallback = makeScope(true);
+  const rejection = await ui.copyText("rejection", rejectionFallback.scope);
+
+  installNavigator({});
+  const unavailableFallback = makeScope(true);
+  const unavailable = await ui.copyText("unavailable", unavailableFallback.scope);
+
+  installNavigator({});
+  const failedFallback = makeScope(false);
+  const failed = await ui.copyText("failed", failedFallback.scope);
+
+  console.log(JSON.stringify({
+    success: {
+      result: success,
+      attempts: successAttempts,
+      fallback: successFallback.state,
+    },
+    rejection: {
+      result: rejection,
+      attempts: rejectionAttempts,
+      fallback: rejectionFallback.state,
+    },
+    unavailable: {
+      result: unavailable,
+      fallback: unavailableFallback.state,
+    },
+    failed: {
+      result: failed,
+      fallback: failedFallback.state,
+    },
+  }));
+})().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
+"""
+    result = subprocess.run(
+        [node, "-e", script],
+        cwd=Path(__file__).resolve().parents[1],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    behavior = json.loads(result.stdout)
+
+    assert behavior == {
+        "success": {
+            "result": True,
+            "attempts": 1,
+            "fallback": {
+                "appended": False,
+                "execCalls": 0,
+                "removed": False,
+                "selected": False,
+            },
+        },
+        "rejection": {
+            "result": True,
+            "attempts": 1,
+            "fallback": {
+                "appended": True,
+                "execCalls": 1,
+                "removed": True,
+                "selected": True,
+            },
+        },
+        "unavailable": {
+            "result": True,
+            "fallback": {
+                "appended": True,
+                "execCalls": 1,
+                "removed": True,
+                "selected": True,
+            },
+        },
+        "failed": {
+            "result": False,
+            "fallback": {
+                "appended": True,
+                "execCalls": 1,
+                "removed": True,
+                "selected": True,
+            },
+        },
     }
 
 
