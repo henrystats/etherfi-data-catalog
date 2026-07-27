@@ -100,19 +100,31 @@
     if (!scope || !scope.body || typeof scope.createElement !== "function") {
       return Promise.resolve(false);
     }
+    const previousActive = scope.activeElement;
     const textarea = scope.createElement("textarea");
     textarea.value = text;
     textarea.setAttribute("readonly", "");
     textarea.style.position = "fixed";
     textarea.style.top = "-9999px";
     textarea.style.left = "-9999px";
-    scope.body.appendChild(textarea);
-    textarea.select();
+    let appended = false;
 
     try {
+      scope.body.appendChild(textarea);
+      appended = true;
+      textarea.select();
       return Promise.resolve(Boolean(scope.execCommand && scope.execCommand("copy")));
     } finally {
-      scope.body.removeChild(textarea);
+      if (appended) {
+        scope.body.removeChild(textarea);
+      }
+      if (
+        previousActive &&
+        previousActive !== textarea &&
+        typeof previousActive.focus === "function"
+      ) {
+        previousActive.focus();
+      }
     }
   }
 
@@ -412,6 +424,9 @@
     });
 
     scope.addEventListener("keydown", (event) => {
+      if (event.defaultPrevented) {
+        return;
+      }
       const activeElement = scope.activeElement;
       const searchInput = activeElement && activeElement.matches &&
         activeElement.matches(SEARCH_SELECTOR)

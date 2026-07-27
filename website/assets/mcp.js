@@ -6,22 +6,27 @@
   const resetTimers = new WeakMap();
   document.documentElement.dataset.mcpMounted = "true";
 
-  function selectSnippetText(button) {
+  function selectCopyText(button) {
     const snippet = button.closest(".code-snippet");
-    const code = snippet ? snippet.querySelector("code") : null;
-    if (!code || !window.getSelection || !document.createRange) {
+    const promptCard = button.closest(".mcp-prompt-card");
+    const copyTarget = snippet
+      ? snippet.querySelector("code")
+      : promptCard
+        ? promptCard.querySelector("p")
+        : null;
+    if (!copyTarget || !window.getSelection || !document.createRange) {
       return false;
     }
 
     const range = document.createRange();
-    range.selectNodeContents(code);
+    range.selectNodeContents(copyTarget);
     const selection = window.getSelection();
     selection.removeAllRanges();
     selection.addRange(range);
     return true;
   }
 
-  function setFeedback(button, label) {
+  function setFeedback(button, label, announce = true) {
     const feedback = button.querySelector(FEEDBACK_SELECTOR);
     if (feedback) {
       feedback.textContent = label;
@@ -30,7 +35,7 @@
       ? button.parentElement.querySelector(ANNOUNCER_SELECTOR)
       : null;
     if (announcer) {
-      announcer.textContent = label === "Copy" ? "" : label;
+      announcer.textContent = announce ? label : "";
     }
   }
 
@@ -41,7 +46,7 @@
     }
     const timer = window.setTimeout(() => {
       button.classList.remove("copied", "copy-selected", "copy-failed");
-      setFeedback(button, "Copy");
+      setFeedback(button, button.dataset.copyDefaultLabel || "Copy", false);
       resetTimers.delete(button);
     }, RESET_DELAY_MS);
     resetTimers.set(button, timer);
@@ -57,14 +62,14 @@
       const copied = window.CatalogUI && typeof window.CatalogUI.copyText === "function"
         ? await window.CatalogUI.copyText(text, document)
         : false;
-      const selected = copied ? false : selectSnippetText(button);
+      const selected = copied ? false : selectCopyText(button);
       button.classList.toggle("copied", copied);
       button.classList.toggle("copy-selected", selected);
       button.classList.toggle("copy-failed", !copied && !selected);
       setFeedback(button, copied ? "Copied" : selected ? "Selected" : "Copy failed");
       resetButton(button);
     } catch (error) {
-      const selected = selectSnippetText(button);
+      const selected = selectCopyText(button);
       button.classList.toggle("copy-selected", selected);
       button.classList.toggle("copy-failed", !selected);
       setFeedback(button, selected ? "Selected" : "Copy failed");

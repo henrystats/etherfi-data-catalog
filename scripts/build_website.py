@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 import hashlib
 from html import escape
+import json
 import math
 from pathlib import Path
 import re
@@ -231,13 +232,15 @@ def render_page(
     link_prefix: str = "",
     asset_prefix: str = "",
 ) -> str:
+    current_slug = active_slug or page.slug
     return template.safe_substitute(
         title=escape(page.title),
         document_title=escape(format_document_title(page.title)),
         description=escape(page.description),
         body_class=escape(page.body_class),
         asset_prefix=asset_prefix,
-        nav=render_nav(pages, active_slug or page.slug, link_prefix=link_prefix),
+        nav=render_nav(pages, current_slug, link_prefix=link_prefix),
+        search_current=' aria-current="page"' if current_slug == "explore" else "",
         content=render_page_body(page),
     )
 
@@ -261,6 +264,7 @@ def render_generated_page(
         body_class=escape(body_class),
         asset_prefix=asset_prefix,
         nav=render_nav(pages, active_slug, link_prefix=link_prefix),
+        search_current=' aria-current="page"' if active_slug == "explore" else "",
         content=content,
     )
 
@@ -1007,6 +1011,16 @@ def render_mcp_prompt_card(group: str, prompt: str) -> str:
         '<article class="mcp-prompt-card">'
         f"<span>{escape(group)}</span>"
         f"<p>{escape(prompt)}</p>"
+        "<div>"
+        f'<button class="copy-value-button snippet-copy-button" type="button" '
+        f'data-snippet-copy data-copy-text="{escape(prompt)}" '
+        'data-copy-default-label="Copy prompt" '
+        f'aria-label="Copy {escape(group)} prompt">'
+        f"{COPY_ICON_SVG}"
+        '<span class="copy-value-label" data-copy-feedback>Copy prompt</span>'
+        "</button>"
+        f"{COPY_ANNOUNCER_HTML}"
+        "</div>"
         "</article>"
     )
 
@@ -1950,6 +1964,14 @@ def render_schema_description(value: str) -> str:
     return render_inline_markdown(value)
 
 
+def normalize_schema_search_text(*values: object) -> str:
+    return " ".join(
+        normalized
+        for value in values
+        if (normalized := " ".join(str(value or "").lower().split()))
+    )
+
+
 def render_schema_table(schema, important_columns=None) -> str:
     columns = normalize_schema_columns(schema)
     if not columns:
@@ -1960,24 +1982,44 @@ def render_schema_table(schema, important_columns=None) -> str:
         name = column["name"]
         column_type = column["type"]
         description = column["description"] or important_descriptions.get(schema_column_key(name), "")
+        search_text = normalize_schema_search_text(name, column_type, description)
         rows.append(
-            "<tr>"
+            f'<tr data-schema-row data-schema-search="{escape(search_text)}">'
             f'<th scope="row"><code>{escape(name)}</code></th>'
             f"<td>{escape(column_type)}</td>"
             f'<td class="schema-description">{render_schema_description(description)}</td>'
             "</tr>"
         )
+    column_label = "column" if len(columns) == 1 else "columns"
     return (
-        '<div class="schema-table-wrap" role="region" aria-label="Dataset schema" tabindex="0">'
+        '<div class="schema-table-wrap" data-schema-table role="region" '
+        'aria-label="Dataset schema" tabindex="0">'
+        '<div class="schema-filter-controls" data-schema-filter hidden>'
+        '<label class="schema-filter-label" for="schema-column-filter">Filter columns</label>'
+        '<div class="schema-filter-field">'
+        '<input class="schema-filter-input" id="schema-column-filter" type="search" '
+        'data-schema-filter-input placeholder="Name, type, or description" '
+        'aria-controls="schema-table-body" aria-describedby="schema-filter-count" '
+        'autocomplete="off" spellcheck="false">'
+        '<button class="schema-filter-clear" type="button" data-schema-filter-clear hidden>'
+        "Clear"
+        "</button>"
+        "</div>"
+        "</div>"
         '<div class="schema-table-toolbar">'
         "<span>Columns</span>"
         '<span class="schema-scroll-hint" aria-hidden="true">Scroll for type + description &rarr;</span>'
-        f"<strong>{len(columns)}</strong>"
+        f'<strong id="schema-filter-count" class="schema-filter-count" '
+        'data-schema-filter-count role="status" aria-live="polite" aria-atomic="true">'
+        f"{len(columns)} {column_label}</strong>"
         "</div>"
         '<table class="schema-table">'
         '<thead><tr><th scope="col">Column</th><th scope="col">Type</th><th scope="col">Description</th></tr></thead>'
-        f"<tbody>{''.join(rows)}</tbody>"
+        f'<tbody id="schema-table-body">{"".join(rows)}</tbody>'
         "</table>"
+        '<p class="schema-filter-empty" data-schema-filter-empty hidden>'
+        "No schema columns match this filter."
+        "</p>"
         "</div>"
     )
 
@@ -2358,6 +2400,351 @@ def dashboard_search_text(
     ).lower()
 
 
+def collapse_catalog_text(value: object) -> str:
+    return " ".join(str(value or "").split())
+
+
+def unique_catalog_hints(values) -> list[str]:
+    hints: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        hint = collapse_catalog_text(value)
+        key = hint.lower()
+        if not hint or key in seen:
+            continue
+        seen.add(key)
+        hints.append(hint)
+    return hints
+
+
+def dataset_catalog_hints(entry: DatasetEntry) -> list[str]:
+    data = entry.data
+    important_descriptions = important_column_description_map(
+        data.get("important_columns")
+    )
+    schema_hints = []
+    for column in normalize_schema_columns(data.get("schema")):
+        description = (
+            column["description"]
+            or important_descriptions.get(schema_column_key(column["name"]), "")
+        )
+        schema_hints.append(
+            collapse_catalog_text(
+                " ".join(
+                    value
+                    for value in [
+                        column["name"],
+                        column["type"],
+                        description,
+                    ]
+                    if value
+                )
+            )
+        )
+
+    return unique_catalog_hints(
+        [
+            dataset_title(entry),
+            data.get("name"),
+            data.get("table_name"),
+            data.get("source_query_id"),
+            data.get("source_query_url"),
+            *(data.get("aliases") or []),
+            *flatten_search_values(data.get("search_keywords")),
+            *schema_hints,
+        ]
+    )
+
+
+def dashboard_catalog_hints(
+    entry: DashboardEntry,
+    dataset_reference_index: dict[str, DatasetEntry],
+) -> list[str]:
+    data = entry.data
+    linked_dataset_values = dashboard_linked_dataset_values(
+        data.get("datasets") or [],
+        dataset_reference_index,
+    )
+    return unique_catalog_hints(
+        [
+            dashboard_title(entry),
+            data.get("name"),
+            *(data.get("metrics") or []),
+            *(data.get("tags") or []),
+            *linked_dataset_values,
+        ]
+    )
+
+
+def catalog_search_text(values) -> str:
+    return normalize_schema_search_text(*flatten_search_values(values))
+
+
+def build_catalog_index_resources(
+    dataset_entries: list[DatasetEntry],
+    dashboard_entries: list[DashboardEntry],
+) -> list[dict]:
+    dataset_reference_index = build_dataset_reference_index(dataset_entries)
+    featured_slugs = {
+        entry.slug
+        for entry in featured_dataset_entries(
+            visible_dataset_entries(dataset_entries)
+        )
+    }
+    indexed_resources: list[tuple[tuple[int, int, str], dict]] = []
+
+    for entry in dataset_entries:
+        hints = dataset_catalog_hints(entry)
+        resource = {
+            "kind": "dataset",
+            "title": dataset_title(entry),
+            "href": dataset_href(entry),
+            "category": titleize_category(entry.category),
+            "description": collapse_catalog_text(entry.data.get("description")),
+            "searchText": catalog_search_text(
+                [
+                    "dataset",
+                    dataset_title(entry),
+                    entry.category,
+                    titleize_category(entry.category),
+                    entry.data.get("name"),
+                    entry.data.get("table_name"),
+                    entry.data.get("source_query_id"),
+                    entry.data.get("source_query_url"),
+                    entry.data.get("aliases"),
+                    entry.data.get("description"),
+                    entry.data.get("grain"),
+                    entry.data.get("business_meaning"),
+                    entry.data.get("use_when"),
+                    entry.data.get("important_columns"),
+                    entry.data.get("search_keywords"),
+                    entry.data.get("example_user_intents"),
+                    entry.data.get("related_datasets"),
+                    entry.data.get("related_dashboards"),
+                ]
+            ),
+            "matchHints": hints,
+        }
+        priority = (
+            0
+            if entry.slug in featured_slugs
+            else 4
+            if hide_from_dataset_search(entry)
+            else 2
+        )
+        indexed_resources.append(
+            (
+                (
+                    priority,
+                    int(category_sort_key(entry.category)[0]),
+                    dataset_title(entry).lower(),
+                ),
+                resource,
+            )
+        )
+
+    for entry in dashboard_entries:
+        hints = dashboard_catalog_hints(entry, dataset_reference_index)
+        resource = {
+            "kind": "dashboard",
+            "title": dashboard_title(entry),
+            "href": dashboard_href(entry),
+            "category": dashboard_category_label(entry),
+            "description": collapse_catalog_text(entry.data.get("description")),
+            "searchText": catalog_search_text(
+                [
+                    "dashboard",
+                    dashboard_title(entry),
+                    entry.category,
+                    dashboard_category_label(entry),
+                    entry.data.get("name"),
+                    entry.data.get("description"),
+                    entry.data.get("tags"),
+                    entry.data.get("metrics"),
+                    entry.data.get("datasets"),
+                    dashboard_linked_dataset_values(
+                        entry.data.get("datasets") or [],
+                        dataset_reference_index,
+                    ),
+                ]
+            ),
+            "matchHints": hints,
+        }
+        indexed_resources.append(
+            (
+                (
+                    1 if dashboard_is_core(entry) else 3,
+                    int(dashboard_group_sort_key(entry.category)[0]),
+                    dashboard_title(entry).lower(),
+                ),
+                resource,
+            )
+        )
+
+    return [
+        resource
+        for _, resource in sorted(
+            indexed_resources,
+            key=lambda indexed_resource: indexed_resource[0],
+        )
+    ]
+
+
+def escape_javascript_json(value: str) -> str:
+    return (
+        value.replace("&", "\\u0026")
+        .replace("<", "\\u003c")
+        .replace(">", "\\u003e")
+        .replace("\u2028", "\\u2028")
+        .replace("\u2029", "\\u2029")
+    )
+
+
+def serialize_catalog_index(resources: list[dict]) -> str:
+    payload = escape_javascript_json(
+        json.dumps(resources, ensure_ascii=False, separators=(",", ":"))
+    )
+    content_hash = hashlib.sha256(payload.encode("utf-8")).hexdigest()
+    return (
+        f"// content-hash: {content_hash}\n"
+        f"window.ETHERFI_CATALOG_INDEX = {payload};\n"
+        f'window.ETHERFI_CATALOG_INDEX_HASH = "{content_hash}";\n'
+    )
+
+
+def write_catalog_index_asset(output_dir: Path, resources: list[dict]) -> Path:
+    assets_dir = output_dir / "assets"
+    assets_dir.mkdir(parents=True, exist_ok=True)
+    output_path = assets_dir / "catalog-index.js"
+    output_path.write_text(serialize_catalog_index(resources), encoding="utf-8")
+    return output_path
+
+
+def explore_card_search_text(resource: dict) -> str:
+    kind = str(resource.get("kind") or "")
+    hints = resource.get("matchHints")
+    if not isinstance(hints, list):
+        hints = []
+    compact_hints = (
+        [
+            " ".join(collapse_catalog_text(hint).split()[:2])
+            for hint in hints
+        ]
+        if kind == "dataset"
+        else [collapse_catalog_text(hint) for hint in hints]
+    )
+    return catalog_search_text(
+        [
+            kind,
+            resource.get("title"),
+            resource.get("category"),
+            resource.get("description"),
+            compact_hints,
+        ]
+    )
+
+
+def render_explore_resource_card(resource: dict) -> str:
+    kind = str(resource.get("kind") or "")
+    kind_label = kind.title()
+    title = str(resource.get("title") or "")
+    description = str(resource.get("description") or "")
+    category = str(resource.get("category") or "")
+    search_text = explore_card_search_text(resource)
+    description_html = (
+        f'<p class="explore-resource-description">{escape(description)}</p>'
+        if description
+        else ""
+    )
+    return (
+        '<article class="explore-resource-card" data-explore-card '
+        f'data-resource-kind="{escape(kind)}" data-search="{escape(search_text)}">'
+        '<div class="explore-resource-context">'
+        f'<span class="explore-resource-kind">{escape(kind_label)}</span>'
+        f'<span class="explore-resource-category">{escape(category)}</span>'
+        "</div>"
+        '<h2 class="explore-resource-title">'
+        f'<a href="{escape(str(resource.get("href") or ""))}">{escape(title)}</a>'
+        "</h2>"
+        f"{description_html}"
+        "</article>"
+    )
+
+
+def render_explore_page(
+    resources: list[dict],
+    *,
+    explore_js_version: str = "local",
+) -> str:
+    cards = "".join(render_explore_resource_card(resource) for resource in resources)
+    total = len(resources)
+    resource_label = "resource" if total == 1 else "resources"
+    return (
+        '<section class="page explore-page" data-explore-page '
+        'aria-labelledby="explore-page-title">'
+        '<div class="wrap explore-shell">'
+        '<header class="explore-header">'
+        '<h1 id="explore-page-title">Explore the catalog</h1>'
+        '<p>Search datasets, schema columns, dashboards, metrics, and product areas.</p>'
+        "</header>"
+        '<section class="explore-controls catalog-toolbar" '
+        'aria-label="Catalog discovery controls">'
+        '<div class="catalog-search explore-search" data-search-shell>'
+        '<div class="catalog-search-label-row">'
+        '<label for="explore-search">Search the catalog</label>'
+        '<span class="search-shortcut-hint" aria-hidden="true">'
+        "Press <kbd>/</kbd> to search"
+        "</span>"
+        "</div>"
+        '<div class="catalog-search-field">'
+        '<input id="explore-search" type="search" data-explore-search '
+        'data-catalog-search aria-keyshortcuts="/" '
+        'placeholder="Name, schema column, metric, or product area..." '
+        'aria-describedby="explore-result-count" autocomplete="off" '
+        'spellcheck="false">'
+        '<button class="search-clear-button" type="button" '
+        'data-explore-clear aria-label="Clear catalog search" hidden>Clear</button>'
+        "</div>"
+        "</div>"
+        '<div class="explore-filter-group">'
+        '<span id="explore-type-label" class="filter-group-label">Type</span>'
+        '<div class="filter-chip-row explore-filter-row" role="group" '
+        'aria-labelledby="explore-type-label">'
+        '<button class="filter-chip active" type="button" '
+        'data-explore-filter="all" aria-pressed="true" '
+        'aria-controls="explore-resource-list">All</button>'
+        '<button class="filter-chip" type="button" '
+        'data-explore-filter="dataset" aria-pressed="false" '
+        'aria-controls="explore-resource-list">Datasets</button>'
+        '<button class="filter-chip" type="button" '
+        'data-explore-filter="dashboard" aria-pressed="false" '
+        'aria-controls="explore-resource-list">Dashboards</button>'
+        "</div>"
+        "</div>"
+        "</section>"
+        '<noscript><p class="no-js-note">Search and type filters require '
+        "JavaScript, so every catalog resource is shown below.</p></noscript>"
+        '<div class="explore-results-header">'
+        '<p id="explore-result-count" class="explore-result-summary" '
+        'data-explore-count role="status" aria-live="polite" '
+        f'aria-atomic="true">{total} {resource_label}</p>'
+        "</div>"
+        '<section class="explore-results" aria-labelledby="explore-results-title">'
+        '<h2 id="explore-results-title" class="visually-hidden">'
+        "Catalog resources</h2>"
+        f'<div id="explore-resource-list" class="explore-resource-list" '
+        f'data-explore-results>{cards}</div>'
+        '<div class="explore-empty-state" data-explore-empty hidden>'
+        "<h2>No matching resources</h2>"
+        "<p>Try a dataset name, schema column, dashboard metric, or product area.</p>"
+        "</div>"
+        "</section>"
+        f'<script src="assets/explore.js?v={escape(explore_js_version)}" defer></script>'
+        "</div>"
+        "</section>"
+    )
+
+
 def render_dashboard_tag_chips(
     tags,
     *,
@@ -2393,8 +2780,6 @@ def render_dashboard_card(
     class_name: str = "dashboard-browser-card",
 ) -> str:
     data = entry.data
-    datasets = data.get("datasets") or []
-    internal_datasets = resolve_dashboard_dataset_entries(datasets, dataset_reference_index)
     source_href = dashboard_url(entry)
     source_link = (
         f'<a class="dune-action" href="{escape(source_href)}" '
@@ -2415,7 +2800,6 @@ def render_dashboard_card(
         '<div class="dashboard-card-main">'
         '<div class="dashboard-card-topline">'
         f'<span class="dashboard-category-chip {escape(entry.category)}">{escape(dashboard_category_label(entry))}</span>'
-        f'<span class="dashboard-linked-count">{len(internal_datasets)} catalog datasets</span>'
         "</div>"
         '<h3 class="dashboard-card-heading">'
         f'<a class="dashboard-card-title" href="{escape(dashboard_href(entry))}">{escape(dashboard_title(entry))}</a>'
@@ -2584,6 +2968,11 @@ def render_dashboard_page(
     title = dashboard_title(entry)
     url = data.get("url")
     datasets = data.get("datasets") or []
+    unresolved_datasets = [
+        dataset_name
+        for dataset_name in datasets
+        if not dataset_reference_index.get(str(dataset_name).lower())
+    ]
     linked_datasets_html = render_dashboard_dataset_links(
         datasets,
         dataset_reference_index,
@@ -2602,6 +2991,14 @@ def render_dashboard_page(
     linked_content = (
         '<h2 class="detail-tab-source-heading">Linked datasets</h2>'
         f"{linked_dataset_list}"
+        + (
+            '<p class="dashboard-linked-coverage-note">'
+            "Linked datasets show catalog pages only; this dashboard also "
+            "references source dependencies outside the catalog."
+            "</p>"
+            if unresolved_datasets
+            else ""
+        )
     )
     tags_content = (
         '<div id="dashboard-tags" class="detail-tab-section-heading">'
@@ -2619,13 +3016,16 @@ def render_dashboard_page(
         label="Dashboard detail sections",
         id_prefix="dashboard-detail",
     )
+    back_group = "core" if dashboard_is_core(entry) else entry.category
+    back_label = titleize_dashboard_category(back_group)
 
     return (
         '<section class="page dashboard-detail-page">'
         '<div class="wrap dataset-detail-layout">'
         '<header class="dataset-detail-header">'
         '<div>'
-        '<a class="dataset-back-link" href="../dashboards.html">Back to dashboards</a>'
+        f'<a class="dataset-back-link" href="../dashboards.html#dashboard-group-{escape(back_group)}" '
+        f'aria-label="Back to {escape(back_label)} dashboards">Back to dashboards</a>'
         '<div class="dataset-detail-hero-meta">'
         f'<span class="dashboard-category-chip {escape(entry.category)}">{escape(dashboard_category_label(entry))}</span>'
         "</div>"
@@ -2781,6 +3181,36 @@ def write_home_page(
     return [output_path]
 
 
+def write_explore_page(
+    *,
+    resources: list[dict],
+    pages: list[Page],
+    template: Template,
+    output_dir: Path,
+    explore_js_version: str = "local",
+) -> list[Path]:
+    output_path = output_dir / "explore.html"
+    output_path.write_text(
+        render_generated_page(
+            title="Explore",
+            description=(
+                "Search ether.fi datasets, schema columns, dashboards, metrics, "
+                "and product areas in one place."
+            ),
+            content=render_explore_page(
+                resources,
+                explore_js_version=explore_js_version,
+            ),
+            pages=pages,
+            template=template,
+            active_slug="explore",
+            body_class="explore-detail",
+        ),
+        encoding="utf-8",
+    )
+    return [output_path]
+
+
 def write_dataset_pages(
     *,
     entries: list[DatasetEntry],
@@ -2862,23 +3292,35 @@ def build_site(
     styles_version = asset_cache_version(source_dir / "assets" / "styles.css")
     theme_js_version = asset_cache_version(source_dir / "assets" / "theme.js")
     catalog_ui_js_version = asset_cache_version(source_dir / "assets" / "catalog-ui.js")
-    template_source = (source_dir / "templates" / "base.html.tpl").read_text(encoding="utf-8")
-    template = Template(
-        Template(template_source).safe_substitute(
-            styles_version=styles_version,
-            theme_js_version=theme_js_version,
-            catalog_ui_js_version=catalog_ui_js_version,
-        )
+    global_search_js_version = asset_cache_version(
+        source_dir / "assets" / "global-search.js"
     )
+    explore_js_version = asset_cache_version(source_dir / "assets" / "explore.js")
     dataset_entries = load_dataset_entries(Path(datasets_dir)) if datasets_dir is not None else []
     dashboard_entries = (
         load_dashboard_entries(Path(dashboard_registry_path))
         if dashboard_registry_path is not None
         else []
     )
+    catalog_resources = build_catalog_index_resources(
+        dataset_entries,
+        dashboard_entries,
+    )
 
     output_dir.mkdir(parents=True, exist_ok=True)
     copy_assets(source_dir, output_dir)
+    catalog_index_path = write_catalog_index_asset(output_dir, catalog_resources)
+    catalog_index_js_version = asset_cache_version(catalog_index_path)
+    template_source = (source_dir / "templates" / "base.html.tpl").read_text(encoding="utf-8")
+    template = Template(
+        Template(template_source).safe_substitute(
+            styles_version=styles_version,
+            theme_js_version=theme_js_version,
+            catalog_ui_js_version=catalog_ui_js_version,
+            catalog_index_js_version=catalog_index_js_version,
+            global_search_js_version=global_search_js_version,
+        )
+    )
     for output_name in unpublished_page_output_names(source_dir) | OBSOLETE_PAGE_OUTPUT_NAMES:
         stale_path = output_dir / output_name
         if stale_path.exists():
@@ -2929,6 +3371,16 @@ def build_site(
                 template=template,
                 output_dir=output_dir,
                 mcp_js_version=mcp_js_version,
+            )
+        )
+
+        written_paths.extend(
+            write_explore_page(
+                resources=catalog_resources,
+                pages=pages,
+                template=template,
+                output_dir=output_dir,
+                explore_js_version=explore_js_version,
             )
         )
 

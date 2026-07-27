@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -18,7 +19,9 @@ from scripts.build_website import (
     load_dashboard_entries,
     load_dataset_entries,
     load_pages,
+    normalize_schema_search_text,
     render_compact_dataset_card,
+    serialize_catalog_index,
 )
 
 
@@ -283,7 +286,7 @@ function runInit(options) {
 
 const root = fakeElement({ "data-theme": "light" });
 const toggle = fakeElement({ "aria-pressed": "false", "aria-label": "Dark theme" });
-const themeColor = fakeElement({ content: "#f4f6f1" });
+const themeColor = fakeElement({ content: "#f2f0e8" });
 const windowListeners = {};
 let attemptedStoredTheme = null;
 const browserWindow = {
@@ -363,7 +366,7 @@ console.log(JSON.stringify({
         "pressed": "true",
         "label": "Dark theme",
         "title": "Switch to light theme",
-        "themeColor": "#0d130f",
+        "themeColor": "#0b110d",
         "attemptedStoredTheme": "dark",
     }
     assert behavior["storageTheme"] == "light"
@@ -407,7 +410,7 @@ def test_build_website_generates_polished_mcp_page_from_current_tools(tmp_path):
     assert "Client configs" in mcp_page
     assert "uvx --from git+https://github.com/henrystats/etherfi-data-catalog.git etherfi-catalog-mcp" in mcp_page
     assert 'data-snippet-copy' in mcp_page
-    assert mcp_page.count('data-copy-announcer role="status" aria-live="polite" aria-atomic="true"') == 3
+    assert mcp_page.count('data-copy-announcer role="status" aria-live="polite" aria-atomic="true"') == 6
     assert '<pre tabindex="0" role="region" aria-label="Install command code snippet">' in mcp_page
     assert '<pre tabindex="0" role="region" aria-label="Codex TOML code snippet">' in mcp_page
     assert '<pre tabindex="0" role="region" aria-label="Claude JSON code snippet">' in mcp_page
@@ -463,7 +466,8 @@ def test_build_website_generates_polished_mcp_page_from_current_tools(tmp_path):
     assert 'src="assets/mcp.js?v=' in mcp_page
     assert "data-copy-announcer" in mcp_js
     assert 'dataset.mcpMounted = "true"' in mcp_js
-    assert 'label === "Copy" ? "" : label' in mcp_js
+    assert 'button.dataset.copyDefaultLabel || "Copy"' in mcp_js
+    assert 'announcer.textContent = announce ? label : "";' in mcp_js
     assert "DUNE_API_KEY" in mcp_page
     assert "Best practices" not in mcp_page
 
@@ -499,6 +503,40 @@ def test_build_website_generates_polished_mcp_page_from_current_tools(tmp_path):
     assert (tmp_path / "dashboards.html").exists()
     assert (tmp_path / "freshness.html").exists()
     assert (tmp_path / "assets" / "mcp.js").exists()
+
+
+def test_mcp_test_prompts_are_copyable_without_hiding_the_prompt_text(tmp_path):
+    build_site(output_dir=tmp_path)
+
+    mcp_page = (tmp_path / "mcp.html").read_text(encoding="utf-8")
+    prompt_cards = re.findall(
+        r'<article class="mcp-prompt-card">(.*?)</article>',
+        mcp_page,
+        re.S,
+    )
+
+    assert len(prompt_cards) == 3
+    for card in prompt_cards:
+        group_match = re.match(r"<span>(.*?)</span>", card, re.S)
+        prompt_match = re.search(r"<p>(.*?)</p>", card, re.S)
+        copy_text_match = re.search(r'data-copy-text="(.*?)"', card, re.S)
+        assert group_match
+        assert prompt_match
+        assert copy_text_match
+        assert copy_text_match.group(1) == prompt_match.group(1)
+        assert " hidden" not in prompt_match.group(0)
+        assert card.count("data-snippet-copy") == 1
+        assert 'data-copy-default-label="Copy prompt"' in card
+        assert (
+            f'aria-label="Copy {group_match.group(1)} prompt"'
+            in card
+        )
+        assert '<span class="copy-value-label" data-copy-feedback>Copy prompt</span>' in card
+        assert (
+            'data-copy-announcer role="status" aria-live="polite" '
+            'aria-atomic="true"'
+            in card
+        )
 
 
 def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
@@ -783,7 +821,11 @@ def test_build_website_generates_dataset_index_and_detail_pages(tmp_path):
     assert 'src="../assets/dataset-detail.js?v=' in holder_page
     assert "schema-table-toolbar" in holder_page
     assert '<span class="schema-scroll-hint" aria-hidden="true">Scroll for type + description &rarr;</span>' in holder_page
-    assert 'class="schema-table-wrap" role="region" aria-label="Dataset schema" tabindex="0"' in holder_page
+    assert (
+        'class="schema-table-wrap" data-schema-table role="region" '
+        'aria-label="Dataset schema" tabindex="0"'
+        in holder_page
+    )
     assert "<h3>Caveats</h3>" not in holder_page
     assert holder_glance_html.count("<span>Live query</span>") == 1
     assert 'class="dataset-glance-card copyable-table-name live-query-card"' in holder_glance_html
@@ -1167,6 +1209,15 @@ def test_cash_addresses_dataset_page_renders_public_registry_metadata(tmp_path):
     assert 'href="../dashboards/etherfi_cash.html"' in page
 
 
+def test_schema_search_text_normalizes_only_case_and_whitespace():
+    assert normalize_schema_search_text(
+        "  User_Safe ",
+        "VARBINARY",
+        "Owner's\n wallet   or contract address",
+    ) == "user_safe varbinary owner's wallet or contract address"
+    assert normalize_schema_search_text("", None, "Already-normalized") == "already-normalized"
+
+
 def test_dataset_schema_descriptions_render_from_schema_and_important_columns(tmp_path):
     datasets_dir = tmp_path / "datasets"
     category_dir = datasets_dir / "demo_category"
@@ -1220,6 +1271,35 @@ def test_dataset_schema_descriptions_render_from_schema_and_important_columns(tm
         encoding="utf-8"
     )
     css = (tmp_path / "site" / "assets" / "styles.css").read_text(encoding="utf-8")
+    assert '<div class="schema-filter-controls" data-schema-filter hidden>' in mapping_page
+    assert (
+        '<label class="schema-filter-label" for="schema-column-filter">Filter columns</label>'
+        in mapping_page
+    )
+    assert (
+        '<input class="schema-filter-input" id="schema-column-filter" type="search" '
+        'data-schema-filter-input placeholder="Name, type, or description"'
+        in mapping_page
+    )
+    assert (
+        '<button class="schema-filter-clear" type="button" '
+        'data-schema-filter-clear hidden>Clear</button>'
+        in mapping_page
+    )
+    assert (
+        'class="schema-filter-count" data-schema-filter-count role="status" '
+        'aria-live="polite" aria-atomic="true">5 columns</strong>'
+        in mapping_page
+    )
+    assert '<p class="schema-filter-empty" data-schema-filter-empty hidden>' in mapping_page
+    assert (
+        'data-schema-search="user_safe varbinary schema safe address description"'
+        in mapping_page
+    )
+    assert (
+        'data-schema-search="token_balance_usd double usd value of the token balance"'
+        in mapping_page
+    )
     assert '<th scope="col">Column</th><th scope="col">Type</th><th scope="col">Description</th>' in mapping_page
     assert '<th scope="row"><code>user_safe</code></th><td>varbinary</td>' in mapping_page
     assert (
@@ -1232,6 +1312,9 @@ def test_dataset_schema_descriptions_render_from_schema_and_important_columns(tm
     assert '<td class="schema-description">Blockchain fallback from nested important map</td>' in mapping_page
     assert '<span class="schema-description-empty">&mdash;</span>' in mapping_page
     assert "Important columns" not in mapping_page
+    schema_rows = re.findall(r"<tr data-schema-row[^>]*>", mapping_page)
+    assert len(schema_rows) == 5
+    assert all(" hidden" not in row for row in schema_rows)
     assert "table-layout: fixed;" in css
     assert ".schema-table tbody th:first-child code" in css
     assert re.search(
@@ -1253,6 +1336,274 @@ def test_dataset_schema_descriptions_render_from_schema_and_important_columns(tm
     assert '<th scope="row"><code>no_description_column</code></th><td>varchar</td>' in list_page
     assert '<span class="schema-description-empty">&mdash;</span>' in list_page
     assert "Important columns" not in list_page
+
+
+def test_dataset_detail_schema_filter_matches_name_type_and_description_terms():
+    node = shutil.which("node")
+    if node is None:
+        return
+
+    script = r"""
+const detail = require("./website/assets/dataset-detail.js");
+const rows = [
+  {
+    id: "safe",
+    search: "user_safe varbinary owner's wallet or contract address",
+  },
+  {
+    id: "balance",
+    search: "token_balance_usd double usd value of the token balance",
+  },
+  {
+    id: "chain",
+    search: "blockchain varchar blockchain network for this row",
+  },
+];
+const matches = (query) => detail
+  .filterSchemaRows(rows, query)
+  .filter((result) => result.visible)
+  .map((result) => result.row.id);
+
+console.log(JSON.stringify({
+  nameAndType: matches("USER_SAFE varbinary"),
+  descriptionInAnyOrder: matches("wallet owner's"),
+  naturalColumnLookup: matches("USD token balance"),
+  typeAndDescription: matches("network VARCHAR"),
+  allTermsRequired: matches("wallet double"),
+  partialTerm: matches("blockch varch"),
+  whitespaceOnly: matches("   \n  "),
+  normalized: detail.normalizeSchemaSearch("  Owner's\n WALLET  "),
+  counts: [
+    detail.formatSchemaCount(3, 3, false),
+    detail.formatSchemaCount(1, 3, true),
+    detail.formatSchemaCount(0, 3, true),
+    detail.formatSchemaCount(1, 1, false),
+  ],
+}));
+"""
+    result = subprocess.run(
+        [node, "-e", script],
+        cwd=Path(__file__).resolve().parents[1],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    behavior = json.loads(result.stdout)
+
+    assert behavior == {
+        "nameAndType": ["safe"],
+        "descriptionInAnyOrder": ["safe"],
+        "naturalColumnLookup": ["balance"],
+        "typeAndDescription": ["chain"],
+        "allTermsRequired": [],
+        "partialTerm": ["chain"],
+        "whitespaceOnly": ["safe", "balance", "chain"],
+        "normalized": "owner's wallet",
+        "counts": [
+            "3 columns",
+            "1 of 3 columns",
+            "0 of 3 columns",
+            "1 column",
+        ],
+    }
+
+
+def test_dataset_detail_schema_filter_mounts_and_handles_clear_escape_and_empty_state():
+    node = shutil.which("node")
+    if node is None:
+        return
+
+    script = r"""
+const fs = require("fs");
+const vm = require("vm");
+const source = fs.readFileSync("./website/assets/dataset-detail.js", "utf8");
+
+function control(initial = {}) {
+  return {
+    ...initial,
+    dataset: { ...(initial.dataset || {}) },
+    hidden: Boolean(initial.hidden),
+    listeners: {},
+    value: initial.value || "",
+    focusCount: 0,
+    blurCount: 0,
+    addEventListener(type, listener) {
+      (this.listeners[type] ||= []).push(listener);
+    },
+    focus() {
+      this.focusCount += 1;
+    },
+    blur() {
+      this.blurCount += 1;
+    },
+  };
+}
+
+const rows = [
+  control({ dataset: { schemaSearch: "user_safe varbinary owner wallet address" } }),
+  control({ dataset: { schemaSearch: "token_balance_usd double usd token balance" } }),
+  control({ dataset: { schemaSearch: "blockchain varchar blockchain network" } }),
+];
+const input = control();
+const clearButton = control({ hidden: true });
+const count = control({ textContent: "3 columns" });
+const emptyState = control({ hidden: true });
+const table = {
+  querySelector(selector) {
+    if (selector === "[data-schema-filter-count]") return count;
+    if (selector === "[data-schema-filter-empty]") return emptyState;
+    return null;
+  },
+  querySelectorAll(selector) {
+    return selector === "[data-schema-row]" ? rows : [];
+  },
+};
+const filter = control({ hidden: true });
+filter.closest = (selector) => selector === "[data-schema-table]" ? table : null;
+filter.querySelector = (selector) => {
+  if (selector === "[data-schema-filter-input]") return input;
+  if (selector === "[data-schema-filter-clear]") return clearButton;
+  return null;
+};
+
+const documentObject = {
+  documentElement: { dataset: {} },
+  listeners: {},
+  querySelectorAll(selector) {
+    return selector === "[data-schema-filter]" ? [filter] : [];
+  },
+  addEventListener(type, listener) {
+    (this.listeners[type] ||= []).push(listener);
+  },
+};
+const browserWindow = {
+  clearTimeout() {},
+  setTimeout() {
+    return 1;
+  },
+};
+vm.runInNewContext(source, {
+  console,
+  document: documentObject,
+  window: browserWindow,
+});
+
+function dispatch(element, type, event = {}) {
+  for (const listener of element.listeners[type] || []) {
+    listener.call(element, event);
+  }
+}
+function snapshot() {
+  return {
+    visible: rows.map((row) => !row.hidden),
+    count: count.textContent,
+    emptyHidden: emptyState.hidden,
+    clearHidden: clearButton.hidden,
+  };
+}
+
+const mounted = {
+  ...snapshot(),
+  filterHidden: filter.hidden,
+  filterMounted: filter.dataset.schemaFilterMounted,
+  detailMounted: documentObject.documentElement.dataset.datasetDetailMounted,
+};
+
+input.value = "wallet VARBINARY";
+dispatch(input, "input");
+const filtered = snapshot();
+
+input.value = "not a real column";
+dispatch(input, "input");
+const noMatch = snapshot();
+
+dispatch(clearButton, "click");
+const cleared = {
+  ...snapshot(),
+  value: input.value,
+  focusCount: input.focusCount,
+};
+
+input.value = "USD DOUBLE";
+dispatch(input, "input");
+let escapePrevented = false;
+dispatch(input, "keydown", {
+  key: "Escape",
+  preventDefault() {
+    escapePrevented = true;
+  },
+});
+const escaped = {
+  ...snapshot(),
+  value: input.value,
+  prevented: escapePrevented,
+  focusCount: input.focusCount,
+};
+
+dispatch(input, "keydown", {
+  key: "Escape",
+  preventDefault() {
+    throw new Error("Blank Escape should not be prevented");
+  },
+});
+
+console.log(JSON.stringify({
+  mounted,
+  filtered,
+  noMatch,
+  cleared,
+  escaped,
+  blankEscapeBlurCount: input.blurCount,
+}));
+"""
+    result = subprocess.run(
+        [node, "-e", script],
+        cwd=Path(__file__).resolve().parents[1],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    behavior = json.loads(result.stdout)
+
+    assert behavior["mounted"] == {
+        "visible": [True, True, True],
+        "count": "3 columns",
+        "emptyHidden": True,
+        "clearHidden": True,
+        "filterHidden": False,
+        "filterMounted": "true",
+        "detailMounted": "true",
+    }
+    assert behavior["filtered"] == {
+        "visible": [True, False, False],
+        "count": "1 of 3 columns",
+        "emptyHidden": True,
+        "clearHidden": False,
+    }
+    assert behavior["noMatch"] == {
+        "visible": [False, False, False],
+        "count": "0 of 3 columns",
+        "emptyHidden": False,
+        "clearHidden": False,
+    }
+    assert behavior["cleared"] == {
+        "visible": [True, True, True],
+        "count": "3 columns",
+        "emptyHidden": True,
+        "clearHidden": True,
+        "value": "",
+        "focusCount": 1,
+    }
+    assert behavior["escaped"] == {
+        "visible": [True, True, True],
+        "count": "3 columns",
+        "emptyHidden": True,
+        "clearHidden": True,
+        "value": "",
+        "prevented": True,
+        "focusCount": 2,
+    }
+    assert behavior["blankEscapeBlurCount"] == 1
 
 
 def test_load_dashboard_entries_reads_categorized_files_and_dedupes_legacy(tmp_path):
@@ -1461,7 +1812,7 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert len(core_cards) == 4
     overview_card = next(card for card in core_cards if ">ether.fi</a>" in card)
     assert '<span class="dashboard-category-chip stake">Stake</span>' in overview_card
-    assert re.search(r'<span class="dashboard-linked-count">\d+ catalog datasets</span>', overview_card)
+    assert "dashboard-linked-count" not in overview_card
     assert '<h3 class="dashboard-card-heading"><a class="dashboard-card-title"' in overview_card
     assert '<div class="dashboard-tag-row">' in overview_card
     assert '<span class="dashboard-tag">overview</span>' in overview_card
@@ -1477,7 +1828,7 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
         if 'href="dashboards/etherfi_users.html"' in card
     )
     assert '<span class="dashboard-category-chip stake">Stake</span>' in users_core_card
-    assert '<span class="dashboard-linked-count">7 catalog datasets</span>' in users_core_card
+    assert "dashboard-linked-count" not in users_core_card
     assert (
         'href="dashboards/etherfi_users.html" '
         'aria-label="View ether.fi Users dashboard details">Details</a>'
@@ -1587,7 +1938,7 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
         if 'href="dashboards/etherfi_cash_swaps.html"' in card
     )
     assert 'data-dashboard-category="cash"' in cash_swaps_search_card
-    assert '<span class="dashboard-linked-count">4 catalog datasets</span>' in cash_swaps_search_card
+    assert "dashboard-linked-count" not in cash_swaps_search_card
     for search_text in [
         "cash swaps",
         "swap volume",
@@ -1623,7 +1974,7 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
         if 'href="dashboards/lido_vs_etherfi_stakers.html"' in card
     )
     assert '<span class="dashboard-category-chip others">Others</span>' in lido_card
-    assert '<span class="dashboard-linked-count">7 catalog datasets</span>' in lido_card
+    assert "dashboard-linked-count" not in lido_card
     ebtc_card = next(card for card in dashboard_cards if 'href="dashboards/ebtc.html"' in card)
     assert '<span class="dashboard-tag">liquid</span>' in ebtc_card
     assert '<span class="dashboard-tag">vaults</span>' in ebtc_card
@@ -1642,11 +1993,17 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
         css,
         re.S,
     )
-    assert re.search(
-        r"a\.related-resource::after\s*\{[^}]*content:\s*\"\\2192\";",
+    related_resource_arrow = re.search(
+        r"a\.related-resource::after\s*\{([^}]*)\}",
         css,
         re.S,
     )
+    assert related_resource_arrow
+    assert 'content: ""' in related_resource_arrow.group(1)
+    assert "border-top: 1.5px solid currentColor" in related_resource_arrow.group(1)
+    assert "border-right: 1.5px solid currentColor" in related_resource_arrow.group(1)
+    assert "rotate(45deg)" in related_resource_arrow.group(1)
+    assert r'content: "\2192"' not in related_resource_arrow.group(1)
     assert re.search(
         r"\.dashboard-card-title\s*\{[^}]*overflow-wrap:\s*anywhere;",
         css,
@@ -1940,6 +2297,8 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert "Operational dashboard for ether.fi Cash activity" in cash_page
     assert "cashback" in cash_page
     assert "user_safe" in cash_page
+    assert 'href="../dashboards.html#dashboard-group-core"' in cash_page
+    assert 'aria-label="Back to Core dashboards"' in cash_page
     assert "At a glance" not in cash_page
     assert "Core display" not in cash_page
     assert '<div id="dashboard-metrics" class="dashboard-metrics-panel">' in cash_page
@@ -1956,6 +2315,11 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert "Most Active Cash Spend Hours" in cash_page
     assert "<h2>Notes</h2>" not in cash_page
     assert "Linked datasets" in cash_page
+    assert (
+        "Linked datasets show catalog pages only; this dashboard also references "
+        "source dependencies outside the catalog."
+        in cash_page
+    )
     assert "Linked datasets and references" not in cash_page
     assert 'class="related-resource-list"' in cash_page
     assert 'class="related-resource"' in cash_page
@@ -1982,6 +2346,7 @@ def test_build_website_generates_dashboard_registry_pages(tmp_path):
     assert "Dashboard tracking swap activity by ether.fi Cash safes" in cash_swaps_page
     assert 'aria-label="Open ether.fi Cash Swaps on Dune"' in cash_swaps_page
     assert '<span class="dashboard-category-chip cash">Cash</span>' in cash_swaps_page
+    assert 'href="../dashboards.html#dashboard-group-cash"' in cash_swaps_page
     assert "dashboard-linked-summary" not in cash_swaps_page
     assert "catalog datasets linked" not in cash_swaps_page
     assert '<div id="dashboard-metrics" class="dashboard-metrics-panel">' in cash_swaps_page
@@ -2064,6 +2429,11 @@ def test_dashboard_detail_keeps_stable_tabs_without_internal_dataset_matches(tmp
     assert "dashboard-linked-summary" not in detail_page
     assert "catalog datasets linked" not in detail_page
     assert "No linked catalog datasets are documented." in detail_page
+    assert (
+        "Linked datasets show catalog pages only; this dashboard also references "
+        "source dependencies outside the catalog."
+        in detail_page
+    )
     assert '<span class="dashboard-metrics-count">0 documented metrics</span>' in detail_page
     assert "Metrics are not documented in the catalog." in detail_page
     assert "Linked datasets and references" not in detail_page
@@ -2502,6 +2872,7 @@ let appended = false;
 let removed = false;
 let selected = false;
 let copiedCommand = "";
+let fallbackFocusRestored = false;
 const textarea = {
   value: "",
   style: {},
@@ -2509,6 +2880,9 @@ const textarea = {
   select() { selected = true; },
 };
 const scope = {
+  activeElement: {
+    focus() { fallbackFocusRestored = true; },
+  },
   body: {
     appendChild(node) { appended = node === textarea; },
     removeChild(node) { removed = node === textarea; },
@@ -2581,6 +2955,7 @@ ui.copyText("dune.ether_fi.result_example", scope).then((copied) => {
     appended,
     removed,
     selected,
+    fallbackFocusRestored,
     textareaValue: textarea.value,
     clearedValue: input.value,
     inputEvent: inputEvent && inputEvent.type,
@@ -2632,6 +3007,7 @@ ui.copyText("dune.ether_fi.result_example", scope).then((copied) => {
         "appended": True,
         "removed": True,
         "selected": True,
+        "fallbackFocusRestored": True,
         "textareaValue": "dune.ether_fi.result_example",
         "clearedValue": "",
         "inputEvent": "input",
@@ -2650,6 +3026,73 @@ ui.copyText("dune.ether_fi.result_example", scope).then((copied) => {
         "unrelated": "none",
         "inputEditable": True,
         "plainEditable": False,
+    }
+
+
+def test_catalog_ui_ignores_already_handled_keyboard_events():
+    node = shutil.which("node")
+    if node is None:
+        return
+
+    script = r"""
+const ui = require("./website/assets/catalog-ui.js");
+const listeners = {};
+let blurred = false;
+let preventedAgain = false;
+const input = {
+  disabled: false,
+  hidden: false,
+  value: "",
+  matches(selector) {
+    return (
+      selector === "[data-catalog-search]" ||
+      selector.includes("input")
+    );
+  },
+  getClientRects() { return [{}]; },
+  blur() {
+    blurred = true;
+    scope.activeElement = null;
+  },
+};
+const scope = {
+  activeElement: input,
+  documentElement: { dataset: {} },
+  querySelectorAll(selector) {
+    return selector === "[data-catalog-search]" ? [input] : [];
+  },
+  addEventListener(type, listener) {
+    (listeners[type] ||= []).push(listener);
+  },
+};
+
+ui.mount(scope);
+listeners.keydown[0]({
+  key: "Escape",
+  defaultPrevented: true,
+  target: input,
+  preventDefault() { preventedAgain = true; },
+});
+
+console.log(JSON.stringify({
+  blurred,
+  focused: scope.activeElement === input,
+  preventedAgain,
+  value: input.value,
+}));
+"""
+    result = subprocess.run(
+        [node, "-e", script],
+        cwd=Path(__file__).resolve().parents[1],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert json.loads(result.stdout) == {
+        "blurred": False,
+        "focused": True,
+        "preventedAgain": False,
+        "value": "",
     }
 
 
@@ -3288,6 +3731,259 @@ console.log(JSON.stringify({
     }
 
 
+def test_dashboard_browser_direct_hash_click_and_history_sync():
+    node = shutil.which("node")
+    if node is None:
+        return
+
+    script = r"""
+globalThis.location = { hash: "#dashboard-group-cash" };
+const historyCalls = [];
+globalThis.history = {
+  pushState(_state, _title, hash) {
+    historyCalls.push(["push", hash]);
+    globalThis.location.hash = hash;
+  },
+};
+const windowListeners = {};
+globalThis.addEventListener = (type, listener) => {
+  (windowListeners[type] ||= []).push(listener);
+};
+
+const browser = require("./website/assets/dashboards.js");
+function makeNode(dataset = {}) {
+  const classes = new Set();
+  return {
+    dataset: { ...dataset },
+    hidden: false,
+    style: {},
+    listeners: {},
+    classes,
+    textContent: "",
+    value: "",
+    classList: {
+      toggle(name, enabled) {
+        if (enabled) classes.add(name);
+        else classes.delete(name);
+      },
+    },
+    addEventListener(type, listener) {
+      (this.listeners[type] ||= []).push(listener);
+    },
+    setAttribute() {},
+    removeAttribute() {},
+  };
+}
+
+const groups = ["core", "stake", "cash", "liquid", "others"];
+const searchInput = makeNode();
+const count = makeNode();
+const emptyState = makeNode();
+const navButtons = groups.map((group) => makeNode({ dashboardNav: group }));
+const cards = groups.slice(1).map((group) => makeNode({
+    dashboardCategory: group,
+    search: {
+      stake: "daily active stakers and deposits",
+      cash: "daily active borrowers and cashback",
+      liquid: "vault deposits and apy",
+      others: "validator comparison",
+    }[group],
+}));
+const coreCard = makeNode();
+const sections = groups.map((group) => {
+  const section = makeNode({ dashboardGroup: group });
+  const sectionCount = makeNode();
+  const sectionCards = group === "core"
+    ? [coreCard]
+    : [cards.find((card) => card.dataset.dashboardCategory === group)];
+  section.querySelector = (selector) => (
+    selector === ".dataset-view-count" ? sectionCount : null
+  );
+  section.querySelectorAll = () => sectionCards;
+  return section;
+});
+const scrollCalls = [];
+navButtons.forEach((button) => {
+  button.scrollIntoView = (options) => {
+    scrollCalls.push({
+      type: "rail",
+      group: button.dataset.dashboardNav,
+      block: options.block,
+      inline: options.inline || "",
+    });
+  };
+});
+sections.forEach((section) => {
+  section.scrollIntoView = (options) => {
+    scrollCalls.push({
+      type: "group",
+      group: section.dataset.dashboardGroup,
+      block: options.block,
+      inline: options.inline || "",
+    });
+  };
+});
+const page = makeNode();
+page.querySelector = (selector) => {
+  const controls = {
+    "#dashboard-search": searchInput,
+    "#dashboard-count": count,
+    "#dashboard-empty-state": emptyState,
+  };
+  if (controls[selector]) return controls[selector];
+  return sections.find(
+    (section) => selector === `#dashboard-group-${section.dataset.dashboardGroup}`,
+  ) || null;
+};
+page.querySelectorAll = (selector) => ({
+  "[data-dashboard-card]": cards,
+  "[data-dashboard-core-card]": [coreCard],
+  "[data-dashboard-nav]": navButtons,
+  "[data-dashboard-section]": sections,
+}[selector] || []);
+const scope = {
+  activeElement: null,
+  querySelector(selector) {
+    return selector === "[data-dashboards-page]" ? page : null;
+  },
+};
+
+function snapshot() {
+  return {
+    selected: globalThis.__etherfiDashboardBrowserDebug().selectedGroup,
+    active: navButtons.find((button) => button.classes.has("active"))
+      ?.dataset.dashboardNav || "",
+    visible: sections
+      .filter((section) => !section.hidden && section.style.display !== "none")
+      .map((section) => section.dataset.dashboardGroup),
+  };
+}
+
+browser.mount(scope);
+const directHash = snapshot();
+scrollCalls.length = 0;
+
+searchInput.value = "daily active borrowers";
+searchInput.listeners.input[0]();
+const metricSearch = {
+  ...snapshot(),
+  query: globalThis.__etherfiDashboardBrowserDebug().query,
+};
+
+navButtons[3].listeners.click[0]();
+const clicked = {
+  ...snapshot(),
+  input: searchInput.value,
+  hash: globalThis.location.hash,
+  historyCalls: [...historyCalls],
+  scrollCalls: [...scrollCalls],
+};
+scrollCalls.length = 0;
+
+searchInput.value = "vault deposits";
+searchInput.listeners.input[0]();
+globalThis.location.hash = "#dashboard-group-cash";
+windowListeners.popstate[0]();
+const returned = {
+  ...snapshot(),
+  input: searchInput.value,
+};
+
+globalThis.location.hash = "#dashboard-group-others";
+windowListeners.hashchange[0]();
+const forwarded = snapshot();
+
+globalThis.location.hash = "#main-content";
+windowListeners.hashchange[0]();
+const unrelatedHash = snapshot();
+
+globalThis.location.hash = "";
+windowListeners.popstate[0]();
+const emptyHash = snapshot();
+
+console.log(JSON.stringify({
+  directHash,
+  metricSearch,
+  clicked,
+  returned,
+  forwarded,
+  unrelatedHash,
+  emptyHash,
+  listenerCounts: {
+    hashchange: windowListeners.hashchange.length,
+    popstate: windowListeners.popstate.length,
+  },
+}));
+"""
+    result = subprocess.run(
+        [node, "-e", script],
+        cwd=Path(__file__).resolve().parents[1],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    behavior = json.loads(result.stdout)
+
+    assert behavior["directHash"] == {
+        "selected": "cash",
+        "active": "cash",
+        "visible": ["cash"],
+    }
+    assert behavior["metricSearch"] == {
+        "selected": "cash",
+        "active": "",
+        "visible": ["cash"],
+        "query": "daily active borrowers",
+    }
+    assert behavior["clicked"] == {
+        "selected": "liquid",
+        "active": "liquid",
+        "input": "",
+        "hash": "#dashboard-group-liquid",
+        "visible": ["liquid"],
+        "historyCalls": [["push", "#dashboard-group-liquid"]],
+        "scrollCalls": [
+            {
+                "type": "rail",
+                "group": "liquid",
+                "block": "nearest",
+                "inline": "nearest",
+            },
+            {
+                "type": "group",
+                "group": "liquid",
+                "block": "start",
+                "inline": "",
+            },
+        ],
+    }
+    assert behavior["returned"] == {
+        "selected": "cash",
+        "active": "cash",
+        "visible": ["cash"],
+        "input": "",
+    }
+    assert behavior["forwarded"] == {
+        "selected": "others",
+        "active": "others",
+        "visible": ["others"],
+    }
+    assert behavior["unrelatedHash"] == {
+        "selected": "others",
+        "active": "others",
+        "visible": ["others"],
+    }
+    assert behavior["emptyHash"] == {
+        "selected": "core",
+        "active": "core",
+        "visible": ["core"],
+    }
+    assert behavior["listenerCounts"] == {
+        "hashchange": 1,
+        "popstate": 1,
+    }
+
+
 def test_freshness_filter_script_combines_search_and_status():
     node = shutil.which("node")
     if node is None:
@@ -3790,6 +4486,8 @@ def test_build_website_dataset_pages_show_missing_fields_without_breaking(tmp_pa
     assert "<span>Refresh interval</span>" not in detail_glance_html
     assert "What this dataset represents" not in detail_page
     assert "Methodology and Notes" in detail_page
+    assert 'data-schema-filter' not in detail_page
+    assert 'data-schema-row' not in detail_page
     assert (
         'class="dataset-glance-card full-table-name copyable-table-name"'
         in detail_glance_html
@@ -3870,3 +4568,523 @@ def test_generated_website_local_links_resolve(tmp_path):
             local_href = href.split("#", 1)[0].split("?", 1)[0]
             target = (html_file.parent / local_href).resolve()
             assert target.exists(), f"{html_file.relative_to(tmp_path)} links to missing {href}"
+
+
+def test_build_generates_complete_hashed_catalog_index_and_explore_page(tmp_path):
+    build_site(output_dir=tmp_path)
+
+    index_path = tmp_path / "assets" / "catalog-index.js"
+    index_source = index_path.read_text(encoding="utf-8")
+    payload_match = re.search(
+        r"^// content-hash: ([a-f0-9]{64})\n"
+        r"window\.ETHERFI_CATALOG_INDEX = (.*);\n"
+        r'window\.ETHERFI_CATALOG_INDEX_HASH = "\1";\n$',
+        index_source,
+    )
+    assert payload_match
+    assert hashlib.sha256(payload_match.group(2).encode("utf-8")).hexdigest() == (
+        payload_match.group(1)
+    )
+
+    resources = json.loads(payload_match.group(2))
+    assert len(resources) == 60
+    assert sum(resource["kind"] == "dataset" for resource in resources) == 39
+    assert sum(resource["kind"] == "dashboard" for resource in resources) == 21
+    assert all(
+        set(resource) == {
+            "kind",
+            "title",
+            "href",
+            "category",
+            "description",
+            "searchText",
+            "matchHints",
+        }
+        for resource in resources
+    )
+    assert all((tmp_path / resource["href"]).exists() for resource in resources)
+    assert [resource["title"] for resource in resources[:8]] == [
+        "Ether.fi Assets Under Management",
+        "Ether.fi Cash Events",
+        "Ether.fi Protocol Token TVL",
+        "Tokens Traits",
+        "ether.fi",
+        "ether.fi Users",
+        "ether.fi Cash",
+        "Liquid Vaults",
+    ]
+
+    dataset_resource = next(
+        resource
+        for resource in resources
+        if resource["title"] == "Ether.fi Protocol Token Holders"
+    )
+    assert "dune.ether_fi.result_etherfi_protocol_token_holders" in (
+        dataset_resource["searchText"]
+    )
+    assert "6213381" in dataset_resource["searchText"]
+    assert any(
+        "address varbinary holder wallet or contract address" in hint.lower()
+        for hint in dataset_resource["matchHints"]
+    )
+    assert any(
+        "token_balance double direct token balance at the snapshot" in hint.lower()
+        for hint in dataset_resource["matchHints"]
+    )
+
+    dashboard_resource = next(
+        resource
+        for resource in resources
+        if resource["title"] == "ether.fi Cash"
+    )
+    assert "total cash spend volume" in dashboard_resource["searchText"]
+    assert "dune.ether_fi.result_etherfi_cash_events" in (
+        dashboard_resource["searchText"]
+    )
+    assert any(
+        hint == "Total Cash Spend Volume"
+        for hint in dashboard_resource["matchHints"]
+    )
+
+    explore_html = (tmp_path / "explore.html").read_text(encoding="utf-8")
+    assert len(re.findall(r"<h1(?:\s|>)", explore_html)) == 1
+    assert "<h1 id=\"explore-page-title\">Explore the catalog</h1>" in explore_html
+    assert explore_html.count("data-explore-card ") == 60
+    assert explore_html.count('data-resource-kind="dataset"') == 39
+    assert explore_html.count('data-resource-kind="dashboard"') == 21
+    assert (
+        "JavaScript, so every catalog resource is shown below."
+        in explore_html
+    )
+    assert all(
+        f'href="{resource["href"]}"' in explore_html
+        for resource in resources
+    )
+    card_bodies = re.findall(
+        r'<article class="explore-resource-card"[^>]*>(.*?)</article>',
+        explore_html,
+        re.S,
+    )
+    assert len(card_bodies) == 60
+    assert all(" hidden" not in body for body in card_bodies)
+    assert all("dune.ether_fi." not in body for body in card_bodies)
+    assert all("Last refreshed" not in body for body in card_bodies)
+    assert all("catalog datasets" not in body for body in card_bodies)
+    dataset_card = re.search(
+        r'<article class="explore-resource-card"[^>]*'
+        r'data-search="([^"]*token_balance[^"]*)"[^>]*>.*?'
+        r'href="datasets/protocol_token_holders.html"',
+        explore_html,
+        re.S,
+    )
+    assert dataset_card
+    dashboard_card = re.search(
+        r'<article class="explore-resource-card"[^>]*'
+        r'data-search="([^"]*total cash spend volume[^"]*)"[^>]*>.*?'
+        r'href="dashboards/etherfi_cash.html"',
+        explore_html,
+        re.S,
+    )
+    assert dashboard_card
+    assert '<script src="assets/explore.js?v=' in explore_html
+
+    asset_version = hashlib.sha256(index_path.read_bytes()).hexdigest()[:12]
+    assert f'assets/catalog-index.js?v={asset_version}' in explore_html
+
+
+def test_catalog_index_serialization_escapes_script_unsafe_content():
+    source = serialize_catalog_index(
+        [
+            {
+                "kind": "dataset",
+                "title": "</script><script>alert(1)</script>",
+                "href": "datasets/example.html",
+                "category": "A&B",
+                "description": "line\u2028separator\u2029end",
+                "searchText": "",
+                "matchHints": [],
+            }
+        ]
+    )
+
+    assert "</script>" not in source
+    assert "<script>" not in source
+    assert "\\u003c/script\\u003e" in source
+    assert "\\u0026" in source
+    assert "\\u2028" in source
+    assert "\\u2029" in source
+    assert "\u2028" not in source
+    assert "\u2029" not in source
+
+
+def test_global_search_shell_keeps_primary_nav_and_nested_fallbacks(tmp_path):
+    build_site(output_dir=tmp_path)
+
+    root_html = (tmp_path / "index.html").read_text(encoding="utf-8")
+    explore_html = (tmp_path / "explore.html").read_text(encoding="utf-8")
+    nested_html = (
+        tmp_path / "datasets" / "protocol_token_holders.html"
+    ).read_text(encoding="utf-8")
+
+    desktop_nav = re.search(
+        r'<nav class="site-nav site-nav-desktop"[^>]*>(.*?)</nav>',
+        root_html,
+        re.S,
+    )
+    assert desktop_nav
+    assert desktop_nav.group(1).count('class="nav-link') == 5
+    assert "Explore" not in desktop_nav.group(1)
+
+    for html, prefix in [(root_html, ""), (nested_html, "../")]:
+        assert html.count('class="catalog-command-dialog"') == 1
+        assert (
+            f'<a class="site-search-trigger" href="{prefix}explore.html"'
+            in html
+        )
+        assert 'aria-label="Search catalog"' in html
+        assert "data-catalog-search-open" in html
+        assert ">Search catalog</span>" in html
+        assert 'aria-keyshortcuts="Meta+K Control+K"' in html
+        assert f'data-catalog-site-root="{prefix}"' in html
+        assert 'data-catalog-command-input' in html
+        assert 'data-catalog-command-close' in html
+        assert 'data-catalog-command-count role="status"' in html
+        assert 'data-catalog-command-results' in html
+        assert 'data-catalog-command-empty hidden' in html
+        assert "Results include schema columns and dashboard metrics." in html
+        index_script = f'src="{prefix}assets/catalog-index.js?v='
+        search_script = f'src="{prefix}assets/global-search.js?v='
+        assert index_script in html
+        assert search_script in html
+        assert html.index(index_script) < html.index(search_script)
+
+    explore_trigger = re.search(
+        r'<a class="site-search-trigger"[^>]*aria-current="page"[^>]*'
+        r'aria-label="Search catalog"',
+        explore_html,
+    )
+    assert explore_trigger
+
+
+def test_explore_and_global_search_pure_helpers_cover_filter_url_and_prefix_behavior():
+    node = shutil.which("node")
+    if node is None:
+        return
+
+    script = r"""
+const explore = require("./website/assets/explore.js");
+const globalSearch = require("./website/assets/global-search.js");
+
+const resources = [
+  {
+    kind: "dataset",
+    title: "Holder balances",
+    search: "protocol holder wallet contract address varbinary balance",
+  },
+  {
+    kind: "dataset",
+    title: "Token prices",
+    search: "daily token price usd double",
+  },
+  {
+    kind: "dashboard",
+    title: "Cash",
+    search: "total cash spend volume cashback active cards",
+  },
+];
+
+function fakeElement(tagName) {
+  return {
+    tagName,
+    attrs: {},
+    children: [],
+    className: "",
+    textContent: "",
+    setAttribute(name, value) {
+      this.attrs[name] = String(value);
+    },
+    appendChild(child) {
+      this.children.push(child);
+    },
+  };
+}
+const ownerDocument = {
+  createElement(tagName) {
+    return fakeElement(tagName);
+  },
+};
+const plainResult = globalSearch.createResult(
+  ownerDocument,
+  { kind: "dataset", title: "A", href: "datasets/a.html" },
+  "",
+);
+const nestedResult = globalSearch.createResult(
+  ownerDocument,
+  { kind: "dataset", title: "A", href: "datasets/a.html" },
+  "",
+  "../",
+);
+
+console.log(JSON.stringify({
+  andMatch: explore.filterResources(resources, {
+    kind: "all",
+    query: "wallet protocol",
+  }).map((resource) => resource.title),
+  andMiss: explore.filterResources(resources, {
+    kind: "all",
+    query: "wallet volume",
+  }).map((resource) => resource.title),
+  typeMatch: explore.filterResources(resources, {
+    kind: "dashboards",
+    query: "cash volume",
+  }).map((resource) => resource.title),
+  parsed: explore.stateFromLocation({
+    search: "?q=holder+wallet",
+    hash: "#datasets",
+  }),
+  updatedUrl: explore.urlForState(
+    { query: "cash volume", kind: "dashboard" },
+    {
+      pathname: "/explore.html",
+      search: "?view=compact&q=old",
+      hash: "#datasets",
+    },
+  ),
+  clearedUrl: explore.urlForState(
+    { query: "", kind: "all" },
+    {
+      pathname: "/explore.html",
+      search: "?view=compact&q=old",
+      hash: "#dashboards",
+    },
+  ),
+  hashes: [
+    explore.hashForKind("dataset"),
+    explore.hashForKind("dashboards"),
+    explore.kindFromHash("#datasets"),
+    explore.kindFromHash("#dashboards"),
+  ],
+  catalogHashes: [
+    explore.isCatalogHash(""),
+    explore.isCatalogHash("#datasets"),
+    explore.isCatalogHash("#dashboards"),
+    explore.isCatalogHash("#main-content"),
+  ],
+  countLabels: [
+    explore.resultCountLabel(60, 60, false),
+    explore.resultCountLabel(2, 60, true),
+  ],
+  shortcuts: [
+    explore.isSearchShortcut({ key: "/", target: { tagName: "DIV" } }),
+    explore.isSearchShortcut({ key: "/", target: { tagName: "INPUT" } }),
+  ],
+  emptyHint: globalSearch.bestMatchingHint(
+    { matchHints: ["wallet_address varbinary"] },
+    "",
+  ),
+  hrefs: {
+    plainHelper: globalSearch.prefixResourceHref("datasets/a.html", ""),
+    nestedHelper: globalSearch.prefixResourceHref("datasets/a.html", "../"),
+    external: globalSearch.prefixResourceHref("https://dune.com/x", "../"),
+    plainResult: plainResult.attrs.href,
+    nestedResult: nestedResult.attrs.href,
+  },
+}));
+"""
+    result = subprocess.run(
+        [node, "-e", script],
+        cwd=Path(__file__).resolve().parents[1],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    behavior = json.loads(result.stdout)
+
+    assert behavior == {
+        "andMatch": ["Holder balances"],
+        "andMiss": [],
+        "typeMatch": ["Cash"],
+        "parsed": {"kind": "dataset", "query": "holder wallet"},
+        "updatedUrl": (
+            "/explore.html?view=compact&q=cash+volume#dashboards"
+        ),
+        "clearedUrl": "/explore.html?view=compact",
+        "hashes": [
+            "#datasets",
+            "#dashboards",
+            "dataset",
+            "dashboard",
+        ],
+        "catalogHashes": [True, True, True, False],
+        "countLabels": [
+            "60 resources",
+            "2 of 60 resources",
+        ],
+        "shortcuts": [True, False],
+        "emptyHint": "",
+        "hrefs": {
+            "plainHelper": "datasets/a.html",
+            "nestedHelper": "../datasets/a.html",
+            "external": "https://dune.com/x",
+            "plainResult": "datasets/a.html",
+            "nestedResult": "../datasets/a.html",
+        },
+    }
+
+    explore_source = Path("website/assets/explore.js").read_text(encoding="utf-8")
+    assert '"replaceState"' in explore_source
+    assert '"pushState"' in explore_source
+    assert '"popstate"' in explore_source
+    assert '"hashchange"' in explore_source
+
+
+def test_explore_history_ignores_unrelated_hash_and_restores_hidden_card_focus():
+    node = shutil.which("node")
+    if node is None:
+        return
+
+    script = r"""
+const explore = require("./website/assets/explore.js");
+
+function makeNode(attributes = {}) {
+  const node = {
+    attrs: { ...attributes },
+    hidden: false,
+    listeners: {},
+    textContent: "",
+    value: "",
+    classes: new Set(),
+    classList: {
+      toggle(name, enabled) {
+        if (enabled) node.classes.add(name);
+        else node.classes.delete(name);
+      },
+    },
+    getAttribute(name) { return this.attrs[name] ?? null; },
+    setAttribute(name, value) { this.attrs[name] = String(value); },
+    addEventListener(type, listener) {
+      (this.listeners[type] ||= []).push(listener);
+    },
+  };
+  return node;
+}
+
+let focused = "";
+const datasetCard = makeNode({
+  "data-resource-kind": "dataset",
+  "data-search": "dataset token prices daily usd",
+});
+const dashboardCard = makeNode({
+  "data-resource-kind": "dashboard",
+  "data-search": "dashboard cash volume spend",
+});
+const cards = [datasetCard, dashboardCard];
+const input = makeNode();
+input.focus = () => {
+  focused = "search";
+  scope.activeElement = input;
+};
+const clear = makeNode();
+const count = makeNode();
+const empty = makeNode();
+const filters = ["all", "dataset", "dashboard"].map((kind) => {
+  const button = makeNode({ "data-explore-filter": kind });
+  button.focus = () => {
+    focused = kind;
+    scope.activeElement = button;
+  };
+  return button;
+});
+const page = makeNode({ "data-explore-mounted": "" });
+page.querySelector = (selector) => ({
+  "[data-explore-search]": input,
+  "[data-explore-clear]": clear,
+  "[data-explore-count]": count,
+  "[data-explore-empty]": empty,
+}[selector] || null);
+page.querySelectorAll = (selector) => ({
+  "[data-explore-card]": cards,
+  "[data-explore-filter]": filters,
+}[selector] || []);
+
+const listeners = {};
+const host = {
+  location: {
+    pathname: "/explore.html",
+    search: "",
+    hash: "#dashboards",
+  },
+  history: {
+    pushState() {},
+    replaceState() {},
+  },
+  addEventListener(type, listener) {
+    (listeners[type] ||= []).push(listener);
+  },
+};
+const scope = {
+  activeElement: null,
+  querySelector(selector) {
+    return selector === "[data-explore-page]" ? page : null;
+  },
+  addEventListener() {},
+};
+
+const controller = explore.mount(scope, host);
+const mounted = {
+  state: controller.state(),
+  hidden: cards.map((card) => card.hidden),
+};
+
+const focusedDashboardLink = {
+  closest(selector) {
+    return selector === "[data-explore-card]" ? dashboardCard : null;
+  },
+};
+scope.activeElement = focusedDashboardLink;
+host.location.hash = "#datasets";
+listeners.popstate[0]();
+const returnedToDatasets = {
+  state: controller.state(),
+  focused,
+  hidden: cards.map((card) => card.hidden),
+};
+
+host.location.search = "?q=should-not-apply";
+host.location.hash = "#main-content";
+listeners.popstate[0]();
+const unrelatedHash = {
+  state: controller.state(),
+  focused,
+  hidden: cards.map((card) => card.hidden),
+};
+
+console.log(JSON.stringify({
+  mounted,
+  returnedToDatasets,
+  unrelatedHash,
+}));
+"""
+    result = subprocess.run(
+        [node, "-e", script],
+        cwd=Path(__file__).resolve().parents[1],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert json.loads(result.stdout) == {
+        "mounted": {
+            "state": {"kind": "dashboard", "query": ""},
+            "hidden": [True, False],
+        },
+        "returnedToDatasets": {
+            "state": {"kind": "dataset", "query": ""},
+            "focused": "dataset",
+            "hidden": [False, True],
+        },
+        "unrelatedHash": {
+            "state": {"kind": "dataset", "query": ""},
+            "focused": "dataset",
+            "hidden": [False, True],
+        },
+    }

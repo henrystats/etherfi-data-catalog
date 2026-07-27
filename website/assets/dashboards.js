@@ -18,6 +18,7 @@
   const SECTION_SELECTOR = "[data-dashboard-section]";
   const COUNT_SELECTOR = "#dashboard-count";
   const EMPTY_SELECTOR = "#dashboard-empty-state";
+  const GROUP_FRAGMENT_PREFIX = "dashboard-group-";
 
   function normalize(value) {
     return String(value || "")
@@ -29,6 +30,38 @@
   function termsFor(query) {
     const normalized = normalize(query);
     return normalized === "" ? [] : normalized.split(" ");
+  }
+
+  function normalizedFragment(hash) {
+    const raw = String(hash || "").replace(/^#/, "");
+    if (!raw) {
+      return "";
+    }
+    try {
+      return decodeURIComponent(raw);
+    } catch (error) {
+      return raw;
+    }
+  }
+
+  function groupFragment(group) {
+    const value = String(group || "core").replace(/_/g, "-");
+    return `${GROUP_FRAGMENT_PREFIX}${value}`;
+  }
+
+  function groupForHash(hash, availableGroups) {
+    const fragment = normalizedFragment(hash);
+    const groups = Array.isArray(availableGroups) ? availableGroups : [];
+    return groups.find((group) => groupFragment(group) === fragment) || "";
+  }
+
+  function groupTargetForHash(hash, availableGroups) {
+    const fragment = normalizedFragment(hash);
+    const group = groupForHash(hash, availableGroups);
+    if (fragment && !group) {
+      return null;
+    }
+    return group || "core";
   }
 
   function matchesSearch(card, query) {
@@ -87,6 +120,36 @@
     return state;
   }
 
+  function shouldRestoreGroupFocus(activeElement, navButtons) {
+    if (!activeElement) {
+      return false;
+    }
+    const buttons = Array.isArray(navButtons) ? navButtons : [];
+    if (buttons.includes(activeElement)) {
+      return true;
+    }
+    return Boolean(
+      typeof activeElement.closest === "function" &&
+      activeElement.closest(SECTION_SELECTOR),
+    );
+  }
+
+  function updateGroupHash(group, replace) {
+    if (!root || !root.location) {
+      return;
+    }
+    const nextHash = `#${encodeURIComponent(groupFragment(group))}`;
+    if (root.location.hash === nextHash) {
+      return;
+    }
+    const method = replace ? "replaceState" : "pushState";
+    if (root.history && typeof root.history[method] === "function") {
+      root.history[method](null, "", nextHash);
+      return;
+    }
+    root.location.hash = nextHash;
+  }
+
   function countVisibleCards(section) {
     if (!section) {
       return 0;
@@ -109,8 +172,15 @@
     const sections = [...page.querySelectorAll(SECTION_SELECTOR)];
     const count = page.querySelector(COUNT_SELECTOR);
     const emptyState = page.querySelector(EMPTY_SELECTOR);
+    const availableGroups = navButtons.map(
+      (button) => button.dataset.dashboardNav,
+    );
+    const initialGroup = groupForHash(
+      root && root.location ? root.location.hash : "",
+      availableGroups,
+    );
     const state = {
-      activeGroup: "core",
+      activeGroup: initialGroup || "core",
       query: "",
     };
 
@@ -179,6 +249,62 @@
       }
     }
 
+    function scrollToGroup(group) {
+      const fragment = groupFragment(group);
+      const target = page.querySelector(`#${fragment}`);
+      if (!target || typeof target.scrollIntoView !== "function") {
+        return;
+      }
+      const activeButton = navButtons.find(
+        (button) => button.dataset.dashboardNav === group,
+      );
+      const scroll = () => {
+        if (activeButton && typeof activeButton.scrollIntoView === "function") {
+          activeButton.scrollIntoView({ block: "nearest", inline: "nearest" });
+        }
+        target.scrollIntoView({ block: "start" });
+      };
+      if (root && typeof root.requestAnimationFrame === "function") {
+        root.requestAnimationFrame(() => root.requestAnimationFrame(scroll));
+      } else {
+        scroll();
+      }
+    }
+
+    function syncFromLocation() {
+      const hash = root && root.location ? root.location.hash : "";
+      const nextGroup = groupTargetForHash(hash, availableGroups);
+      if (!nextGroup) {
+        return;
+      }
+      const searchValue = searchInput ? searchInput.value : "";
+      if (
+        state.activeGroup === nextGroup &&
+        !state.query &&
+        !searchValue
+      ) {
+        return;
+      }
+      const activeElement = scope.activeElement;
+      const restoreFocus = shouldRestoreGroupFocus(
+        activeElement,
+        navButtons,
+      );
+      selectGroup(state, searchInput, nextGroup);
+      applyFilters();
+      if (restoreFocus) {
+        const activeButton = navButtons.find(
+          (button) => button.dataset.dashboardNav === nextGroup,
+        );
+        if (activeButton && typeof activeButton.focus === "function") {
+          activeButton.focus();
+        }
+      }
+      if (normalizedFragment(hash)) {
+        scrollToGroup(nextGroup);
+      }
+    }
+
     if (root) {
       root.__etherfiDashboardBrowserDebug = () => ({
         inputFound: Boolean(searchInput),
@@ -197,13 +323,23 @@
 
     navButtons.forEach((button) => {
       button.addEventListener("click", () => {
-        selectGroup(state, searchInput, button.dataset.dashboardNav);
+        const group = button.dataset.dashboardNav;
+        selectGroup(state, searchInput, group);
         applyFilters();
+        updateGroupHash(group, false);
+        scrollToGroup(group);
       });
     });
 
     applyFilters();
     page.dataset.dashboardsMounted = "true";
+    if (initialGroup) {
+      scrollToGroup(initialGroup);
+    }
+    if (root && typeof root.addEventListener === "function") {
+      root.addEventListener("hashchange", syncFromLocation);
+      root.addEventListener("popstate", syncFromLocation);
+    }
   }
 
   function ready(scope) {
@@ -220,11 +356,15 @@
   return {
     activeNavForState,
     filterCards,
+    groupForHash,
+    groupFragment,
+    groupTargetForHash,
     matchesSearch,
     mount,
     normalize,
     ready,
     selectGroup,
+    shouldRestoreGroupFocus,
     termsFor,
   };
 });

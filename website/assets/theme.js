@@ -52,7 +52,7 @@
     }
 
     if (themeColor) {
-      themeColor.setAttribute("content", isDark ? "#0d130f" : "#f4f6f1");
+      themeColor.setAttribute("content", isDark ? "#0b110d" : "#f2f0e8");
     }
 
     if (persist) {
