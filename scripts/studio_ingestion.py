@@ -639,7 +639,7 @@ def query_contract_checksum(
 
 
 class FixtureDuneClient:
-    """Simulate read-only latest-result responses from deterministic demo bundles."""
+    """Simulate read-only latest-result responses from deterministic fixtures."""
 
     def __init__(
         self,

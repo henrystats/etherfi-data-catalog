@@ -3901,14 +3901,13 @@ def render_studio_landing(
         "MCP, and existing dashboard registry.</p>"
         '<div class="studio-landing-actions">'
         f"{selector}"
-        '<a class="studio-secondary-action" href="demo/">Review every component</a>'
         "</div>"
         "</div>"
         '<aside class="studio-landing-note" aria-label="Studio data status">'
         '<span class="studio-note-index">01</span>'
         '<p class="studio-note-label">Current phase</p>'
         "<strong>Validated static snapshots</strong>"
-        "<p>Live campaign data alongside deterministic component QA.</p>"
+        "<p>Validated campaign data from reviewed read-only query snapshots.</p>"
         "</aside>"
         "</header>"
         '<section class="studio-directory" aria-labelledby="studio-directory-title">'

@@ -126,9 +126,19 @@ def normalize(result: StudioProviderResult, request: StudioQueryRequest | None =
 def test_query_requests_deduplicate_queries_and_union_metric_contracts():
     dashboards, metrics, requests = load_query_requests()
 
-    assert len(dashboards) == 2
-    assert len(metrics) == 37
-    assert len(requests) == 17
+    assert len(dashboards) == 1
+    assert len(metrics) == 24
+    assert set(requests) == {
+        8180894,
+        8191379,
+        8191704,
+        8193003,
+        8193040,
+        8199058,
+        8202133,
+        8204345,
+        8204373,
+    }
     shared = requests[8180894]
     assert shared.metric_ids == (
         "kyber_total_referral_deposits",
@@ -202,13 +212,9 @@ def test_query_requests_deduplicate_queries_and_union_metric_contracts():
     assert activity_events.transformation["id"] == "kyberswap_etherfi_activity"
     assert activity_events.transformation["raw_data_file"] == "raw_query_8204373.json"
     assert 8182330 not in requests
-    assert 9101001 not in requests
-    assert 9101002 not in requests
-    assert 9101006 not in requests
-    assert 9101007 not in requests
 
 
-def test_fixture_client_reuses_realistic_demo_bundles_and_tracks_calls():
+def test_fixture_client_reuses_realistic_query_fixtures_and_tracks_calls():
     requests, client = registry_fixture()
 
     summary = client.fetch_latest_result(8204345, timeout_seconds=1)
@@ -227,7 +233,7 @@ def test_fixture_client_reuses_realistic_demo_bundles_and_tracks_calls():
     [
         ("missing_required_column", FailureCategory.TRANSFORMATION_FAILURE),
         ("malformed_row", FailureCategory.TRANSFORMATION_FAILURE),
-        ("invalid_date", FailureCategory.INVALID_DATE),
+        ("invalid_date", FailureCategory.TRANSFORMATION_FAILURE),
         ("partial_refresh", FailureCategory.PARTIAL_RESULT),
         ("row_count_mismatch", FailureCategory.PARTIAL_RESULT),
         ("empty_result", FailureCategory.TRANSFORMATION_FAILURE),
@@ -265,63 +271,47 @@ def test_fixture_schema_failures_are_deterministic(scenario, category):
 
 
 def test_normalization_preserves_unexpected_columns_nulls_duplicates_and_numeric_strings():
-    requests, extra_client = registry_fixture("additional_unexpected_column")
-    extra_client.scenario = {
-        "query_id": 9102006,
-        "extra_columns": {"fixture_note": "deterministic-extra-column"},
-    }
-    extra_result = normalize_provider_result(
-        extra_client.fetch_latest_result(9102006, timeout_seconds=1),
-        requests[9102006],
-        checked_at=NOW,
-        mode="fixture",
-        fetch_attempts=1,
+    extra_result = normalize(
+        provider_result(
+            columns=["value", "fixture_note"],
+            rows=[{"value": 42, "fixture_note": "deterministic-extra-column"}],
+        )
     )
     assert "fixture_note" in extra_result.artifact["unexpected_columns"]
     assert all(row["fixture_note"] == "deterministic-extra-column" for row in extra_result.artifact["rows"])
 
-    requests, duplicate_client = registry_fixture("duplicate_rows")
-    duplicate_client.scenario = {"query_id": 9102006, "duplicate_first_row": True}
-    duplicate_result = normalize_provider_result(
-        duplicate_client.fetch_latest_result(9102006, timeout_seconds=1),
-        requests[9102006],
-        checked_at=NOW,
-        mode="fixture",
-        fetch_attempts=1,
+    duplicate_result = normalize(
+        provider_result(
+            rows=[{"value": 42}, {"value": 42}],
+            total_row_count=2,
+        )
     )
     assert duplicate_result.artifact["duplicate_row_count"] == 1
 
-    requests, null_client = registry_fixture("null_values")
-    null_client.scenario = {
-        "query_id": 9102006,
-        "set_values": {"value_usd": None},
-    }
-    null_result = normalize_provider_result(
-        null_client.fetch_latest_result(9102006, timeout_seconds=1),
-        requests[9102006],
-        checked_at=NOW,
-        mode="fixture",
-        fetch_attempts=1,
+    null_result = normalize(
+        provider_result(
+            columns=["value", "nullable"],
+            rows=[{"value": 42, "nullable": None}],
+        ),
+        minimal_request(optional_columns=("nullable",)),
     )
-    assert null_result.artifact["rows"][0]["value_usd"] is None
+    assert null_result.artifact["rows"][0]["nullable"] is None
 
-    requests, large_client = registry_fixture("large_numeric_string")
-    large_result = normalize_provider_result(
-        large_client.fetch_latest_result(9102001, timeout_seconds=1),
-        requests[9102001],
-        checked_at=NOW,
-        mode="fixture",
-        fetch_attempts=1,
+    large_result = normalize(
+        provider_result(rows=[{"value": "12345678901234567890.123456789"}])
     )
-    assert large_result.artifact["rows"][0]["token_balance"] == "12345678901234567890.123456789"
+    assert large_result.artifact["rows"][0]["value"] == "12345678901234567890.123456789"
 
-    requests, chain_client = registry_fixture("multiple_chains")
-    chain_result = normalize_provider_result(
-        chain_client.fetch_latest_result(9102008, timeout_seconds=1),
-        requests[9102008],
-        checked_at=NOW,
-        mode="fixture",
-        fetch_attempts=1,
+    chain_result = normalize(
+        provider_result(
+            columns=["value", "chain"],
+            rows=[
+                {"value": 1, "chain": "ethereum"},
+                {"value": 2, "chain": "arbitrum"},
+                {"value": 3, "chain": "base"},
+            ],
+            total_row_count=3,
+        )
     )
     assert [
         row["chain"] for row in chain_result.artifact["rows"][:3]
@@ -356,6 +346,22 @@ def test_normalization_rejects_unsafe_or_ambiguous_values(bad_value):
         normalize(provider_result(rows=[{"value": bad_value}]))
 
     assert exc_info.value.category is FailureCategory.INVALID_VALUE
+
+
+def test_normalization_rejects_invalid_date_values():
+    request = minimal_request(
+        required_columns=("day", "value"),
+        date_columns=("day",),
+    )
+    result = provider_result(
+        columns=["day", "value"],
+        rows=[{"day": "not-a-date", "value": 42}],
+    )
+
+    with pytest.raises(StudioIngestionError) as exc_info:
+        normalize(result, request)
+
+    assert exc_info.value.category is FailureCategory.INVALID_DATE
 
 
 def test_normalization_rejects_non_string_row_keys_as_invalid_rows():
@@ -471,16 +477,41 @@ def test_normalization_rejects_inconsistent_or_future_provider_timestamps(
     assert exc_info.value.category is FailureCategory.MALFORMED_RESPONSE
 
 
-def test_reordered_fixture_columns_normalize_to_contract_order():
-    requests, client = registry_fixture("reordered_columns")
-    query_id = int(client.scenario["query_id"])
-
-    normalized = normalize_provider_result(
-        client.fetch_latest_result(query_id, timeout_seconds=1),
-        requests[query_id],
-        checked_at=NOW,
-        mode="fixture",
-        fetch_attempts=1,
+def test_reordered_provider_columns_normalize_to_contract_order():
+    request = minimal_request(
+        required_columns=(
+            "day",
+            "total_value_usd",
+            "deposits_usd",
+            "withdrawals_usd",
+            "fees_usd",
+        ),
+        value_columns=(
+            "total_value_usd",
+            "deposits_usd",
+            "withdrawals_usd",
+            "fees_usd",
+        ),
+        date_columns=("day",),
+    )
+    normalized = normalize(
+        provider_result(
+            columns=[
+                "fees_usd",
+                "withdrawals_usd",
+                "deposits_usd",
+                "total_value_usd",
+                "day",
+            ],
+            rows=[{
+                "day": "2026-07-31",
+                "total_value_usd": 100,
+                "deposits_usd": 20,
+                "withdrawals_usd": 5,
+                "fees_usd": 1,
+            }],
+        ),
+        request,
     )
 
     assert normalized.artifact["columns"][:5] == [
@@ -490,7 +521,7 @@ def test_reordered_fixture_columns_normalize_to_contract_order():
         "withdrawals_usd",
         "fees_usd",
     ]
-    assert normalized.artifact["row_count"] == 420
+    assert normalized.artifact["row_count"] == 1
 
 
 def test_freshness_classifier_has_current_delayed_and_stale_boundaries():
@@ -1512,23 +1543,6 @@ def test_named_previous_valid_snapshot_fixture_seeds_a_valid_snapshot(tmp_path):
     assert validate_current_snapshot(tmp_path)["snapshot_id"] == summary.snapshot_id
 
 
-def test_live_refresh_rejects_demo_only_query_selection_before_fetch(tmp_path):
-    _, client = registry_fixture()
-
-    with pytest.raises(ValueError, match="demo-only query IDs"):
-        refresh_studio_data(
-            client,
-            output_root=tmp_path,
-            mode="live",
-            query_ids={9102001},
-            clock=fixed_clock,
-            sleeper=lambda _: None,
-        )
-
-    assert client.calls == {}
-    assert not (tmp_path / "state.json").exists()
-
-
 def test_refresh_never_reuses_an_active_snapshot_from_another_mode(tmp_path):
     _, fixture_client = registry_fixture()
     fixture_summary = refresh_studio_data(
@@ -2392,17 +2406,17 @@ def test_routed_latest_result_client_has_no_execution_path_and_routes_once():
         {8199058: [provider_result(query_id=8199058)]}
     )
     fixture = SequenceStudioLatestResultClient(
-        {9101001: [provider_result(query_id=9101001)]}
+        {456: [provider_result(query_id=456, execution_id="fixture-456")]}
     )
     routed = RoutedStudioLatestResultClient(
-        {8199058: latest, 9101001: fixture}
+        {8199058: latest, 456: fixture}
     )
 
     assert routed.fetch_latest_result(8199058, timeout_seconds=1).query_id == 8199058
-    assert routed.fetch_latest_result(9101001, timeout_seconds=1).query_id == 9101001
-    assert routed.calls == {8199058: 1, 9101001: 1}
+    assert routed.fetch_latest_result(456, timeout_seconds=1).query_id == 456
+    assert routed.calls == {8199058: 1, 456: 1}
     assert latest.calls == {8199058: 1}
-    assert fixture.calls == {9101001: 1}
+    assert fixture.calls == {456: 1}
     assert not hasattr(routed, "execute_query")
     assert not hasattr(routed, "run_query")
 

@@ -40,38 +40,3 @@ dashboards:
         description: Wallet-level referral, retention, position, and activity intelligence.
         show_description: false
         grid_columns: 2
-
-  - id: component_test_lab
-    slug: demo
-    name: Component Test Lab
-    short_name: Test Lab
-    eyebrow: Visual QA dashboard
-    description: A deliberately varied dashboard for reviewing every Studio component, interaction, density, and fallback state in one place.
-    audience: Data product · Design · Engineering
-    status: demo
-    freshness_status: current
-    freshness_note: This deterministic snapshot exists for local component QA. Its generated time changes only when the sample-data script is run.
-    freshness_policy:
-      expected_refresh_hours: 168
-      warning_after_hours: 336
-      stale_after_hours: 720
-    data_mode: demo
-    data_file: demo.json
-    default_date_range: 30D
-    display_order: 2
-    sections:
-      - id: counters
-        label: Counters
-        description: Formats, comparisons, sparklines, and long values.
-      - id: trends
-        label: Trend charts
-        description: Single-series, multi-series, empty, and error states.
-      - id: rankings
-        label: Bar charts
-        description: Vertical categories and horizontal wallet rankings.
-      - id: flows
-        label: Flow diagrams
-        description: Responsive Sankey rendering and mobile fallback.
-      - id: tables
-        label: Tables
-        description: Sorting, pagination, addresses, and row-level export.

@@ -54,8 +54,8 @@ def test_studio_registry_has_unique_ordered_dashboards_and_metrics(studio_regist
     dashboard_slugs = [dashboard.slug for dashboard in dashboards]
     metric_ids = [metric.id for metric in metrics]
 
-    assert {"kyberswap_campaign", "component_test_lab"} <= set(dashboard_ids)
-    assert {"kyberswap", "demo"} <= set(dashboard_slugs)
+    assert dashboard_ids == ["kyberswap_campaign"]
+    assert dashboard_slugs == ["kyberswap"]
     assert next(
         dashboard.data["status"]
         for dashboard in dashboards
@@ -78,8 +78,11 @@ def test_studio_registry_has_unique_ordered_dashboards_and_metrics(studio_regist
             "Duplicate Studio dashboard ids",
         ),
         (
-            lambda dashboards, metrics: dashboards[1].update(
-                {"slug": dashboards[0]["slug"]}
+            lambda dashboards, metrics: dashboards.append(
+                {
+                    **deepcopy(dashboards[0]),
+                    "id": "duplicate_slug_dashboard",
+                }
             ),
             "Duplicate Studio dashboard slugs",
         ),
@@ -372,7 +375,7 @@ def test_studio_registry_validates_dashboard_dune_url():
         )
 
 
-def test_studio_registry_validates_query_urls_and_generated_data_columns(tmp_path):
+def test_studio_registry_validates_query_urls():
     dashboards, metrics = deepcopy(registry_values())
     metric = next(
         item
@@ -386,31 +389,6 @@ def test_studio_registry_validates_query_urls_and_generated_data_columns(tmp_pat
             dashboards,
             metrics,
             data_dir=DEFAULT_STUDIO_DIR / "data",
-        )
-
-    data_dir = tmp_path / "data"
-    data_dir.mkdir()
-    for source_path in (DEFAULT_STUDIO_DIR / "data").glob("*.json"):
-        payload = json.loads(source_path.read_text(encoding="utf-8"))
-        if source_path.name == "demo.json":
-            del payload["datasets"]["lab_positions"][1]["balance_usd"]
-        (data_dir / source_path.name).write_text(
-            json.dumps(payload),
-            encoding="utf-8",
-        )
-
-    dashboards, metrics = deepcopy(registry_values())
-    metrics = [
-        metric
-        for metric in metrics
-        if metric["id"] == "lab_sortable_table"
-    ]
-    with pytest.raises(ValueError, match="is missing columns: balance_usd"):
-        validate_studio_registry(
-            dashboards,
-            metrics,
-            data_dir=data_dir,
-            validate_generated_data=False,
         )
 
 
@@ -896,7 +874,6 @@ def test_kyberswap_depositor_analysis_registry_layout_and_sources(
         8204345,
         8204373,
     ]
-    assert not {9101004, 9101008, 9101009} & set(requests)
 
     html = (built_site / "studio" / "kyberswap" / "index.html").read_text(
         encoding="utf-8"
@@ -956,24 +933,7 @@ def test_kyberswap_depositor_analysis_registry_layout_and_sources(
     assert descriptor["sourceQueryIds"] == [8199058, 8204345, 8204373]
 
 
-def test_studio_registry_rejects_invalid_refresh_metadata(tmp_path):
-    data_dir = tmp_path / "data"
-    data_dir.mkdir()
-    for source_path in (DEFAULT_STUDIO_DIR / "data").glob("*.json"):
-        payload = json.loads(source_path.read_text(encoding="utf-8"))
-        if source_path.name == "demo.json":
-            payload["meta"]["last_refreshed"] = "not-a-timestamp"
-        (data_dir / source_path.name).write_text(
-            json.dumps(payload),
-            encoding="utf-8",
-        )
-
-    dashboards, metrics = registry_values()
-    with pytest.raises(ValueError, match="has invalid last_refreshed"):
-        validate_studio_registry(dashboards, metrics, data_dir=data_dir)
-
-
-def test_studio_registry_requires_rendered_metadata_and_timezone(tmp_path):
+def test_studio_registry_requires_rendered_dashboard_metadata():
     dashboards, metrics = deepcopy(registry_values())
     del dashboards[0]["audience"]
     with pytest.raises(ValueError, match="missing required fields: audience"):
@@ -982,16 +942,6 @@ def test_studio_registry_requires_rendered_metadata_and_timezone(tmp_path):
             metrics,
             data_dir=DEFAULT_STUDIO_DIR / "data",
         )
-
-    data_dir = tmp_path / "data"
-    shutil.copytree(DEFAULT_STUDIO_DIR / "data", data_dir)
-    demo_path = data_dir / "demo.json"
-    demo_payload = json.loads(demo_path.read_text(encoding="utf-8"))
-    demo_payload["meta"]["last_refreshed"] = "2026-07-29T18:40:00"
-    demo_path.write_text(json.dumps(demo_payload), encoding="utf-8")
-    dashboards, metrics = registry_values()
-    with pytest.raises(ValueError, match="must include a timezone"):
-        validate_studio_registry(dashboards, metrics, data_dir=data_dir)
 
 
 def test_build_generates_studio_routes_and_preserves_existing_pages(built_site):
@@ -1002,14 +952,14 @@ def test_build_generates_studio_routes_and_preserves_existing_pages(built_site):
         "dashboards.html",
         "freshness.html",
         "studio/index.html",
-        "studio/demo/index.html",
         "studio/kyberswap/index.html",
     ]
 
     for relative_path in expected_pages:
         assert (built_site / relative_path).is_file(), relative_path
 
-    assert (built_site / "studio" / "data" / "demo.json").is_file()
+    assert not (built_site / "studio" / "demo").exists()
+    assert not (built_site / "studio" / "data" / "demo.json").exists()
     assert not (built_site / "studio" / "data" / "kyberswap.json").exists()
     assert (built_site / "assets" / "studio.css").is_file()
     assert (built_site / "assets" / "studio.js").is_file()
@@ -1019,18 +969,25 @@ def test_build_generates_studio_routes_and_preserves_existing_pages(built_site):
 
 
 def test_studio_build_prunes_stale_routes_and_data(tmp_path):
-    stale_route = tmp_path / "studio" / "retired-dashboard" / "index.html"
-    stale_route.parent.mkdir(parents=True)
-    stale_route.write_text("retired", encoding="utf-8")
-    stale_data = tmp_path / "studio" / "data" / "retired.json"
-    stale_data.parent.mkdir(parents=True)
-    stale_data.write_text("{}", encoding="utf-8")
+    stale_routes = [
+        tmp_path / "studio" / "retired-dashboard" / "index.html",
+        tmp_path / "studio" / "demo" / "index.html",
+    ]
+    for stale_route in stale_routes:
+        stale_route.parent.mkdir(parents=True, exist_ok=True)
+        stale_route.write_text("retired", encoding="utf-8")
+    stale_files = [
+        tmp_path / "studio" / "data" / "retired.json",
+        tmp_path / "studio" / "data" / "demo.json",
+    ]
+    for stale_file in stale_files:
+        stale_file.parent.mkdir(parents=True, exist_ok=True)
+        stale_file.write_text("{}", encoding="utf-8")
 
     build_site(output_dir=tmp_path)
 
-    assert not stale_route.exists()
-    assert not stale_data.exists()
-    assert (tmp_path / "studio" / "demo" / "index.html").is_file()
+    assert all(not path.exists() for path in stale_routes + stale_files)
+    assert (tmp_path / "studio" / "kyberswap" / "index.html").is_file()
 
 
 def test_disabling_studio_prunes_stale_generated_routes_and_navigation(tmp_path):
@@ -1059,7 +1016,7 @@ def test_studio_build_publishes_only_configured_generated_data_files(tmp_path):
     published_names = {
         path.name for path in (output_dir / "studio" / "data").iterdir()
     }
-    assert published_names == {"demo.json"}
+    assert published_names == set()
 
 
 def test_snapshot_and_site_build_never_publish_a_sentinel_api_secret(tmp_path):
@@ -1175,9 +1132,6 @@ def test_every_dashboard_appears_in_landing_and_dashboard_selectors(
     dashboards, _ = studio_registry
     pages = [
         (built_site / "studio" / "index.html").read_text(encoding="utf-8"),
-        (built_site / "studio" / "demo" / "index.html").read_text(
-            encoding="utf-8"
-        ),
         (built_site / "studio" / "kyberswap" / "index.html").read_text(
             encoding="utf-8"
         ),
@@ -1202,44 +1156,11 @@ def test_every_dashboard_appears_in_landing_and_dashboard_selectors(
 
     landing_html = pages[0]
     assert "Validated static snapshots" in landing_html
-    assert "Live campaign data alongside deterministic component QA." in landing_html
+    assert "Validated campaign data from reviewed read-only query snapshots." in landing_html
+    assert "Component Test Lab" not in landing_html
+    assert 'href="demo/"' not in landing_html
     assert "Generated demo data" not in landing_html
     assert "Dune-backed refreshes next" not in landing_html
-
-
-def test_demo_page_exercises_required_visualization_families_and_states(
-    built_site,
-    studio_registry,
-):
-    _, metrics = studio_registry
-    demo_metrics = [
-        metric for metric in metrics if metric.dashboard_id == "component_test_lab"
-    ]
-    demo_html = (built_site / "studio" / "demo" / "index.html").read_text(
-        encoding="utf-8"
-    )
-
-    family_counts = {
-        family: sum(metric.visualization_type == family for metric in demo_metrics)
-        for family in ("counter", "line", "bar", "sankey", "table")
-    }
-    assert family_counts["counter"] >= 5
-    assert family_counts["line"] >= 4
-    assert family_counts["bar"] >= 2
-    assert family_counts["sankey"] >= 1
-    assert family_counts["table"] >= 1
-    assert "lab_single_line" in demo_html
-    assert "lab_multi_line" in demo_html
-    assert "lab_vertical_bar" in demo_html
-    assert "lab_horizontal_ranking" in demo_html
-    assert "lab_sankey" in demo_html
-    assert "lab_sortable_table" in demo_html
-    assert "Empty Result State" in demo_html
-    assert "Error State" in demo_html
-    assert 'data-top-n-for="lab_horizontal_ranking"' in demo_html
-    assert 'class="studio-metric-type"' not in demo_html
-    assert ">Counter<" not in demo_html
-    assert ">Sankey<" not in demo_html
 
 
 def test_line_metrics_render_valid_config_driven_chart_style_switchers(
@@ -1281,10 +1202,7 @@ def test_line_metrics_render_valid_config_driven_chart_style_switchers(
                 ) in html
 
 
-def test_demo_snapshots_and_kyberswap_fixtures_cover_required_states():
-    demo = json.loads(
-        (DEFAULT_STUDIO_DIR / "data" / "demo.json").read_text(encoding="utf-8")
-    )
+def test_kyberswap_sample_and_query_fixtures_cover_required_states():
     kyberswap = json.loads(
         (DEFAULT_STUDIO_DIR / "data" / "kyberswap.json").read_text(
             encoding="utf-8"
@@ -1307,9 +1225,7 @@ def test_demo_snapshots_and_kyberswap_fixtures_cover_required_states():
         for query_id in (8204345, 8204373)
     }
 
-    assert demo["meta"]["sample_data"] is True
     assert kyberswap["meta"]["sample_data"] is True
-    assert len(demo["datasets"]["lab_timeseries"]) >= 366
     assert all(
         fixture["query_id"] == query_id and fixture["rows"]
         for query_id, fixture in growth_fixtures.items()
@@ -1348,8 +1264,6 @@ def test_demo_snapshots_and_kyberswap_fixtures_cover_required_states():
     assert any(
         row["amount_usd"] < 0 for row in depositor_fixtures[8204373]["rows"]
     )
-    assert len(demo["datasets"]["lab_top_users"]) == 100
-    assert demo["datasets"]["lab_flows"]
     assert kyberswap["datasets"]["capital_journey"]
 
 
@@ -1358,7 +1272,7 @@ def test_dashboard_has_connected_visibility_export_and_range_controls(
     studio_registry,
 ):
     dashboards, metrics = studio_registry
-    dashboard = next(item for item in dashboards if item.id == "component_test_lab")
+    dashboard = next(item for item in dashboards if item.id == "kyberswap_campaign")
     dashboard_metrics = [
         metric for metric in metrics if metric.dashboard_id == dashboard.id
     ]
@@ -1460,43 +1374,17 @@ def test_dashboard_has_connected_visibility_export_and_range_controls(
             start = html.index(visibility_markup)
             assert "checked" in html[start : start + 100]
         assert metric.data["query_url"] in html
-        assert f'data-query-id="{metric.data["query_id"]}"' in html
-        assert f"Dune query {metric.data['query_id']}" in html
+        if metric.visualization_type != "counter":
+            assert f'data-query-id="{metric.data["query_id"]}"' in html
         assert f"Query {metric.data['query_id']} · placeholder" not in html
-        if metric.data["is_exportable"]:
+        if metric.data["is_exportable"] and metric.visualization_type != "counter":
             assert f'data-metric-export="{metric.id}"' in html
-
-
-def test_refresh_metadata_and_data_contract_render_from_generated_snapshot(
-    built_site,
-):
-    payload = json.loads(
-        (DEFAULT_STUDIO_DIR / "data" / "demo.json").read_text(encoding="utf-8")
-    )
-    html = (built_site / "studio" / "demo" / "index.html").read_text(
-        encoding="utf-8"
-    )
-
-    assert f'datetime="{payload["meta"]["last_refreshed"]}"' in html
-    assert "Last Updated:" in html
-    assert f'{payload["meta"]["status"]} data' not in html
-    assert "data-studio-freshness" not in html
-    assert "Freshness ·" not in html
-    assert "Last refreshed" not in html
-    assert "studio-freshness-note" not in html
-    assert "Generated snapshot" not in html
-    assert 'data-studio-config' in html
-    assert '"dataUrl":"../data/demo.json"' in html
 
 
 def test_kyberswap_header_stays_intact_while_configured_hero_is_omitted(built_site):
     html = (built_site / "studio" / "kyberswap" / "index.html").read_text(
         encoding="utf-8"
     )
-    demo_html = (built_site / "studio" / "demo" / "index.html").read_text(
-        encoding="utf-8"
-    )
-
     assert (
         'href="https://dune.com/ether_fi/kyberswap-campaign"'
         in html
@@ -1505,7 +1393,6 @@ def test_kyberswap_header_stays_intact_while_configured_hero_is_omitted(built_si
     assert 'data-dashboard-id="kyberswap_campaign" selected' in html
     assert '<h1 class="visually-hidden">KyberSwap Campaign</h1>' in html
     assert '<section class="studio-dashboard-hero">' not in html
-    assert '<section class="studio-dashboard-hero">' in demo_html
 
 
 def test_kyberswap_renders_exact_compact_eight_counter_section_without_inline_actions(

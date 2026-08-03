@@ -18,13 +18,13 @@ def test_inventory_has_metric_rows_and_a_deduplicated_query_plan():
     inventory = build_inventory()
 
     assert inventory["schema_version"] == 2
-    assert inventory["dashboard_count"] == 2
-    assert inventory["metric_count"] == 37
-    assert inventory["unique_query_count"] == 17
+    assert inventory["dashboard_count"] == 1
+    assert inventory["metric_count"] == 24
+    assert inventory["unique_query_count"] == 9
     assert re.fullmatch(r"[0-9a-f]{64}", inventory["registry_checksum"])
-    assert len(inventory["metrics"]) == 37
-    assert len(inventory["queries"]) == 17
-    assert len({query["query_id"] for query in inventory["queries"]}) == 17
+    assert len(inventory["metrics"]) == 24
+    assert len(inventory["queries"]) == 9
+    assert len({query["query_id"] for query in inventory["queries"]}) == 9
 
 
 def test_inventory_deduplicates_the_shared_live_kyberswap_attribution_source():
@@ -299,41 +299,6 @@ def test_inventory_does_not_require_an_already_matching_generated_snapshot(
     assert calls == [False]
 
 
-def test_inventory_assigns_sparkline_dependencies_to_their_source_query():
-    inventory = build_inventory()
-    metric = next(
-        metric
-        for metric in inventory["metrics"]
-        if metric["metric_id"] == "lab_total_value"
-    )
-    timeseries_query = next(
-        query for query in inventory["queries"] if query["query_id"] == 9102002
-    )
-
-    assert metric["source_mappings"][1] == {
-        "role": "sparkline",
-        "query_id": 9102002,
-        "query_url": "https://dune.com/queries/9102002",
-        "data_file": "query_9102002.json",
-        "data_source": "lab_timeseries",
-        "provider_mode": "fixture",
-        "source_required_columns": [],
-        "transformation": {},
-        "required_columns": ["day", "total_value_usd"],
-        "optional_columns": [],
-    }
-    assert {
-        "day",
-        "total_value_usd",
-        "deposits_usd",
-        "withdrawals_usd",
-        "fees_usd",
-    } <= set(
-        timeseries_query["required_columns"]
-    )
-    assert "lab_total_value" in timeseries_query["metric_ids"]
-
-
 def test_inventory_json_and_markdown_are_deterministic():
     first = generated_outputs()
     second = generated_outputs()
@@ -342,11 +307,12 @@ def test_inventory_json_and_markdown_are_deterministic():
     assert json.loads(first[0]) == build_inventory()
     assert first[1] == render_markdown(build_inventory())
     assert "Unique query fetch plan" in first[1]
-    assert "demo placeholders" in first[1]
-    assert "`8199058`" in first[1]
-    assert "`8202133`" in first[1]
-    assert "`8204345`" in first[1]
-    assert "`8204373`" in first[1]
+    assert "All listed query IDs are reviewed read-only production sources" in first[1]
+    assert "Component Test Lab" not in first[1]
+    assert "https://dune.com/queries/8199058" in first[1]
+    assert "https://dune.com/queries/8202133" in first[1]
+    assert "https://dune.com/queries/8204345" in first[1]
+    assert "https://dune.com/queries/8204373" in first[1]
     assert "8178495" not in first[1]
     assert "| Dashboard | Section | Metric | Source role |" in first[1]
     assert "Default visualization | Allowed visualizations | Value format" in first[1]

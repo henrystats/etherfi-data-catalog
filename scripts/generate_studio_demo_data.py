@@ -191,83 +191,6 @@ def build_kyberswap(refreshed_at: datetime) -> dict:
     }
 
 
-def build_demo(refreshed_at: datetime) -> dict:
-    timeseries = daily_series(420, refreshed_at, seed=73, base=64_000_000)
-    rng = random.Random(91)
-    positions = []
-    for index in range(47):
-        positions.append(
-            {
-                "updated_at": (
-                    refreshed_at - timedelta(hours=index * 7.7)
-                ).isoformat().replace("+00:00", "Z"),
-                "wallet": wallet(6000 + index),
-                "strategy": (
-                    "A deliberately long institutional strategy label"
-                    if index == 3
-                    else rng.choice(PRODUCTS)
-                ),
-                "balance_usd": None if index == 11 else round(rng.lognormvariate(11.4, 0.92), 2),
-                "apy": round(rng.uniform(0.018, 0.184), 4),
-                "active": index % 6 != 0,
-            }
-        )
-    return {
-        "meta": {
-            "dashboard_id": "component_test_lab",
-            "status": "demo",
-            "last_refreshed": refreshed_at.isoformat().replace("+00:00", "Z"),
-            "freshness_status": "current",
-            "sample_data": True,
-            "generator": "scripts/generate_studio_demo_data.py",
-        },
-        "datasets": {
-            "lab_summary": [
-                {
-                    "total_value_usd": 1_284_730_551.42,
-                    "qualified_users": 98_731,
-                    "conversion_rate": 0.428,
-                    "active_positions": 12_409,
-                    "token_balance": 384_290.7348,
-                    "value_change_pct": 0.143,
-                    "users_change_pct": -0.028,
-                    "conversion_change_pp": 0,
-                }
-            ],
-            "lab_timeseries": timeseries,
-            "empty_series": [],
-            "error_series": {
-                "error": "The demo source returned a controlled schema mismatch.",
-                "hint": "Review the query columns before the next generated refresh.",
-            },
-            "lab_products": [
-                {"product": "Liquid ETH", "value_usd": 44_830_000},
-                {"product": "Institutional liquidity vault", "value_usd": 37_290_000},
-                {"product": "Liquid USD", "value_usd": 29_140_000},
-                {"product": "Pendle PT", "value_usd": 17_820_000},
-                {"product": "Aave", "value_usd": 12_610_000},
-                {"product": "Wallet", "value_usd": 7_390_000},
-            ],
-            "lab_top_users": top_users(100, seed=29, value_scale=8_400_000),
-            "lab_flows": [
-                {"source": "Campaign entry", "target": "ETH assets", "value_usd": 72_000_000},
-                {"source": "Campaign entry", "target": "Stable assets", "value_usd": 48_000_000},
-                {"source": "ETH assets", "target": "Liquid ETH", "value_usd": 38_000_000},
-                {"source": "ETH assets", "target": "Kyber LP", "value_usd": 21_000_000},
-                {"source": "ETH assets", "target": "Pendle", "value_usd": 13_000_000},
-                {"source": "Stable assets", "target": "Liquid USD", "value_usd": 26_000_000},
-                {"source": "Stable assets", "target": "Aave", "value_usd": 14_000_000},
-                {"source": "Stable assets", "target": "Wallet", "value_usd": 8_000_000},
-                {"source": "Liquid ETH", "target": "Retained", "value_usd": 32_000_000},
-                {"source": "Liquid ETH", "target": "Exited", "value_usd": 6_000_000},
-                {"source": "Liquid USD", "target": "Retained", "value_usd": 22_000_000},
-                {"source": "Liquid USD", "target": "Exited", "value_usd": 4_000_000},
-            ],
-            "lab_positions": positions,
-        },
-    }
-
-
 def write_payload(path: Path, payload: dict) -> None:
     path.write_text(
         json.dumps(payload, indent=2, sort_keys=False) + "\n",
@@ -276,7 +199,7 @@ def write_payload(path: Path, payload: dict) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Generate deterministic Studio demo data.")
+    parser = argparse.ArgumentParser(description="Generate deterministic Studio sample data.")
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT_DIR))
     parser.add_argument(
         "--refreshed-at",
@@ -291,8 +214,7 @@ def main() -> None:
         refreshed_at = refreshed_at.replace(tzinfo=timezone.utc)
 
     write_payload(output_dir / "kyberswap.json", build_kyberswap(refreshed_at))
-    write_payload(output_dir / "demo.json", build_demo(refreshed_at))
-    print(f"Generated Studio demo data in {output_dir}")
+    print(f"Generated Studio sample data in {output_dir}")
 
 
 if __name__ == "__main__":

@@ -1,10 +1,10 @@
 # Studio ingestion fixtures
 
-`scenarios.yaml` layers deterministic response behaviors over the existing
-`studio/data/*.json` demo bundles. The fixture client therefore exercises the
-same counters, time series, rankings, Sankey rows, wallet tables, addresses,
-transaction hashes, nulls, and large datasets that Studio renders, while each
-unique query ID is still fetched only once.
+`scenarios.yaml` layers deterministic response behaviors over the checked-in
+raw query fixtures. The fixture client therefore exercises the same counters,
+time series, rankings, Sankey rows, wallet tables, addresses, transaction
+hashes, nulls, and large datasets that Studio renders, while each unique query
+ID is still fetched only once.
 
 `query_8180894.json`, `query_8191379.json`, `query_8191704.json`,
 `query_8193003.json`, `query_8193040.json`, `query_8199058.json`, and

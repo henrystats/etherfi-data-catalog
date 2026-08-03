@@ -119,10 +119,9 @@ catalog, MCP, and existing dashboard registry. Its local routes are:
 
 - `http://localhost:8000/studio/`
 - `http://localhost:8000/studio/kyberswap/`
-- `http://localhost:8000/studio/demo/`
 
-Most checked-in Studio bundles contain realistic invented data for product and
-interaction review; they are clearly marked as demo data. Regenerate them with:
+The checked-in KyberSwap sample bundle contains invented data for offline
+product review and is clearly marked as sample data. Regenerate it with:
 
 ```bash
 .venv/bin/python scripts/generate_studio_demo_data.py
@@ -131,9 +130,7 @@ interaction review; they are clearly marked as demo data. Regenerate them with:
 Studio also has an offline ingestion path that fetches every unique query
 required by a `generated` dashboard once from deterministic fixtures, validates
 a complete candidate, and atomically switches `state.json` to an immutable
-snapshot. Demo-only query mappings remain in the inventory and use their demo
-bundle; they are not duplicated into the default generated snapshot. A safe
-local cycle is:
+snapshot. A safe local cycle is:
 
 ```bash
 .venv/bin/python scripts/generate_studio_inventory.py --check
@@ -204,10 +201,8 @@ browser-side Dune requests:
 All generated KyberSwap metrics now use reviewed latest-result sources. A live
 refresh reads queries 8180894, 8191379, 8191704, 8193003, 8193040, 8199058,
 8202133, 8204345, and 8204373 through the latest stored-result endpoint once
-each, transforms and validates each result in Python, and keeps placeholder
-queries confined to the separate Component Test Lab demo bundle. It does not
-turn fixture query IDs into live Dune requests. Every live source preserves one
-private raw sidecar and records
+each, then transforms and validates each result in Python. Every live source
+preserves one private raw sidecar and records
 source execution and methodology provenance; the attribution source also uses
 exact `Decimal` arithmetic and requires group-level and Sankey-level
 reconciliation before promotion. Raw sidecars, snapshot history, attempts, and

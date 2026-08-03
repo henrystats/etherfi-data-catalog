@@ -1,12 +1,8 @@
 schema_version: 1
 
-# Base rows are reused from studio/data/*.json. This keeps the fixture corpus
-# realistic without duplicating the 420-point series and Top-100 tables.
-default_query_overrides:
-  "9102004":
-    replace_rows:
-      - day: "2026-07-29T00:00:00Z"
-        value_usd: 42000
+# Base rows are reused from checked-in read-only query fixtures so the corpus
+# stays realistic without maintaining a second dashboard-specific dataset.
+default_query_overrides: {}
 
 scenarios:
   success: {}
@@ -33,8 +29,8 @@ scenarios:
       amount_usd: 250001
 
   reordered_columns:
-    query_id: 9102002
-    column_order: [fees_usd, withdrawals_usd, deposits_usd, total_value_usd, day]
+    query_id: 8204345
+    column_order: [amount_usd, strategy_symbol, block_time, blockchain, address, tx_hash]
 
   malformed_row:
     query_id: 8204345
@@ -50,19 +46,19 @@ scenarios:
       amount_usd: null
 
   large_numeric_string:
-    query_id: 9102001
+    query_id: 8204345
     set_values:
-      token_balance: "12345678901234567890.123456789"
+      amount_usd: "12345678901234567890.123456789"
 
   multiple_chains:
-    query_id: 9102008
+    query_id: 8204345
     extra_columns:
-      chain: [ethereum, arbitrum, base]
+      blockchain: [ethereum, arbitrum, base]
 
   invalid_date:
-    query_id: 9102002
+    query_id: 8204345
     set_values:
-      day: not-a-date
+      block_time: not-a-date
 
   rate_limited_once:
     query_id: 8204345

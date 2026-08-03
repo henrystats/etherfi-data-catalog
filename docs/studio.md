@@ -14,11 +14,9 @@ The checked-in dashboards are development products:
   activity chart uses Dune query 8202133; and its six Campaign Growth & Activity
   charts use four reviewed read-only sources. Its depositor tables and wallet
   investigation also use reviewed latest-result sources.
-- `/studio/demo/` is the Component Test Lab used for visual and interaction QA.
 - `/studio/` is the generated dashboard selector.
 
-The `9101xxx` and `9102xxx` query IDs are deterministic placeholders, not
-approved production Dune queries. Queries `8180894`, `8191379`, `8191704`,
+Queries `8180894`, `8191379`, `8191704`,
 `8193003`, `8193040`, `8199058`, `8202133`, `8204345`, and `8204373` are the
 reviewed read-only sources in the current rollout. The browser never calls Dune
 and never receives a Dune API key.
@@ -31,8 +29,7 @@ studio/
   metrics.yaml                    Metric presentation and query/column contracts
   query_inventory.json            Generated registry/query inventory
   data/
-    kyberswap.json                Deterministic invented demo data
-    demo.json                     Deterministic Component Test Lab data
+    kyberswap.json                Deterministic invented sample data
   fixtures/
     query_8199058.json            Offline raw-source fixture for attribution
     query_8180894.json            Offline raw-source fixture for summary counters
@@ -54,7 +51,7 @@ scripts/
   studio.py                       Registry, generated-data, and page validation
   studio_ingestion.py             Fetch, normalize, validate, snapshot, promote
   fetch_studio_data.py            Refresh/validation CLI
-  generate_studio_demo_data.py    Deterministic demo-bundle generator
+  generate_studio_demo_data.py    Deterministic KyberSwap sample-data generator
   generate_studio_inventory.py    JSON and Markdown inventory generator
   build_website.py                Static-site integration
 website/data/studio/generated/
@@ -334,9 +331,9 @@ daily/weekly defaults, range-date behavior, grouping views, measures, axes,
 weekly reconstruction rules, and validated selected-view export aliases.
 
 `provider_mode` is `fixture` or `latest_result`. It is part of the reviewed
-query contract, not a runtime guess. Queries 8180894, 8191379, 8191704, 8193003,
-8193040, 8199058, 8202133, 8204345, and 8204373 are `latest_result`; the demo-only
-Component Test Lab mappings are `fixture`.
+query contract, not a runtime guess. All queries in the current registry —
+8180894, 8191379, 8191704, 8193003, 8193040, 8199058, 8202133, 8204345, and
+8204373 — are `latest_result`.
 Metrics that share a query must agree on provider and transformation metadata.
 
 `columns` is the required, metric-scoped projection and is also the CSV export
@@ -460,8 +457,9 @@ active snapshot, it validates that complete snapshot too; with only the empty
 bootstrap manifest it reports `active_snapshot: false` without manufacturing
 data.
 
-Fixture mode uses the existing demo bundles and `studio/fixtures/scenarios.yaml`.
-It does not need network access or `DUNE_API_KEY`. Named scenarios cover:
+Fixture mode uses the checked-in raw query fixtures and
+`studio/fixtures/scenarios.yaml`. It does not need network access or
+`DUNE_API_KEY`. Named scenarios cover:
 
 ```text
 success, previous_valid_snapshot, empty_result, missing_required_column,
@@ -481,19 +479,16 @@ scenarios manually. Fixture values remain invented and must not be presented as
 live analytics.
 
 An unfiltered refresh includes only queries required by dashboards whose
-`data_mode` is `generated`. The complete registry and inventory still include
-demo-only Component Test Lab mappings, but those queries remain in the demo
-bundle and are not duplicated into the default immutable snapshot. Explicit
-fixture filters may refine or extend a same-mode current snapshot; live mode
-rejects demo-only dashboard and query selections.
+`data_mode` is `generated`. Explicit fixture filters may refine or extend a
+same-mode current snapshot; live mode rejects fixture-backed generated
+mappings.
 
 ### Live latest-result refresh
 
 For the current KyberSwap registry, queries 8180894, 8191379, 8191704, 8193003,
 8193040, 8199058, 8202133, 8204345, and 8204373 are all `latest_result` sources
-and are each imported once from Dune. The Component Test Lab remains a separate
-demo bundle and is not part of the generated KyberSwap snapshot. Load a local
-gitignored `.env` without printing its contents, then enable the two live gates:
+and are each imported once from Dune. Load a local gitignored `.env` without
+printing its contents, then enable the two live gates:
 
 ```bash
 set -a
@@ -1063,10 +1058,9 @@ Open:
 
 - `http://localhost:8000/studio/`
 - `http://localhost:8000/studio/kyberswap/`
-- `http://localhost:8000/studio/demo/`
 
 The build replaces Studio's generated output, so retired routes and query files
-cannot linger. Regenerate invented demo bundles with:
+cannot linger. Regenerate the invented KyberSwap sample bundle with:
 
 ```bash
 .venv/bin/python scripts/generate_studio_demo_data.py
@@ -1074,7 +1068,7 @@ cannot linger. Regenerate invented demo bundles with:
   --refreshed-at 2026-07-30T12:00:00Z
 ```
 
-Rebuild after regeneration and keep demo labeling visible.
+Rebuild after regeneration and keep sample-data labeling visible.
 
 ## ECharts and performance baseline
 
