@@ -163,25 +163,20 @@ def test_studio_refresh_template_documents_read_only_latest_result_contract():
     assert "--max-age" not in import_step["run"]
 
 
-def test_studio_fixture_workflow_is_manual_offline_and_disabled_by_default():
+def test_studio_fixture_workflow_is_manual_offline_and_runs_on_dispatch():
     workflow_text = STUDIO_FIXTURE_WORKFLOW_PATH.read_text(encoding="utf-8")
     workflow = yaml.load(workflow_text, Loader=yaml.BaseLoader)
 
     assert workflow["name"] == "Validate Studio fixture refresh"
-    assert set(workflow["on"]) == {"workflow_dispatch"}
+    assert workflow["on"] == {"workflow_dispatch": ""}
     assert "schedule" not in workflow["on"]
-    confirm = workflow["on"]["workflow_dispatch"]["inputs"][
-        "confirm_fixture_refresh"
-    ]
-    assert confirm["required"] == "true"
-    assert confirm["type"] == "boolean"
-    assert confirm["default"] == "false"
     assert workflow["permissions"] == {"contents": "read"}
     assert workflow["concurrency"]["cancel-in-progress"] == "false"
 
     job = workflow["jobs"]["fixture-refresh"]
-    assert job["if"] == "${{ inputs.confirm_fixture_refresh == true }}"
+    assert "if" not in job
     assert job["timeout-minutes"] == "20"
+    assert "env" not in job
     assert "DUNE_API_KEY" not in workflow_text
     assert "STUDIO_ENABLE_LIVE_DUNE" not in workflow_text
     assert "actions/configure-pages" not in workflow_text
@@ -196,6 +191,14 @@ def test_studio_fixture_workflow_validates_builds_and_uploads_short_lived_artifa
     )
     steps = workflow["jobs"]["fixture-refresh"]["steps"]
     step_names = [step["name"] for step in steps]
+    setup = steps[step_names.index("Set up Python")]
+    install = steps[step_names.index("Install project")]
+    assert setup["with"] == {
+        "python-version": "3.12",
+        "cache": "pip",
+        "cache-dependency-path": "pyproject.toml",
+    }
+    assert "python -m pip install -e '.[dev]'" in install["run"]
     expected_order = [
         "Check Studio query inventory",
         "Build deterministic fixture snapshot",
@@ -213,18 +216,26 @@ def test_studio_fixture_workflow_validates_builds_and_uploads_short_lived_artifa
     assert "--fixture-mode" in refresh
     assert "--fixture-scenario success" in refresh
     assert "--fixture-now 2026-07-31T12:00:00Z" in refresh
+    assert '--output-dir "$RUNNER_TEMP/studio-fixture-generated"' in refresh
     assert "--keep-previous 1" in refresh
 
     validation = steps[step_names.index("Validate active fixture snapshot")]["run"]
     assert "--validate-only" in validation
+    assert '--output-dir "$RUNNER_TEMP/studio-fixture-generated"' in validation
     assert steps[step_names.index("Run complete tests")]["run"] == (
         "python -m pytest -q"
     )
     assert steps[step_names.index("Build website")]["run"] == (
-        "python scripts/build_website.py"
+        'python scripts/build_website.py '
+        '--studio-generated-data "$RUNNER_TEMP/studio-fixture-generated"'
     )
     artifact = steps[step_names.index("Upload fixture diagnostics")]
     assert artifact["if"] == "${{ always() }}"
     assert artifact["uses"] == "actions/upload-artifact@v4"
     assert artifact["with"]["retention-days"] == "7"
-    assert "generated/attempts/" in artifact["with"]["path"]
+    assert "${{ runner.temp }}/studio-fixture-generated/state.json" in artifact["with"][
+        "path"
+    ]
+    assert "${{ runner.temp }}/studio-fixture-generated/attempts/" in artifact["with"][
+        "path"
+    ]

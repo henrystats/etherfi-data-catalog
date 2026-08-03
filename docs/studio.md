@@ -444,13 +444,15 @@ gates. Fixture mode is the safe default for development and CI.
   --fixture-mode \
   --fixture-scenario success \
   --fixture-now 2026-07-31T12:00:00Z \
-  --output-dir website/data/studio/generated \
+  --output-dir /tmp/studio-fixture-generated \
   --keep-previous 1 \
   --verbose
 
 .venv/bin/python scripts/fetch_studio_data.py \
   --validate-only \
-  --output-dir website/data/studio/generated
+  --output-dir /tmp/studio-fixture-generated
+.venv/bin/python scripts/build_website.py \
+  --studio-generated-data /tmp/studio-fixture-generated
 ```
 
 `--validate-only` always validates the registry. When `state.json` points to an

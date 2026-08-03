@@ -141,18 +141,23 @@ local cycle is:
   --fixture-mode \
   --fixture-scenario success \
   --fixture-now 2026-07-31T12:00:00Z \
+  --output-dir /tmp/studio-fixture-generated \
   --keep-previous 1 \
   --verbose
-.venv/bin/python scripts/fetch_studio_data.py --validate-only
-.venv/bin/python scripts/build_website.py
+.venv/bin/python scripts/fetch_studio_data.py \
+  --validate-only \
+  --output-dir /tmp/studio-fixture-generated
+.venv/bin/python scripts/build_website.py \
+  --studio-generated-data /tmp/studio-fixture-generated
 ```
 
 Fixture mode is offline and does not require a Dune key. The manual
 [`studio-fixture-refresh.yml`](.github/workflows/studio-fixture-refresh.yml)
-workflow has an opt-in boolean that defaults to false, does not deploy, and
-uploads only short-lived diagnostics. Production Studio imports remain disabled
-unless the server-side process has both `STUDIO_ENABLE_LIVE_DUNE=1` and
-`DUNE_API_KEY`; no production import schedule is enabled.
+workflow runs directly when dispatched, does not deploy, and uploads only
+short-lived diagnostics from a runner-temporary fixture directory. Production
+Studio imports remain disabled unless the server-side process has both
+`STUDIO_ENABLE_LIVE_DUNE=1` and `DUNE_API_KEY`; no production import schedule is
+enabled.
 
 Production Studio ingestion is a read-only import, not query execution. Dune
 schedules and refreshes each approved query independently; the GitHub Action

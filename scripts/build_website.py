@@ -3539,6 +3539,11 @@ def main() -> None:
         default=str(DEFAULT_STUDIO_DIR),
         help="Studio registry/data directory. Pass an empty string to skip Studio generation.",
     )
+    parser.add_argument(
+        "--studio-generated-data",
+        default=str(STUDIO_GENERATED_DATA_DIR),
+        help="Validated Studio generated-data directory used during the build.",
+    )
     args = parser.parse_args()
 
     datasets_dir = Path(args.datasets) if args.datasets else None
@@ -3552,6 +3557,7 @@ def main() -> None:
         dashboard_registry_path=dashboard_registry_path,
         freshness_registry_path=freshness_registry_path,
         studio_dir=studio_dir,
+        studio_generated_data_dir=Path(args.studio_generated_data),
     )
     print(f"Built {len(written_paths)} pages into {Path(args.output)}")
 

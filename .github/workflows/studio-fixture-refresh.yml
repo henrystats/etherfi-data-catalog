@@ -2,12 +2,6 @@ name: Validate Studio fixture refresh
 
 on:
   workflow_dispatch:
-    inputs:
-      confirm_fixture_refresh:
-        description: Run the offline Studio fixture refresh and validation workflow
-        required: true
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -18,7 +12,6 @@ concurrency:
 
 jobs:
   fixture-refresh:
-    if: ${{ inputs.confirm_fixture_refresh == true }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -47,7 +40,7 @@ jobs:
             --fixture-mode \
             --fixture-scenario success \
             --fixture-now 2026-07-31T12:00:00Z \
-            --output-dir website/data/studio/generated \
+            --output-dir "$RUNNER_TEMP/studio-fixture-generated" \
             --keep-previous 1 \
             --verbose
 
@@ -55,13 +48,15 @@ jobs:
         run: |
           python scripts/fetch_studio_data.py \
             --validate-only \
-            --output-dir website/data/studio/generated
+            --output-dir "$RUNNER_TEMP/studio-fixture-generated"
 
       - name: Run complete tests
         run: python -m pytest -q
 
       - name: Build website
-        run: python scripts/build_website.py
+        run: >-
+          python scripts/build_website.py
+          --studio-generated-data "$RUNNER_TEMP/studio-fixture-generated"
 
       - name: Upload fixture diagnostics
         if: ${{ always() }}
@@ -69,9 +64,9 @@ jobs:
         with:
           name: studio-fixture-refresh-${{ github.run_id }}
           path: |
-            website/data/studio/generated/state.json
-            website/data/studio/generated/snapshots/
-            website/data/studio/generated/attempts/
+            ${{ runner.temp }}/studio-fixture-generated/state.json
+            ${{ runner.temp }}/studio-fixture-generated/snapshots/
+            ${{ runner.temp }}/studio-fixture-generated/attempts/
             output/website/data/studio/generated/
           if-no-files-found: warn
           retention-days: 7

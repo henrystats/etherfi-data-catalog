@@ -54,6 +54,7 @@ def test_docker_smoke_workflow_is_manual_and_secret_free():
 
     assert "workflow_dispatch:" in workflow
     assert "contents: read" in workflow
+    assert "python -m pip install -e '.[dev]'" in workflow
     assert "docker build -t etherfi-catalog-mcp:local ." in workflow
     assert "--name etherfi-catalog-mcp-smoke" in workflow
     assert "-p 8001:8001" in workflow
