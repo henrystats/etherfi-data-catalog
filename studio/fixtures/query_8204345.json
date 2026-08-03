@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "query_id": 8204345,
+  "execution_id": "fixture-8204345-latest",
+  "execution_started_at": "2026-07-31T11:54:00Z",
+  "execution_finished_at": "2026-07-31T11:56:00Z",
+  "columns": [
+    "tx_hash",
+    "address",
+    "blockchain",
+    "block_time",
+    "strategy_symbol",
+    "amount_usd"
+  ],
+  "rows": [
+    {
+      "tx_hash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "address": "0x1111111111111111111111111111111111111111",
+      "blockchain": "ethereum",
+      "block_time": "2026-07-30T09:15:00Z",
+      "strategy_symbol": "eETH",
+      "amount_usd": 250000
+    },
+    {
+      "tx_hash": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "address": "0x2222222222222222222222222222222222222222",
+      "blockchain": "arbitrum",
+      "block_time": "2026-07-29T18:42:00Z",
+      "strategy_symbol": "liquidBTC",
+      "amount_usd": 130000
+    },
+    {
+      "tx_hash": "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "address": "0x3333333333333333333333333333333333333333",
+      "blockchain": "base",
+      "block_time": "2026-07-28T13:20:00Z",
+      "strategy_symbol": "liquidUSD",
+      "amount_usd": 90000
+    },
+    {
+      "tx_hash": "0xdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "address": "0x4444444444444444444444444444444444444444",
+      "blockchain": "ethereum",
+      "block_time": "2026-07-27T07:05:00Z",
+      "strategy_symbol": "eETH",
+      "amount_usd": 60000
+    }
+  ]
+}

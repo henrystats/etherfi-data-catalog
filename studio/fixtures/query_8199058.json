@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "query_id": 8199058,
+  "execution_id": "fixture-8199058-latest",
+  "execution_started_at": "2026-07-31T11:58:00Z",
+  "execution_finished_at": "2026-07-31T12:00:00Z",
+  "columns": [
+    "day",
+    "address",
+    "strategy_symbol",
+    "base_asset",
+    "depositor_type",
+    "current_token",
+    "current_token_category",
+    "referral_balance",
+    "current_balance",
+    "previous_balance"
+  ],
+  "rows": [
+    {
+      "day": "2026-07-31",
+      "address": "0x1111111111111111111111111111111111111111",
+      "strategy_symbol": "eETH",
+      "base_asset": "WETH",
+      "depositor_type": "New Depositor",
+      "current_token": "weETH",
+      "current_token_category": "Wallet",
+      "referral_balance": "250000",
+      "current_balance": "200000",
+      "previous_balance": "0"
+    },
+    {
+      "day": "2026-07-31",
+      "address": "0x1111111111111111111111111111111111111111",
+      "strategy_symbol": "eETH",
+      "base_asset": "WETH",
+      "depositor_type": "New Depositor",
+      "current_token": "liquidETH",
+      "current_token_category": "Liquid",
+      "referral_balance": "250000.0",
+      "current_balance": "150000",
+      "previous_balance": "0.00"
+    },
+    {
+      "day": "2026-07-31",
+      "address": "0x2222222222222222222222222222222222222222",
+      "strategy_symbol": "liquidBTC",
+      "base_asset": "WBTC",
+      "depositor_type": "Existing Depositor",
+      "current_token": "Aave",
+      "current_token_category": "Lending",
+      "referral_balance": "130000",
+      "current_balance": "195000",
+      "previous_balance": "65000"
+    },
+    {
+      "day": "2026-07-31",
+      "address": "0x2222222222222222222222222222222222222222",
+      "strategy_symbol": "liquidBTC",
+      "base_asset": "WBTC",
+      "depositor_type": "Existing Depositor",
+      "current_token": "Pendle",
+      "current_token_category": "Yield",
+      "referral_balance": "130000",
+      "current_balance": "32500",
+      "previous_balance": "65000"
+    },
+    {
+      "day": "2026-07-31",
+      "address": "0x3333333333333333333333333333333333333333",
+      "strategy_symbol": "liquidUSD",
+      "base_asset": "USD",
+      "depositor_type": "Existing Depositor",
+      "current_token": "Empty",
+      "current_token_category": null,
+      "referral_balance": "1000000",
+      "current_balance": "0",
+      "previous_balance": "500000"
+    },
+    {
+      "day": "2026-07-31",
+      "address": "0x4444444444444444444444444444444444444444",
+      "strategy_symbol": "liquidUSD",
+      "base_asset": "USD",
+      "depositor_type": "New Depositor",
+      "current_token": "Spark",
+      "current_token_category": null,
+      "referral_balance": "300000",
+      "current_balance": "200000",
+      "previous_balance": "0"
+    },
+    {
+      "day": "2026-07-31",
+      "address": "0x4444444444444444444444444444444444444444",
+      "strategy_symbol": "liquidUSD",
+      "base_asset": "USD",
+      "depositor_type": "New Depositor",
+      "current_token": "Aave",
+      "current_token_category": "Lending",
+      "referral_balance": "300000",
+      "current_balance": "100000",
+      "previous_balance": "0"
+    }
+  ]
+}

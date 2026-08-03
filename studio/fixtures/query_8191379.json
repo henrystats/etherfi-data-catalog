@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "query_id": 8191379,
+  "execution_id": "fixture-8191379-latest",
+  "execution_started_at": "2026-07-31T11:40:00Z",
+  "execution_finished_at": "2026-07-31T11:45:00Z",
+  "columns": [
+    "day",
+    "week",
+    "daily_deposits_usd",
+    "weekly_deposits_usd",
+    "cum_deposits_usd",
+    "last_updated"
+  ],
+  "rows": [
+    {
+      "day": "2026-07-20",
+      "week": "2026-07-20",
+      "daily_deposits_usd": "100.10",
+      "weekly_deposits_usd": "300.30",
+      "cum_deposits_usd": "100.10",
+      "last_updated": "2026-07-21T00:05:00Z"
+    },
+    {
+      "day": "2026-07-21",
+      "week": "2026-07-20",
+      "daily_deposits_usd": "200.20",
+      "weekly_deposits_usd": "300.30",
+      "cum_deposits_usd": "300.30",
+      "last_updated": "2026-07-22T00:05:00Z"
+    },
+    {
+      "day": "2026-07-27",
+      "week": "2026-07-27",
+      "daily_deposits_usd": "50",
+      "weekly_deposits_usd": "75",
+      "cum_deposits_usd": "350.30",
+      "last_updated": "2026-07-28T00:05:00Z"
+    },
+    {
+      "day": "2026-07-28",
+      "week": "2026-07-27",
+      "daily_deposits_usd": "25",
+      "weekly_deposits_usd": "75",
+      "cum_deposits_usd": "375.30",
+      "last_updated": "2026-07-29T00:05:00Z"
+    }
+  ]
+}

@@ -1,0 +1,1665 @@
+metrics:
+  - id: kyber_total_referral_deposits
+    dashboard_id: kyberswap_campaign
+    name: Total Referral Deposits
+    description: Referral-attributed deposits during the selected period.
+    section: counters
+    visualization_type: counter
+    query_id: 8180894
+    query_url: https://dune.com/queries/8180894
+    data_file: query_8180894.json
+    columns: &kyberswap_campaign_summary_columns
+      - rank_
+      - key_
+      - total_deposits_usd
+      - outstanding_balance_usd
+      - num_depositors
+      - new_depositors
+      - deposits_by_new_depositors
+      - retention_rate
+      - depositors_new_users_rate
+      - revenue_generated
+      - source_query_id
+      - source_execution_id
+      - source_last_updated
+      - generated_at
+    dimension_columns: &kyberswap_campaign_summary_dimensions
+      - rank_
+      - key_
+      - source_query_id
+      - source_execution_id
+      - source_last_updated
+      - generated_at
+    value_columns: &kyberswap_campaign_summary_values
+      - total_deposits_usd
+      - outstanding_balance_usd
+      - num_depositors
+      - new_depositors
+      - deposits_by_new_depositors
+      - retention_rate
+      - depositors_new_users_rate
+      - revenue_generated
+    data_source: kyberswap_campaign_summary
+    provider_mode: latest_result
+    transformation: &kyberswap_campaign_summary_transformation
+      id: kyberswap_campaign_summary
+      version: 1.0.0
+      methodology_id: kyberswap_campaign_summary_v1
+      script_path: scripts/prepare_kyberswap_campaign_summary.py
+      tests_path: tests/test_kyberswap_campaign_summary.py
+      fixture_path: studio/fixtures/query_8180894.json
+      raw_data_file: raw_query_8180894.json
+      source_required_columns: [rank_, key_]
+    methodology:
+      title: KyberSwap Campaign Summary
+      description: The counters summarize referral deposits, current attributed balances, depositors, retention, new-depositor contribution, and partnership revenue for the selected period.
+      metric_definitions:
+        - Total Referral Deposits is referral-attributed deposit volume during the selected period.
+        - Attributed TVL is the current ether.fi balance supportable by addresses that deposited during the selected period.
+        - Referred Deposits by New Depositors is referral volume from wallets making their first ether.fi referral deposit.
+        - "% Deposits by New Depositors is deposits_by_new_depositors divided by total_deposits_usd."
+        - Total Depositors is the distinct count of referred wallets depositing during the selected period.
+        - New Depositors is the distinct count of wallets whose first referral deposit occurred during the selected period.
+        - Retention Rate is attributed TVL divided by selected-period referral deposits.
+        - Revenue Generated is revenue attributed to the KyberSwap partnership.
+      selected_period_logic:
+        - Deposit metrics include referral deposits occurring during the selected period.
+        - Total depositors include addresses depositing during the selected period.
+        - New depositors are wallets whose first referral deposit occurs during the selected period.
+        - Attributed TVL represents current balances supportable by addresses that deposited in that period.
+        - Retention is attributed TVL divided by selected-period deposits.
+        - Repeat depositors may have older balances, so outstanding attribution follows the documented campaign methodology.
+      notes:
+        - Dashboard periods map to key_ rows in the latest stored Dune result; unavailable periods and values display zero during development.
+        - The export renames depositors_new_users_rate to deposits_by_new_depositors_rate without modifying the raw Dune result.
+    value_column: total_deposits_usd
+    compact_counter: true
+    period_key_column: key_
+    period_key_map: &kyberswap_campaign_period_key_map
+      7D: 7d_data
+      30D: 30d_data
+      90D: 90d_data
+      YTD: ytd_data
+      1Y: 1y_data
+      ALL: all_time_data
+    export_name: KyberSwap Campaign Summary
+    export_slug: kyberswap-campaign-summary
+    export_columns:
+      - key_
+      - total_deposits_usd
+      - outstanding_balance_usd
+      - num_depositors
+      - new_depositors
+      - deposits_by_new_depositors
+      - depositors_new_users_rate
+      - retention_rate
+      - revenue_generated
+      - source_last_updated
+    export_column_aliases:
+      key_: period
+      depositors_new_users_rate: deposits_by_new_depositors_rate
+    source_label: Inspect Methodology
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 1
+    format: currency_compact
+    size: small
+
+  - id: kyber_attributed_tvl
+    dashboard_id: kyberswap_campaign
+    name: Attributed TVL
+    description: Referral deposits still supported by current ether.fi balances.
+    section: counters
+    visualization_type: counter
+    query_id: 8180894
+    query_url: https://dune.com/queries/8180894
+    data_file: query_8180894.json
+    columns: *kyberswap_campaign_summary_columns
+    dimension_columns: *kyberswap_campaign_summary_dimensions
+    value_columns: *kyberswap_campaign_summary_values
+    data_source: kyberswap_campaign_summary
+    provider_mode: latest_result
+    transformation: *kyberswap_campaign_summary_transformation
+    value_column: outstanding_balance_usd
+    compact_counter: true
+    period_key_column: key_
+    period_key_map: *kyberswap_campaign_period_key_map
+    last_updated: generated
+    is_exportable: false
+    default_visible: true
+    display_order: 2
+    format: currency_compact
+    size: small
+
+  - id: kyber_new_depositor_deposits
+    dashboard_id: kyberswap_campaign
+    name: Referred Deposits by New Depositors
+    description: Referral volume contributed by first-time ether.fi depositors.
+    section: counters
+    visualization_type: counter
+    query_id: 8180894
+    query_url: https://dune.com/queries/8180894
+    data_file: query_8180894.json
+    columns: *kyberswap_campaign_summary_columns
+    dimension_columns: *kyberswap_campaign_summary_dimensions
+    value_columns: *kyberswap_campaign_summary_values
+    data_source: kyberswap_campaign_summary
+    provider_mode: latest_result
+    transformation: *kyberswap_campaign_summary_transformation
+    value_column: deposits_by_new_depositors
+    compact_counter: true
+    period_key_column: key_
+    period_key_map: *kyberswap_campaign_period_key_map
+    last_updated: generated
+    is_exportable: false
+    default_visible: true
+    display_order: 3
+    format: currency_compact
+    size: small
+
+  - id: kyber_new_depositor_deposit_rate
+    dashboard_id: kyberswap_campaign
+    name: "% Deposits by New Depositors"
+    description: Share of referral deposits contributed by new depositors.
+    section: counters
+    visualization_type: counter
+    query_id: 8180894
+    query_url: https://dune.com/queries/8180894
+    data_file: query_8180894.json
+    columns: *kyberswap_campaign_summary_columns
+    dimension_columns: *kyberswap_campaign_summary_dimensions
+    value_columns: *kyberswap_campaign_summary_values
+    data_source: kyberswap_campaign_summary
+    provider_mode: latest_result
+    transformation: *kyberswap_campaign_summary_transformation
+    value_column: depositors_new_users_rate
+    compact_counter: true
+    period_key_column: key_
+    period_key_map: *kyberswap_campaign_period_key_map
+    last_updated: generated
+    is_exportable: false
+    default_visible: true
+    display_order: 4
+    format: percent
+    size: small
+
+  - id: kyber_total_depositors
+    dashboard_id: kyberswap_campaign
+    name: Total Depositors
+    description: Distinct wallets that deposited during the selected period.
+    section: counters
+    visualization_type: counter
+    query_id: 8180894
+    query_url: https://dune.com/queries/8180894
+    data_file: query_8180894.json
+    columns: *kyberswap_campaign_summary_columns
+    dimension_columns: *kyberswap_campaign_summary_dimensions
+    value_columns: *kyberswap_campaign_summary_values
+    data_source: kyberswap_campaign_summary
+    provider_mode: latest_result
+    transformation: *kyberswap_campaign_summary_transformation
+    value_column: num_depositors
+    compact_counter: true
+    period_key_column: key_
+    period_key_map: *kyberswap_campaign_period_key_map
+    last_updated: generated
+    is_exportable: false
+    default_visible: true
+    display_order: 5
+    format: integer
+    size: small
+
+  - id: kyber_new_depositors
+    dashboard_id: kyberswap_campaign
+    name: New Depositors
+    description: Wallets making their first ether.fi referral deposit.
+    section: counters
+    visualization_type: counter
+    query_id: 8180894
+    query_url: https://dune.com/queries/8180894
+    data_file: query_8180894.json
+    columns: *kyberswap_campaign_summary_columns
+    dimension_columns: *kyberswap_campaign_summary_dimensions
+    value_columns: *kyberswap_campaign_summary_values
+    data_source: kyberswap_campaign_summary
+    provider_mode: latest_result
+    transformation: *kyberswap_campaign_summary_transformation
+    value_column: new_depositors
+    compact_counter: true
+    period_key_column: key_
+    period_key_map: *kyberswap_campaign_period_key_map
+    last_updated: generated
+    is_exportable: false
+    default_visible: true
+    display_order: 6
+    format: integer
+    size: small
+
+  - id: kyber_retention_rate
+    dashboard_id: kyberswap_campaign
+    name: Retention Rate
+    description: Share of referral deposits still retained in ether.fi.
+    section: counters
+    visualization_type: counter
+    query_id: 8180894
+    query_url: https://dune.com/queries/8180894
+    data_file: query_8180894.json
+    columns: *kyberswap_campaign_summary_columns
+    dimension_columns: *kyberswap_campaign_summary_dimensions
+    value_columns: *kyberswap_campaign_summary_values
+    data_source: kyberswap_campaign_summary
+    provider_mode: latest_result
+    transformation: *kyberswap_campaign_summary_transformation
+    value_column: retention_rate
+    compact_counter: true
+    period_key_column: key_
+    period_key_map: *kyberswap_campaign_period_key_map
+    last_updated: generated
+    is_exportable: false
+    default_visible: true
+    display_order: 7
+    format: percent
+    size: small
+
+  - id: kyber_revenue_generated
+    dashboard_id: kyberswap_campaign
+    name: Revenue Generated
+    description: Revenue attributed to the KyberSwap partnership.
+    section: counters
+    visualization_type: counter
+    query_id: 8180894
+    query_url: https://dune.com/queries/8180894
+    data_file: query_8180894.json
+    columns: *kyberswap_campaign_summary_columns
+    dimension_columns: *kyberswap_campaign_summary_dimensions
+    value_columns: *kyberswap_campaign_summary_values
+    data_source: kyberswap_campaign_summary
+    provider_mode: latest_result
+    transformation: *kyberswap_campaign_summary_transformation
+    value_column: revenue_generated
+    compact_counter: true
+    period_key_column: key_
+    period_key_map: *kyberswap_campaign_period_key_map
+    last_updated: generated
+    is_exportable: false
+    default_visible: true
+    display_order: 8
+    format: currency_compact
+    size: small
+
+  - id: kyber_referral_deposits_growth
+    dashboard_id: kyberswap_campaign
+    name: Referral Deposits
+    description: Daily or weekly referral deposits alongside cumulative campaign deposits.
+    section: trends
+    visualization_type: line
+    query_id: 8191379
+    query_url: https://dune.com/queries/8191379
+    data_file: query_8191379.json
+    columns: &kyberswap_growth_deposits_columns
+      [record_type, period, day, observation_day, week, daily_deposits_usd, weekly_deposits_usd, cum_deposits_usd, last_updated, source_query_id, source_execution_id, source_last_updated, generated_at]
+    dimension_columns: &kyberswap_growth_deposits_dimensions
+      [record_type, period, day, observation_day, week, last_updated, source_query_id, source_execution_id, source_last_updated, generated_at]
+    value_columns: &kyberswap_growth_deposits_values
+      [daily_deposits_usd, weekly_deposits_usd, cum_deposits_usd]
+    data_source: kyberswap_growth_deposits
+    provider_mode: latest_result
+    transformation: &kyberswap_growth_deposits_transformation
+      id: kyberswap_growth_deposits
+      version: 1.0.0
+      methodology_id: kyberswap_growth_deposits_v1
+      script_path: scripts/enrich_kyberswap_growth.py
+      tests_path: tests/test_kyberswap_growth.py
+      fixture_path: studio/fixtures/query_8191379.json
+      raw_data_file: raw_query_8191379.json
+      source_required_columns: [day, week, daily_deposits_usd, weekly_deposits_usd, cum_deposits_usd, last_updated]
+    methodology:
+      title: Referral Deposits
+      description: Period referral deposits and cumulative campaign deposits are prepared from the latest stored query result and displayed together on separate USD axes.
+      metric_definitions:
+        - Daily columns use daily_deposits_usd and the line uses cum_deposits_usd.
+        - Weekly columns use weekly_deposits_usd from the latest available day in each week; that same row supplies the cumulative line.
+      selected_period_logic:
+        - The dashboard period filters prepared source dates before the selected daily or weekly view is shown.
+        - An incomplete current week uses its latest available observation and weekly_deposits_usd is never summed across repeated daily rows.
+      notes:
+        - Both axes are USD; the left axis is period deposits and the right axis is cumulative deposits.
+        - Python validates non-negative deposits, non-decreasing cumulative values, dates, weeks, and source last_updated.
+    growth_chart:
+      kind: combo
+      default_granularity: weekly
+      period_column: period
+      range_date_column: observation_day
+      available_granularities: [daily, weekly]
+      default_view: deposits
+      views:
+        - id: deposits
+          label: Deposits
+          record_types: {daily: daily, weekly: weekly}
+          series_label: Referral deposits
+      measures:
+        - {column_by_granularity: {daily: daily_deposits_usd, weekly: weekly_deposits_usd}, label: Period referral deposits, format: currency_compact, series_type: column, axis: left, color: green}
+        - {column: cum_deposits_usd, label: Cumulative referral deposits, format: currency_compact, series_type: line, axis: right, color: blue}
+      export_columns: [period, period_deposits_usd, cumulative_deposits_usd, granularity, source_last_updated]
+      export_aliases: {period: period, period_deposits_usd: primary_value, cumulative_deposits_usd: secondary_value, granularity: granularity, source_last_updated: source_last_updated}
+    source_label: Methodology
+    export_name: Referral Deposits
+    export_slug: kyberswap-referral-deposits-growth
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 9
+    format: currency_compact
+    size: medium
+    date_column: period
+    default_visualization: line
+    allowed_visualizations: [line]
+    series:
+      - {column: daily_deposits_usd, label: Period referral deposits, color: green}
+      - {column: cum_deposits_usd, label: Cumulative referral deposits, color: blue}
+
+  - id: kyber_attributed_tvl_over_time
+    dashboard_id: kyberswap_campaign
+    name: Attributed TVL Over Time
+    description: Referral-attributed capital still held across ether.fi positions.
+    section: trends
+    visualization_type: line
+    query_id: 8191704
+    query_url: https://dune.com/queries/8191704
+    data_file: query_8191704.json
+    columns: &kyberswap_growth_tvl_columns
+      [record_type, period, day, observation_day, week, depositor_type, daily_attributed_tvl_usd, cum_attributed_tvl_usd, source_query_id, source_execution_id, source_last_updated, generated_at]
+    dimension_columns: &kyberswap_growth_tvl_dimensions
+      [record_type, period, day, observation_day, week, depositor_type, source_query_id, source_execution_id, source_last_updated, generated_at]
+    value_columns: &kyberswap_growth_tvl_values [daily_attributed_tvl_usd, cum_attributed_tvl_usd]
+    data_source: kyberswap_growth_attributed_tvl
+    provider_mode: latest_result
+    transformation: &kyberswap_growth_tvl_transformation
+      id: kyberswap_growth_attributed_tvl
+      version: 1.0.0
+      methodology_id: kyberswap_growth_attributed_tvl_v1
+      script_path: scripts/enrich_kyberswap_growth.py
+      tests_path: tests/test_kyberswap_growth.py
+      fixture_path: studio/fixtures/query_8191704.json
+      raw_data_file: raw_query_8191704.json
+      source_required_columns: [day, week, depositor_type, daily_attributed_tvl_usd, cum_attributed_tvl_usd]
+    methodology:
+      title: Attributed TVL Over Time
+      description: Attributed TVL is prepared as either one total series or separate depositor-type series from the latest stored result.
+      metric_definitions:
+        - All mode uses one repeated cum_attributed_tvl_usd value per day and validates that depositor-type rows agree.
+        - Depositor Type mode uses daily_attributed_tvl_usd for New Depositor, Existing Depositor, Past Depositor, and any validated source categories.
+      selected_period_logic:
+        - Weekly TVL selects the latest available observation in each week rather than summing TVL across days.
+        - The dashboard period filters prepared observations before rendering.
+      notes:
+        - Area mode stacks depositor-type series while Line mode renders separate non-stacked lines; All is a single series in both modes.
+        - Values are USD and the Python transformation validates the repeated total, classifications, dates, and non-negative values.
+    growth_chart:
+      kind: timeseries
+      default_granularity: weekly
+      period_column: period
+      range_date_column: observation_day
+      available_granularities: [daily, weekly]
+      default_view: all
+      views:
+        - id: all
+          label: All
+          record_types: {daily: daily_all, weekly: weekly_all}
+          series_label: Attributed TVL
+          value_column: cum_attributed_tvl_usd
+        - id: depositor_type
+          label: Depositor Type
+          record_types: {daily: daily_depositor_type, weekly: weekly_depositor_type}
+          dimension_column: depositor_type
+          dimension_order: [New Depositor, Existing Depositor, Past Depositor]
+          value_column: daily_attributed_tvl_usd
+      measures:
+        - {column: cum_attributed_tvl_usd, label: Attributed TVL, format: currency_compact, series_type: area, color: green, stack: true}
+      export_columns: [period, grouping_mode, depositor_type, attributed_tvl_usd, granularity]
+      export_aliases: {period: period, grouping_mode: selected_view, depositor_type: dimension, attributed_tvl_usd: primary_value, granularity: granularity}
+    source_label: Methodology
+    export_name: Attributed TVL Over Time
+    export_slug: kyberswap-attributed-tvl-over-time
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 10
+    format: currency_compact
+    size: medium
+    date_column: period
+    default_visualization: area
+    allowed_visualizations: [area, line]
+    series:
+      - {column: cum_attributed_tvl_usd, label: Attributed TVL, color: green}
+
+  - id: kyber_referral_deposits_breakdown
+    dashboard_id: kyberswap_campaign
+    name: Referral Deposits Breakdown
+    description: Referral deposit value over time grouped by product or depositor type.
+    section: trends
+    visualization_type: line
+    query_id: 8193003
+    query_url: https://dune.com/queries/8193003
+    data_file: query_8193003.json
+    columns: &kyberswap_growth_breakdown_columns
+      [record_type, period, day, week, product_symbol, depositor_type, daily_deposits, source_query_id, source_execution_id, source_last_updated, generated_at]
+    dimension_columns: &kyberswap_growth_breakdown_dimensions
+      [record_type, period, day, week, product_symbol, depositor_type, source_query_id, source_execution_id, source_last_updated, generated_at]
+    value_columns: &kyberswap_growth_breakdown_values [daily_deposits]
+    data_source: kyberswap_growth_breakdown
+    provider_mode: latest_result
+    transformation: &kyberswap_growth_breakdown_transformation
+      id: kyberswap_growth_breakdown
+      version: 1.0.0
+      methodology_id: kyberswap_growth_breakdown_v1
+      script_path: scripts/enrich_kyberswap_growth.py
+      tests_path: tests/test_kyberswap_growth.py
+      fixture_path: studio/fixtures/query_8193003.json
+      raw_data_file: raw_query_8193003.json
+      source_required_columns: [day, week, product_symbol, depositor_type, daily_deposits]
+    methodology: &kyberswap_growth_breakdown_methodology
+      title: Referral Deposits Breakdown
+      description: Referral deposit flows are transformed into product and depositor-type views while retaining USD precision.
+      metric_definitions:
+        - Daily product and depositor-type views sum daily_deposits at their respective source grains.
+        - Weekly views sum the daily USD flows across each week; Product and Depositor Type change grouping rather than filtering one category.
+      selected_period_logic:
+        - The dashboard period filters daily source dates before weekly grouping or total aggregation.
+        - The total ranking sums only dates inside the active dashboard period and sorts categories by descending USD value.
+      notes:
+        - Product order prefers eETH, liquidETH, liquidUSD, and liquidBTC; depositor types prefer New, Existing, and Past Depositor while preserving validated unexpected categories.
+        - The time-series view is always stacked columns and the total view is always horizontal bars.
+    growth_chart:
+      kind: timeseries
+      default_granularity: weekly
+      period_column: period
+      rebuild_weekly_from_daily: true
+      available_granularities: [daily, weekly]
+      default_view: product
+      views:
+        - id: product
+          label: Product
+          record_types: {daily: daily_product, weekly: weekly_product}
+          dimension_column: product_symbol
+          dimension_order: [eETH, liquidETH, liquidUSD, liquidBTC]
+          value_column: daily_deposits
+        - id: depositor_type
+          label: Depositor Type
+          record_types: {daily: daily_depositor_type, weekly: weekly_depositor_type}
+          dimension_column: depositor_type
+          dimension_order: [New Depositor, Existing Depositor, Past Depositor]
+          value_column: daily_deposits
+      measures:
+        - {column: daily_deposits, label: Referral deposits, format: currency_compact, series_type: column, color: green, stack: true}
+      export_columns: [period, category_type, category, deposits_usd, granularity]
+      export_aliases: {period: period, category_type: selected_view, category: dimension, deposits_usd: primary_value, granularity: granularity}
+    source_label: Methodology
+    export_name: Referral Deposits Breakdown
+    export_slug: kyberswap-referral-deposits-breakdown
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 11
+    format: currency_compact
+    size: medium
+    date_column: period
+    default_visualization: column
+    allowed_visualizations: [column]
+    series:
+      - {column: daily_deposits, label: Referral deposits, color: green}
+
+  - id: kyber_total_referral_deposits_breakdown
+    dashboard_id: kyberswap_campaign
+    name: Total Referral Deposits Breakdown
+    description: Total referral deposit value by product or depositor type.
+    section: trends
+    visualization_type: bar
+    query_id: 8193003
+    query_url: https://dune.com/queries/8193003
+    data_file: query_8193003.json
+    columns: *kyberswap_growth_breakdown_columns
+    dimension_columns: *kyberswap_growth_breakdown_dimensions
+    value_columns: *kyberswap_growth_breakdown_values
+    data_source: kyberswap_growth_breakdown
+    provider_mode: latest_result
+    transformation: *kyberswap_growth_breakdown_transformation
+    methodology:
+      title: Total Referral Deposits Breakdown
+      description: Referral deposit flows are transformed into active-period totals by product or depositor type while retaining USD precision.
+      metric_definitions:
+        - Product and Depositor Type change the ranking dimension rather than filtering one category.
+        - Each horizontal bar sums daily_deposits for one category and is sorted by descending USD value.
+      selected_period_logic:
+        - The dashboard period filters daily source dates before the category totals are calculated.
+        - Daily and weekly controls do not apply to this active-period total ranking.
+      notes:
+        - Product order prefers eETH, liquidETH, liquidUSD, and liquidBTC; depositor types prefer New, Existing, and Past Depositor while retaining validated unexpected categories.
+        - Values are USD, source daily flows are summed once, and the source query is shared with the time-series breakdown without another Dune fetch.
+    growth_chart:
+      kind: ranking
+      period_column: period
+      available_granularities: []
+      default_view: product
+      views:
+        - id: product
+          label: Product
+          record_types: {total: daily_product}
+          dimension_column: product_symbol
+          dimension_order: [eETH, liquidETH, liquidUSD, liquidBTC]
+          value_column: daily_deposits
+        - id: depositor_type
+          label: Depositor Type
+          record_types: {total: daily_depositor_type}
+          dimension_column: depositor_type
+          dimension_order: [New Depositor, Existing Depositor, Past Depositor]
+          value_column: daily_deposits
+      measures:
+        - {column: daily_deposits, label: Total referral deposits, format: currency_compact, series_type: bar, color: green}
+      export_columns: [category_type, category, total_deposits_usd, dashboard_period]
+      export_aliases: {category_type: selected_view, category: dimension, total_deposits_usd: primary_value, dashboard_period: dashboard_period}
+    source_label: Methodology
+    export_name: Total Referral Deposits Breakdown
+    export_slug: kyberswap-total-referral-deposits-breakdown
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 12
+    format: currency_compact
+    size: medium
+    orientation: horizontal
+    category_column: product_symbol
+    value_column: daily_deposits
+
+  - id: kyber_deposit_depositor_count_by_product
+    dashboard_id: kyberswap_campaign
+    name: Deposit & Depositor Count by Product
+    description: Referral deposit events or unique depositors grouped by product.
+    section: trends
+    visualization_type: line
+    query_id: 8193040
+    query_url: https://dune.com/queries/8193040
+    data_file: query_8193040.json
+    columns: &kyberswap_growth_activity_columns
+      [record_type, period, timestamp_type, timestamp, category_type, category, metric_type, metric_value, source_query_id, source_execution_id, source_last_updated, generated_at]
+    dimension_columns: &kyberswap_growth_activity_dimensions
+      [record_type, period, timestamp_type, timestamp, category_type, category, metric_type, source_query_id, source_execution_id, source_last_updated, generated_at]
+    value_columns: &kyberswap_growth_activity_values [metric_value]
+    data_source: kyberswap_growth_activity
+    provider_mode: latest_result
+    transformation: &kyberswap_growth_activity_transformation
+      id: kyberswap_growth_activity
+      version: 1.0.0
+      methodology_id: kyberswap_growth_activity_v1
+      script_path: scripts/enrich_kyberswap_growth.py
+      tests_path: tests/test_kyberswap_growth.py
+      fixture_path: studio/fixtures/query_8193040.json
+      raw_data_file: raw_query_8193040.json
+      source_required_columns: [timestamp_type, timestamp, category_type, category, metric_type, metric_value]
+    methodology: &kyberswap_growth_activity_methodology
+      title: Deposit and Depositor Counts
+      description: Deposit-event and unique-depositor counts are selected from the prepared daily or weekly source grain.
+      metric_definitions:
+        - Product and depositor-type charts retain separate category series and switch between deposits and depositors without refetching data.
+        - Daily and weekly values are already returned by Dune and are selected through timestamp_type; weekly rows are not reconstructed from daily rows.
+      selected_period_logic:
+        - The dashboard period filters the selected daily or weekly timestamps before rendering.
+        - Deposits and Depositors select metric_type within the chart's fixed product or depositor_type category_type.
+      notes:
+        - Values are validated non-negative integers; daily and weekly logical rows remain distinct.
+        - Bar mode stacks category series and Line mode displays separate non-stacked series.
+    growth_chart:
+      kind: timeseries
+      default_granularity: weekly
+      period_column: period
+      available_granularities: [daily, weekly]
+      default_view: deposits
+      views:
+        - id: deposits
+          label: Deposits
+          record_types: {daily: day_product_deposits, weekly: week_product_deposits}
+          dimension_column: category
+          dimension_order: [eETH, liquidETH, liquidUSD, liquidBTC]
+          value_column: metric_value
+        - id: depositors
+          label: Depositors
+          record_types: {daily: day_product_depositors, weekly: week_product_depositors}
+          dimension_column: category
+          dimension_order: [eETH, liquidETH, liquidUSD, liquidBTC]
+          value_column: metric_value
+      measures:
+        - {column: metric_value, label: Count, format: integer, series_type: column, color: blue, stack: true}
+      export_columns: [timestamp_type, timestamp, category_type, category, metric_type, metric_value]
+      export_aliases: {timestamp_type: source_granularity, timestamp: period, category: dimension, metric_type: selected_view, metric_value: primary_value}
+      export_constants: {category_type: product}
+    source_label: Methodology
+    export_name: Deposit and Depositor Count by Product
+    export_slug: kyberswap-deposit-depositor-count-by-product
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 13
+    format: integer
+    size: medium
+    date_column: period
+    default_visualization: column
+    allowed_visualizations: [column, line]
+    series:
+      - {column: metric_value, label: Count, color: blue}
+
+  - id: kyber_deposit_depositor_count_by_depositor_type
+    dashboard_id: kyberswap_campaign
+    name: Deposit & Depositor Count by Depositor Type
+    description: Referral deposit events or unique depositors grouped by depositor classification.
+    section: trends
+    visualization_type: line
+    query_id: 8193040
+    query_url: https://dune.com/queries/8193040
+    data_file: query_8193040.json
+    columns: *kyberswap_growth_activity_columns
+    dimension_columns: *kyberswap_growth_activity_dimensions
+    value_columns: *kyberswap_growth_activity_values
+    data_source: kyberswap_growth_activity
+    provider_mode: latest_result
+    transformation: *kyberswap_growth_activity_transformation
+    methodology: *kyberswap_growth_activity_methodology
+    growth_chart:
+      kind: timeseries
+      default_granularity: weekly
+      period_column: period
+      available_granularities: [daily, weekly]
+      default_view: deposits
+      views:
+        - id: deposits
+          label: Deposits
+          record_types: {daily: day_depositor_type_deposits, weekly: week_depositor_type_deposits}
+          dimension_column: category
+          dimension_order: [New Depositor, Existing Depositor, Past Depositor]
+          value_column: metric_value
+        - id: depositors
+          label: Depositors
+          record_types: {daily: day_depositor_type_depositors, weekly: week_depositor_type_depositors}
+          dimension_column: category
+          dimension_order: [New Depositor, Existing Depositor, Past Depositor]
+          value_column: metric_value
+      measures:
+        - {column: metric_value, label: Count, format: integer, series_type: column, color: amber, stack: true}
+      export_columns: [timestamp_type, timestamp, category_type, category, metric_type, metric_value]
+      export_aliases: {timestamp_type: source_granularity, timestamp: period, category: dimension, metric_type: selected_view, metric_value: primary_value}
+      export_constants: {category_type: depositor_type}
+    source_label: Methodology
+    export_name: Deposit and Depositor Count by Depositor Type
+    export_slug: kyberswap-deposit-depositor-count-by-depositor-type
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 14
+    format: integer
+    size: medium
+    date_column: period
+    default_visualization: column
+    allowed_visualizations: [column, line]
+    series:
+      - {column: metric_value, label: Count, color: amber}
+
+  - id: kyber_attributed_tvl_by_location
+    dashboard_id: kyberswap_campaign
+    name: Attributed TVL by Current Location
+    description: Current referral-attributed capital grouped by protocol or destination category.
+    section: capital_activity
+    visualization_type: bar
+    query_id: 8199058
+    query_url: https://dune.com/queries/8199058
+    data_file: query_8199058.json
+    columns: &kyberswap_attributed_holdings_columns
+      - day
+      - address
+      - strategy_symbol
+      - base_asset
+      - depositor_type
+      - referral_balance
+      - previous_balance
+      - total_current_balance
+      - campaign_supported_balance
+      - final_attributable_balance
+      - exited_balance
+      - current_token
+      - current_token_category
+      - current_balance
+      - attributed_balance
+      - unattributed_balance
+      - destination_status
+      - allocation_rank
+      - allocation_rule
+      - methodology_id
+      - source_query_id
+      - source_execution_id
+      - source_last_updated
+      - generated_at
+    dimension_columns: &kyberswap_attributed_holdings_dimensions
+      - day
+      - address
+      - strategy_symbol
+      - base_asset
+      - depositor_type
+      - current_token
+      - current_token_category
+      - destination_status
+      - allocation_rule
+      - methodology_id
+      - source_execution_id
+      - source_last_updated
+      - generated_at
+    value_columns: &kyberswap_attributed_holdings_values
+      - referral_balance
+      - previous_balance
+      - total_current_balance
+      - campaign_supported_balance
+      - final_attributable_balance
+      - exited_balance
+      - current_balance
+      - attributed_balance
+      - unattributed_balance
+      - allocation_rank
+      - source_query_id
+    address_columns: [address]
+    data_source: kyberswap_attributed_holdings
+    provider_mode: latest_result
+    transformation: &kyberswap_attributed_holdings_transformation
+      id: kyberswap_attributed_holdings
+      version: 2.0.0
+      methodology_id: kyberswap_attributed_holdings_v1
+      script_path: scripts/enrich_kyberswap_attributed_holdings.py
+      tests_path: tests/test_kyberswap_attributed_holdings.py
+      fixture_path: studio/fixtures/query_8199058.json
+      raw_data_file: raw_query_8199058.json
+      source_required_columns:
+        - day
+        - address
+        - strategy_symbol
+        - base_asset
+        - depositor_type
+        - current_token
+        - current_token_category
+        - referral_balance
+        - current_balance
+        - previous_balance
+    methodology: &kyberswap_attributed_holdings_methodology
+      title: Referral attribution by current location
+      description: Attribution is calculated separately for each wallet and deposited ether.fi product, then allocated deterministically across current destinations using values already measured in USD.
+      definitions:
+        - Protocol groups attributed_balance by current_token; Category groups the same values by current_token_category.
+        - Empty positions without a category become Exited; non-empty positions without a category become Uncategorized.
+      business_rules:
+        - Existing pre-referral holdings are excluded once per wallet and deposited product using previous_balance.
+        - Total attributed holdings cannot exceed referral_balance, and excess current balances remain unattributed.
+        - Any referral amount unsupported by current holdings is classified deterministically as Exited.
+      allocation_rules:
+        - Current destinations use the existing deterministic attribution rules A through E.
+        - Repeated group-level referral and previous balances are validated, counted once, and alphabetical ordering resolves ties.
+      validation:
+        - Every address and deposited-product group reconciles active attributed_balance plus Exited to referral_balance with exact decimal arithmetic.
+        - Source amounts are already USD and are never multiplied by a base-asset price.
+      notes:
+        - Destination allocation is a deterministic attribution convention, not a claim of exact asset provenance.
+        - base_asset is retained only as source metadata and does not change monetary values.
+    growth_chart:
+      kind: ranking
+      period_column: day
+      latest_period_only: true
+      visible_category_limit: 6
+      visible_others_label: Others
+      preserve_categories: [Exited]
+      preserve_uncategorized_when_material: true
+      available_granularities: []
+      default_view: protocol
+      views:
+        - id: protocol
+          label: Protocol
+          record_types: {total: "*"}
+          dimension_column: current_token
+          value_column: attributed_balance
+          series_label: Attributed TVL
+        - id: category
+          label: Category
+          record_types: {total: "*"}
+          dimension_column: current_token_category
+          value_column: attributed_balance
+          series_label: Attributed TVL
+      measures:
+        - {column: attributed_balance, label: Attributed TVL, format: currency_compact, series_type: bar, color: green}
+      export_columns: [grouping_type, destination, attributed_tvl_usd, source_day, source_last_updated]
+      export_aliases: {grouping_type: selected_view, destination: dimension, attributed_tvl_usd: primary_value, source_day: period, source_last_updated: source_last_updated}
+    source_label: Methodology
+    export_name: Attributed TVL by Current Location
+    export_slug: kyberswap-attributed-tvl-by-current-location
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 15
+    format: currency_compact
+    size: medium
+    orientation: horizontal
+    category_column: current_token
+    value_column: attributed_balance
+
+  - id: kyber_post_referral_activity
+    dashboard_id: kyberswap_campaign
+    name: Post-Referral Activity
+    description: Onchain activity by referred users after entering the ether.fi ecosystem.
+    section: capital_activity
+    visualization_type: bar
+    query_id: 8202133
+    query_url: https://dune.com/queries/8202133
+    data_file: query_8202133.json
+    columns: &kyberswap_post_referral_activity_columns
+      [record_type, granularity, period, day, week, grouping_type, category, amount_usd, source_query_id, source_execution_id, source_last_updated, generated_at]
+    dimension_columns: &kyberswap_post_referral_activity_dimensions
+      [record_type, granularity, period, day, week, grouping_type, category, source_execution_id, source_last_updated, generated_at]
+    value_columns: &kyberswap_post_referral_activity_values [amount_usd, source_query_id]
+    data_source: kyberswap_post_referral_activity
+    provider_mode: latest_result
+    transformation: &kyberswap_post_referral_activity_transformation
+      id: kyberswap_post_referral_activity
+      version: 1.0.0
+      methodology_id: kyberswap_post_referral_activity_v1
+      script_path: scripts/enrich_kyberswap_growth.py
+      tests_path: tests/test_kyberswap_growth.py
+      fixture_path: studio/fixtures/query_8202133.json
+      raw_data_file: raw_query_8202133.json
+      source_required_columns: [day, week, project, event, label, amount_usd]
+    methodology:
+      title: Post-referral onchain activity
+      description: Signed onchain activity is prepared into deterministic daily and weekly views without changing the source sign.
+      metric_definitions:
+        - Daily values sum amount_usd by day and selected Label, Project, or Event category.
+        - Weekly values sum amount_usd by week and selected category; they are flows, not last-observation snapshots.
+      selected_period_logic:
+        - The dashboard period filters the prepared daily or weekly period before rendering and export.
+        - Label, Project, and Event change the grouping dimension without another Dune request.
+      business_rules:
+        - Positive values represent deposits or inflows and negative values represent withdrawals or outflows.
+        - Signed stacks preserve positives above zero and negatives below zero.
+      validation:
+        - Every grouping view reconciles to the source signed total using exact decimal arithmetic.
+        - Prepared weekly category totals reconcile to the sum of their prepared daily rows.
+      notes:
+        - Source values are already USD and CSV exports retain their unformatted signed values.
+    growth_chart:
+      kind: timeseries
+      default_granularity: weekly
+      granularity_column: granularity
+      period_column: period
+      visible_category_limit: 6
+      visible_others_label: Others
+      rank_by_activity_magnitude: true
+      available_granularities: [daily, weekly]
+      default_view: project
+      views:
+        - id: label
+          label: Label
+          record_types: {daily: daily_label, weekly: weekly_label}
+          dimension_column: category
+          value_column: amount_usd
+        - id: project
+          label: Project
+          record_types: {daily: daily_project, weekly: weekly_project}
+          dimension_column: category
+          value_column: amount_usd
+        - id: event
+          label: Event
+          record_types: {daily: daily_event, weekly: weekly_event}
+          dimension_column: category
+          value_column: amount_usd
+      measures:
+        - {column: amount_usd, label: Signed activity, format: currency_compact, series_type: column, color: green, stack: true}
+      export_columns: [period, granularity, grouping_type, category, amount_usd]
+      export_aliases: {period: period, granularity: granularity, grouping_type: selected_view, category: dimension, amount_usd: primary_value}
+    source_label: Methodology
+    export_name: Post-Referral Activity
+    export_slug: kyberswap-post-referral-activity
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 16
+    format: currency_compact
+    size: medium
+    date_column: period
+    orientation: vertical
+    category_column: period
+    value_column: amount_usd
+    tooltip_signed: true
+
+  - id: kyber_capital_journey
+    dashboard_id: kyberswap_campaign
+    name: Attributed Funds by Current Location Sankey
+    description: Shows how referral-attributed capital from each deposited ether.fi product is currently distributed across eligible tokens, integrations, and exits.
+    section: capital_activity
+    visualization_type: sankey
+    query_id: 8199058
+    query_url: https://dune.com/queries/8199058
+    data_file: query_8199058.json
+    columns: *kyberswap_attributed_holdings_columns
+    dimension_columns: *kyberswap_attributed_holdings_dimensions
+    value_columns: *kyberswap_attributed_holdings_values
+    address_columns: [address]
+    data_source: kyberswap_attributed_holdings
+    provider_mode: latest_result
+    transformation: *kyberswap_attributed_holdings_transformation
+    methodology:
+      title: Attributed funds by current location
+      description: Referral-attributed USD is allocated separately for each wallet and deposited product, then shown from strategy_symbol to current_token.
+      definitions:
+        - Deposited product is strategy_symbol from the referral deposit.
+        - Current location is current_token; Exited is a synthetic attribution destination, not a current token.
+      business_rules:
+        - Existing pre-referral holdings are excluded once per wallet and deposited product using previous_balance.
+        - Referral caps are applied, excess current balances are unattributed, and unsupported referral balances become Exited.
+      allocation_rules:
+        - The existing deterministic methodology rules A through E allocate current destinations; alphabetical ordering resolves ties.
+      validation:
+        - Every wallet-product group reconciles active attributed_balance plus Exited to referral_balance using exact decimal arithmetic.
+        - Source balances are already USD and are not converted again.
+      notes:
+        - Destination allocation is a deterministic attribution convention, not a claim of exact asset provenance.
+        - The visible destination stage keeps the five largest active destinations, groups the remaining active destinations as Others, and always preserves Exited; CSV exports retain individual destination rows.
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 17
+    format: currency_compact
+    size: medium
+    source_label: Methodology
+    source_column: strategy_symbol
+    target_column: current_token
+    stage_columns: [strategy_symbol, current_token]
+    value_column: attributed_balance
+    destination_top_n: 5
+    destination_others_label: Others
+    preserve_destinations: [Exited]
+    export_slug: kyberswap-attributed-funds-by-location
+
+  - id: kyber_product_adoption
+    dashboard_id: kyberswap_campaign
+    name: Depositor Journey Sankey
+    description: Shows whether referred users were new or existing ether.fi depositors, which products they entered, and the current category of their attributed capital.
+    section: capital_activity
+    visualization_type: sankey
+    query_id: 8199058
+    query_url: https://dune.com/queries/8199058
+    data_file: query_8199058.json
+    columns: *kyberswap_attributed_holdings_columns
+    dimension_columns: *kyberswap_attributed_holdings_dimensions
+    value_columns: *kyberswap_attributed_holdings_values
+    address_columns: [address]
+    data_source: kyberswap_attributed_holdings
+    provider_mode: latest_result
+    transformation: *kyberswap_attributed_holdings_transformation
+    methodology:
+      title: Depositor journey
+      description: The journey groups each referral-attributed USD flow by depositor type, deposited product, and current destination category.
+      definitions:
+        - Depositor classifications are preserved exactly from depositor_type.
+        - The product stage is strategy_symbol from the referral deposit.
+        - The destination stage preserves current_token_category from the source query.
+        - Empty positions become Exited; non-empty positions without a category become Uncategorized and raise a data-quality warning.
+      business_rules:
+        - First-stage and second-stage links use the same underlying attributed USD records.
+        - Repeated referral_balance values are counted once per wallet and deposited product.
+      allocation_rules:
+        - The same kyberswap_attributed_holdings_v1 allocation powers both Sankeys.
+      validation:
+        - Both Sankey stages conserve the same attributed_balance total.
+        - Source balances are already USD and are not converted again.
+      notes:
+        - Destination allocation is deterministic attribution rather than exact token-level provenance.
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 18
+    format: currency_compact
+    size: medium
+    source_label: Methodology
+    source_column: depositor_type
+    target_column: strategy_symbol
+    stage_columns: [depositor_type, strategy_symbol, current_token_category]
+    value_column: attributed_balance
+    export_slug: kyberswap-depositor-journey
+
+  - id: kyber_top_referred_depositors
+    dashboard_id: kyberswap_campaign
+    name: Top Referred Depositors
+    description: Largest wallets ranked by total KyberSwap referral deposits.
+    section: tables
+    visualization_type: bar
+    query_id: 8199058
+    query_url: https://dune.com/queries/8199058
+    data_file: query_8199058.json
+    columns: *kyberswap_attributed_holdings_columns
+    dimension_columns: *kyberswap_attributed_holdings_dimensions
+    value_columns: *kyberswap_attributed_holdings_values
+    address_columns: [address]
+    data_source: kyberswap_attributed_holdings
+    derived_data_source: kyberswap_depositor_intelligence
+    intelligence_component: top_referred_depositors
+    intelligence_category_column: address
+    intelligence_value_column: total_referral_deposits_usd
+    shorten_categories: true
+    provider_mode: latest_result
+    transformation: *kyberswap_attributed_holdings_transformation
+    methodology:
+      title: Top referred depositors
+      description: Wallets are ranked by one validated referral value per address and deposited product, summed to address level.
+      definitions:
+        - Repeated current-position rows do not multiply referral deposits; referral_balance is counted once per address and strategy_symbol.
+        - Attributed TVL excludes synthetic Exited rows and uses the existing tested attribution transformation.
+      business_rules:
+        - Rankings use total referral deposits, never current balance.
+        - CSV exports keep full wallet addresses and unformatted values.
+      validation:
+        - Every address reconciles active attributed TVL plus exited balance to its deduplicated referral deposits.
+      notes:
+        - Clicking a ranking selects the same precomputed wallet record used throughout Depositor Analysis.
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 20
+    format: currency_compact
+    size: medium
+    source_label: Methodology
+    orientation: horizontal
+    category_column: address
+    value_column: referral_balance
+    top_n_options: [10, 25, 50, 100]
+    default_top_n: 10
+    export_name: Top Referred Depositors
+    export_slug: kyberswap-top-referred-depositors
+    intelligence_export_columns: [rank, address, total_referral_deposits_usd, attributed_tvl_usd, retention_rate, products_deposited, depositor_type]
+
+  - id: kyber_referral_deposit_concentration
+    dashboard_id: kyberswap_campaign
+    name: Referral Deposit Concentration
+    description: Share of referred capital contributed by the largest depositors.
+    section: tables
+    visualization_type: bar
+    query_id: 8199058
+    query_url: https://dune.com/queries/8199058
+    data_file: query_8199058.json
+    columns: *kyberswap_attributed_holdings_columns
+    dimension_columns: *kyberswap_attributed_holdings_dimensions
+    value_columns: *kyberswap_attributed_holdings_values
+    address_columns: [address]
+    data_source: kyberswap_attributed_holdings
+    derived_data_source: kyberswap_depositor_intelligence
+    intelligence_component: referral_concentration
+    provider_mode: latest_result
+    transformation: *kyberswap_attributed_holdings_transformation
+    methodology:
+      title: Referral deposit concentration
+      description: Cumulative Top N shares are calculated from the single reusable address summary for referral deposits or attributed TVL.
+      definitions:
+        - One referral value per address and deposited product is used before products are summed to address level.
+        - Addresses are ranked independently for the selected measure; Top 5 includes Top 1 and Top 10 includes Top 5.
+      business_rules:
+        - Concentration percentages divide the cumulative Top N amount by the complete selected-measure total.
+        - Attributed TVL excludes synthetic Exited rows.
+      validation:
+        - Top 1, Top 5, Top 10, and Top 25 tiers are monotonic and bounded from zero through one hundred percent.
+      notes:
+        - Changing the measure reuses the locally generated summary and never refetches Dune.
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 21
+    format: percent
+    size: medium
+    source_label: Methodology
+    orientation: horizontal
+    category_column: address
+    value_column: referral_balance
+    concentration_tiers: [1, 5, 10, 25]
+    concentration_measures:
+      - {id: referral_deposits, label: Referral Deposits, column: total_referral_deposits_usd}
+      - {id: attributed_tvl, label: Attributed TVL, column: attributed_tvl_usd}
+    default_concentration_measure: referral_deposits
+    export_name: Referral Deposit Concentration
+    export_slug: kyberswap-referral-deposit-concentration
+
+  - id: kyber_top_depositors
+    dashboard_id: kyberswap_campaign
+    name: Top Depositors
+    description: Ranked wallet-level referral deposits, retained capital, and current positions.
+    section: tables
+    visualization_type: table
+    query_id: 8199058
+    query_url: https://dune.com/queries/8199058
+    data_file: query_8199058.json
+    columns: *kyberswap_attributed_holdings_columns
+    dimension_columns: *kyberswap_attributed_holdings_dimensions
+    value_columns: *kyberswap_attributed_holdings_values
+    address_columns: [address]
+    data_source: kyberswap_attributed_holdings
+    derived_data_source: kyberswap_depositor_intelligence
+    intelligence_component: top_depositors
+    provider_mode: latest_result
+    transformation: *kyberswap_attributed_holdings_transformation
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 22
+    format: table
+    size: full
+    source_label: View Dune Query
+    default_chain: ethereum
+    page_size: 10
+    page_size_options: [10, 25, 50, 100]
+    default_sort_column: total_referral_deposits_usd
+    default_sort_direction: descending
+    investigate_address_column: address
+    export_name: Top Depositors
+    export_slug: kyberswap-top-depositors
+    intelligence_columns: [rank, address, depositor_type, total_referral_deposits_usd, attributed_tvl_usd, exited_balance_usd, retention_rate, products_deposited, current_tokens, current_token_categories, latest_activity_time]
+    table_columns: [rank, address, depositor_type, total_referral_deposits_usd, attributed_tvl_usd, exited_balance_usd, retention_rate, products_deposited, current_tokens, latest_activity_time]
+    table_search_columns: [address, depositor_type, products_deposited, current_tokens, current_token_categories]
+    intelligence_column_labels:
+      rank: Rank
+      address: Address
+      depositor_type: Depositor Type
+      total_referral_deposits_usd: Referral Deposits
+      attributed_tvl_usd: Attributed TVL
+      exited_balance_usd: Exited
+      retention_rate: Retention
+      products_deposited: Products Deposited
+      current_tokens: Current Locations
+      latest_activity_time: Latest Activity
+    intelligence_column_formats:
+      rank: integer
+      total_referral_deposits_usd: currency_compact
+      attributed_tvl_usd: currency_compact
+      exited_balance_usd: currency_compact
+      retention_rate: percent
+      latest_activity_time: datetime
+
+  - id: kyber_recent_referral_deposits
+    dashboard_id: kyberswap_campaign
+    name: Recent Referral Deposits
+    description: Latest deposits attributed to the KyberSwap referral integration.
+    section: tables
+    visualization_type: table
+    query_id: 8204345
+    query_url: https://dune.com/queries/8204345
+    data_file: query_8204345.json
+    columns: &kyberswap_referral_deposit_event_columns
+      [tx_hash, address, blockchain, block_time, strategy_symbol, amount_usd, source_query_id, source_execution_id, source_last_updated, generated_at]
+    dimension_columns: &kyberswap_referral_deposit_event_dimensions
+      [tx_hash, address, blockchain, block_time, strategy_symbol, source_execution_id, source_last_updated, generated_at]
+    value_columns: &kyberswap_referral_deposit_event_values [amount_usd, source_query_id]
+    data_source: kyberswap_referral_deposit_events
+    intelligence_component: recent_referral_deposits
+    provider_mode: latest_result
+    transformation: &kyberswap_referral_deposit_event_transformation
+      id: kyberswap_referral_deposits
+      version: 1.0.0
+      methodology_id: kyberswap_referral_deposits_v1
+      script_path: scripts/prepare_kyberswap_depositor_intelligence.py
+      tests_path: tests/test_kyberswap_depositor_intelligence.py
+      fixture_path: studio/fixtures/query_8204345.json
+      raw_data_file: raw_query_8204345.json
+      source_required_columns: [tx_hash, address, blockchain, block_time, strategy_symbol, amount_usd]
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 23
+    format: table
+    size: medium
+    source_label: View Dune Query
+    address_columns: [address]
+    transaction_columns: [tx_hash]
+    chain_column: blockchain
+    default_chain: ethereum
+    date_column: block_time
+    page_size: 10
+    page_size_options: [10, 16, 32]
+    default_sort_column: block_time
+    default_sort_direction: descending
+    investigate_address_column: address
+    export_respects_period: true
+    export_name: Recent Referral Deposits
+    export_slug: kyberswap-recent-referral-deposits
+    export_columns: [block_time, address, strategy_symbol, amount_usd, blockchain, tx_hash]
+    table_columns: [block_time, address, strategy_symbol, amount_usd, blockchain, tx_hash]
+    table_search_columns: [address, strategy_symbol, blockchain, tx_hash]
+    column_labels:
+      block_time: Age
+      address: Address
+      strategy_symbol: Product
+      amount_usd: Amount
+      blockchain: Chain
+      tx_hash: Tx Hash
+    column_formats:
+      block_time: datetime
+      amount_usd: currency_compact
+
+  - id: kyber_recent_etherfi_activity
+    dashboard_id: kyberswap_campaign
+    name: Recent ether.fi Activity
+    description: Latest non-referral ether.fi actions performed by referred users.
+    section: tables
+    visualization_type: table
+    query_id: 8204373
+    query_url: https://dune.com/queries/8204373
+    data_file: query_8204373.json
+    columns: &kyberswap_etherfi_activity_event_columns
+      [event, address, project, blockchain, tx_hash, block_time, amount_usd, token_symbol, label, source_query_id, source_execution_id, source_last_updated, generated_at]
+    dimension_columns: &kyberswap_etherfi_activity_event_dimensions
+      [event, address, project, blockchain, tx_hash, block_time, token_symbol, label, source_execution_id, source_last_updated, generated_at]
+    value_columns: &kyberswap_etherfi_activity_event_values [amount_usd, source_query_id]
+    data_source: kyberswap_etherfi_activity_events
+    intelligence_component: recent_etherfi_activity
+    provider_mode: latest_result
+    transformation: &kyberswap_etherfi_activity_event_transformation
+      id: kyberswap_etherfi_activity
+      version: 1.0.0
+      methodology_id: kyberswap_etherfi_activity_v1
+      script_path: scripts/prepare_kyberswap_depositor_intelligence.py
+      tests_path: tests/test_kyberswap_depositor_intelligence.py
+      fixture_path: studio/fixtures/query_8204373.json
+      raw_data_file: raw_query_8204373.json
+      source_required_columns: [event, address, project, blockchain, tx_hash, block_time, amount_usd, token_symbol, label]
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 24
+    format: table
+    size: medium
+    source_label: View Dune Query
+    address_columns: [address]
+    transaction_columns: [tx_hash]
+    chain_column: blockchain
+    default_chain: ethereum
+    date_column: block_time
+    page_size: 10
+    page_size_options: [10, 16, 32]
+    default_sort_column: block_time
+    default_sort_direction: descending
+    investigate_address_column: address
+    signed_value_columns: [amount_usd]
+    export_respects_period: true
+    export_name: Recent ether.fi Activity
+    export_slug: kyberswap-recent-etherfi-activity
+    export_columns: [block_time, address, event, project, label, token_symbol, amount_usd, blockchain, tx_hash]
+    table_columns: [block_time, address, event, project, label, token_symbol, amount_usd, blockchain, tx_hash]
+    table_search_columns: [address, event, project, label, token_symbol, blockchain, tx_hash]
+    column_labels:
+      block_time: Age
+      address: Address
+      event: Event
+      project: Project
+      label: Label
+      token_symbol: Token
+      amount_usd: Amount
+      blockchain: Chain
+      tx_hash: Tx Hash
+    column_formats:
+      block_time: datetime
+      amount_usd: currency_compact
+
+  - id: kyber_wallet_investigation
+    dashboard_id: kyberswap_campaign
+    name: Wallet Investigation
+    description: Inspect a referred wallet’s deposits, retained positions, and later ether.fi activity.
+    section: tables
+    visualization_type: bar
+    query_id: 8199058
+    query_url: https://dune.com/queries/8199058
+    data_file: query_8199058.json
+    columns: *kyberswap_attributed_holdings_columns
+    dimension_columns: *kyberswap_attributed_holdings_dimensions
+    value_columns: *kyberswap_attributed_holdings_values
+    address_columns: [address]
+    data_source: kyberswap_attributed_holdings
+    derived_data_source: kyberswap_depositor_intelligence
+    intelligence_component: wallet_investigation
+    provider_mode: latest_result
+    transformation: *kyberswap_attributed_holdings_transformation
+    methodology:
+      title: Wallet investigation
+      description: One deterministic local wallet index joins attributed positions, referral-deposit history, and later ether.fi activity from the three latest stored query results.
+      definitions:
+        - Attributed TVL uses the existing tested Python allocation; existing balances and excess non-referral balances are excluded.
+        - Synthetic Exited rows represent the portion of referral deposits no longer supported by active attributed positions.
+      business_rules:
+        - Deposit history and later activity remain separate read-only source streams and keep full signed source values.
+        - Wallet selection filters the local address index and never queries Dune from the browser.
+      validation:
+        - Address summaries reconcile to the enriched attribution source and indexed row positions are validated before snapshot promotion.
+      notes:
+        - Shareable wallet state uses a validated EVM address in the wallet URL parameter.
+    related_query_urls:
+      - https://dune.com/queries/8199058
+      - https://dune.com/queries/8204345
+      - https://dune.com/queries/8204373
+    last_updated: generated
+    is_exportable: false
+    default_visible: true
+    display_order: 25
+    format: currency_compact
+    size: full
+    source_label: Methodology
+    orientation: horizontal
+    category_column: address
+    value_column: attributed_balance
+
+  - id: lab_total_value
+    dashboard_id: component_test_lab
+    name: Total Test Value
+    description: Large currency formatting with positive comparison and sparkline.
+    section: counters
+    visualization_type: counter
+    query_id: 9102001
+    query_url: https://dune.com/queries/9102001
+    data_file: query_9102001.json
+    columns: [total_value_usd]
+    data_source: lab_summary
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 1
+    format: currency_compact
+    size: small
+    comparison_column: value_change_pct
+    comparison_format: percent
+    context: Stress-tests a value above one billion dollars.
+    sparkline_data_source: lab_timeseries
+    sparkline_date_column: day
+    sparkline_column: total_value_usd
+
+  - id: lab_users
+    dashboard_id: component_test_lab
+    name: Qualified Users
+    description: Integer formatting and a negative comparison state.
+    section: counters
+    visualization_type: counter
+    query_id: 9102001
+    query_url: https://dune.com/queries/9102001
+    data_file: query_9102001.json
+    columns: [qualified_users]
+    data_source: lab_summary
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 2
+    format: integer
+    size: small
+    comparison_column: users_change_pct
+    comparison_format: percent
+    context: Deliberately includes a downward trend treatment.
+
+  - id: lab_conversion
+    dashboard_id: component_test_lab
+    name: Conversion Rate
+    description: Percentage formatting and flat comparison state.
+    section: counters
+    visualization_type: counter
+    query_id: 9102001
+    query_url: https://dune.com/queries/9102001
+    data_file: query_9102001.json
+    columns: [conversion_rate]
+    data_source: lab_summary
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 3
+    format: percent
+    size: small
+    comparison_column: conversion_change_pp
+    comparison_format: percentage_points
+    context: Percentage-point comparison keeps units explicit.
+
+  - id: lab_active_positions
+    dashboard_id: component_test_lab
+    name: Active Positions
+    description: Compact integer with supporting context and no comparison.
+    section: counters
+    visualization_type: counter
+    query_id: 9102001
+    query_url: https://dune.com/queries/9102001
+    data_file: query_9102001.json
+    columns: [active_positions]
+    data_source: lab_summary
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 4
+    format: integer
+    size: small
+    context: Exercises a counter without optional trend metadata.
+
+  - id: lab_token_balance
+    dashboard_id: component_test_lab
+    name: Test Token Balance
+    description: Token-aware formatting with a long fractional balance.
+    section: counters
+    visualization_type: counter
+    query_id: 9102001
+    query_url: https://dune.com/queries/9102001
+    data_file: query_9102001.json
+    columns: [token_balance]
+    data_source: lab_summary
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 50
+    format: token
+    token_symbol: weETH
+    token_decimals: 4
+    size: small
+    context: Exercises token units without treating the value as USD.
+
+  - id: lab_single_line
+    dashboard_id: component_test_lab
+    name: Single-Series Value
+    description: A long daily series with date filtering and currency tooltips.
+    section: trends
+    visualization_type: line
+    query_id: 9102002
+    query_url: https://dune.com/queries/9102002
+    data_file: query_9102002.json
+    columns: [day, total_value_usd]
+    data_source: lab_timeseries
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 5
+    format: currency_compact
+    size: wide
+    date_column: day
+    default_visualization: line
+    allowed_visualizations: [line, area, column]
+    series:
+      - column: total_value_usd
+        label: Total value
+        color: green
+
+  - id: lab_multi_line
+    dashboard_id: component_test_lab
+    name: Multi-Series Activity
+    description: Three differently scaled series with legend and shared tooltip.
+    section: trends
+    visualization_type: line
+    query_id: 9102002
+    query_url: https://dune.com/queries/9102002
+    data_file: query_9102002.json
+    columns: [day, deposits_usd, withdrawals_usd, fees_usd]
+    data_source: lab_timeseries
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 6
+    format: currency_compact
+    size: wide
+    date_column: day
+    default_visualization: area
+    allowed_visualizations: [line, area, column]
+    series:
+      - column: deposits_usd
+        label: Deposits
+        color: blue
+      - column: withdrawals_usd
+        label: Withdrawals
+        color: coral
+      - column: fees_usd
+        label: Fees
+        color: amber
+
+  - id: lab_empty_line
+    dashboard_id: component_test_lab
+    name: Empty Result State
+    description: A successful query with no rows in the selected result.
+    section: trends
+    visualization_type: line
+    query_id: 9102003
+    query_url: https://dune.com/queries/9102003
+    data_file: query_9102003.json
+    columns: [day, value_usd]
+    data_source: empty_series
+    last_updated: generated
+    is_exportable: false
+    default_visible: true
+    display_order: 7
+    format: currency_compact
+    size: medium
+    date_column: day
+    default_visualization: line
+    allowed_visualizations: [line, area, column]
+    empty_message: No qualifying rows in this demo result.
+    series:
+      - column: value_usd
+        label: Value
+        color: green
+
+  - id: lab_error_line
+    dashboard_id: component_test_lab
+    name: Error State
+    description: A controlled generated-data error with a reviewer-friendly message.
+    section: trends
+    visualization_type: line
+    query_id: 9102004
+    query_url: https://dune.com/queries/9102004
+    data_file: query_9102004.json
+    columns: [day, value_usd]
+    data_source: error_series
+    last_updated: generated
+    is_exportable: false
+    default_visible: true
+    display_order: 8
+    format: currency_compact
+    size: medium
+    date_column: day
+    default_visualization: line
+    allowed_visualizations: [line, area, column]
+    series:
+      - column: value_usd
+        label: Value
+        color: coral
+
+  - id: lab_vertical_bar
+    dashboard_id: component_test_lab
+    name: Product Performance
+    description: Vertical categories with varied label lengths.
+    section: rankings
+    visualization_type: bar
+    query_id: 9102005
+    query_url: https://dune.com/queries/9102005
+    data_file: query_9102005.json
+    columns: [product, value_usd]
+    data_source: lab_products
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 9
+    format: currency_compact
+    size: medium
+    orientation: vertical
+    category_column: product
+    value_column: value_usd
+
+  - id: lab_horizontal_ranking
+    dashboard_id: component_test_lab
+    name: Top 100 Wallets
+    description: Long address labels, tooltips, and adjustable ranking depth.
+    section: rankings
+    visualization_type: bar
+    query_id: 9102006
+    query_url: https://dune.com/queries/9102006
+    data_file: query_9102006.json
+    columns: [wallet, value_usd]
+    data_source: lab_top_users
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 10
+    format: currency_compact
+    size: medium
+    orientation: horizontal
+    category_column: wallet
+    value_column: value_usd
+    default_top_n: 10
+    top_n_options: [5, 10, 20, 50, 100]
+    shorten_categories: true
+
+  - id: lab_sankey
+    dashboard_id: component_test_lab
+    name: Capital Routing Stress Test
+    description: Multiple depths, shared destinations, and a mobile list fallback.
+    section: flows
+    visualization_type: sankey
+    query_id: 9102007
+    query_url: https://dune.com/queries/9102007
+    data_file: query_9102007.json
+    columns: [source, target, value_usd]
+    data_source: lab_flows
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 11
+    format: currency_compact
+    size: wide
+    source_column: source
+    target_column: target
+    value_column: value_usd
+
+  - id: lab_sortable_table
+    dashboard_id: component_test_lab
+    name: Sortable Position Ledger
+    description: Dates, wallet addresses, missing values, booleans, and large numbers.
+    section: tables
+    visualization_type: table
+    query_id: 9102008
+    query_url: https://dune.com/queries/9102008
+    data_file: query_9102008.json
+    columns: [updated_at, wallet, strategy, balance_usd, apy, active]
+    data_source: lab_positions
+    last_updated: generated
+    is_exportable: true
+    default_visible: true
+    display_order: 12
+    format: table
+    size: full
+    address_columns: [wallet]
+    default_chain: ethereum
+    page_size: 8
+    date_column: updated_at
+    column_labels:
+      updated_at: Updated
+      wallet: Wallet
+      strategy: Strategy
+      balance_usd: Balance
+      apy: APY
+      active: Active
+    column_formats:
+      updated_at: datetime
+      balance_usd: currency_compact
+      apy: percent
+      active: boolean

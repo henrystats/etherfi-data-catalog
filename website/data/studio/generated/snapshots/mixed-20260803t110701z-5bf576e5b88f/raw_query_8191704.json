@@ -1,0 +1,4151 @@
+{
+  "schema_version": 1,
+  "query_id": 8191704,
+  "query_url": "https://dune.com/queries/8191704",
+  "execution_id": "01KZ0R84M7SCAA8M62GYKNY79V",
+  "execution_started_at": "2026-08-02T08:09:48.371003Z",
+  "execution_finished_at": "2026-08-02T08:10:19.628121Z",
+  "fetched_at": "2026-08-03T11:07:03.610229Z",
+  "data_updated_at": "2026-08-02T08:10:19.628121Z",
+  "row_count": 590,
+  "columns": [
+    "day",
+    "week",
+    "depositor_type",
+    "daily_attributed_tvl_usd",
+    "cum_attributed_tvl_usd"
+  ],
+  "rows": [
+    {
+      "cum_attributed_tvl_usd": "7110496.042270839",
+      "daily_attributed_tvl_usd": "5415413.745350061",
+      "day": "2026-03-26 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "7110496.042270839",
+      "daily_attributed_tvl_usd": "442640.3068235054",
+      "day": "2026-03-26 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "7110496.042270839",
+      "daily_attributed_tvl_usd": "1252441.9900972727",
+      "day": "2026-03-26 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "73832992.54558219",
+      "daily_attributed_tvl_usd": "61921371.34412953",
+      "day": "2026-07-04 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-29 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "73832992.54558219",
+      "daily_attributed_tvl_usd": "8443081.187314441",
+      "day": "2026-07-04 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-29 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "73832992.54558219",
+      "daily_attributed_tvl_usd": "3468540.01413822",
+      "day": "2026-07-04 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-29 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6189.6275676151745",
+      "daily_attributed_tvl_usd": "6189.6275676151745",
+      "day": "2026-01-12 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-12 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2104032.6737349634",
+      "daily_attributed_tvl_usd": "1787328.7077620374",
+      "day": "2026-03-11 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2104032.6737349634",
+      "daily_attributed_tvl_usd": "314635.6470100142",
+      "day": "2026-03-11 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2104032.6737349634",
+      "daily_attributed_tvl_usd": "2068.318962911827",
+      "day": "2026-03-11 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "1133916.5632605203",
+      "daily_attributed_tvl_usd": "106927.04513415016",
+      "day": "2026-03-17 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "1133916.5632605203",
+      "daily_attributed_tvl_usd": "532206.433690471",
+      "day": "2026-03-17 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "1133916.5632605203",
+      "daily_attributed_tvl_usd": "494783.0844358992",
+      "day": "2026-03-17 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "1325.6545155804877",
+      "daily_attributed_tvl_usd": "317.23802166613376",
+      "day": "2026-02-08 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "1325.6545155804877",
+      "daily_attributed_tvl_usd": "4.7973105972650885",
+      "day": "2026-02-08 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "1325.6545155804877",
+      "daily_attributed_tvl_usd": "1003.6191833170889",
+      "day": "2026-02-08 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "23206405.297081362",
+      "daily_attributed_tvl_usd": "1122131.4939177616",
+      "day": "2026-05-14 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-11 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "23206405.297081362",
+      "daily_attributed_tvl_usd": "15766729.993430657",
+      "day": "2026-05-14 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-11 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "23206405.297081362",
+      "daily_attributed_tvl_usd": "6317543.809732945",
+      "day": "2026-05-14 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-11 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "22786885.16835049",
+      "daily_attributed_tvl_usd": "6260894.5191205945",
+      "day": "2026-05-15 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-11 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "22786885.16835049",
+      "daily_attributed_tvl_usd": "1093378.0278472463",
+      "day": "2026-05-15 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-11 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "22786885.16835049",
+      "daily_attributed_tvl_usd": "15432612.621382652",
+      "day": "2026-05-15 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-11 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11088416.47041008",
+      "daily_attributed_tvl_usd": "1451929.917670065",
+      "day": "2026-04-01 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-30 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11088416.47041008",
+      "daily_attributed_tvl_usd": "9160658.329848446",
+      "day": "2026-04-01 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-30 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11088416.47041008",
+      "daily_attributed_tvl_usd": "475828.2228915699",
+      "day": "2026-04-01 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-30 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "377496384.61833787",
+      "daily_attributed_tvl_usd": "69550018.57964136",
+      "day": "2026-08-02 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "377496384.61833787",
+      "daily_attributed_tvl_usd": "4133322.2428290057",
+      "day": "2026-08-02 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "377496384.61833787",
+      "daily_attributed_tvl_usd": "303813043.7958675",
+      "day": "2026-08-02 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "3019.9222686724606",
+      "daily_attributed_tvl_usd": "1024.42",
+      "day": "2026-02-25 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "3019.9222686724606",
+      "daily_attributed_tvl_usd": "1168.8247486231323",
+      "day": "2026-02-25 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "3019.9222686724606",
+      "daily_attributed_tvl_usd": "826.6775200493287",
+      "day": "2026-02-25 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "68065370.18636386",
+      "daily_attributed_tvl_usd": "56192248.18923821",
+      "day": "2026-07-01 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-29 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "68065370.18636386",
+      "daily_attributed_tvl_usd": "5037586.021402978",
+      "day": "2026-07-01 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-29 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "68065370.18636386",
+      "daily_attributed_tvl_usd": "6835535.97572267",
+      "day": "2026-07-01 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-29 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6641.582813615808",
+      "daily_attributed_tvl_usd": "6641.582813615808",
+      "day": "2026-01-13 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-12 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "495101.635010542",
+      "daily_attributed_tvl_usd": "982.925",
+      "day": "2026-02-28 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "495101.635010542",
+      "daily_attributed_tvl_usd": "492653.063964526",
+      "day": "2026-02-28 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "495101.635010542",
+      "daily_attributed_tvl_usd": "1465.6460460160401",
+      "day": "2026-02-28 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6175.336615027572",
+      "daily_attributed_tvl_usd": "6175.336615027572",
+      "day": "2026-01-10 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-05 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "385196787.3439426",
+      "daily_attributed_tvl_usd": "3801950.7611853974",
+      "day": "2026-07-30 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "385196787.3439426",
+      "daily_attributed_tvl_usd": "70661822.77957684",
+      "day": "2026-07-30 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "385196787.3439426",
+      "daily_attributed_tvl_usd": "310733013.80318034",
+      "day": "2026-07-30 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "37393225.00622247",
+      "daily_attributed_tvl_usd": "28414949.261380423",
+      "day": "2026-04-27 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "37393225.00622247",
+      "daily_attributed_tvl_usd": "6384298.985351803",
+      "day": "2026-04-27 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "37393225.00622247",
+      "daily_attributed_tvl_usd": "2593976.7594902404",
+      "day": "2026-04-27 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "69574618.96050496",
+      "daily_attributed_tvl_usd": "3997040.80559698",
+      "day": "2026-06-22 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-22 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "69574618.96050496",
+      "daily_attributed_tvl_usd": "60030021.917127326",
+      "day": "2026-06-22 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-22 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "69574618.96050496",
+      "daily_attributed_tvl_usd": "5547556.237780658",
+      "day": "2026-06-22 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-22 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "74577919.80218604",
+      "daily_attributed_tvl_usd": "3531996.586051821",
+      "day": "2026-07-12 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "74577919.80218604",
+      "daily_attributed_tvl_usd": "62240919.799809694",
+      "day": "2026-07-12 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "74577919.80218604",
+      "daily_attributed_tvl_usd": "8805003.416324524",
+      "day": "2026-07-12 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "37478939.6256603",
+      "daily_attributed_tvl_usd": "1292115.1374662335",
+      "day": "2026-05-02 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "37478939.6256603",
+      "daily_attributed_tvl_usd": "7229633.336568881",
+      "day": "2026-05-02 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "37478939.6256603",
+      "daily_attributed_tvl_usd": "28957191.15162519",
+      "day": "2026-05-02 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "14959051.865649484",
+      "daily_attributed_tvl_usd": "12484701.97118546",
+      "day": "2026-04-12 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "14959051.865649484",
+      "daily_attributed_tvl_usd": "1611672.4623825948",
+      "day": "2026-04-12 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "14959051.865649484",
+      "daily_attributed_tvl_usd": "862677.4320814302",
+      "day": "2026-04-12 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38003836.988061786",
+      "daily_attributed_tvl_usd": "7525787.890497097",
+      "day": "2026-05-09 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-04 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38003836.988061786",
+      "daily_attributed_tvl_usd": "28739741.90956628",
+      "day": "2026-05-09 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-04 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38003836.988061786",
+      "daily_attributed_tvl_usd": "1738307.1879984073",
+      "day": "2026-05-09 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-04 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5913.060622304712",
+      "daily_attributed_tvl_usd": "2.8175815240077244",
+      "day": "2026-01-24 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-01-19 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5913.060622304712",
+      "daily_attributed_tvl_usd": "5910.243040780704",
+      "day": "2026-01-24 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-19 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2019.5889678319681",
+      "daily_attributed_tvl_usd": "6.869330661925664",
+      "day": "2026-02-13 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2019.5889678319681",
+      "daily_attributed_tvl_usd": "988.2946371700425",
+      "day": "2026-02-13 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2019.5889678319681",
+      "daily_attributed_tvl_usd": "1024.425",
+      "day": "2026-02-13 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "67136123.8012341",
+      "daily_attributed_tvl_usd": "57925989.04319415",
+      "day": "2026-06-23 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-22 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "67136123.8012341",
+      "daily_attributed_tvl_usd": "3856933.6979049766",
+      "day": "2026-06-23 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-22 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "67136123.8012341",
+      "daily_attributed_tvl_usd": "5353201.060134977",
+      "day": "2026-06-23 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-22 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6029.461636155234",
+      "daily_attributed_tvl_usd": "5.769915330705944",
+      "day": "2026-01-28 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-01-26 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6029.461636155234",
+      "daily_attributed_tvl_usd": "6023.691720824529",
+      "day": "2026-01-28 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-26 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6047339.820342525",
+      "daily_attributed_tvl_usd": "4260679.793392697",
+      "day": "2026-03-28 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6047339.820342525",
+      "daily_attributed_tvl_usd": "438243.9524573004",
+      "day": "2026-03-28 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6047339.820342525",
+      "daily_attributed_tvl_usd": "1348416.0744925274",
+      "day": "2026-03-28 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "66592531.18989526",
+      "daily_attributed_tvl_usd": "6641800.248029178",
+      "day": "2026-06-26 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-22 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "66592531.18989526",
+      "daily_attributed_tvl_usd": "55018060.575674884",
+      "day": "2026-06-26 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-22 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "66592531.18989526",
+      "daily_attributed_tvl_usd": "4932670.366191195",
+      "day": "2026-06-26 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-22 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "72640732.40102726",
+      "daily_attributed_tvl_usd": "8288335.353195917",
+      "day": "2026-07-09 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "72640732.40102726",
+      "daily_attributed_tvl_usd": "3413791.589337218",
+      "day": "2026-07-09 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "72640732.40102726",
+      "daily_attributed_tvl_usd": "60938605.458494134",
+      "day": "2026-07-09 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2764.6823522646664",
+      "daily_attributed_tvl_usd": "773.3711146203557",
+      "day": "2026-02-24 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2764.6823522646664",
+      "daily_attributed_tvl_usd": "1063.5712376443107",
+      "day": "2026-02-24 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2764.6823522646664",
+      "daily_attributed_tvl_usd": "927.74",
+      "day": "2026-02-24 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5012828.585755013",
+      "daily_attributed_tvl_usd": "3987197.007112421",
+      "day": "2026-03-23 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5012828.585755013",
+      "daily_attributed_tvl_usd": "564085.5425939562",
+      "day": "2026-03-23 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5012828.585755013",
+      "daily_attributed_tvl_usd": "461546.03604863567",
+      "day": "2026-03-23 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5910.5995534051",
+      "daily_attributed_tvl_usd": "5907.783145348672",
+      "day": "2026-01-23 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-19 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5910.5995534051",
+      "daily_attributed_tvl_usd": "2.81640805642733",
+      "day": "2026-01-23 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-01-19 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "348803752.29663247",
+      "daily_attributed_tvl_usd": "285529608.83394593",
+      "day": "2026-07-23 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "348803752.29663247",
+      "daily_attributed_tvl_usd": "59584597.36025474",
+      "day": "2026-07-23 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "348803752.29663247",
+      "daily_attributed_tvl_usd": "3689546.102431766",
+      "day": "2026-07-23 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "68365608.79005744",
+      "daily_attributed_tvl_usd": "8653325.329762977",
+      "day": "2026-07-13 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "68365608.79005744",
+      "daily_attributed_tvl_usd": "3467988.3960035974",
+      "day": "2026-07-13 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "68365608.79005744",
+      "daily_attributed_tvl_usd": "56244295.06429086",
+      "day": "2026-07-13 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2666609.8117199494",
+      "daily_attributed_tvl_usd": "499300.7991980914",
+      "day": "2026-03-16 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2666609.8117199494",
+      "daily_attributed_tvl_usd": "26053.78498362668",
+      "day": "2026-03-16 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2666609.8117199494",
+      "daily_attributed_tvl_usd": "2141255.2275382313",
+      "day": "2026-03-16 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "72884041.60253248",
+      "daily_attributed_tvl_usd": "9225091.729479939",
+      "day": "2026-07-14 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "72884041.60253248",
+      "daily_attributed_tvl_usd": "59961760.78611885",
+      "day": "2026-07-14 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "72884041.60253248",
+      "daily_attributed_tvl_usd": "3697189.086933688",
+      "day": "2026-07-14 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2891.6316933885682",
+      "daily_attributed_tvl_usd": "976.26",
+      "day": "2026-02-22 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2891.6316933885682",
+      "daily_attributed_tvl_usd": "1115.3744185181267",
+      "day": "2026-02-22 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2891.6316933885682",
+      "daily_attributed_tvl_usd": "799.9972748704415",
+      "day": "2026-02-22 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2077701.5854361732",
+      "daily_attributed_tvl_usd": "1763900.2590100116",
+      "day": "2026-03-10 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2077701.5854361732",
+      "daily_attributed_tvl_usd": "311750.70171044604",
+      "day": "2026-03-10 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2077701.5854361732",
+      "daily_attributed_tvl_usd": "2050.624715715605",
+      "day": "2026-03-10 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10064065.64242983",
+      "daily_attributed_tvl_usd": "3139850.3620731505",
+      "day": "2026-05-19 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-18 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10064065.64242983",
+      "daily_attributed_tvl_usd": "976399.1684856159",
+      "day": "2026-05-19 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-18 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10064065.64242983",
+      "daily_attributed_tvl_usd": "5947816.111871064",
+      "day": "2026-05-19 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-18 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6330.716790506233",
+      "daily_attributed_tvl_usd": "6330.716790506233",
+      "day": "2026-01-07 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-05 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "14778408.751652557",
+      "daily_attributed_tvl_usd": "1579911.0232514385",
+      "day": "2026-04-08 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "14778408.751652557",
+      "daily_attributed_tvl_usd": "839162.5898372412",
+      "day": "2026-04-08 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "14778408.751652557",
+      "daily_attributed_tvl_usd": "12359335.138563879",
+      "day": "2026-04-08 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5654.385891058943",
+      "daily_attributed_tvl_usd": "5.535333916253663",
+      "day": "2026-01-29 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-01-26 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5654.385891058943",
+      "daily_attributed_tvl_usd": "5648.8505571426895",
+      "day": "2026-01-29 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-26 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "16038864.480371196",
+      "daily_attributed_tvl_usd": "857003.8937457879",
+      "day": "2026-04-17 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "16038864.480371196",
+      "daily_attributed_tvl_usd": "1677341.2337493966",
+      "day": "2026-04-17 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "16038864.480371196",
+      "daily_attributed_tvl_usd": "13504519.352876011",
+      "day": "2026-04-17 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11102304.856317803",
+      "daily_attributed_tvl_usd": "2349395.762069415",
+      "day": "2026-06-14 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-08 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11102304.856317803",
+      "daily_attributed_tvl_usd": "5132555.269140184",
+      "day": "2026-06-14 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-08 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11102304.856317803",
+      "daily_attributed_tvl_usd": "3620353.825108203",
+      "day": "2026-06-14 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-08 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2388260.811052551",
+      "daily_attributed_tvl_usd": "1666172.0331039084",
+      "day": "2026-03-07 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2388260.811052551",
+      "daily_attributed_tvl_usd": "721084.383948643",
+      "day": "2026-03-07 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2388260.811052551",
+      "daily_attributed_tvl_usd": "1004.394",
+      "day": "2026-03-07 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10081635.677596383",
+      "daily_attributed_tvl_usd": "3222547.5705611585",
+      "day": "2026-05-24 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-18 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10081635.677596383",
+      "daily_attributed_tvl_usd": "922728.0862002525",
+      "day": "2026-05-24 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-18 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10081635.677596383",
+      "daily_attributed_tvl_usd": "5936360.020834972",
+      "day": "2026-05-24 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-18 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5867.760061337019",
+      "daily_attributed_tvl_usd": "5864.9640792488",
+      "day": "2026-01-26 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-26 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5867.760061337019",
+      "daily_attributed_tvl_usd": "2.7959820882190067",
+      "day": "2026-01-26 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-01-26 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10734754.749028284",
+      "daily_attributed_tvl_usd": "4937521.967138383",
+      "day": "2026-06-12 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-08 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10734754.749028284",
+      "daily_attributed_tvl_usd": "3534892.4936556607",
+      "day": "2026-06-12 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-08 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10734754.749028284",
+      "daily_attributed_tvl_usd": "2262340.288234241",
+      "day": "2026-06-12 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-08 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "72480045.66083862",
+      "daily_attributed_tvl_usd": "3406319.1359356637",
+      "day": "2026-07-08 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "72480045.66083862",
+      "daily_attributed_tvl_usd": "60803424.79086263",
+      "day": "2026-07-08 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "72480045.66083862",
+      "daily_attributed_tvl_usd": "8270301.734040329",
+      "day": "2026-07-08 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "64574425.87706908",
+      "daily_attributed_tvl_usd": "54644041.02889617",
+      "day": "2026-06-25 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-22 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "64574425.87706908",
+      "daily_attributed_tvl_usd": "4899149.4006768055",
+      "day": "2026-06-25 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-22 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "64574425.87706908",
+      "daily_attributed_tvl_usd": "5031235.447496108",
+      "day": "2026-06-25 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-22 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "1360.272473785464",
+      "daily_attributed_tvl_usd": "325.89534476005394",
+      "day": "2026-02-04 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "1360.272473785464",
+      "daily_attributed_tvl_usd": "4.345012443590232",
+      "day": "2026-02-04 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "1360.272473785464",
+      "daily_attributed_tvl_usd": "1030.0321165818198",
+      "day": "2026-02-04 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38018069.58591676",
+      "daily_attributed_tvl_usd": "28557970.876540557",
+      "day": "2026-04-28 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38018069.58591676",
+      "daily_attributed_tvl_usd": "2578494.048536636",
+      "day": "2026-04-28 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38018069.58591676",
+      "daily_attributed_tvl_usd": "6881604.660839562",
+      "day": "2026-04-28 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10126362.272731513",
+      "daily_attributed_tvl_usd": "3236108.3955552615",
+      "day": "2026-05-25 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-25 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10126362.272731513",
+      "daily_attributed_tvl_usd": "5962015.560367677",
+      "day": "2026-05-25 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-25 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10126362.272731513",
+      "daily_attributed_tvl_usd": "928238.3168085748",
+      "day": "2026-05-25 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-25 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "70108223.23212855",
+      "daily_attributed_tvl_usd": "5232810.3446924025",
+      "day": "2026-06-18 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-15 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "70108223.23212855",
+      "daily_attributed_tvl_usd": "3954703.9771089815",
+      "day": "2026-06-18 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-15 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "70108223.23212855",
+      "daily_attributed_tvl_usd": "60920708.91032716",
+      "day": "2026-06-18 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-15 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "9197407.623085879",
+      "daily_attributed_tvl_usd": "2096345.9527745713",
+      "day": "2026-06-07 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-01 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "9197407.623085879",
+      "daily_attributed_tvl_usd": "2285605.0365055674",
+      "day": "2026-06-07 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-01 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "9197407.623085879",
+      "daily_attributed_tvl_usd": "4815456.63380574",
+      "day": "2026-06-07 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-01 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6643.412959367913",
+      "daily_attributed_tvl_usd": "3.0681084796247933",
+      "day": "2026-01-15 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-01-12 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6643.412959367913",
+      "daily_attributed_tvl_usd": "6640.3448508882875",
+      "day": "2026-01-15 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-12 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "23497006.869937867",
+      "daily_attributed_tvl_usd": "1673695.3507495977",
+      "day": "2026-05-13 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-11 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "23497006.869937867",
+      "daily_attributed_tvl_usd": "6244782.255898553",
+      "day": "2026-05-13 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-11 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "23497006.869937867",
+      "daily_attributed_tvl_usd": "15578529.263289714",
+      "day": "2026-05-13 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-11 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6217.8372338207455",
+      "daily_attributed_tvl_usd": "6217.8372338207455",
+      "day": "2026-01-08 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-05 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "1012.3256068065929",
+      "daily_attributed_tvl_usd": 0,
+      "day": "2026-02-09 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "1012.3256068065929",
+      "daily_attributed_tvl_usd": "1007.5132127901253",
+      "day": "2026-02-09 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "1012.3256068065929",
+      "daily_attributed_tvl_usd": "4.812394016467585",
+      "day": "2026-02-09 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5896967.699645912",
+      "daily_attributed_tvl_usd": "1214334.5616513798",
+      "day": "2026-03-27 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5896967.699645912",
+      "daily_attributed_tvl_usd": "4252631.816274107",
+      "day": "2026-03-27 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5896967.699645912",
+      "daily_attributed_tvl_usd": "430001.321720425",
+      "day": "2026-03-27 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2163696.8915996845",
+      "daily_attributed_tvl_usd": "1841449.2287776372",
+      "day": "2026-03-13 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2163696.8915996845",
+      "daily_attributed_tvl_usd": "2107.3450162183303",
+      "day": "2026-03-13 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2163696.8915996845",
+      "daily_attributed_tvl_usd": "320140.31780582917",
+      "day": "2026-03-13 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "375227727.6859426",
+      "daily_attributed_tvl_usd": "3770396.0603686264",
+      "day": "2026-07-28 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "375227727.6859426",
+      "daily_attributed_tvl_usd": "310490981.05518275",
+      "day": "2026-07-28 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "375227727.6859426",
+      "daily_attributed_tvl_usd": "60966350.57039126",
+      "day": "2026-07-28 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "15466421.902102571",
+      "daily_attributed_tvl_usd": "1679546.7440313052",
+      "day": "2026-04-11 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "15466421.902102571",
+      "daily_attributed_tvl_usd": "12910605.30284575",
+      "day": "2026-04-11 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "15466421.902102571",
+      "daily_attributed_tvl_usd": "876269.8552255174",
+      "day": "2026-04-11 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11311980.079683147",
+      "daily_attributed_tvl_usd": "4589896.774886198",
+      "day": "2026-05-31 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-25 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11311980.079683147",
+      "daily_attributed_tvl_usd": "1056788.4394539504",
+      "day": "2026-05-31 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-25 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11311980.079683147",
+      "daily_attributed_tvl_usd": "5665294.865342998",
+      "day": "2026-05-31 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-25 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "71426452.0140586",
+      "daily_attributed_tvl_usd": "4246246.932298367",
+      "day": "2026-07-02 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-29 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "71426452.0140586",
+      "daily_attributed_tvl_usd": "59119404.012923665",
+      "day": "2026-07-02 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-29 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "71426452.0140586",
+      "daily_attributed_tvl_usd": "8060801.068836571",
+      "day": "2026-07-02 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-29 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "72428144.5398299",
+      "daily_attributed_tvl_usd": "59134115.69047626",
+      "day": "2026-07-16 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "72428144.5398299",
+      "daily_attributed_tvl_usd": "3648180.3170975293",
+      "day": "2026-07-16 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "72428144.5398299",
+      "daily_attributed_tvl_usd": "9645848.5322561",
+      "day": "2026-07-16 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38406369.8859954",
+      "daily_attributed_tvl_usd": "1784337.8644476112",
+      "day": "2026-05-06 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-04 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38406369.8859954",
+      "daily_attributed_tvl_usd": "29015903.05576065",
+      "day": "2026-05-06 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-04 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38406369.8859954",
+      "daily_attributed_tvl_usd": "7606128.965787136",
+      "day": "2026-05-06 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-04 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "92858925.89880246",
+      "daily_attributed_tvl_usd": "60300815.01182735",
+      "day": "2026-07-20 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "92858925.89880246",
+      "daily_attributed_tvl_usd": "3726087.8324775174",
+      "day": "2026-07-20 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "92858925.89880246",
+      "daily_attributed_tvl_usd": "28832023.054497585",
+      "day": "2026-07-20 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "4907148.18609067",
+      "daily_attributed_tvl_usd": "3934301.0896305228",
+      "day": "2026-03-21 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "4907148.18609067",
+      "daily_attributed_tvl_usd": "457415.56739290047",
+      "day": "2026-03-21 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "4907148.18609067",
+      "daily_attributed_tvl_usd": "515431.52906724636",
+      "day": "2026-03-21 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6599.229724771859",
+      "daily_attributed_tvl_usd": "3.144740469266866",
+      "day": "2026-01-16 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-01-12 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6599.229724771859",
+      "daily_attributed_tvl_usd": "6596.084984302592",
+      "day": "2026-01-16 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-12 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "15222230.64908325",
+      "daily_attributed_tvl_usd": "12676464.31729884",
+      "day": "2026-04-10 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "15222230.64908325",
+      "daily_attributed_tvl_usd": "860355.8229065601",
+      "day": "2026-04-10 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "15222230.64908325",
+      "daily_attributed_tvl_usd": "1685410.5088778494",
+      "day": "2026-04-10 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "73970172.44665217",
+      "daily_attributed_tvl_usd": "60856237.780588925",
+      "day": "2026-07-15 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "73970172.44665217",
+      "daily_attributed_tvl_usd": "3751714.8933221693",
+      "day": "2026-07-15 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "73970172.44665217",
+      "daily_attributed_tvl_usd": "9362219.772741072",
+      "day": "2026-07-15 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5906.818424555092",
+      "daily_attributed_tvl_usd": "2.8146049233159927",
+      "day": "2026-01-22 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-01-19 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5906.818424555092",
+      "daily_attributed_tvl_usd": "5904.0038196317755",
+      "day": "2026-01-22 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-19 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "937.5831183692906",
+      "daily_attributed_tvl_usd": "931.098849934418",
+      "day": "2026-02-11 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "937.5831183692906",
+      "daily_attributed_tvl_usd": "6.484268434872583",
+      "day": "2026-02-11 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "937.5831183692906",
+      "daily_attributed_tvl_usd": 0,
+      "day": "2026-02-11 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "185784948.2306214",
+      "daily_attributed_tvl_usd": "61143487.06233146",
+      "day": "2026-07-21 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "185784948.2306214",
+      "daily_attributed_tvl_usd": "3778274.0709484722",
+      "day": "2026-07-21 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "185784948.2306214",
+      "daily_attributed_tvl_usd": "120863187.09734146",
+      "day": "2026-07-21 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2312015.8168598264",
+      "daily_attributed_tvl_usd": "24105.16036464931",
+      "day": "2026-03-15 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2312015.8168598264",
+      "daily_attributed_tvl_usd": "337815.1221289981",
+      "day": "2026-03-15 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2312015.8168598264",
+      "daily_attributed_tvl_usd": "1950095.5343661788",
+      "day": "2026-03-15 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11390853.239617191",
+      "daily_attributed_tvl_usd": "5708871.60659576",
+      "day": "2026-05-30 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-25 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11390853.239617191",
+      "daily_attributed_tvl_usd": "4623893.05843942",
+      "day": "2026-05-30 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-25 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11390853.239617191",
+      "daily_attributed_tvl_usd": "1058088.57458201",
+      "day": "2026-05-30 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-25 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2528705.8423896465",
+      "daily_attributed_tvl_usd": "2009.402232477481",
+      "day": "2026-03-09 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2528705.8423896465",
+      "daily_attributed_tvl_usd": "803104.1785581727",
+      "day": "2026-03-09 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2528705.8423896465",
+      "daily_attributed_tvl_usd": "1723592.2615989964",
+      "day": "2026-03-09 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38183688.18464759",
+      "daily_attributed_tvl_usd": "28827294.20576861",
+      "day": "2026-05-11 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-11 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38183688.18464759",
+      "daily_attributed_tvl_usd": "1792578.3686521687",
+      "day": "2026-05-11 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-11 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38183688.18464759",
+      "daily_attributed_tvl_usd": "7563815.61022681",
+      "day": "2026-05-11 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-11 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "37430885.59711361",
+      "daily_attributed_tvl_usd": "1711030.5592201021",
+      "day": "2026-05-07 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-04 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "37430885.59711361",
+      "daily_attributed_tvl_usd": "7418729.450875316",
+      "day": "2026-05-07 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-04 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "37430885.59711361",
+      "daily_attributed_tvl_usd": "28301125.587018196",
+      "day": "2026-05-07 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-04 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "65262887.085266754",
+      "daily_attributed_tvl_usd": "56309698.86720085",
+      "day": "2026-06-24 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-22 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "65262887.085266754",
+      "daily_attributed_tvl_usd": "5203905.905055894",
+      "day": "2026-06-24 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-22 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "65262887.085266754",
+      "daily_attributed_tvl_usd": "3749282.3130100095",
+      "day": "2026-06-24 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-22 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "39886886.9222788",
+      "daily_attributed_tvl_usd": "2351406.444580868",
+      "day": "2026-04-23 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "39886886.9222788",
+      "daily_attributed_tvl_usd": "8796870.312190354",
+      "day": "2026-04-23 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "39886886.9222788",
+      "daily_attributed_tvl_usd": "28738610.165507577",
+      "day": "2026-04-23 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10960192.261002932",
+      "daily_attributed_tvl_usd": "4284965.183358442",
+      "day": "2026-05-28 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-25 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10960192.261002932",
+      "daily_attributed_tvl_usd": "1005612.0265605509",
+      "day": "2026-05-28 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-25 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10960192.261002932",
+      "daily_attributed_tvl_usd": "5669615.051083939",
+      "day": "2026-05-28 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-25 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "498002.834782104",
+      "daily_attributed_tvl_usd": "969.93",
+      "day": "2026-03-01 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "498002.834782104",
+      "daily_attributed_tvl_usd": "494483.52274369064",
+      "day": "2026-03-01 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "498002.834782104",
+      "daily_attributed_tvl_usd": "2549.382038413374",
+      "day": "2026-03-01 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "68074751.68271135",
+      "daily_attributed_tvl_usd": "5038742.070810522",
+      "day": "2026-06-29 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-29 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "68074751.68271135",
+      "daily_attributed_tvl_usd": "6831697.87669509",
+      "day": "2026-06-29 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-29 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "68074751.68271135",
+      "daily_attributed_tvl_usd": "56204311.73520574",
+      "day": "2026-06-29 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-29 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6587.92",
+      "daily_attributed_tvl_usd": "6587.92",
+      "day": "2026-01-06 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-05 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "4754462.877781531",
+      "daily_attributed_tvl_usd": "504329.81027838215",
+      "day": "2026-03-22 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "4754462.877781531",
+      "daily_attributed_tvl_usd": "441140.31295776187",
+      "day": "2026-03-22 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "4754462.877781531",
+      "daily_attributed_tvl_usd": "3808992.7545453864",
+      "day": "2026-03-22 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "362714449.35501504",
+      "daily_attributed_tvl_usd": "296827012.978211",
+      "day": "2026-07-26 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "362714449.35501504",
+      "daily_attributed_tvl_usd": "61979665.01591344",
+      "day": "2026-07-26 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "362714449.35501504",
+      "daily_attributed_tvl_usd": "3907771.3608906395",
+      "day": "2026-07-26 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2762.5420081903158",
+      "daily_attributed_tvl_usd": "927.345",
+      "day": "2026-02-23 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2762.5420081903158",
+      "daily_attributed_tvl_usd": "773.0268469652643",
+      "day": "2026-02-23 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2762.5420081903158",
+      "daily_attributed_tvl_usd": "1062.1701612250515",
+      "day": "2026-02-23 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "66487467.704203576",
+      "daily_attributed_tvl_usd": "6672398.324978898",
+      "day": "2026-06-27 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-22 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "66487467.704203576",
+      "daily_attributed_tvl_usd": "54893602.49780808",
+      "day": "2026-06-27 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-22 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "66487467.704203576",
+      "daily_attributed_tvl_usd": "4921466.8814166",
+      "day": "2026-06-27 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-22 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "43939187.89697632",
+      "daily_attributed_tvl_usd": "2508463.342560815",
+      "day": "2026-04-20 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "43939187.89697632",
+      "daily_attributed_tvl_usd": "12897378.595640568",
+      "day": "2026-04-20 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "43939187.89697632",
+      "daily_attributed_tvl_usd": "28533345.958774943",
+      "day": "2026-04-20 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11334544.043825112",
+      "daily_attributed_tvl_usd": "1048385.2003481124",
+      "day": "2026-05-29 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-25 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11334544.043825112",
+      "daily_attributed_tvl_usd": "4602610.113250695",
+      "day": "2026-05-29 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-25 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11334544.043825112",
+      "daily_attributed_tvl_usd": "5683548.730226303",
+      "day": "2026-05-29 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-25 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "7767155.797145116",
+      "daily_attributed_tvl_usd": "1016325.9599122561",
+      "day": "2026-06-03 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-01 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "7767155.797145116",
+      "daily_attributed_tvl_usd": "2408311.4737790185",
+      "day": "2026-06-03 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-01 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "7767155.797145116",
+      "daily_attributed_tvl_usd": "4342518.363453842",
+      "day": "2026-06-03 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-01 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6056.771520649224",
+      "daily_attributed_tvl_usd": "6053.886459969151",
+      "day": "2026-01-27 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-26 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6056.771520649224",
+      "daily_attributed_tvl_usd": "2.885060680073801",
+      "day": "2026-01-27 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-01-26 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "370930327.3321837",
+      "daily_attributed_tvl_usd": "4061412.748253457",
+      "day": "2026-08-01 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "370930327.3321837",
+      "daily_attributed_tvl_usd": "68340233.87041281",
+      "day": "2026-08-01 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "370930327.3321837",
+      "daily_attributed_tvl_usd": "298528680.7135174",
+      "day": "2026-08-01 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10138120.984789174",
+      "daily_attributed_tvl_usd": "937295.5071317971",
+      "day": "2026-05-21 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-18 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10138120.984789174",
+      "daily_attributed_tvl_usd": "6028058.807789287",
+      "day": "2026-05-21 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-18 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10138120.984789174",
+      "daily_attributed_tvl_usd": "3172766.6698680897",
+      "day": "2026-05-21 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-18 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2912.173684652001",
+      "daily_attributed_tvl_usd": "804.288947195094",
+      "day": "2026-02-20 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2912.173684652001",
+      "daily_attributed_tvl_usd": "1123.839737456907",
+      "day": "2026-02-20 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2912.173684652001",
+      "daily_attributed_tvl_usd": "984.045",
+      "day": "2026-02-20 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10496639.230091201",
+      "daily_attributed_tvl_usd": "1257559.1144817686",
+      "day": "2026-05-17 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-11 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10496639.230091201",
+      "daily_attributed_tvl_usd": "3248651.2282591104",
+      "day": "2026-05-17 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-11 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10496639.230091201",
+      "daily_attributed_tvl_usd": "5990428.887350323",
+      "day": "2026-05-17 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-11 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "9808954.530278532",
+      "daily_attributed_tvl_usd": "3069953.6618769653",
+      "day": "2026-05-22 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-18 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "9808954.530278532",
+      "daily_attributed_tvl_usd": "5832179.887198811",
+      "day": "2026-05-22 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-18 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "9808954.530278532",
+      "daily_attributed_tvl_usd": "906820.9812027544",
+      "day": "2026-05-22 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-18 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "15599373.70558457",
+      "daily_attributed_tvl_usd": "1616196.8164782487",
+      "day": "2026-04-15 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "15599373.70558457",
+      "daily_attributed_tvl_usd": "822743.3936603467",
+      "day": "2026-04-15 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "15599373.70558457",
+      "daily_attributed_tvl_usd": "13160433.495445974",
+      "day": "2026-04-15 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10.370820564452963",
+      "daily_attributed_tvl_usd": "5.811405750158386",
+      "day": "2026-02-01 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-26 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10.370820564452963",
+      "daily_attributed_tvl_usd": "4.559414814294576",
+      "day": "2026-02-01 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-01-26 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "66326693.78349464",
+      "daily_attributed_tvl_usd": "6659613.639337074",
+      "day": "2026-06-30 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-29 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "66326693.78349464",
+      "daily_attributed_tvl_usd": "4909044.633958114",
+      "day": "2026-06-30 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-29 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "66326693.78349464",
+      "daily_attributed_tvl_usd": "54758035.51019945",
+      "day": "2026-06-30 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-29 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2474.6424759518277",
+      "daily_attributed_tvl_usd": "948.6325707227046",
+      "day": "2026-02-15 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2474.6424759518277",
+      "daily_attributed_tvl_usd": "982.575",
+      "day": "2026-02-15 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2474.6424759518277",
+      "daily_attributed_tvl_usd": "543.4349052291234",
+      "day": "2026-02-15 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "8179146.1366715785",
+      "daily_attributed_tvl_usd": "1378098.1248197677",
+      "day": "2026-03-30 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-30 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "8179146.1366715785",
+      "daily_attributed_tvl_usd": "444919.0484226727",
+      "day": "2026-03-30 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-30 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "8179146.1366715785",
+      "daily_attributed_tvl_usd": "6356128.963429138",
+      "day": "2026-03-30 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-30 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6784748.692486315",
+      "daily_attributed_tvl_usd": "5697164.786289211",
+      "day": "2026-03-25 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6784748.692486315",
+      "daily_attributed_tvl_usd": "465599.2204830891",
+      "day": "2026-03-25 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6784748.692486315",
+      "daily_attributed_tvl_usd": "621984.6857140152",
+      "day": "2026-03-25 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38152469.81876437",
+      "daily_attributed_tvl_usd": "7321999.284371434",
+      "day": "2026-05-04 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-04 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38152469.81876437",
+      "daily_attributed_tvl_usd": "29097838.020013455",
+      "day": "2026-05-04 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-04 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38152469.81876437",
+      "daily_attributed_tvl_usd": "1732632.5143794827",
+      "day": "2026-05-04 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-04 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5878.083678879921",
+      "daily_attributed_tvl_usd": "2.8009049278245626",
+      "day": "2026-01-20 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-01-19 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5878.083678879921",
+      "daily_attributed_tvl_usd": "5875.282773952096",
+      "day": "2026-01-20 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-19 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "374237822.1942952",
+      "daily_attributed_tvl_usd": "301375420.0013786",
+      "day": "2026-07-31 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "374237822.1942952",
+      "daily_attributed_tvl_usd": "68989510.73052943",
+      "day": "2026-07-31 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "374237822.1942952",
+      "daily_attributed_tvl_usd": "3872891.462387229",
+      "day": "2026-07-31 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2920.690498526941",
+      "daily_attributed_tvl_usd": "1127.3336132494505",
+      "day": "2026-02-21 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2920.690498526941",
+      "daily_attributed_tvl_usd": "806.1118852774907",
+      "day": "2026-02-21 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2920.690498526941",
+      "daily_attributed_tvl_usd": "987.245",
+      "day": "2026-02-21 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2721.0683435027277",
+      "daily_attributed_tvl_usd": "943.3241096899791",
+      "day": "2026-02-18 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2721.0683435027277",
+      "daily_attributed_tvl_usd": "800.5592338127485",
+      "day": "2026-02-18 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2721.0683435027277",
+      "daily_attributed_tvl_usd": "977.185",
+      "day": "2026-02-18 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38774762.03314615",
+      "daily_attributed_tvl_usd": "29316886.5609452",
+      "day": "2026-05-10 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-04 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38774762.03314615",
+      "daily_attributed_tvl_usd": "7672633.855235349",
+      "day": "2026-05-10 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-04 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38774762.03314615",
+      "daily_attributed_tvl_usd": "1785241.6169656003",
+      "day": "2026-05-10 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-04 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "7197584.154602479",
+      "daily_attributed_tvl_usd": "894980.242500596",
+      "day": "2026-06-05 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-01 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "7197584.154602479",
+      "daily_attributed_tvl_usd": "2147843.284070357",
+      "day": "2026-06-05 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-01 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "7197584.154602479",
+      "daily_attributed_tvl_usd": "4154760.6280315258",
+      "day": "2026-06-05 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-01 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "39819306.62645298",
+      "daily_attributed_tvl_usd": "2448660.100536518",
+      "day": "2026-04-25 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "39819306.62645298",
+      "daily_attributed_tvl_usd": "28618650.812891405",
+      "day": "2026-04-25 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "39819306.62645298",
+      "daily_attributed_tvl_usd": "8751995.713025058",
+      "day": "2026-04-25 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6238.975866934333",
+      "daily_attributed_tvl_usd": "6238.975866934333",
+      "day": "2026-01-11 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-05 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5419.296234391129",
+      "daily_attributed_tvl_usd": "5413.970439495959",
+      "day": "2026-01-30 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-26 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5419.296234391129",
+      "daily_attributed_tvl_usd": "5.325794895169407",
+      "day": "2026-01-30 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-01-26 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2394582.4046887187",
+      "daily_attributed_tvl_usd": "1010.5548",
+      "day": "2026-03-06 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2394582.4046887187",
+      "daily_attributed_tvl_usd": "1675986.444126819",
+      "day": "2026-03-06 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2394582.4046887187",
+      "daily_attributed_tvl_usd": "717585.4057618995",
+      "day": "2026-03-06 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "44508100.20215256",
+      "daily_attributed_tvl_usd": "13122136.03967096",
+      "day": "2026-04-18 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "44508100.20215256",
+      "daily_attributed_tvl_usd": "29213371.63762915",
+      "day": "2026-04-18 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "44508100.20215256",
+      "daily_attributed_tvl_usd": "2172592.524852449",
+      "day": "2026-04-18 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10.679570815200403",
+      "daily_attributed_tvl_usd": "4.866840168019469",
+      "day": "2026-01-31 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-01-26 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10.679570815200403",
+      "daily_attributed_tvl_usd": "5.812730647180935",
+      "day": "2026-01-31 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-26 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "9022775.482094798",
+      "daily_attributed_tvl_usd": "2174672.493535927",
+      "day": "2026-06-10 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-08 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "9022775.482094798",
+      "daily_attributed_tvl_usd": "4644490.302254726",
+      "day": "2026-06-10 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-08 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "9022775.482094798",
+      "daily_attributed_tvl_usd": "2203612.686304144",
+      "day": "2026-06-10 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-08 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2039.4576906794737",
+      "daily_attributed_tvl_usd": "4.212055096708792",
+      "day": "2026-02-06 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2039.4576906794737",
+      "daily_attributed_tvl_usd": "1723.2234884628197",
+      "day": "2026-02-06 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2039.4576906794737",
+      "daily_attributed_tvl_usd": "312.02214711994526",
+      "day": "2026-02-06 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11132508.785693737",
+      "daily_attributed_tvl_usd": "851515.0927649966",
+      "day": "2026-04-06 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11132508.785693737",
+      "daily_attributed_tvl_usd": "1557595.6965925507",
+      "day": "2026-04-06 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11132508.785693737",
+      "daily_attributed_tvl_usd": "8723397.99633619",
+      "day": "2026-04-06 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "270454751.97174627",
+      "daily_attributed_tvl_usd": "3795209.0019880435",
+      "day": "2026-07-22 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "270454751.97174627",
+      "daily_attributed_tvl_usd": "205366923.40495807",
+      "day": "2026-07-22 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "270454751.97174627",
+      "daily_attributed_tvl_usd": "61292619.56480014",
+      "day": "2026-07-22 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2848.116371030039",
+      "daily_attributed_tvl_usd": "799.4616886757932",
+      "day": "2026-02-19 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2848.116371030039",
+      "daily_attributed_tvl_usd": "974.885",
+      "day": "2026-02-19 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2848.116371030039",
+      "daily_attributed_tvl_usd": "1073.7696823542458",
+      "day": "2026-02-19 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "37684983.48542185",
+      "daily_attributed_tvl_usd": "1723144.8884338837",
+      "day": "2026-05-08 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-04 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "37684983.48542185",
+      "daily_attributed_tvl_usd": "7468832.351205479",
+      "day": "2026-05-08 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-04 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "37684983.48542185",
+      "daily_attributed_tvl_usd": "28493006.245782487",
+      "day": "2026-05-08 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-04 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "1104763.1960787217",
+      "daily_attributed_tvl_usd": "130494.87767767032",
+      "day": "2026-03-18 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "1104763.1960787217",
+      "daily_attributed_tvl_usd": "469631.4793904393",
+      "day": "2026-03-18 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "1104763.1960787217",
+      "daily_attributed_tvl_usd": "504636.83901061205",
+      "day": "2026-03-18 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "928336.6028460808",
+      "daily_attributed_tvl_usd": "1058.2755000000002",
+      "day": "2026-03-05 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "928336.6028460808",
+      "daily_attributed_tvl_usd": "731586.7996324627",
+      "day": "2026-03-05 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "928336.6028460808",
+      "daily_attributed_tvl_usd": "195691.52771361812",
+      "day": "2026-03-05 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "42692841.417655416",
+      "daily_attributed_tvl_usd": "12637836.90138564",
+      "day": "2026-04-19 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "42692841.417655416",
+      "daily_attributed_tvl_usd": "27960702.57267249",
+      "day": "2026-04-19 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "42692841.417655416",
+      "daily_attributed_tvl_usd": "2094301.9435972888",
+      "day": "2026-04-19 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "44238059.28324704",
+      "daily_attributed_tvl_usd": "2621538.3884682516",
+      "day": "2026-04-21 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "44238059.28324704",
+      "daily_attributed_tvl_usd": "12955024.208267761",
+      "day": "2026-04-21 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "44238059.28324704",
+      "daily_attributed_tvl_usd": "28661496.686511025",
+      "day": "2026-04-21 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "73691859.9529338",
+      "daily_attributed_tvl_usd": "3463493.574866366",
+      "day": "2026-07-07 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "73691859.9529338",
+      "daily_attributed_tvl_usd": "8408926.640411686",
+      "day": "2026-07-07 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "73691859.9529338",
+      "daily_attributed_tvl_usd": "61819439.73765575",
+      "day": "2026-07-07 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "3004.8968465634002",
+      "daily_attributed_tvl_usd": "1014.01",
+      "day": "2026-02-26 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "3004.8968465634002",
+      "daily_attributed_tvl_usd": "1157.578240774231",
+      "day": "2026-02-26 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "3004.8968465634002",
+      "daily_attributed_tvl_usd": "833.3086057891691",
+      "day": "2026-02-26 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "373360425.1801203",
+      "daily_attributed_tvl_usd": "3779298.3583055814",
+      "day": "2026-07-29 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "373360425.1801203",
+      "daily_attributed_tvl_usd": "60689968.38781724",
+      "day": "2026-07-29 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "373360425.1801203",
+      "daily_attributed_tvl_usd": "308891158.43399745",
+      "day": "2026-07-29 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "37088080.471362166",
+      "daily_attributed_tvl_usd": "28654731.52344725",
+      "day": "2026-05-01 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "37088080.471362166",
+      "daily_attributed_tvl_usd": "7154586.006740965",
+      "day": "2026-05-01 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "37088080.471362166",
+      "daily_attributed_tvl_usd": "1278762.9411739476",
+      "day": "2026-05-01 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "4965258.071699598",
+      "daily_attributed_tvl_usd": "497949.75770308415",
+      "day": "2026-03-20 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "4965258.071699598",
+      "daily_attributed_tvl_usd": "460866.0366785235",
+      "day": "2026-03-20 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "4965258.071699598",
+      "daily_attributed_tvl_usd": "4006442.27731799",
+      "day": "2026-03-20 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "1125.5329638709977",
+      "daily_attributed_tvl_usd": "4.687888535585172",
+      "day": "2026-02-02 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "1125.5329638709977",
+      "daily_attributed_tvl_usd": "1120.8450753354125",
+      "day": "2026-02-02 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "39623866.62893697",
+      "daily_attributed_tvl_usd": "2334684.795366316",
+      "day": "2026-04-24 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "39623866.62893697",
+      "daily_attributed_tvl_usd": "28551679.5885138",
+      "day": "2026-04-24 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "39623866.62893697",
+      "daily_attributed_tvl_usd": "8737502.24505685",
+      "day": "2026-04-24 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "1157.6072330975126",
+      "daily_attributed_tvl_usd": "276.92996100553665",
+      "day": "2026-02-05 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "1157.6072330975126",
+      "daily_attributed_tvl_usd": "876.8797667716906",
+      "day": "2026-02-05 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "1157.6072330975126",
+      "daily_attributed_tvl_usd": "3.7975053202852775",
+      "day": "2026-02-05 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11465717.981213298",
+      "daily_attributed_tvl_usd": "1518503.3498280603",
+      "day": "2026-04-04 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-30 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11465717.981213298",
+      "daily_attributed_tvl_usd": "8662356.357764395",
+      "day": "2026-04-04 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-30 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11465717.981213298",
+      "daily_attributed_tvl_usd": "1284858.2736208416",
+      "day": "2026-04-04 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-30 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "370694306.4048736",
+      "daily_attributed_tvl_usd": "3711955.4973042165",
+      "day": "2026-07-27 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "370694306.4048736",
+      "daily_attributed_tvl_usd": "60006080.937695675",
+      "day": "2026-07-27 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "370694306.4048736",
+      "daily_attributed_tvl_usd": "306976269.9698737",
+      "day": "2026-07-27 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10087860.067474794",
+      "daily_attributed_tvl_usd": "3178451.7941856226",
+      "day": "2026-05-23 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-18 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10087860.067474794",
+      "daily_attributed_tvl_usd": "929878.9158145996",
+      "day": "2026-05-23 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-18 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10087860.067474794",
+      "daily_attributed_tvl_usd": "5979529.357474571",
+      "day": "2026-05-23 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-18 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10862400.00173929",
+      "daily_attributed_tvl_usd": "2273596.0017594933",
+      "day": "2026-06-11 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-08 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10862400.00173929",
+      "daily_attributed_tvl_usd": "3629292.52735538",
+      "day": "2026-06-11 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-08 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10862400.00173929",
+      "daily_attributed_tvl_usd": "4959511.4726244155",
+      "day": "2026-06-11 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-08 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10810089.416892966",
+      "daily_attributed_tvl_usd": "5000899.699883489",
+      "day": "2026-06-13 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-08 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10810089.416892966",
+      "daily_attributed_tvl_usd": "3527135.40792292",
+      "day": "2026-06-13 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-08 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10810089.416892966",
+      "daily_attributed_tvl_usd": "2282054.309086558",
+      "day": "2026-06-13 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-08 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "74091851.94820434",
+      "daily_attributed_tvl_usd": "61834253.03492952",
+      "day": "2026-07-10 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "74091851.94820434",
+      "daily_attributed_tvl_usd": "3509245.1948967897",
+      "day": "2026-07-10 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "74091851.94820434",
+      "daily_attributed_tvl_usd": "8748353.718378024",
+      "day": "2026-07-10 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "9248840.711990057",
+      "daily_attributed_tvl_usd": "2110713.4559985595",
+      "day": "2026-06-08 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-08 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "9248840.711990057",
+      "daily_attributed_tvl_usd": "4841325.727591919",
+      "day": "2026-06-08 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-08 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "9248840.711990057",
+      "daily_attributed_tvl_usd": "2296801.5283995783",
+      "day": "2026-06-08 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-08 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "553339.3978093308",
+      "daily_attributed_tvl_usd": "3161.2890735627598",
+      "day": "2026-03-03 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "553339.3978093308",
+      "daily_attributed_tvl_usd": "1012.3194",
+      "day": "2026-03-03 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "553339.3978093308",
+      "daily_attributed_tvl_usd": "549165.7893357681",
+      "day": "2026-03-03 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10119412.817861266",
+      "daily_attributed_tvl_usd": "942991.7948012734",
+      "day": "2026-05-20 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-18 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10119412.817861266",
+      "daily_attributed_tvl_usd": "6008621.927529803",
+      "day": "2026-05-20 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-18 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10119412.817861266",
+      "daily_attributed_tvl_usd": "3167799.0955301914",
+      "day": "2026-05-20 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-18 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2776.9509424056964",
+      "daily_attributed_tvl_usd": "812.86759557241",
+      "day": "2026-02-16 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2776.9509424056964",
+      "daily_attributed_tvl_usd": "964.4783468332865",
+      "day": "2026-02-16 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2776.9509424056964",
+      "daily_attributed_tvl_usd": "999.605",
+      "day": "2026-02-16 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2769.9956680609766",
+      "daily_attributed_tvl_usd": "811.3144216520011",
+      "day": "2026-02-17 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2769.9956680609766",
+      "daily_attributed_tvl_usd": "996.735",
+      "day": "2026-02-17 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2769.9956680609766",
+      "daily_attributed_tvl_usd": "961.9462464089759",
+      "day": "2026-02-17 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2357140.7664604983",
+      "daily_attributed_tvl_usd": "715440.0374378115",
+      "day": "2026-03-08 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2357140.7664604983",
+      "daily_attributed_tvl_usd": "1640711.8033226868",
+      "day": "2026-03-08 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2357140.7664604983",
+      "daily_attributed_tvl_usd": "988.9257",
+      "day": "2026-03-08 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "14787195.545741286",
+      "daily_attributed_tvl_usd": "839275.9177942771",
+      "day": "2026-04-09 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "14787195.545741286",
+      "daily_attributed_tvl_usd": "12363924.671818582",
+      "day": "2026-04-09 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "14787195.545741286",
+      "daily_attributed_tvl_usd": "1583994.9561284268",
+      "day": "2026-04-09 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11393900.996677775",
+      "daily_attributed_tvl_usd": "8611163.937074127",
+      "day": "2026-04-03 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-30 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11393900.996677775",
+      "daily_attributed_tvl_usd": "1505750.246551584",
+      "day": "2026-04-03 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-30 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11393900.996677775",
+      "daily_attributed_tvl_usd": "1276986.8130520638",
+      "day": "2026-04-03 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-30 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "70234349.84672831",
+      "daily_attributed_tvl_usd": "3942843.0680016577",
+      "day": "2026-06-19 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-15 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "70234349.84672831",
+      "daily_attributed_tvl_usd": "60982394.82553549",
+      "day": "2026-06-19 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-15 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "70234349.84672831",
+      "daily_attributed_tvl_usd": "5309111.953191162",
+      "day": "2026-06-19 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-15 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38288873.19879436",
+      "daily_attributed_tvl_usd": "29177319.172560085",
+      "day": "2026-05-05 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-04 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38288873.19879436",
+      "daily_attributed_tvl_usd": "1742825.8812352917",
+      "day": "2026-05-05 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-04 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38288873.19879436",
+      "daily_attributed_tvl_usd": "7368728.144998983",
+      "day": "2026-05-05 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-04 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "15542477.55204283",
+      "daily_attributed_tvl_usd": "822805.7498105059",
+      "day": "2026-04-16 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "15542477.55204283",
+      "daily_attributed_tvl_usd": "13094306.841389943",
+      "day": "2026-04-16 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "15542477.55204283",
+      "daily_attributed_tvl_usd": "1625364.9608423822",
+      "day": "2026-04-16 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5962.725004674269",
+      "daily_attributed_tvl_usd": "2.8412607641259204",
+      "day": "2026-01-21 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-01-19 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5962.725004674269",
+      "daily_attributed_tvl_usd": "5959.8837439101435",
+      "day": "2026-01-21 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-19 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "348140330.5256734",
+      "daily_attributed_tvl_usd": "284958893.2136746",
+      "day": "2026-07-25 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "348140330.5256734",
+      "daily_attributed_tvl_usd": "3682147.067786484",
+      "day": "2026-07-25 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "348140330.5256734",
+      "daily_attributed_tvl_usd": "59499290.24421231",
+      "day": "2026-07-25 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "1916.0641360979866",
+      "daily_attributed_tvl_usd": "973.185",
+      "day": "2026-02-12 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "1916.0641360979866",
+      "daily_attributed_tvl_usd": "6.576395570598354",
+      "day": "2026-02-12 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "1916.0641360979866",
+      "daily_attributed_tvl_usd": "936.3027405273883",
+      "day": "2026-02-12 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5638.690309331345",
+      "daily_attributed_tvl_usd": "2.6867637397608632",
+      "day": "2026-01-25 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-01-19 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5638.690309331345",
+      "daily_attributed_tvl_usd": "5636.003545591584",
+      "day": "2026-01-25 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-19 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "4917562.769548768",
+      "daily_attributed_tvl_usd": "495409.83631487424",
+      "day": "2026-03-19 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "4917562.769548768",
+      "daily_attributed_tvl_usd": "3964508.7011334416",
+      "day": "2026-03-19 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "4917562.769548768",
+      "daily_attributed_tvl_usd": "457644.2321004527",
+      "day": "2026-03-19 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-16 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "73942221.045253",
+      "daily_attributed_tvl_usd": "61709788.17393228",
+      "day": "2026-07-11 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "73942221.045253",
+      "daily_attributed_tvl_usd": "3502026.523212934",
+      "day": "2026-07-11 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "73942221.045253",
+      "daily_attributed_tvl_usd": "8730406.348107789",
+      "day": "2026-07-11 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2146796.406612678",
+      "daily_attributed_tvl_usd": "2093.368819292591",
+      "day": "2026-03-12 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2146796.406612678",
+      "daily_attributed_tvl_usd": "318356.69888059446",
+      "day": "2026-03-12 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2146796.406612678",
+      "daily_attributed_tvl_usd": "1826346.3389127909",
+      "day": "2026-03-12 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "49340285.40291841",
+      "daily_attributed_tvl_usd": "41556255.515667714",
+      "day": "2026-06-15 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-15 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "49340285.40291841",
+      "daily_attributed_tvl_usd": "5337507.007186165",
+      "day": "2026-06-15 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-15 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "49340285.40291841",
+      "daily_attributed_tvl_usd": "2446522.880064529",
+      "day": "2026-06-15 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-15 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "15852142.414482806",
+      "daily_attributed_tvl_usd": "947308.9031423507",
+      "day": "2026-04-13 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "15852142.414482806",
+      "daily_attributed_tvl_usd": "13110358.546172338",
+      "day": "2026-04-13 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "15852142.414482806",
+      "daily_attributed_tvl_usd": "1794474.965168119",
+      "day": "2026-04-13 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10028130.826023728",
+      "daily_attributed_tvl_usd": "3301715.1540955533",
+      "day": "2026-05-27 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-25 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10028130.826023728",
+      "daily_attributed_tvl_usd": "5709319.783151926",
+      "day": "2026-05-27 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-25 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10028130.826023728",
+      "daily_attributed_tvl_usd": "1017095.888776249",
+      "day": "2026-05-27 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-25 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "66426913.27969511",
+      "daily_attributed_tvl_usd": "54843846.49716014",
+      "day": "2026-06-28 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-22 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "66426913.27969511",
+      "daily_attributed_tvl_usd": "4916835.897936104",
+      "day": "2026-06-28 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-22 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "66426913.27969511",
+      "daily_attributed_tvl_usd": "6666230.884598863",
+      "day": "2026-06-28 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-22 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6382.34643911591",
+      "daily_attributed_tvl_usd": "6379.30510689952",
+      "day": "2026-01-19 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-19 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6382.34643911591",
+      "daily_attributed_tvl_usd": "3.041332216389698",
+      "day": "2026-01-19 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-01-19 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10477763.363924656",
+      "daily_attributed_tvl_usd": "5244866.807310753",
+      "day": "2026-06-02 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-01 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10477763.363924656",
+      "daily_attributed_tvl_usd": "978460.4789161774",
+      "day": "2026-06-02 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-01 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10477763.363924656",
+      "daily_attributed_tvl_usd": "4254436.077697725",
+      "day": "2026-06-02 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-01 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2627.2671148822405",
+      "daily_attributed_tvl_usd": "577.0709925077801",
+      "day": "2026-02-14 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2627.2671148822405",
+      "daily_attributed_tvl_usd": "1043.51",
+      "day": "2026-02-14 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2627.2671148822405",
+      "daily_attributed_tvl_usd": "1006.6861223744604",
+      "day": "2026-02-14 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "345693995.615878",
+      "daily_attributed_tvl_usd": "3656466.478418662",
+      "day": "2026-07-24 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "345693995.615878",
+      "daily_attributed_tvl_usd": "59056938.057322815",
+      "day": "2026-07-24 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "345693995.615878",
+      "daily_attributed_tvl_usd": "282980591.0801365",
+      "day": "2026-07-24 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38063853.677585796",
+      "daily_attributed_tvl_usd": "7252841.852720073",
+      "day": "2026-05-03 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38063853.677585796",
+      "daily_attributed_tvl_usd": "1765793.381358475",
+      "day": "2026-05-03 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38063853.677585796",
+      "daily_attributed_tvl_usd": "29045218.44350725",
+      "day": "2026-05-03 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "15297565.323606564",
+      "daily_attributed_tvl_usd": "910304.492569904",
+      "day": "2026-04-07 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "15297565.323606564",
+      "daily_attributed_tvl_usd": "1684582.2382500945",
+      "day": "2026-04-07 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "15297565.323606564",
+      "daily_attributed_tvl_usd": "12702678.592786565",
+      "day": "2026-04-07 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "947385.0797457122",
+      "daily_attributed_tvl_usd": "745868.4620160193",
+      "day": "2026-03-04 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "947385.0797457122",
+      "daily_attributed_tvl_usd": "1084.1784",
+      "day": "2026-03-04 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "947385.0797457122",
+      "daily_attributed_tvl_usd": "200432.439329693",
+      "day": "2026-03-04 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "71588476.19516645",
+      "daily_attributed_tvl_usd": "9534540.25037503",
+      "day": "2026-07-17 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "71588476.19516645",
+      "daily_attributed_tvl_usd": "3605432.9124227804",
+      "day": "2026-07-17 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "71588476.19516645",
+      "daily_attributed_tvl_usd": "58448503.032368645",
+      "day": "2026-07-17 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "72698873.45428546",
+      "daily_attributed_tvl_usd": "59357773.70519321",
+      "day": "2026-07-19 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "72698873.45428546",
+      "daily_attributed_tvl_usd": "9673078.28984905",
+      "day": "2026-07-19 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "72698873.45428546",
+      "daily_attributed_tvl_usd": "3668021.4592431923",
+      "day": "2026-07-19 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "8486276.633170797",
+      "daily_attributed_tvl_usd": "1418615.345771921",
+      "day": "2026-03-31 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-30 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "8486276.633170797",
+      "daily_attributed_tvl_usd": "6605696.4212203",
+      "day": "2026-03-31 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-30 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "8486276.633170797",
+      "daily_attributed_tvl_usd": "461964.8661785759",
+      "day": "2026-03-31 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-30 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38328128.06219352",
+      "daily_attributed_tvl_usd": "2502930.742787283",
+      "day": "2026-04-26 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38328128.06219352",
+      "daily_attributed_tvl_usd": "6577322.859564358",
+      "day": "2026-04-26 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "38328128.06219352",
+      "daily_attributed_tvl_usd": "29247874.45984188",
+      "day": "2026-04-26 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "8939417.268191187",
+      "daily_attributed_tvl_usd": "2227072.5841946146",
+      "day": "2026-06-09 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-08 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "8939417.268191187",
+      "daily_attributed_tvl_usd": "2014324.8096035058",
+      "day": "2026-06-09 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-08 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "8939417.268191187",
+      "daily_attributed_tvl_usd": "4698019.874393066",
+      "day": "2026-06-09 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-08 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6623.301605705922",
+      "daily_attributed_tvl_usd": "3.15621755462633",
+      "day": "2026-01-17 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-01-12 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6623.301605705922",
+      "daily_attributed_tvl_usd": "6620.145388151296",
+      "day": "2026-01-17 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-12 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10282481.276382068",
+      "daily_attributed_tvl_usd": "1042858.3660238464",
+      "day": "2026-05-26 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-25 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10282481.276382068",
+      "daily_attributed_tvl_usd": "5854238.785365881",
+      "day": "2026-05-26 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-25 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10282481.276382068",
+      "daily_attributed_tvl_usd": "3385384.1249923403",
+      "day": "2026-05-26 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-25 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "1321.9533086839963",
+      "daily_attributed_tvl_usd": "4.264684781349176",
+      "day": "2026-02-07 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "1321.9533086839963",
+      "daily_attributed_tvl_usd": "1001.2175536271508",
+      "day": "2026-02-07 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "1321.9533086839963",
+      "daily_attributed_tvl_usd": "316.4710702754964",
+      "day": "2026-02-07 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11743489.836988967",
+      "daily_attributed_tvl_usd": "1342819.6420434408",
+      "day": "2026-04-05 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-30 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11743489.836988967",
+      "daily_attributed_tvl_usd": "1554173.6831644399",
+      "day": "2026-04-05 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-30 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11743489.836988967",
+      "daily_attributed_tvl_usd": "8846496.511781085",
+      "day": "2026-04-05 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-30 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5687756.747123094",
+      "daily_attributed_tvl_usd": "463652.1521343426",
+      "day": "2026-03-24 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5687756.747123094",
+      "daily_attributed_tvl_usd": "4607555.067405059",
+      "day": "2026-03-24 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "5687756.747123094",
+      "daily_attributed_tvl_usd": "616549.5275836919",
+      "day": "2026-03-24 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "70206126.03253558",
+      "daily_attributed_tvl_usd": "5350158.205143853",
+      "day": "2026-06-17 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-15 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "70206126.03253558",
+      "daily_attributed_tvl_usd": "4044839.3087724545",
+      "day": "2026-06-17 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-15 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "70206126.03253558",
+      "daily_attributed_tvl_usd": "60811128.51861927",
+      "day": "2026-06-17 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-15 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "71454453.68922341",
+      "daily_attributed_tvl_usd": "62016096.448552504",
+      "day": "2026-06-20 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-15 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "71454453.68922341",
+      "daily_attributed_tvl_usd": "5410216.057560203",
+      "day": "2026-06-20 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-15 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "71454453.68922341",
+      "daily_attributed_tvl_usd": "4028141.1831106916",
+      "day": "2026-06-20 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-15 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6581.923185088449",
+      "daily_attributed_tvl_usd": "3.1364880346567774",
+      "day": "2026-01-18 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-01-12 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6581.923185088449",
+      "daily_attributed_tvl_usd": "6578.7866970537925",
+      "day": "2026-01-18 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-12 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2877.0736859844446",
+      "daily_attributed_tvl_usd": "1105.1261556411682",
+      "day": "2026-02-27 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2877.0736859844446",
+      "daily_attributed_tvl_usd": "965.845",
+      "day": "2026-02-27 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2877.0736859844446",
+      "daily_attributed_tvl_usd": "806.1025303432759",
+      "day": "2026-02-27 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "15345732.854099251",
+      "daily_attributed_tvl_usd": "12945968.337105148",
+      "day": "2026-04-14 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "15345732.854099251",
+      "daily_attributed_tvl_usd": "809933.6700053229",
+      "day": "2026-04-14 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "15345732.854099251",
+      "daily_attributed_tvl_usd": "1589830.8469887802",
+      "day": "2026-04-14 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10649662.103998203",
+      "daily_attributed_tvl_usd": "6136895.873554065",
+      "day": "2026-05-16 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-11 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10649662.103998203",
+      "daily_attributed_tvl_usd": "1206685.6443991212",
+      "day": "2026-05-16 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-11 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "10649662.103998203",
+      "daily_attributed_tvl_usd": "3306080.5860450175",
+      "day": "2026-05-16 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-11 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "8565589.935223129",
+      "daily_attributed_tvl_usd": "4482893.138462571",
+      "day": "2026-06-06 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-01 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "8565589.935223129",
+      "daily_attributed_tvl_usd": "1952590.1259499968",
+      "day": "2026-06-06 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-01 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "8565589.935223129",
+      "daily_attributed_tvl_usd": "2130106.6708105598",
+      "day": "2026-06-06 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-01 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "36094116.8434601",
+      "daily_attributed_tvl_usd": "6295051.093239735",
+      "day": "2026-05-12 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-11 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "36094116.8434601",
+      "daily_attributed_tvl_usd": "1681850.396389182",
+      "day": "2026-05-12 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-11 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "36094116.8434601",
+      "daily_attributed_tvl_usd": "28117215.353831183",
+      "day": "2026-05-12 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-11 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "72304661.04462637",
+      "daily_attributed_tvl_usd": "3641001.7084210194",
+      "day": "2026-07-18 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "72304661.04462637",
+      "daily_attributed_tvl_usd": "59042050.454597495",
+      "day": "2026-07-18 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "72304661.04462637",
+      "daily_attributed_tvl_usd": "9621608.88160785",
+      "day": "2026-07-18 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-13 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "36441738.52372238",
+      "daily_attributed_tvl_usd": "1257289.3749328228",
+      "day": "2026-04-29 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "36441738.52372238",
+      "daily_attributed_tvl_usd": "28150248.14893737",
+      "day": "2026-04-29 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "36441738.52372238",
+      "daily_attributed_tvl_usd": "7034200.999852185",
+      "day": "2026-04-29 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6173.835749948559",
+      "daily_attributed_tvl_usd": "6173.835749948559",
+      "day": "2026-01-09 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-05 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "74036770.49300402",
+      "daily_attributed_tvl_usd": "62084668.67005876",
+      "day": "2026-07-05 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-29 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "74036770.49300402",
+      "daily_attributed_tvl_usd": "3486675.8866077694",
+      "day": "2026-07-05 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-29 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "74036770.49300402",
+      "daily_attributed_tvl_usd": "8465425.936337505",
+      "day": "2026-07-05 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-29 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "6715.785557623521",
+      "daily_attributed_tvl_usd": "6715.785557623521",
+      "day": "2026-01-14 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-01-12 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "973.813252725605",
+      "daily_attributed_tvl_usd": "6.710982909337394",
+      "day": "2026-02-10 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "973.813252725605",
+      "daily_attributed_tvl_usd": 0,
+      "day": "2026-02-10 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "973.813252725605",
+      "daily_attributed_tvl_usd": "967.1022698162676",
+      "day": "2026-02-10 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2180657.922804577",
+      "daily_attributed_tvl_usd": "3160.2720812183024",
+      "day": "2026-03-14 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2180657.922804577",
+      "daily_attributed_tvl_usd": "320856.4534586647",
+      "day": "2026-03-14 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2180657.922804577",
+      "daily_attributed_tvl_usd": "1856641.197264694",
+      "day": "2026-03-14 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-09 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "70092172.95855534",
+      "daily_attributed_tvl_usd": "3951021.8390204688",
+      "day": "2026-06-21 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-15 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "70092172.95855534",
+      "daily_attributed_tvl_usd": "60829302.27958909",
+      "day": "2026-06-21 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-15 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "70092172.95855534",
+      "daily_attributed_tvl_usd": "5311848.839945781",
+      "day": "2026-06-21 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-15 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11072924.776167866",
+      "daily_attributed_tvl_usd": "962493.2994971403",
+      "day": "2026-05-18 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-05-18 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11072924.776167866",
+      "daily_attributed_tvl_usd": "4117108.9146036897",
+      "day": "2026-05-18 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-05-18 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11072924.776167866",
+      "daily_attributed_tvl_usd": "5993322.5620670365",
+      "day": "2026-05-18 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-05-18 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11016214.746998353",
+      "daily_attributed_tvl_usd": "1395618.4332401135",
+      "day": "2026-04-02 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-30 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11016214.746998353",
+      "daily_attributed_tvl_usd": "818316.0926516537",
+      "day": "2026-04-02 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-30 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11016214.746998353",
+      "daily_attributed_tvl_usd": "8802280.221106585",
+      "day": "2026-04-02 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-30 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "50321659.632984966",
+      "daily_attributed_tvl_usd": "5507900.559568948",
+      "day": "2026-06-16 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-15 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "50321659.632984966",
+      "daily_attributed_tvl_usd": "42371285.24366219",
+      "day": "2026-06-16 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-15 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "50321659.632984966",
+      "daily_attributed_tvl_usd": "2442473.8297538226",
+      "day": "2026-06-16 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-15 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "36513297.40456345",
+      "daily_attributed_tvl_usd": "7046061.611409456",
+      "day": "2026-04-30 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "36513297.40456345",
+      "daily_attributed_tvl_usd": "28208091.363401856",
+      "day": "2026-04-30 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "36513297.40456345",
+      "daily_attributed_tvl_usd": "1259144.429752135",
+      "day": "2026-04-30 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-27 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "570964.0545898838",
+      "daily_attributed_tvl_usd": "3368.4061090142295",
+      "day": "2026-03-02 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "570964.0545898838",
+      "daily_attributed_tvl_usd": "566579.9284808696",
+      "day": "2026-03-02 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "570964.0545898838",
+      "daily_attributed_tvl_usd": "1015.72",
+      "day": "2026-03-02 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "73877558.44824693",
+      "daily_attributed_tvl_usd": "4383622.358455846",
+      "day": "2026-07-03 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-29 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "73877558.44824693",
+      "daily_attributed_tvl_usd": "61155525.730576105",
+      "day": "2026-07-03 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-29 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "73877558.44824693",
+      "daily_attributed_tvl_usd": "8338410.359214984",
+      "day": "2026-07-03 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-29 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "74890755.16062309",
+      "daily_attributed_tvl_usd": "8546124.34692959",
+      "day": "2026-07-06 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-07-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "74890755.16062309",
+      "daily_attributed_tvl_usd": "3519960.299902678",
+      "day": "2026-07-06 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-07-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "74890755.16062309",
+      "daily_attributed_tvl_usd": "62824670.51379082",
+      "day": "2026-07-06 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-07-06 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "8016568.571389481",
+      "daily_attributed_tvl_usd": "1356788.7305135562",
+      "day": "2026-03-29 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-03-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "8016568.571389481",
+      "daily_attributed_tvl_usd": "435787.6326253925",
+      "day": "2026-03-29 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-03-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "8016568.571389481",
+      "daily_attributed_tvl_usd": "6223992.208250533",
+      "day": "2026-03-29 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-03-23 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2201.0277325686866",
+      "daily_attributed_tvl_usd": "4.474914553248983",
+      "day": "2026-02-03 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-02-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2201.0277325686866",
+      "daily_attributed_tvl_usd": "336.8837765186135",
+      "day": "2026-02-03 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-02-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "2201.0277325686866",
+      "daily_attributed_tvl_usd": "1859.669041496824",
+      "day": "2026-02-03 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-02-02 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "40970212.5800791",
+      "daily_attributed_tvl_usd": "29311642.511577245",
+      "day": "2026-04-22 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-04-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "40970212.5800791",
+      "daily_attributed_tvl_usd": "8977271.512385115",
+      "day": "2026-04-22 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-04-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "40970212.5800791",
+      "daily_attributed_tvl_usd": "2681298.55611674",
+      "day": "2026-04-22 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-04-20 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "7805075.415861348",
+      "daily_attributed_tvl_usd": "2343291.7270709584",
+      "day": "2026-06-04 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-01 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "7805075.415861348",
+      "daily_attributed_tvl_usd": "4472346.972892609",
+      "day": "2026-06-04 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-01 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "7805075.415861348",
+      "daily_attributed_tvl_usd": "989436.7158977797",
+      "day": "2026-06-04 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-01 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11302876.507505849",
+      "daily_attributed_tvl_usd": "4586842.181997498",
+      "day": "2026-06-01 00:00:00.000 UTC",
+      "depositor_type": "New Depositor",
+      "week": "2026-06-01 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11302876.507505849",
+      "daily_attributed_tvl_usd": "1055881.5114977711",
+      "day": "2026-06-01 00:00:00.000 UTC",
+      "depositor_type": "Existing Depositor",
+      "week": "2026-06-01 00:00:00.000 UTC"
+    },
+    {
+      "cum_attributed_tvl_usd": "11302876.507505849",
+      "daily_attributed_tvl_usd": "5660152.814010579",
+      "day": "2026-06-01 00:00:00.000 UTC",
+      "depositor_type": "Past Depositor",
+      "week": "2026-06-01 00:00:00.000 UTC"
+    }
+  ],
+  "checksum": "efb21e290994d94bd3a75628842585e74b68b27686a18e73f37e888adddfbda3"
+}

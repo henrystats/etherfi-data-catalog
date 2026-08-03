@@ -1,0 +1,96 @@
+schema_version: 1
+
+# Base rows are reused from studio/data/*.json. This keeps the fixture corpus
+# realistic without duplicating the 420-point series and Top-100 tables.
+default_query_overrides:
+  "9102004":
+    replace_rows:
+      - day: "2026-07-29T00:00:00Z"
+        value_usd: 42000
+
+scenarios:
+  success: {}
+
+  previous_valid_snapshot: {}
+
+  empty_result:
+    query_id: 8204345
+    status: empty
+    replace_rows: []
+
+  missing_required_column:
+    query_id: 8204345
+    drop_columns: [address]
+
+  additional_unexpected_column:
+    query_id: 8204345
+    extra_columns:
+      fixture_note: deterministic-extra-column
+
+  changed_referral_deposit:
+    query_id: 8204345
+    set_values:
+      amount_usd: 250001
+
+  reordered_columns:
+    query_id: 9102002
+    column_order: [fees_usd, withdrawals_usd, deposits_usd, total_value_usd, day]
+
+  malformed_row:
+    query_id: 8204345
+    malformed_row_index: 0
+
+  duplicate_rows:
+    query_id: 8204345
+    duplicate_first_row: true
+
+  null_values:
+    query_id: 8204345
+    set_values:
+      amount_usd: null
+
+  large_numeric_string:
+    query_id: 9102001
+    set_values:
+      token_balance: "12345678901234567890.123456789"
+
+  multiple_chains:
+    query_id: 9102008
+    extra_columns:
+      chain: [ethereum, arbitrum, base]
+
+  invalid_date:
+    query_id: 9102002
+    set_values:
+      day: not-a-date
+
+  rate_limited_once:
+    query_id: 8204345
+    failure:
+      category: rate_limited
+      message: Fixture rate limit
+      retry_after_seconds: 0
+      fail_attempts: 1
+
+  timeout_once:
+    query_id: 8204345
+    failure:
+      category: network_timeout
+      message: Fixture timeout
+      fail_attempts: 1
+
+  query_execution_failed:
+    query_id: 8204345
+    failure:
+      category: query_execution_failed
+      message: Latest stored Dune execution had already failed
+      provider_execution_id: fixture-failed-8204345
+      provider_execution_finished_at: "2026-07-31T11:57:00Z"
+
+  partial_refresh:
+    query_id: 8204345
+    partial: true
+
+  row_count_mismatch:
+    query_id: 8204345
+    reported_row_count: 999

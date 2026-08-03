@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "query_id": 8202133,
+  "execution_id": "fixture-8202133-latest",
+  "execution_started_at": "2026-07-31T11:53:00Z",
+  "execution_finished_at": "2026-07-31T11:55:00Z",
+  "columns": ["day", "week", "project", "event", "label", "amount_usd"],
+  "rows": [
+    {"day": "2026-07-04", "week": "2026-06-29", "project": "spark", "event": "lending deposit", "label": "Deposit weETH into Spark", "amount_usd": "438.98411887431797"},
+    {"day": "2026-07-04", "week": "2026-06-29", "project": "spark", "event": "lending deposit", "label": "Deposit weETH into Spark", "amount_usd": "192.21588112568203"},
+    {"day": "2026-07-05", "week": "2026-06-29", "project": "aave", "event": "lending withdraw", "label": "Withdraw weETH from Aave", "amount_usd": "-410.4062395041133"},
+    {"day": "2026-07-06", "week": "2026-07-06", "project": "pendle", "event": "yield deposit", "label": "Deposit eETH into Pendle", "amount_usd": "1250.50"},
+    {"day": "2026-07-07", "week": "2026-07-06", "project": "pendle", "event": "yield withdraw", "label": "Withdraw eETH from Pendle", "amount_usd": "-250.25"},
+    {"day": "2026-07-07", "week": "2026-07-06", "project": "spark", "event": "lending deposit", "label": "Deposit weETH into Spark", "amount_usd": "75"}
+  ]
+}

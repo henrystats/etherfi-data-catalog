@@ -1,0 +1,3066 @@
+{
+  "schema_version": 1,
+  "query_id": 8193003,
+  "query_url": "https://dune.com/queries/8193003",
+  "execution_id": "01KZ0SM0ENC2P7VPEFPJARFBZ5",
+  "execution_started_at": "2026-08-02T08:32:03.54388Z",
+  "execution_finished_at": "2026-08-02T08:32:03.947169Z",
+  "fetched_at": "2026-08-03T11:07:04.390766Z",
+  "data_updated_at": "2026-08-02T08:32:03.947169Z",
+  "row_count": 435,
+  "columns": [
+    "day",
+    "week",
+    "product_symbol",
+    "depositor_type",
+    "daily_deposits"
+  ],
+  "rows": [
+    {
+      "daily_deposits": "20256742.681730002",
+      "day": "2026-07-27",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-27"
+    },
+    {
+      "daily_deposits": "23.2895",
+      "day": "2026-04-19",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-13"
+    },
+    {
+      "daily_deposits": "378.23484",
+      "day": "2026-02-03",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-02-02"
+    },
+    {
+      "daily_deposits": "294.60339",
+      "day": "2026-04-22",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-20"
+    },
+    {
+      "daily_deposits": "130.57591881281988",
+      "day": "2026-06-07",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-06-01"
+    },
+    {
+      "daily_deposits": "49048.06683217752",
+      "day": "2026-03-10",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-09"
+    },
+    {
+      "daily_deposits": "1791797.007482",
+      "day": "2026-06-16",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-15"
+    },
+    {
+      "daily_deposits": "7.811239714374156",
+      "day": "2026-04-16",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-04-13"
+    },
+    {
+      "daily_deposits": "645.1337967583418",
+      "day": "2026-05-12",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-11"
+    },
+    {
+      "daily_deposits": "1421.046",
+      "day": "2026-06-28",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-22"
+    },
+    {
+      "daily_deposits": "0.0025922099999999997",
+      "day": "2026-04-14",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-04-13"
+    },
+    {
+      "daily_deposits": "0.646248",
+      "day": "2026-07-30",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-07-27"
+    },
+    {
+      "daily_deposits": "1858.2812378838466",
+      "day": "2026-06-24",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-22"
+    },
+    {
+      "daily_deposits": "3623.9772036000004",
+      "day": "2026-06-09",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-08"
+    },
+    {
+      "daily_deposits": "80175.99845366068",
+      "day": "2026-05-15",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-11"
+    },
+    {
+      "daily_deposits": "1912.87",
+      "day": "2026-07-21",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-20"
+    },
+    {
+      "daily_deposits": "0.19951300000000002",
+      "day": "2026-02-16",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-02-16"
+    },
+    {
+      "daily_deposits": 185516,
+      "day": "2026-07-31",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-27"
+    },
+    {
+      "daily_deposits": "0.010007299999999998",
+      "day": "2026-02-19",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-02-16"
+    },
+    {
+      "daily_deposits": "896.1793240000001",
+      "day": "2026-04-02",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-30"
+    },
+    {
+      "daily_deposits": "981.36",
+      "day": "2026-02-12",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-02-09"
+    },
+    {
+      "daily_deposits": "829.6092707651807",
+      "day": "2026-06-25",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-22"
+    },
+    {
+      "daily_deposits": "2510.396",
+      "day": "2026-07-12",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-06"
+    },
+    {
+      "daily_deposits": "367350.1459904469",
+      "day": "2026-06-06",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-01"
+    },
+    {
+      "daily_deposits": "1332.335",
+      "day": "2026-07-04",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-29"
+    },
+    {
+      "daily_deposits": "6.104183000000001",
+      "day": "2026-02-19",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-02-16"
+    },
+    {
+      "daily_deposits": "932.5178804181812",
+      "day": "2026-05-24",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-18"
+    },
+    {
+      "daily_deposits": "175768.13751116133",
+      "day": "2026-06-22",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-22"
+    },
+    {
+      "daily_deposits": "28357.449237639998",
+      "day": "2026-06-11",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-08"
+    },
+    {
+      "daily_deposits": "2539.666105679691",
+      "day": "2026-04-02",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-03-30"
+    },
+    {
+      "daily_deposits": "13348.86",
+      "day": "2026-05-16",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-11"
+    },
+    {
+      "daily_deposits": "8.0591095349985",
+      "day": "2026-07-14",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-13"
+    },
+    {
+      "daily_deposits": "12936.791692388735",
+      "day": "2026-04-13",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-13"
+    },
+    {
+      "daily_deposits": "4974.758100000001",
+      "day": "2026-03-15",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-09"
+    },
+    {
+      "daily_deposits": "1011183.0607520001",
+      "day": "2026-05-28",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-25"
+    },
+    {
+      "daily_deposits": "10876.34070037126",
+      "day": "2026-03-14",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-09"
+    },
+    {
+      "daily_deposits": "1974.97",
+      "day": "2026-05-28",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-25"
+    },
+    {
+      "daily_deposits": "889.3600000000001",
+      "day": "2026-05-15",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-11"
+    },
+    {
+      "daily_deposits": "68608.89561701547",
+      "day": "2026-07-31",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-27"
+    },
+    {
+      "daily_deposits": "5856.85764002",
+      "day": "2026-05-11",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-11"
+    },
+    {
+      "daily_deposits": "17249.758015691656",
+      "day": "2026-03-12",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-09"
+    },
+    {
+      "daily_deposits": "433.65058906098216",
+      "day": "2026-06-14",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-08"
+    },
+    {
+      "daily_deposits": "2.727023",
+      "day": "2026-01-28",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-01-26"
+    },
+    {
+      "daily_deposits": "3010.72896",
+      "day": "2026-07-21",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-20"
+    },
+    {
+      "daily_deposits": "13510.926354292575",
+      "day": "2026-06-08",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-08"
+    },
+    {
+      "daily_deposits": "42733.081234256635",
+      "day": "2026-04-19",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-13"
+    },
+    {
+      "daily_deposits": "37077472.69481368",
+      "day": "2026-06-15",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-15"
+    },
+    {
+      "daily_deposits": "1.96059",
+      "day": "2026-02-12",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-02-09"
+    },
+    {
+      "daily_deposits": "4271.62",
+      "day": "2026-05-21",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-18"
+    },
+    {
+      "daily_deposits": "0.01999736",
+      "day": "2026-03-10",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-03-09"
+    },
+    {
+      "daily_deposits": "183.38502211306445",
+      "day": "2026-06-20",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-15"
+    },
+    {
+      "daily_deposits": "124.76462000000001",
+      "day": "2026-05-02",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-27"
+    },
+    {
+      "daily_deposits": "885109.8441316",
+      "day": "2026-06-16",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-15"
+    },
+    {
+      "daily_deposits": "3109518.7971",
+      "day": "2026-04-07",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-06"
+    },
+    {
+      "daily_deposits": "2112.9427",
+      "day": "2026-06-30",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-29"
+    },
+    {
+      "daily_deposits": "312.66179999999997",
+      "day": "2026-07-08",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-06"
+    },
+    {
+      "daily_deposits": "568.8584845590283",
+      "day": "2026-02-14",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-02-09"
+    },
+    {
+      "daily_deposits": "854436.6160768879",
+      "day": "2026-06-03",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-01"
+    },
+    {
+      "daily_deposits": "5.6125061920190005",
+      "day": "2026-02-02",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-02-02"
+    },
+    {
+      "daily_deposits": "15733.0281",
+      "day": "2026-04-10",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-06"
+    },
+    {
+      "daily_deposits": "543.5218535177161",
+      "day": "2026-05-04",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-04"
+    },
+    {
+      "daily_deposits": "1847.5004539173565",
+      "day": "2026-03-19",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-16"
+    },
+    {
+      "daily_deposits": "73367.44475",
+      "day": "2026-03-31",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-30"
+    },
+    {
+      "daily_deposits": "7899.927105002301",
+      "day": "2026-07-22",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-20"
+    },
+    {
+      "daily_deposits": "971.9813770915536",
+      "day": "2026-05-30",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-25"
+    },
+    {
+      "daily_deposits": "84527675.57954189",
+      "day": "2026-07-22",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-20"
+    },
+    {
+      "daily_deposits": "188.12624435765647",
+      "day": "2026-07-11",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-06"
+    },
+    {
+      "daily_deposits": "112226.07249579138",
+      "day": "2026-05-20",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-18"
+    },
+    {
+      "daily_deposits": "607635.0127920001",
+      "day": "2026-03-24",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-23"
+    },
+    {
+      "daily_deposits": "4551.08171",
+      "day": "2026-05-09",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-04"
+    },
+    {
+      "daily_deposits": "0.5451973446340077",
+      "day": "2026-04-07",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-06"
+    },
+    {
+      "daily_deposits": "2.2052967999999997",
+      "day": "2026-02-10",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-02-09"
+    },
+    {
+      "daily_deposits": "22023.772116",
+      "day": "2026-04-12",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-06"
+    },
+    {
+      "daily_deposits": "6.06843",
+      "day": "2026-05-27",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-25"
+    },
+    {
+      "daily_deposits": "0.021048400000000002",
+      "day": "2026-03-13",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-09"
+    },
+    {
+      "daily_deposits": "0.020002439999999996",
+      "day": "2026-03-09",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-03-09"
+    },
+    {
+      "daily_deposits": "761.1499888189416",
+      "day": "2026-06-07",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-01"
+    },
+    {
+      "daily_deposits": "39949.25",
+      "day": "2026-05-29",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-25"
+    },
+    {
+      "daily_deposits": "8711.642075891232",
+      "day": "2026-03-28",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-23"
+    },
+    {
+      "daily_deposits": "98795.763",
+      "day": "2026-04-12",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-06"
+    },
+    {
+      "daily_deposits": "2.4942013687499998",
+      "day": "2026-01-27",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-01-26"
+    },
+    {
+      "daily_deposits": "11.970015353840715",
+      "day": "2026-02-26",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-02-23"
+    },
+    {
+      "daily_deposits": "1038.49",
+      "day": "2026-03-14",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-09"
+    },
+    {
+      "daily_deposits": "238884.82318700617",
+      "day": "2026-07-20",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-20"
+    },
+    {
+      "daily_deposits": "1075248.0462016088",
+      "day": "2026-03-25",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-23"
+    },
+    {
+      "daily_deposits": "3391.137596206895",
+      "day": "2026-03-27",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-23"
+    },
+    {
+      "daily_deposits": "121703.094",
+      "day": "2026-04-14",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-13"
+    },
+    {
+      "daily_deposits": "1060.8305553869434",
+      "day": "2026-04-01",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-30"
+    },
+    {
+      "daily_deposits": "13329310.437933441",
+      "day": "2026-03-18",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-16"
+    },
+    {
+      "daily_deposits": "6669.036599999999",
+      "day": "2026-05-31",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-25"
+    },
+    {
+      "daily_deposits": "1430.2079999999999",
+      "day": "2026-05-06",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-04"
+    },
+    {
+      "daily_deposits": "1237.93664",
+      "day": "2026-03-03",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-02"
+    },
+    {
+      "daily_deposits": "50.56744",
+      "day": "2026-04-19",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-13"
+    },
+    {
+      "daily_deposits": "1027.3249412319306",
+      "day": "2026-03-25",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-23"
+    },
+    {
+      "daily_deposits": "483.3136",
+      "day": "2026-06-20",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-06-15"
+    },
+    {
+      "daily_deposits": "0.10530403",
+      "day": "2026-01-16",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-01-12"
+    },
+    {
+      "daily_deposits": "8981.8",
+      "day": "2026-04-08",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-06"
+    },
+    {
+      "daily_deposits": "30518.649753996247",
+      "day": "2026-03-18",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-16"
+    },
+    {
+      "daily_deposits": "81532.85",
+      "day": "2026-03-17",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-16"
+    },
+    {
+      "daily_deposits": "289.5640295031207",
+      "day": "2026-06-08",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-08"
+    },
+    {
+      "daily_deposits": "58114.663923567125",
+      "day": "2026-06-05",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-01"
+    },
+    {
+      "daily_deposits": "867.9084999999999",
+      "day": "2026-05-18",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-18"
+    },
+    {
+      "daily_deposits": "13.660223474567305",
+      "day": "2026-05-07",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-04"
+    },
+    {
+      "daily_deposits": "553.0079999999999",
+      "day": "2026-07-18",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-13"
+    },
+    {
+      "daily_deposits": "1614127.2196000526",
+      "day": "2026-03-06",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-02"
+    },
+    {
+      "daily_deposits": "515.6976207442531",
+      "day": "2026-04-16",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-04-13"
+    },
+    {
+      "daily_deposits": "34401.924612458",
+      "day": "2026-03-16",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-16"
+    },
+    {
+      "daily_deposits": "25236.012132214004",
+      "day": "2026-04-27",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-27"
+    },
+    {
+      "daily_deposits": "3.500917",
+      "day": "2026-01-07",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-01-05"
+    },
+    {
+      "daily_deposits": "37182.58754319219",
+      "day": "2026-04-06",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-06"
+    },
+    {
+      "daily_deposits": "127769.66577192034",
+      "day": "2026-04-14",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-13"
+    },
+    {
+      "daily_deposits": "13707.174194505329",
+      "day": "2026-07-26",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-20"
+    },
+    {
+      "daily_deposits": "0.5000182000000001",
+      "day": "2026-02-08",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-02-02"
+    },
+    {
+      "daily_deposits": "215.7624864496441",
+      "day": "2026-04-06",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-04-06"
+    },
+    {
+      "daily_deposits": "135765.11952246242",
+      "day": "2026-03-28",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-23"
+    },
+    {
+      "daily_deposits": "2009674.8699",
+      "day": "2026-03-29",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-23"
+    },
+    {
+      "daily_deposits": "70367.14308356789",
+      "day": "2026-05-24",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-18"
+    },
+    {
+      "daily_deposits": "72613.1176859894",
+      "day": "2026-04-14",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-13"
+    },
+    {
+      "daily_deposits": "0.006400738999999999",
+      "day": "2026-03-04",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-03-02"
+    },
+    {
+      "daily_deposits": "12978.65554755583",
+      "day": "2026-06-18",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-15"
+    },
+    {
+      "daily_deposits": "0.07114005999999999",
+      "day": "2026-02-08",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-02-02"
+    },
+    {
+      "daily_deposits": "500750.55132217176",
+      "day": "2026-06-10",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-08"
+    },
+    {
+      "daily_deposits": "20312.02032",
+      "day": "2026-03-15",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-09"
+    },
+    {
+      "daily_deposits": "0.023271890000000003",
+      "day": "2026-02-12",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-02-09"
+    },
+    {
+      "daily_deposits": "527.12002",
+      "day": "2026-05-17",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-11"
+    },
+    {
+      "daily_deposits": "318.1760388075297",
+      "day": "2026-05-22",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-18"
+    },
+    {
+      "daily_deposits": "1832.0926148234776",
+      "day": "2026-05-02",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-27"
+    },
+    {
+      "daily_deposits": "0.010002660000000002",
+      "day": "2026-02-10",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-02-09"
+    },
+    {
+      "daily_deposits": "1005332.4662723059",
+      "day": "2026-05-20",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-18"
+    },
+    {
+      "daily_deposits": "21986.17072",
+      "day": "2026-05-01",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-27"
+    },
+    {
+      "daily_deposits": "0.021171492926878536",
+      "day": "2026-07-09",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-06"
+    },
+    {
+      "daily_deposits": "1014.5106000000002",
+      "day": "2026-07-03",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-29"
+    },
+    {
+      "daily_deposits": "21.171071921555388",
+      "day": "2026-03-31",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-30"
+    },
+    {
+      "daily_deposits": "41916.38",
+      "day": "2026-07-29",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-27"
+    },
+    {
+      "daily_deposits": "848.745",
+      "day": "2026-07-31",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-27"
+    },
+    {
+      "daily_deposits": 2094230,
+      "day": "2026-05-24",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-18"
+    },
+    {
+      "daily_deposits": "2389.90855",
+      "day": "2026-05-21",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-18"
+    },
+    {
+      "daily_deposits": "16.926893999999997",
+      "day": "2026-03-22",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-16"
+    },
+    {
+      "daily_deposits": "0.00198149",
+      "day": "2026-03-03",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-03-02"
+    },
+    {
+      "daily_deposits": "0.23860918744084494",
+      "day": "2026-04-22",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-20"
+    },
+    {
+      "daily_deposits": "4259.3587099999995",
+      "day": "2026-04-05",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-30"
+    },
+    {
+      "daily_deposits": "17668.210182245544",
+      "day": "2026-04-16",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-13"
+    },
+    {
+      "daily_deposits": "225393.72120162175",
+      "day": "2026-08-01",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-27"
+    },
+    {
+      "daily_deposits": "222961.26546663584",
+      "day": "2026-06-05",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-01"
+    },
+    {
+      "daily_deposits": "1445.4901080566544",
+      "day": "2026-05-25",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-25"
+    },
+    {
+      "daily_deposits": "896.5722657042982",
+      "day": "2026-02-03",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-02-02"
+    },
+    {
+      "daily_deposits": "189.07569999999998",
+      "day": "2026-04-26",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-20"
+    },
+    {
+      "daily_deposits": "2176.8289324629195",
+      "day": "2026-06-12",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-08"
+    },
+    {
+      "daily_deposits": "179028.28279333774",
+      "day": "2026-06-05",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-01"
+    },
+    {
+      "daily_deposits": "7786.512270015236",
+      "day": "2026-03-13",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-09"
+    },
+    {
+      "daily_deposits": "4689.258743910001",
+      "day": "2026-05-19",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-18"
+    },
+    {
+      "daily_deposits": "5946.51",
+      "day": "2026-03-27",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-23"
+    },
+    {
+      "daily_deposits": "22661.663790096427",
+      "day": "2026-04-07",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-06"
+    },
+    {
+      "daily_deposits": "2.27402",
+      "day": "2026-05-12",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-05-11"
+    },
+    {
+      "daily_deposits": "0.00999691",
+      "day": "2026-03-19",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-03-16"
+    },
+    {
+      "daily_deposits": "2427140.66",
+      "day": "2026-04-01",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-30"
+    },
+    {
+      "daily_deposits": "6409.34",
+      "day": "2026-01-06",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-01-05"
+    },
+    {
+      "daily_deposits": "1.5039842375960002",
+      "day": "2026-02-13",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-02-09"
+    },
+    {
+      "daily_deposits": "2169.7573425",
+      "day": "2026-03-28",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-23"
+    },
+    {
+      "daily_deposits": "7021.560195139415",
+      "day": "2026-04-24",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-20"
+    },
+    {
+      "daily_deposits": "4453.341945347081",
+      "day": "2026-06-17",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-15"
+    },
+    {
+      "daily_deposits": "6.55474",
+      "day": "2026-01-28",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-01-26"
+    },
+    {
+      "daily_deposits": "1598228.3370000003",
+      "day": "2026-06-19",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-15"
+    },
+    {
+      "daily_deposits": "0.0196337",
+      "day": "2026-02-19",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-02-16"
+    },
+    {
+      "daily_deposits": "977.3148",
+      "day": "2026-04-15",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-13"
+    },
+    {
+      "daily_deposits": "1.4149005002880002",
+      "day": "2026-07-29",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-07-27"
+    },
+    {
+      "daily_deposits": "1350.3569832287644",
+      "day": "2026-06-15",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-15"
+    },
+    {
+      "daily_deposits": "218.333",
+      "day": "2026-04-09",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-06"
+    },
+    {
+      "daily_deposits": "0.00197294",
+      "day": "2026-02-17",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-02-16"
+    },
+    {
+      "daily_deposits": "2039.574",
+      "day": "2026-06-10",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-08"
+    },
+    {
+      "daily_deposits": "365967.0050120827",
+      "day": "2026-04-03",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-30"
+    },
+    {
+      "daily_deposits": "5787.80598489993",
+      "day": "2026-04-06",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-06"
+    },
+    {
+      "daily_deposits": "523.6193199999999",
+      "day": "2026-04-28",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-27"
+    },
+    {
+      "daily_deposits": "599.8414",
+      "day": "2026-07-01",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-29"
+    },
+    {
+      "daily_deposits": "155717.09771669077",
+      "day": "2026-03-04",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-02"
+    },
+    {
+      "daily_deposits": "8539.125126577184",
+      "day": "2026-03-01",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-02-23"
+    },
+    {
+      "daily_deposits": "1356659.7335999997",
+      "day": "2026-04-18",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-13"
+    },
+    {
+      "daily_deposits": "0.021637430000000003",
+      "day": "2026-03-03",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-02"
+    },
+    {
+      "daily_deposits": "46.1544702235292",
+      "day": "2026-08-01",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-27"
+    },
+    {
+      "daily_deposits": "11393.492534237026",
+      "day": "2026-04-10",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-06"
+    },
+    {
+      "daily_deposits": "135.93429892012728",
+      "day": "2026-04-05",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-03-30"
+    },
+    {
+      "daily_deposits": "1316970.962678537",
+      "day": "2026-06-25",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-22"
+    },
+    {
+      "daily_deposits": "1603959.7598983357",
+      "day": "2026-06-18",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-15"
+    },
+    {
+      "daily_deposits": "360531.059464",
+      "day": "2026-06-12",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-08"
+    },
+    {
+      "daily_deposits": "197.8191535692617",
+      "day": "2026-03-11",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-09"
+    },
+    {
+      "daily_deposits": "20708.4914",
+      "day": "2026-04-25",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-20"
+    },
+    {
+      "daily_deposits": "30412.00447381489",
+      "day": "2026-08-02",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-27"
+    },
+    {
+      "daily_deposits": "716.0810692216548",
+      "day": "2026-05-08",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-04"
+    },
+    {
+      "daily_deposits": "16897.46762",
+      "day": "2026-03-29",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-23"
+    },
+    {
+      "daily_deposits": "0.010004500000000001",
+      "day": "2026-02-24",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-02-23"
+    },
+    {
+      "daily_deposits": "38033.882014865085",
+      "day": "2026-07-07",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-06"
+    },
+    {
+      "daily_deposits": "136.73100000000002",
+      "day": "2026-02-19",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-02-16"
+    },
+    {
+      "daily_deposits": "126.0479232032",
+      "day": "2026-06-29",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-29"
+    },
+    {
+      "daily_deposits": "120.57784368000002",
+      "day": "2026-03-20",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-16"
+    },
+    {
+      "daily_deposits": "70.47279999999999",
+      "day": "2026-07-05",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-29"
+    },
+    {
+      "daily_deposits": "17285.895",
+      "day": "2026-06-04",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-01"
+    },
+    {
+      "daily_deposits": "0.08002804",
+      "day": "2026-02-26",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-02-23"
+    },
+    {
+      "daily_deposits": "5104.296374689735",
+      "day": "2026-04-09",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-06"
+    },
+    {
+      "daily_deposits": "300.5634",
+      "day": "2026-05-04",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-04"
+    },
+    {
+      "daily_deposits": "87041.04703712629",
+      "day": "2026-05-14",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-11"
+    },
+    {
+      "daily_deposits": "0.9472187000000001",
+      "day": "2026-02-24",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-02-23"
+    },
+    {
+      "daily_deposits": "358.18198213887496",
+      "day": "2026-04-09",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-04-06"
+    },
+    {
+      "daily_deposits": "33170774.373995442",
+      "day": "2026-03-06",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-02"
+    },
+    {
+      "daily_deposits": "1.94331",
+      "day": "2026-02-11",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-02-09"
+    },
+    {
+      "daily_deposits": "7921.594999999999",
+      "day": "2026-03-07",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-02"
+    },
+    {
+      "daily_deposits": "34874.38831939554",
+      "day": "2026-05-10",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-04"
+    },
+    {
+      "daily_deposits": "26451.945019837338",
+      "day": "2026-07-25",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-20"
+    },
+    {
+      "daily_deposits": "3.06948144",
+      "day": "2026-01-15",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-01-12"
+    },
+    {
+      "daily_deposits": "6820.168228739156",
+      "day": "2026-06-07",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-01"
+    },
+    {
+      "daily_deposits": "2950.405950842858",
+      "day": "2026-04-15",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-13"
+    },
+    {
+      "daily_deposits": "4583.46",
+      "day": "2026-04-29",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-27"
+    },
+    {
+      "daily_deposits": "3562.1352672049998",
+      "day": "2026-07-24",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-20"
+    },
+    {
+      "daily_deposits": "304022.329263496",
+      "day": "2026-04-28",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-27"
+    },
+    {
+      "daily_deposits": "9524452.429",
+      "day": "2026-07-30",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-27"
+    },
+    {
+      "daily_deposits": "2.0498600000000002",
+      "day": "2026-02-13",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-02-09"
+    },
+    {
+      "daily_deposits": 28707,
+      "day": "2026-07-29",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-27"
+    },
+    {
+      "daily_deposits": "23161.43886",
+      "day": "2026-05-13",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-11"
+    },
+    {
+      "daily_deposits": "614.4340000000001",
+      "day": "2026-04-10",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-06"
+    },
+    {
+      "daily_deposits": "403.67161355337214",
+      "day": "2026-03-07",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-02"
+    },
+    {
+      "daily_deposits": "2283.4295",
+      "day": "2026-04-22",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-20"
+    },
+    {
+      "daily_deposits": "7859.1041404426405",
+      "day": "2026-04-08",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-06"
+    },
+    {
+      "daily_deposits": "97.10247000000001",
+      "day": "2026-05-23",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-18"
+    },
+    {
+      "daily_deposits": "280842.6518587072",
+      "day": "2026-03-29",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-23"
+    },
+    {
+      "daily_deposits": "1583.5022999999999",
+      "day": "2026-03-01",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-02-23"
+    },
+    {
+      "daily_deposits": "1.1004234900000003",
+      "day": "2026-02-26",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-02-23"
+    },
+    {
+      "daily_deposits": "9.26484498094833",
+      "day": "2026-06-17",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-06-15"
+    },
+    {
+      "daily_deposits": "196641.51128743004",
+      "day": "2026-04-03",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-30"
+    },
+    {
+      "daily_deposits": "5.60923",
+      "day": "2026-07-14",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-13"
+    },
+    {
+      "daily_deposits": "6.85755230854777",
+      "day": "2026-03-18",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-16"
+    },
+    {
+      "daily_deposits": "21210.108623020446",
+      "day": "2026-05-19",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-18"
+    },
+    {
+      "daily_deposits": "202520.4459065546",
+      "day": "2026-03-30",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-30"
+    },
+    {
+      "daily_deposits": "2778.783018556886",
+      "day": "2026-07-09",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-06"
+    },
+    {
+      "daily_deposits": "6683.2482441500015",
+      "day": "2026-03-21",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-16"
+    },
+    {
+      "daily_deposits": "12561.802306903297",
+      "day": "2026-04-29",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-27"
+    },
+    {
+      "daily_deposits": "168754.50436208936",
+      "day": "2026-06-11",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-08"
+    },
+    {
+      "daily_deposits": "11364.739589094532",
+      "day": "2026-04-30",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-27"
+    },
+    {
+      "daily_deposits": "24857.10584941296",
+      "day": "2026-06-02",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-01"
+    },
+    {
+      "daily_deposits": "244.26920069152297",
+      "day": "2026-05-22",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-18"
+    },
+    {
+      "daily_deposits": "119.78227663586075",
+      "day": "2026-03-12",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-09"
+    },
+    {
+      "daily_deposits": "184.65917408230743",
+      "day": "2026-05-06",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-04"
+    },
+    {
+      "daily_deposits": "294.68834300000003",
+      "day": "2026-03-26",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-23"
+    },
+    {
+      "daily_deposits": "392.09355886563367",
+      "day": "2026-07-04",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-29"
+    },
+    {
+      "daily_deposits": "17922.9568938865",
+      "day": "2026-05-11",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-11"
+    },
+    {
+      "daily_deposits": "296792.3193463404",
+      "day": "2026-08-01",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-27"
+    },
+    {
+      "daily_deposits": "3620.2269799999995",
+      "day": "2026-04-02",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-30"
+    },
+    {
+      "daily_deposits": "1365.6461711613333",
+      "day": "2026-06-30",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-29"
+    },
+    {
+      "daily_deposits": "9524.87499",
+      "day": "2026-03-30",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-30"
+    },
+    {
+      "daily_deposits": "777.90259826742",
+      "day": "2026-06-21",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-15"
+    },
+    {
+      "daily_deposits": "13.7181572",
+      "day": "2026-05-15",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-05-11"
+    },
+    {
+      "daily_deposits": "19808.9406",
+      "day": "2026-06-13",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-08"
+    },
+    {
+      "daily_deposits": "304137.6508198885",
+      "day": "2026-06-04",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-01"
+    },
+    {
+      "daily_deposits": "26987.765329013557",
+      "day": "2026-03-21",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-16"
+    },
+    {
+      "daily_deposits": "46.136956000000005",
+      "day": "2026-04-21",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-20"
+    },
+    {
+      "daily_deposits": "2719.17675",
+      "day": "2026-07-16",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-13"
+    },
+    {
+      "daily_deposits": "40977.37174",
+      "day": "2026-03-08",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-02"
+    },
+    {
+      "daily_deposits": "1367393.722472534",
+      "day": "2026-06-11",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-08"
+    },
+    {
+      "daily_deposits": "1300.8380991237664",
+      "day": "2026-06-01",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-01"
+    },
+    {
+      "daily_deposits": "48.514914328012544",
+      "day": "2026-05-05",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-04"
+    },
+    {
+      "daily_deposits": "1027.9569193529564",
+      "day": "2026-06-25",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-22"
+    },
+    {
+      "daily_deposits": "4553.67178852545",
+      "day": "2026-05-18",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-18"
+    },
+    {
+      "daily_deposits": "109741.92904644285",
+      "day": "2026-05-16",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-11"
+    },
+    {
+      "daily_deposits": "74.20516599999999",
+      "day": "2026-03-11",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-09"
+    },
+    {
+      "daily_deposits": "10002.4144",
+      "day": "2026-05-10",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-04"
+    },
+    {
+      "daily_deposits": "2238.3158979266855",
+      "day": "2026-07-17",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-13"
+    },
+    {
+      "daily_deposits": "0.010000309999999998",
+      "day": "2026-02-18",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-02-16"
+    },
+    {
+      "daily_deposits": "3555.18675",
+      "day": "2026-07-07",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-06"
+    },
+    {
+      "daily_deposits": "2445.612",
+      "day": "2026-07-26",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-20"
+    },
+    {
+      "daily_deposits": "1289.4975",
+      "day": "2026-04-02",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-30"
+    },
+    {
+      "daily_deposits": "6075.430399999999",
+      "day": "2026-07-17",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-13"
+    },
+    {
+      "daily_deposits": "0.030012379999999998",
+      "day": "2026-02-25",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-02-23"
+    },
+    {
+      "daily_deposits": "175219.4204",
+      "day": "2026-07-28",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-27"
+    },
+    {
+      "daily_deposits": "0.00195964",
+      "day": "2026-02-13",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-02-09"
+    },
+    {
+      "daily_deposits": "216.51364999999998",
+      "day": "2026-03-31",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-30"
+    },
+    {
+      "daily_deposits": "1.7884352570175",
+      "day": "2026-03-30",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-03-30"
+    },
+    {
+      "daily_deposits": "36510.99057382087",
+      "day": "2026-03-09",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-09"
+    },
+    {
+      "daily_deposits": "5484.686",
+      "day": "2026-03-08",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-02"
+    },
+    {
+      "daily_deposits": "7054.990702029536",
+      "day": "2026-03-09",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-09"
+    },
+    {
+      "daily_deposits": "204.9851108868185",
+      "day": "2026-06-02",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-01"
+    },
+    {
+      "daily_deposits": "19957920.522345196",
+      "day": "2026-06-17",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-15"
+    },
+    {
+      "daily_deposits": "0.023990420000000002",
+      "day": "2026-02-18",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-02-16"
+    },
+    {
+      "daily_deposits": "211.07285859487675",
+      "day": "2026-05-01",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-27"
+    },
+    {
+      "daily_deposits": "17.32884892973315",
+      "day": "2026-03-23",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-23"
+    },
+    {
+      "daily_deposits": "871.4039841401678",
+      "day": "2026-03-20",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-16"
+    },
+    {
+      "daily_deposits": "0.049976400000000004",
+      "day": "2026-05-12",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-05-11"
+    },
+    {
+      "daily_deposits": "463.28866586406",
+      "day": "2026-05-03",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-27"
+    },
+    {
+      "daily_deposits": "52396.58953899999",
+      "day": "2026-04-13",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-13"
+    },
+    {
+      "daily_deposits": "517.5669052428328",
+      "day": "2026-05-27",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-25"
+    },
+    {
+      "daily_deposits": "346686.097",
+      "day": "2026-04-11",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-06"
+    },
+    {
+      "daily_deposits": "30301.213799168137",
+      "day": "2026-04-05",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-30"
+    },
+    {
+      "daily_deposits": "18937.47785600316",
+      "day": "2026-07-24",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-20"
+    },
+    {
+      "daily_deposits": "107.64220096480284",
+      "day": "2026-05-25",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-25"
+    },
+    {
+      "daily_deposits": "297.84706650000004",
+      "day": "2026-02-16",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-02-16"
+    },
+    {
+      "daily_deposits": "106689.87377070003",
+      "day": "2026-03-17",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-16"
+    },
+    {
+      "daily_deposits": "189987.36725920855",
+      "day": "2026-07-29",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-27"
+    },
+    {
+      "daily_deposits": "190113.588",
+      "day": "2026-03-04",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-02"
+    },
+    {
+      "daily_deposits": "0.06002516",
+      "day": "2026-02-12",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-02-09"
+    },
+    {
+      "daily_deposits": "1175.647458",
+      "day": "2026-07-10",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-06"
+    },
+    {
+      "daily_deposits": "7433.2",
+      "day": "2026-07-19",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-13"
+    },
+    {
+      "daily_deposits": "864515.0556",
+      "day": "2026-05-18",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-18"
+    },
+    {
+      "daily_deposits": "566070.656",
+      "day": "2026-07-16",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-13"
+    },
+    {
+      "daily_deposits": "149625.30000000002",
+      "day": "2026-07-06",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-06"
+    },
+    {
+      "daily_deposits": "46.008152371014",
+      "day": "2026-02-20",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-02-16"
+    },
+    {
+      "daily_deposits": "27.83664",
+      "day": "2026-04-25",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-20"
+    },
+    {
+      "daily_deposits": "22.734",
+      "day": "2026-04-29",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-27"
+    },
+    {
+      "daily_deposits": "1216.602",
+      "day": "2026-05-31",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-25"
+    },
+    {
+      "daily_deposits": "3820744.4667780013",
+      "day": "2026-06-06",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-01"
+    },
+    {
+      "daily_deposits": "454.7013749999999",
+      "day": "2026-06-28",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-22"
+    },
+    {
+      "daily_deposits": "3624.670990474252",
+      "day": "2026-03-05",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-02"
+    },
+    {
+      "daily_deposits": "564.5420644141709",
+      "day": "2026-05-10",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-04"
+    },
+    {
+      "daily_deposits": "24.234938296187728",
+      "day": "2026-04-11",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-06"
+    },
+    {
+      "daily_deposits": "810768.39831",
+      "day": "2026-07-02",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-29"
+    },
+    {
+      "daily_deposits": "1564683.39034",
+      "day": "2026-06-26",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-22"
+    },
+    {
+      "daily_deposits": "9007.21792498697",
+      "day": "2026-04-04",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-30"
+    },
+    {
+      "daily_deposits": "366446.4795533819",
+      "day": "2026-04-20",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-20"
+    },
+    {
+      "daily_deposits": "3.4856945180186756",
+      "day": "2026-06-13",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-06-08"
+    },
+    {
+      "daily_deposits": "18577896.11404684",
+      "day": "2026-07-20",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-20"
+    },
+    {
+      "daily_deposits": "70094.166424",
+      "day": "2026-03-09",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-09"
+    },
+    {
+      "daily_deposits": "4.268560000000001",
+      "day": "2026-05-20",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-05-18"
+    },
+    {
+      "daily_deposits": "1580.5552",
+      "day": "2026-04-04",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-30"
+    },
+    {
+      "daily_deposits": "0.5001985",
+      "day": "2026-01-28",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-01-26"
+    },
+    {
+      "daily_deposits": "0.01999824",
+      "day": "2026-03-11",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-03-09"
+    },
+    {
+      "daily_deposits": "3.317",
+      "day": "2026-01-15",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-01-12"
+    },
+    {
+      "daily_deposits": "0.020173800000000002",
+      "day": "2026-03-09",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-03-09"
+    },
+    {
+      "daily_deposits": "149.06241454853668",
+      "day": "2026-06-07",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-01"
+    },
+    {
+      "daily_deposits": "252.212823",
+      "day": "2026-07-16",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-13"
+    },
+    {
+      "daily_deposits": "8106.26",
+      "day": "2026-03-11",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-09"
+    },
+    {
+      "daily_deposits": "27959506.31144262",
+      "day": "2026-04-18",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-13"
+    },
+    {
+      "daily_deposits": "2637.2955938655714",
+      "day": "2026-03-22",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-16"
+    },
+    {
+      "daily_deposits": "218980.5844621964",
+      "day": "2026-06-03",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-01"
+    },
+    {
+      "daily_deposits": "5619.346399999999",
+      "day": "2026-07-08",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-06"
+    },
+    {
+      "daily_deposits": "99821.42970000001",
+      "day": "2026-07-13",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-13"
+    },
+    {
+      "daily_deposits": "133231.136974",
+      "day": "2026-05-26",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-25"
+    },
+    {
+      "daily_deposits": "26180.28233299952",
+      "day": "2026-03-15",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-09"
+    },
+    {
+      "daily_deposits": "50070.422824",
+      "day": "2026-03-24",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-23"
+    },
+    {
+      "daily_deposits": "318819.0202988775",
+      "day": "2026-05-29",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-25"
+    },
+    {
+      "daily_deposits": "12737.010483134018",
+      "day": "2026-04-01",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-30"
+    },
+    {
+      "daily_deposits": "29729.59792217245",
+      "day": "2026-05-23",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-18"
+    },
+    {
+      "daily_deposits": "20027.244159627655",
+      "day": "2026-06-08",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-08"
+    },
+    {
+      "daily_deposits": "661232.8174299999",
+      "day": "2026-03-26",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-23"
+    },
+    {
+      "daily_deposits": "187.28300000000002",
+      "day": "2026-07-31",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-07-27"
+    },
+    {
+      "daily_deposits": "625.9619000000001",
+      "day": "2026-02-28",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-02-23"
+    },
+    {
+      "daily_deposits": "0.40011",
+      "day": "2026-01-12",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-01-12"
+    },
+    {
+      "daily_deposits": "23228.35388",
+      "day": "2026-04-30",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-27"
+    },
+    {
+      "daily_deposits": "8798.017393883983",
+      "day": "2026-07-05",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-29"
+    },
+    {
+      "daily_deposits": "293.9486",
+      "day": "2026-04-23",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-20"
+    },
+    {
+      "daily_deposits": "4383.764910089804",
+      "day": "2026-04-16",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-13"
+    },
+    {
+      "daily_deposits": "1.6311600000000002",
+      "day": "2026-07-02",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-29"
+    },
+    {
+      "daily_deposits": "21639.31516",
+      "day": "2026-07-27",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-27"
+    },
+    {
+      "daily_deposits": "76.7664",
+      "day": "2026-07-29",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-07-27"
+    },
+    {
+      "daily_deposits": "6970302.4696481945",
+      "day": "2026-03-19",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-16"
+    },
+    {
+      "daily_deposits": "2.069662708881407",
+      "day": "2026-03-28",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-03-23"
+    },
+    {
+      "daily_deposits": "46720.74675",
+      "day": "2026-06-27",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-22"
+    },
+    {
+      "daily_deposits": "177.25851271291643",
+      "day": "2026-04-30",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-27"
+    },
+    {
+      "daily_deposits": "249.3528",
+      "day": "2026-03-14",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-09"
+    },
+    {
+      "daily_deposits": "31582.94547330944",
+      "day": "2026-05-17",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-11"
+    },
+    {
+      "daily_deposits": "57.75665000000001",
+      "day": "2026-06-23",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-22"
+    },
+    {
+      "daily_deposits": "947.70144",
+      "day": "2026-03-10",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-09"
+    },
+    {
+      "daily_deposits": "4.9331872314269996",
+      "day": "2026-06-12",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-06-08"
+    },
+    {
+      "daily_deposits": "1718.82223",
+      "day": "2026-03-17",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-16"
+    },
+    {
+      "daily_deposits": "30891.149999999998",
+      "day": "2026-04-03",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-30"
+    },
+    {
+      "daily_deposits": "711.606",
+      "day": "2026-03-02",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-02"
+    },
+    {
+      "daily_deposits": 180402,
+      "day": "2026-06-16",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-15"
+    },
+    {
+      "daily_deposits": "327249.3773894767",
+      "day": "2026-03-16",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-16"
+    },
+    {
+      "daily_deposits": "23.3537",
+      "day": "2026-04-26",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-20"
+    },
+    {
+      "daily_deposits": "4181463.3786312733",
+      "day": "2026-03-19",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-16"
+    },
+    {
+      "daily_deposits": "2.00036",
+      "day": "2026-02-12",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-02-09"
+    },
+    {
+      "daily_deposits": "2.34919",
+      "day": "2026-04-18",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-13"
+    },
+    {
+      "daily_deposits": "2121.0364632762776",
+      "day": "2026-03-26",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-03-23"
+    },
+    {
+      "daily_deposits": "0.9001625",
+      "day": "2026-02-19",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-02-16"
+    },
+    {
+      "daily_deposits": "27588.601948414776",
+      "day": "2026-05-20",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-18"
+    },
+    {
+      "daily_deposits": "47508.479999999996",
+      "day": "2026-03-02",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-02"
+    },
+    {
+      "daily_deposits": "291.209214096782",
+      "day": "2026-04-04",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-30"
+    },
+    {
+      "daily_deposits": "84620.5",
+      "day": "2026-06-19",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-15"
+    },
+    {
+      "daily_deposits": "3236.0264001768523",
+      "day": "2026-07-02",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-06-29"
+    },
+    {
+      "daily_deposits": "169635.62113228813",
+      "day": "2026-06-10",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-08"
+    },
+    {
+      "daily_deposits": "8246.378494073999",
+      "day": "2026-04-17",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-13"
+    },
+    {
+      "daily_deposits": "22149.858253000002",
+      "day": "2026-05-05",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-04"
+    },
+    {
+      "daily_deposits": "0.0035433599999999997",
+      "day": "2026-07-07",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-07-06"
+    },
+    {
+      "daily_deposits": "1366.623505",
+      "day": "2026-07-15",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-13"
+    },
+    {
+      "daily_deposits": "193400.55994672386",
+      "day": "2026-06-03",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-01"
+    },
+    {
+      "daily_deposits": "0.050016160000000004",
+      "day": "2026-03-03",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-03-02"
+    },
+    {
+      "daily_deposits": "538385.1282",
+      "day": "2026-07-10",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-06"
+    },
+    {
+      "daily_deposits": "0.0999061",
+      "day": "2026-01-29",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-01-26"
+    },
+    {
+      "daily_deposits": "0.19762300000000002",
+      "day": "2026-02-17",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-02-16"
+    },
+    {
+      "daily_deposits": "224973.25764750002",
+      "day": "2026-05-26",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-25"
+    },
+    {
+      "daily_deposits": "0.10000610000000001",
+      "day": "2026-03-09",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-03-09"
+    },
+    {
+      "daily_deposits": "0.00591733",
+      "day": "2026-02-25",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-02-23"
+    },
+    {
+      "daily_deposits": "2153.8",
+      "day": "2026-03-23",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-23"
+    },
+    {
+      "daily_deposits": "12752.175",
+      "day": "2026-07-02",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-29"
+    },
+    {
+      "daily_deposits": "1055.8935",
+      "day": "2026-04-26",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-20"
+    },
+    {
+      "daily_deposits": "358.9376444099552",
+      "day": "2026-05-08",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-04"
+    },
+    {
+      "daily_deposits": "1.4105658670168886",
+      "day": "2026-07-01",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-06-29"
+    },
+    {
+      "daily_deposits": "1467.2559999999999",
+      "day": "2026-05-26",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-25"
+    },
+    {
+      "daily_deposits": "87393462.45316246",
+      "day": "2026-07-23",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-20"
+    },
+    {
+      "daily_deposits": "247050.32439999998",
+      "day": "2026-03-20",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-16"
+    },
+    {
+      "daily_deposits": "118.88612847284035",
+      "day": "2026-04-27",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-27"
+    },
+    {
+      "daily_deposits": "0.6499017074055792",
+      "day": "2026-02-07",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-02-02"
+    },
+    {
+      "daily_deposits": "1974.9583963768043",
+      "day": "2026-03-25",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-03-23"
+    },
+    {
+      "daily_deposits": "82503.9195075504",
+      "day": "2026-05-12",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-11"
+    },
+    {
+      "daily_deposits": "0.03001338",
+      "day": "2026-02-05",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-02-02"
+    },
+    {
+      "daily_deposits": "5453.6703",
+      "day": "2026-06-19",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-15"
+    },
+    {
+      "daily_deposits": "0.024530759000000003",
+      "day": "2026-03-11",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-03-09"
+    },
+    {
+      "daily_deposits": "358.6912490442388",
+      "day": "2026-05-03",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-27"
+    },
+    {
+      "daily_deposits": "400.01861598620286",
+      "day": "2026-04-23",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-20"
+    },
+    {
+      "daily_deposits": "274.16694",
+      "day": "2026-04-08",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-06"
+    },
+    {
+      "daily_deposits": "67.22171211788283",
+      "day": "2026-03-03",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-02"
+    },
+    {
+      "daily_deposits": "328.48799862145256",
+      "day": "2026-04-15",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-13"
+    },
+    {
+      "daily_deposits": "9428.734169855343",
+      "day": "2026-03-01",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-02-23"
+    },
+    {
+      "daily_deposits": "1033.29158",
+      "day": "2026-04-17",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-13"
+    },
+    {
+      "daily_deposits": "5.38495",
+      "day": "2026-03-21",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-16"
+    },
+    {
+      "daily_deposits": "188.90573546496395",
+      "day": "2026-05-07",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-04"
+    },
+    {
+      "daily_deposits": "1172.992484555685",
+      "day": "2026-02-02",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-02-02"
+    },
+    {
+      "daily_deposits": "5011.1614",
+      "day": "2026-05-30",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-25"
+    },
+    {
+      "daily_deposits": "41.28020000000001",
+      "day": "2026-03-05",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-02"
+    },
+    {
+      "daily_deposits": "92014675.79963046",
+      "day": "2026-07-21",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-20"
+    },
+    {
+      "daily_deposits": "37853.69313329351",
+      "day": "2026-07-15",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-13"
+    },
+    {
+      "daily_deposits": "6057.3048407733295",
+      "day": "2026-06-02",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-01"
+    },
+    {
+      "daily_deposits": "110987.94",
+      "day": "2026-05-15",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-11"
+    },
+    {
+      "daily_deposits": "5244.200688833639",
+      "day": "2026-05-13",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-11"
+    },
+    {
+      "daily_deposits": "10348.380000000001",
+      "day": "2026-06-20",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-15"
+    },
+    {
+      "daily_deposits": "62.91995978530038",
+      "day": "2026-05-25",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-05-25"
+    },
+    {
+      "daily_deposits": "1010.6933899999999",
+      "day": "2026-04-21",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-04-20"
+    },
+    {
+      "daily_deposits": "0.25085921000000005",
+      "day": "2026-02-26",
+      "depositor_type": "New Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-02-23"
+    },
+    {
+      "daily_deposits": "41092.080753322",
+      "day": "2026-03-23",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-03-23"
+    },
+    {
+      "daily_deposits": "184.35801655",
+      "day": "2026-07-03",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-29"
+    },
+    {
+      "daily_deposits": "489878.40966",
+      "day": "2026-02-28",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-02-23"
+    },
+    {
+      "daily_deposits": "130.90019999999998",
+      "day": "2026-06-04",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-01"
+    },
+    {
+      "daily_deposits": "6114.375560999999",
+      "day": "2026-06-22",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-22"
+    },
+    {
+      "daily_deposits": "16100.381900000002",
+      "day": "2026-07-28",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-07-27"
+    },
+    {
+      "daily_deposits": "8539.8",
+      "day": "2026-06-20",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-15"
+    },
+    {
+      "daily_deposits": "435.8952",
+      "day": "2026-06-13",
+      "depositor_type": "New Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-08"
+    },
+    {
+      "daily_deposits": "8200.408599999999",
+      "day": "2026-07-05",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-06-29"
+    },
+    {
+      "daily_deposits": "206.49800000000002",
+      "day": "2026-05-27",
+      "depositor_type": "Past Depositor",
+      "product_symbol": "liquidETH",
+      "week": "2026-05-25"
+    },
+    {
+      "daily_deposits": "318.51604000000003",
+      "day": "2026-05-06",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "eETH",
+      "week": "2026-05-04"
+    },
+    {
+      "daily_deposits": "0.200002",
+      "day": "2026-01-13",
+      "depositor_type": "Existing Depositor",
+      "product_symbol": "liquidUSD",
+      "week": "2026-01-12"
+    }
+  ],
+  "checksum": "b609f961c2005279971ddda3f6362f9d9701b78e89bc45bd0f3bfe7665b277fc"
+}

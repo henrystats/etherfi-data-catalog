@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "query_id": 8191704,
+  "execution_id": "fixture-8191704-latest",
+  "execution_started_at": "2026-07-31T11:45:00Z",
+  "execution_finished_at": "2026-07-31T11:50:00Z",
+  "columns": [
+    "day",
+    "week",
+    "depositor_type",
+    "daily_attributed_tvl_usd",
+    "cum_attributed_tvl_usd"
+  ],
+  "rows": [
+    {"day": "2026-07-20", "week": "2026-07-20", "depositor_type": "New Depositor", "daily_attributed_tvl_usd": "100.10", "cum_attributed_tvl_usd": "175.25"},
+    {"day": "2026-07-20", "week": "2026-07-20", "depositor_type": "Existing Depositor", "daily_attributed_tvl_usd": "50.10", "cum_attributed_tvl_usd": "175.25"},
+    {"day": "2026-07-20", "week": "2026-07-20", "depositor_type": "Past Depositor", "daily_attributed_tvl_usd": "25.05", "cum_attributed_tvl_usd": "175.25"},
+    {"day": "2026-07-21", "week": "2026-07-20", "depositor_type": "New Depositor", "daily_attributed_tvl_usd": "20", "cum_attributed_tvl_usd": "210.25"},
+    {"day": "2026-07-21", "week": "2026-07-20", "depositor_type": "Existing Depositor", "daily_attributed_tvl_usd": "10", "cum_attributed_tvl_usd": "210.25"},
+    {"day": "2026-07-21", "week": "2026-07-20", "depositor_type": "Past Depositor", "daily_attributed_tvl_usd": "5", "cum_attributed_tvl_usd": "210.25"},
+    {"day": "2026-07-27", "week": "2026-07-27", "depositor_type": "New Depositor", "daily_attributed_tvl_usd": "40", "cum_attributed_tvl_usd": "280.25"},
+    {"day": "2026-07-27", "week": "2026-07-27", "depositor_type": "Existing Depositor", "daily_attributed_tvl_usd": "20", "cum_attributed_tvl_usd": "280.25"},
+    {"day": "2026-07-27", "week": "2026-07-27", "depositor_type": "Past Depositor", "daily_attributed_tvl_usd": "10", "cum_attributed_tvl_usd": "280.25"}
+  ]
+}

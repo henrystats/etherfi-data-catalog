@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "query_id": 8180894,
+  "execution_id": "fixture-8180894-latest",
+  "execution_started_at": "2026-07-31T11:58:00Z",
+  "execution_finished_at": "2026-07-31T12:00:00Z",
+  "columns": [
+    "rank_",
+    "key_",
+    "total_deposits_usd",
+    "outstanding_balance_usd",
+    "num_depositors",
+    "new_depositors",
+    "deposits_by_new_depositors",
+    "retention_rate",
+    "depositors_new_users_rate",
+    "revenue_generated"
+  ],
+  "rows": [
+    {
+      "rank_": 1,
+      "key_": "all_time_data",
+      "total_deposits_usd": "481905421.49167466",
+      "outstanding_balance_usd": "374476858.39556485",
+      "num_depositors": 550,
+      "new_depositors": 408,
+      "deposits_by_new_depositors": "397690600.9317606",
+      "retention_rate": "0.7770754212235694",
+      "depositors_new_users_rate": "0.8252461649025691",
+      "revenue_generated": 0
+    }
+  ]
+}

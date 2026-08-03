@@ -7,12 +7,25 @@ import hashlib
 from html import escape
 import json
 import math
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 import shutil
 from string import Template
 
 import yaml
+
+try:
+    from scripts.studio import (
+        DEFAULT_STUDIO_DIR,
+        STUDIO_GENERATED_DATA_DIR,
+        write_studio_pages,
+    )
+except ModuleNotFoundError:  # Supports direct `python scripts/build_website.py`.
+    from studio import (  # type: ignore
+        DEFAULT_STUDIO_DIR,
+        STUDIO_GENERATED_DATA_DIR,
+        write_studio_pages,
+    )
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -38,9 +51,12 @@ class Page:
     body: str
     body_format: str
     body_class: str
+    configured_output_path: str | None = None
 
     @property
     def output_name(self) -> str:
+        if self.configured_output_path:
+            return self.configured_output_path
         return "index.html" if self.slug == "index" else f"{self.slug}.html"
 
 
@@ -73,7 +89,36 @@ def slug_from_path(path: Path) -> str:
     return path.stem
 
 
+def validate_page_output_path(value: object) -> str:
+    output_path = str(value).strip()
+    normalized = PurePosixPath(output_path)
+    if (
+        not output_path
+        or "\\" in output_path
+        or normalized.is_absolute()
+        or ".." in normalized.parts
+        or normalized.suffix != ".html"
+    ):
+        raise ValueError(f"Unsafe website page output_path: {output_path!r}")
+    return normalized.as_posix()
+
+
+def site_output_path(output_dir: Path, output_name: str) -> Path:
+    output_root = Path(output_dir).resolve()
+    candidate = (output_root / output_name).resolve()
+    try:
+        candidate.relative_to(output_root)
+    except ValueError as exc:
+        raise ValueError(
+            f"Website output path escapes the build directory: {output_name!r}"
+        ) from exc
+    return candidate
+
+
 def page_output_name_from_metadata(path: Path, metadata: dict) -> str:
+    configured_output_path = metadata.get("output_path")
+    if configured_output_path:
+        return validate_page_output_path(configured_output_path)
     slug = str(metadata.get("slug") or slug_from_path(path))
     return "index.html" if slug == "index" else f"{slug}.html"
 
@@ -110,6 +155,11 @@ def load_pages(source_dir: Path = DEFAULT_SOURCE_DIR) -> list[Page]:
                 body=body,
                 body_format=str(metadata.get("format") or "markdown"),
                 body_class=str(metadata.get("body_class") or ""),
+                configured_output_path=(
+                    validate_page_output_path(metadata["output_path"])
+                    if metadata.get("output_path")
+                    else None
+                ),
             )
         )
 
@@ -242,6 +292,7 @@ def render_page(
         nav=render_nav(pages, current_slug, link_prefix=link_prefix),
         search_current=' aria-current="page"' if current_slug == "explore" else "",
         content=render_page_body(page),
+        extra_head="",
     )
 
 
@@ -256,6 +307,7 @@ def render_generated_page(
     link_prefix: str = "",
     asset_prefix: str = "",
     body_class: str = "",
+    extra_head: str = "",
 ) -> str:
     return template.safe_substitute(
         title=escape(title),
@@ -266,6 +318,7 @@ def render_generated_page(
         nav=render_nav(pages, active_slug, link_prefix=link_prefix),
         search_current=' aria-current="page"' if active_slug == "explore" else "",
         content=content,
+        extra_head=extra_head,
     )
 
 
@@ -3283,12 +3336,16 @@ def build_site(
     datasets_dir: Path | None = DEFAULT_DATASETS_DIR,
     dashboard_registry_path: Path | None = DEFAULT_DASHBOARD_REGISTRY,
     freshness_registry_path: Path | None = DEFAULT_FRESHNESS_REGISTRY,
+    studio_dir: Path | None = DEFAULT_STUDIO_DIR,
+    studio_generated_data_dir: Path = STUDIO_GENERATED_DATA_DIR,
     now: datetime | None = None,
 ) -> list[Path]:
     source_dir = Path(source_dir)
     output_dir = Path(output_dir)
     use_generated_catalog_pages = source_dir.resolve() == DEFAULT_SOURCE_DIR.resolve()
     pages = load_pages(source_dir)
+    if studio_dir is None:
+        pages = [page for page in pages if page.slug != "studio"]
     styles_version = asset_cache_version(source_dir / "assets" / "styles.css")
     theme_js_version = asset_cache_version(source_dir / "assets" / "theme.js")
     catalog_ui_js_version = asset_cache_version(source_dir / "assets" / "catalog-ui.js")
@@ -3308,6 +3365,10 @@ def build_site(
     )
 
     output_dir.mkdir(parents=True, exist_ok=True)
+    if use_generated_catalog_pages and studio_dir is None:
+        stale_studio_dir = output_dir / "studio"
+        if stale_studio_dir.exists():
+            shutil.rmtree(stale_studio_dir)
     copy_assets(source_dir, output_dir)
     catalog_index_path = write_catalog_index_asset(output_dir, catalog_resources)
     catalog_index_js_version = asset_cache_version(catalog_index_path)
@@ -3322,7 +3383,7 @@ def build_site(
         )
     )
     for output_name in unpublished_page_output_names(source_dir) | OBSOLETE_PAGE_OUTPUT_NAMES:
-        stale_path = output_dir / output_name
+        stale_path = site_output_path(output_dir, output_name)
         if stale_path.exists():
             stale_path.unlink()
     freshness_js_version = asset_cache_version(source_dir / "assets" / "freshness.js")
@@ -3330,6 +3391,14 @@ def build_site(
     dataset_detail_js_version = asset_cache_version(source_dir / "assets" / "dataset-detail.js")
     dashboards_js_version = asset_cache_version(source_dir / "assets" / "dashboards.js")
     mcp_js_version = asset_cache_version(source_dir / "assets" / "mcp.js")
+    studio_css_version = asset_cache_version(source_dir / "assets" / "studio.css")
+    studio_js_version = asset_cache_version(source_dir / "assets" / "studio.js")
+    studio_landing_js_version = asset_cache_version(
+        source_dir / "assets" / "studio-landing.js"
+    )
+    echarts_js_version = asset_cache_version(
+        source_dir / "assets" / "vendor" / "echarts.min.js"
+    )
     freshness_registry = (
         load_freshness_registry(Path(freshness_registry_path))
         if freshness_registry_path is not None
@@ -3342,13 +3411,16 @@ def build_site(
             continue
         if use_generated_catalog_pages and page.slug == "mcp":
             continue
+        if use_generated_catalog_pages and studio_dir is not None and page.slug == "studio":
+            continue
         if page.slug == "datasets" and datasets_dir is not None:
             continue
         if page.slug == "dashboards" and dashboard_registry_path is not None:
             continue
         if page.slug == "freshness" and datasets_dir is not None and freshness_registry_path is not None:
             continue
-        output_path = output_dir / page.output_name
+        output_path = site_output_path(output_dir, page.output_name)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(render_page(page, pages, template), encoding="utf-8")
         written_paths.append(output_path)
 
@@ -3383,6 +3455,22 @@ def build_site(
                 explore_js_version=explore_js_version,
             )
         )
+
+        if studio_dir is not None:
+            written_paths.extend(
+                write_studio_pages(
+                    pages=pages,
+                    template=template,
+                    output_dir=output_dir,
+                    render_generated_page=render_generated_page,
+                    studio_dir=Path(studio_dir),
+                    generated_data_dir=Path(studio_generated_data_dir),
+                    studio_css_version=studio_css_version,
+                    studio_js_version=studio_js_version,
+                    landing_js_version=studio_landing_js_version,
+                    echarts_js_version=echarts_js_version,
+                )
+            )
 
     if datasets_dir is not None:
         written_paths.extend(
@@ -3446,17 +3534,24 @@ def main() -> None:
         default=str(DEFAULT_FRESHNESS_REGISTRY),
         help="Runtime freshness YAML. Pass an empty string to keep the static freshness page.",
     )
+    parser.add_argument(
+        "--studio",
+        default=str(DEFAULT_STUDIO_DIR),
+        help="Studio registry/data directory. Pass an empty string to skip Studio generation.",
+    )
     args = parser.parse_args()
 
     datasets_dir = Path(args.datasets) if args.datasets else None
     dashboard_registry_path = Path(args.dashboards) if args.dashboards else None
     freshness_registry_path = Path(args.freshness) if args.freshness else None
+    studio_dir = Path(args.studio) if args.studio else None
     written_paths = build_site(
         Path(args.source),
         Path(args.output),
         datasets_dir=datasets_dir,
         dashboard_registry_path=dashboard_registry_path,
         freshness_registry_path=freshness_registry_path,
+        studio_dir=studio_dir,
     )
     print(f"Built {len(written_paths)} pages into {Path(args.output)}")
 

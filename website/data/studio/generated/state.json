@@ -1,0 +1,13 @@
+{
+  "current_manifest_checksum": "2101ca5a1b44d893a25c99ce04b18b80be7a23bf91a1a23abae0ccd0725701b6",
+  "current_snapshot_id": "mixed-20260803t110701z-5bf576e5b88f",
+  "last_checked_at": "2026-08-03T11:07:01.456937Z",
+  "last_successful_fetch_at": "2026-08-03T11:07:01.456937Z",
+  "latest_attempt_id": "attempt-20260803t110701z-e82897f4",
+  "latest_attempt_status": "success",
+  "latest_failure": null,
+  "previous_snapshot_id": null,
+  "schema_version": 2,
+  "updated_at": "2026-08-03T11:07:01.456937Z",
+  "using_previous": false
+}

@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "query_id": 8180894,
+  "query_url": "https://dune.com/queries/8180894",
+  "execution_id": "01KYY077X2M5Q99GVSKSZ6RQ5M",
+  "execution_started_at": "2026-08-01T06:29:41.924949Z",
+  "execution_finished_at": "2026-08-01T06:29:57.727452Z",
+  "fetched_at": "2026-08-03T11:07:02.079941Z",
+  "data_updated_at": "2026-08-01T06:29:57.727452Z",
+  "row_count": 1,
+  "columns": [
+    "rank_",
+    "key_",
+    "total_deposits_usd",
+    "outstanding_balance_usd",
+    "num_depositors",
+    "new_depositors",
+    "deposits_by_new_depositors",
+    "retention_rate",
+    "depositors_new_users_rate",
+    "revenue_generated"
+  ],
+  "rows": [
+    {
+      "depositors_new_users_rate": "0.8252475141994902",
+      "deposits_by_new_depositors": "399085548.74341923",
+      "key_": "all_time_data",
+      "new_depositors": 409,
+      "num_depositors": 551,
+      "outstanding_balance_usd": "375787100.0977319",
+      "rank_": "1",
+      "retention_rate": "0.7770699069418557",
+      "revenue_generated": 0,
+      "total_deposits_usd": "483594972.26785564"
+    }
+  ],
+  "checksum": "5869eb51225fda3acbe66e23797b38f4f5fdf05e4639e328e2844670e6780d3d"
+}

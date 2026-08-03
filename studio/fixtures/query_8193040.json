@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "query_id": 8193040,
+  "execution_id": "fixture-8193040-latest",
+  "execution_started_at": "2026-07-31T11:55:00Z",
+  "execution_finished_at": "2026-07-31T11:59:00Z",
+  "columns": [
+    "timestamp_type",
+    "timestamp",
+    "category_type",
+    "category",
+    "metric_type",
+    "metric_value"
+  ],
+  "rows": [
+    {"timestamp_type": "day", "timestamp": "2026-07-27", "category_type": "product", "category": "eETH", "metric_type": "deposits", "metric_value": 12},
+    {"timestamp_type": "day", "timestamp": "2026-07-27", "category_type": "product", "category": "eETH", "metric_type": "depositors", "metric_value": 7},
+    {"timestamp_type": "day", "timestamp": "2026-07-27", "category_type": "depositor_type", "category": "New Depositor", "metric_type": "deposits", "metric_value": 8},
+    {"timestamp_type": "day", "timestamp": "2026-07-27", "category_type": "depositor_type", "category": "New Depositor", "metric_type": "depositors", "metric_value": 5},
+    {"timestamp_type": "week", "timestamp": "2026-07-27", "category_type": "product", "category": "eETH", "metric_type": "deposits", "metric_value": 30},
+    {"timestamp_type": "week", "timestamp": "2026-07-27", "category_type": "product", "category": "eETH", "metric_type": "depositors", "metric_value": 18},
+    {"timestamp_type": "week", "timestamp": "2026-07-27", "category_type": "depositor_type", "category": "New Depositor", "metric_type": "deposits", "metric_value": 20},
+    {"timestamp_type": "week", "timestamp": "2026-07-27", "category_type": "depositor_type", "category": "New Depositor", "metric_type": "depositors", "metric_value": 12}
+  ]
+}

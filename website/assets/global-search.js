@@ -369,6 +369,13 @@
       if (!scope || typeof scope.querySelector !== "function") {
         return null;
       }
+      if (
+        scope.body &&
+        scope.body.classList &&
+        scope.body.classList.contains("studio-page")
+      ) {
+        return null;
+      }
 
       const host = browserRoot || scope.defaultView;
       const index = host && host.ETHERFI_CATALOG_INDEX;

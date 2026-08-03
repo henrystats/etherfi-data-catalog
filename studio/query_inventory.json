@@ -1,0 +1,5582 @@
+{
+  "schema_version": 2,
+  "generated_from": [
+    "studio/dashboards.yaml",
+    "studio/metrics.yaml"
+  ],
+  "registry_checksum": "7157350285f4977ba57e4bc3365f60b248ad3c1fe3cd01ebada8418c5d0fa876",
+  "dashboard_count": 2,
+  "metric_count": 37,
+  "unique_query_count": 17,
+  "metrics": [
+    {
+      "dashboard_id": "kyberswap_campaign",
+      "dashboard": "KyberSwap Campaign",
+      "dashboard_display_order": 1,
+      "section_id": "counters",
+      "section": "Campaign summary",
+      "metric_id": "kyber_total_referral_deposits",
+      "metric": "Total Referral Deposits",
+      "display_order": 1,
+      "query_id": 8180894,
+      "query_url": "https://dune.com/queries/8180894",
+      "data_file": "query_8180894.json",
+      "data_source": "kyberswap_campaign_summary",
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "rank_",
+        "key_"
+      ],
+      "transformation": {
+        "id": "kyberswap_campaign_summary",
+        "version": "1.0.0",
+        "methodology_id": "kyberswap_campaign_summary_v1",
+        "script_path": "scripts/prepare_kyberswap_campaign_summary.py",
+        "tests_path": "tests/test_kyberswap_campaign_summary.py",
+        "fixture_path": "studio/fixtures/query_8180894.json",
+        "raw_data_file": "raw_query_8180894.json",
+        "source_required_columns": [
+          "rank_",
+          "key_"
+        ]
+      },
+      "columns": [
+        "rank_",
+        "key_",
+        "total_deposits_usd",
+        "outstanding_balance_usd",
+        "num_depositors",
+        "new_depositors",
+        "deposits_by_new_depositors",
+        "retention_rate",
+        "depositors_new_users_rate",
+        "revenue_generated",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "required_columns": [
+        "rank_",
+        "key_",
+        "total_deposits_usd",
+        "outstanding_balance_usd",
+        "num_depositors",
+        "new_depositors",
+        "deposits_by_new_depositors",
+        "retention_rate",
+        "depositors_new_users_rate",
+        "revenue_generated",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [
+        "rank_",
+        "key_",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "value_columns": [
+        "total_deposits_usd",
+        "outstanding_balance_usd",
+        "num_depositors",
+        "new_depositors",
+        "deposits_by_new_depositors",
+        "retention_rate",
+        "depositors_new_users_rate",
+        "revenue_generated"
+      ],
+      "visualization": "counter",
+      "visualization_type": "counter",
+      "default_visualization": "counter",
+      "allowed_visualizations": [
+        "counter"
+      ],
+      "value_format": "currency_compact",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "Inspect Methodology",
+      "freshness_policy": {
+        "expected_refresh_hours": 24,
+        "warning_after_hours": 36,
+        "stale_after_hours": 72
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 8180894,
+          "query_url": "https://dune.com/queries/8180894",
+          "data_file": "query_8180894.json",
+          "data_source": "kyberswap_campaign_summary",
+          "provider_mode": "latest_result",
+          "source_required_columns": [
+            "rank_",
+            "key_"
+          ],
+          "transformation": {
+            "id": "kyberswap_campaign_summary",
+            "version": "1.0.0",
+            "methodology_id": "kyberswap_campaign_summary_v1",
+            "script_path": "scripts/prepare_kyberswap_campaign_summary.py",
+            "tests_path": "tests/test_kyberswap_campaign_summary.py",
+            "fixture_path": "studio/fixtures/query_8180894.json",
+            "raw_data_file": "raw_query_8180894.json",
+            "source_required_columns": [
+              "rank_",
+              "key_"
+            ]
+          },
+          "required_columns": [
+            "rank_",
+            "key_",
+            "total_deposits_usd",
+            "outstanding_balance_usd",
+            "num_depositors",
+            "new_depositors",
+            "deposits_by_new_depositors",
+            "retention_rate",
+            "depositors_new_users_rate",
+            "revenue_generated",
+            "source_query_id",
+            "source_execution_id",
+            "source_last_updated",
+            "generated_at"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "kyberswap_campaign",
+      "dashboard": "KyberSwap Campaign",
+      "dashboard_display_order": 1,
+      "section_id": "counters",
+      "section": "Campaign summary",
+      "metric_id": "kyber_attributed_tvl",
+      "metric": "Attributed TVL",
+      "display_order": 2,
+      "query_id": 8180894,
+      "query_url": "https://dune.com/queries/8180894",
+      "data_file": "query_8180894.json",
+      "data_source": "kyberswap_campaign_summary",
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "rank_",
+        "key_"
+      ],
+      "transformation": {
+        "id": "kyberswap_campaign_summary",
+        "version": "1.0.0",
+        "methodology_id": "kyberswap_campaign_summary_v1",
+        "script_path": "scripts/prepare_kyberswap_campaign_summary.py",
+        "tests_path": "tests/test_kyberswap_campaign_summary.py",
+        "fixture_path": "studio/fixtures/query_8180894.json",
+        "raw_data_file": "raw_query_8180894.json",
+        "source_required_columns": [
+          "rank_",
+          "key_"
+        ]
+      },
+      "columns": [
+        "rank_",
+        "key_",
+        "total_deposits_usd",
+        "outstanding_balance_usd",
+        "num_depositors",
+        "new_depositors",
+        "deposits_by_new_depositors",
+        "retention_rate",
+        "depositors_new_users_rate",
+        "revenue_generated",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "required_columns": [
+        "rank_",
+        "key_",
+        "total_deposits_usd",
+        "outstanding_balance_usd",
+        "num_depositors",
+        "new_depositors",
+        "deposits_by_new_depositors",
+        "retention_rate",
+        "depositors_new_users_rate",
+        "revenue_generated",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [
+        "rank_",
+        "key_",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "value_columns": [
+        "total_deposits_usd",
+        "outstanding_balance_usd",
+        "num_depositors",
+        "new_depositors",
+        "deposits_by_new_depositors",
+        "retention_rate",
+        "depositors_new_users_rate",
+        "revenue_generated"
+      ],
+      "visualization": "counter",
+      "visualization_type": "counter",
+      "default_visualization": "counter",
+      "allowed_visualizations": [
+        "counter"
+      ],
+      "value_format": "currency_compact",
+      "exportable": false,
+      "allow_empty": true,
+      "source_label": "",
+      "freshness_policy": {
+        "expected_refresh_hours": 24,
+        "warning_after_hours": 36,
+        "stale_after_hours": 72
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 8180894,
+          "query_url": "https://dune.com/queries/8180894",
+          "data_file": "query_8180894.json",
+          "data_source": "kyberswap_campaign_summary",
+          "provider_mode": "latest_result",
+          "source_required_columns": [
+            "rank_",
+            "key_"
+          ],
+          "transformation": {
+            "id": "kyberswap_campaign_summary",
+            "version": "1.0.0",
+            "methodology_id": "kyberswap_campaign_summary_v1",
+            "script_path": "scripts/prepare_kyberswap_campaign_summary.py",
+            "tests_path": "tests/test_kyberswap_campaign_summary.py",
+            "fixture_path": "studio/fixtures/query_8180894.json",
+            "raw_data_file": "raw_query_8180894.json",
+            "source_required_columns": [
+              "rank_",
+              "key_"
+            ]
+          },
+          "required_columns": [
+            "rank_",
+            "key_",
+            "total_deposits_usd",
+            "outstanding_balance_usd",
+            "num_depositors",
+            "new_depositors",
+            "deposits_by_new_depositors",
+            "retention_rate",
+            "depositors_new_users_rate",
+            "revenue_generated",
+            "source_query_id",
+            "source_execution_id",
+            "source_last_updated",
+            "generated_at"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "kyberswap_campaign",
+      "dashboard": "KyberSwap Campaign",
+      "dashboard_display_order": 1,
+      "section_id": "counters",
+      "section": "Campaign summary",
+      "metric_id": "kyber_new_depositor_deposits",
+      "metric": "Referred Deposits by New Depositors",
+      "display_order": 3,
+      "query_id": 8180894,
+      "query_url": "https://dune.com/queries/8180894",
+      "data_file": "query_8180894.json",
+      "data_source": "kyberswap_campaign_summary",
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "rank_",
+        "key_"
+      ],
+      "transformation": {
+        "id": "kyberswap_campaign_summary",
+        "version": "1.0.0",
+        "methodology_id": "kyberswap_campaign_summary_v1",
+        "script_path": "scripts/prepare_kyberswap_campaign_summary.py",
+        "tests_path": "tests/test_kyberswap_campaign_summary.py",
+        "fixture_path": "studio/fixtures/query_8180894.json",
+        "raw_data_file": "raw_query_8180894.json",
+        "source_required_columns": [
+          "rank_",
+          "key_"
+        ]
+      },
+      "columns": [
+        "rank_",
+        "key_",
+        "total_deposits_usd",
+        "outstanding_balance_usd",
+        "num_depositors",
+        "new_depositors",
+        "deposits_by_new_depositors",
+        "retention_rate",
+        "depositors_new_users_rate",
+        "revenue_generated",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "required_columns": [
+        "rank_",
+        "key_",
+        "total_deposits_usd",
+        "outstanding_balance_usd",
+        "num_depositors",
+        "new_depositors",
+        "deposits_by_new_depositors",
+        "retention_rate",
+        "depositors_new_users_rate",
+        "revenue_generated",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [
+        "rank_",
+        "key_",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "value_columns": [
+        "total_deposits_usd",
+        "outstanding_balance_usd",
+        "num_depositors",
+        "new_depositors",
+        "deposits_by_new_depositors",
+        "retention_rate",
+        "depositors_new_users_rate",
+        "revenue_generated"
+      ],
+      "visualization": "counter",
+      "visualization_type": "counter",
+      "default_visualization": "counter",
+      "allowed_visualizations": [
+        "counter"
+      ],
+      "value_format": "currency_compact",
+      "exportable": false,
+      "allow_empty": true,
+      "source_label": "",
+      "freshness_policy": {
+        "expected_refresh_hours": 24,
+        "warning_after_hours": 36,
+        "stale_after_hours": 72
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 8180894,
+          "query_url": "https://dune.com/queries/8180894",
+          "data_file": "query_8180894.json",
+          "data_source": "kyberswap_campaign_summary",
+          "provider_mode": "latest_result",
+          "source_required_columns": [
+            "rank_",
+            "key_"
+          ],
+          "transformation": {
+            "id": "kyberswap_campaign_summary",
+            "version": "1.0.0",
+            "methodology_id": "kyberswap_campaign_summary_v1",
+            "script_path": "scripts/prepare_kyberswap_campaign_summary.py",
+            "tests_path": "tests/test_kyberswap_campaign_summary.py",
+            "fixture_path": "studio/fixtures/query_8180894.json",
+            "raw_data_file": "raw_query_8180894.json",
+            "source_required_columns": [
+              "rank_",
+              "key_"
+            ]
+          },
+          "required_columns": [
+            "rank_",
+            "key_",
+            "total_deposits_usd",
+            "outstanding_balance_usd",
+            "num_depositors",
+            "new_depositors",
+            "deposits_by_new_depositors",
+            "retention_rate",
+            "depositors_new_users_rate",
+            "revenue_generated",
+            "source_query_id",
+            "source_execution_id",
+            "source_last_updated",
+            "generated_at"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "kyberswap_campaign",
+      "dashboard": "KyberSwap Campaign",
+      "dashboard_display_order": 1,
+      "section_id": "counters",
+      "section": "Campaign summary",
+      "metric_id": "kyber_new_depositor_deposit_rate",
+      "metric": "% Deposits by New Depositors",
+      "display_order": 4,
+      "query_id": 8180894,
+      "query_url": "https://dune.com/queries/8180894",
+      "data_file": "query_8180894.json",
+      "data_source": "kyberswap_campaign_summary",
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "rank_",
+        "key_"
+      ],
+      "transformation": {
+        "id": "kyberswap_campaign_summary",
+        "version": "1.0.0",
+        "methodology_id": "kyberswap_campaign_summary_v1",
+        "script_path": "scripts/prepare_kyberswap_campaign_summary.py",
+        "tests_path": "tests/test_kyberswap_campaign_summary.py",
+        "fixture_path": "studio/fixtures/query_8180894.json",
+        "raw_data_file": "raw_query_8180894.json",
+        "source_required_columns": [
+          "rank_",
+          "key_"
+        ]
+      },
+      "columns": [
+        "rank_",
+        "key_",
+        "total_deposits_usd",
+        "outstanding_balance_usd",
+        "num_depositors",
+        "new_depositors",
+        "deposits_by_new_depositors",
+        "retention_rate",
+        "depositors_new_users_rate",
+        "revenue_generated",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "required_columns": [
+        "rank_",
+        "key_",
+        "total_deposits_usd",
+        "outstanding_balance_usd",
+        "num_depositors",
+        "new_depositors",
+        "deposits_by_new_depositors",
+        "retention_rate",
+        "depositors_new_users_rate",
+        "revenue_generated",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [
+        "rank_",
+        "key_",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "value_columns": [
+        "total_deposits_usd",
+        "outstanding_balance_usd",
+        "num_depositors",
+        "new_depositors",
+        "deposits_by_new_depositors",
+        "retention_rate",
+        "depositors_new_users_rate",
+        "revenue_generated"
+      ],
+      "visualization": "counter",
+      "visualization_type": "counter",
+      "default_visualization": "counter",
+      "allowed_visualizations": [
+        "counter"
+      ],
+      "value_format": "percent",
+      "exportable": false,
+      "allow_empty": true,
+      "source_label": "",
+      "freshness_policy": {
+        "expected_refresh_hours": 24,
+        "warning_after_hours": 36,
+        "stale_after_hours": 72
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 8180894,
+          "query_url": "https://dune.com/queries/8180894",
+          "data_file": "query_8180894.json",
+          "data_source": "kyberswap_campaign_summary",
+          "provider_mode": "latest_result",
+          "source_required_columns": [
+            "rank_",
+            "key_"
+          ],
+          "transformation": {
+            "id": "kyberswap_campaign_summary",
+            "version": "1.0.0",
+            "methodology_id": "kyberswap_campaign_summary_v1",
+            "script_path": "scripts/prepare_kyberswap_campaign_summary.py",
+            "tests_path": "tests/test_kyberswap_campaign_summary.py",
+            "fixture_path": "studio/fixtures/query_8180894.json",
+            "raw_data_file": "raw_query_8180894.json",
+            "source_required_columns": [
+              "rank_",
+              "key_"
+            ]
+          },
+          "required_columns": [
+            "rank_",
+            "key_",
+            "total_deposits_usd",
+            "outstanding_balance_usd",
+            "num_depositors",
+            "new_depositors",
+            "deposits_by_new_depositors",
+            "retention_rate",
+            "depositors_new_users_rate",
+            "revenue_generated",
+            "source_query_id",
+            "source_execution_id",
+            "source_last_updated",
+            "generated_at"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "kyberswap_campaign",
+      "dashboard": "KyberSwap Campaign",
+      "dashboard_display_order": 1,
+      "section_id": "counters",
+      "section": "Campaign summary",
+      "metric_id": "kyber_total_depositors",
+      "metric": "Total Depositors",
+      "display_order": 5,
+      "query_id": 8180894,
+      "query_url": "https://dune.com/queries/8180894",
+      "data_file": "query_8180894.json",
+      "data_source": "kyberswap_campaign_summary",
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "rank_",
+        "key_"
+      ],
+      "transformation": {
+        "id": "kyberswap_campaign_summary",
+        "version": "1.0.0",
+        "methodology_id": "kyberswap_campaign_summary_v1",
+        "script_path": "scripts/prepare_kyberswap_campaign_summary.py",
+        "tests_path": "tests/test_kyberswap_campaign_summary.py",
+        "fixture_path": "studio/fixtures/query_8180894.json",
+        "raw_data_file": "raw_query_8180894.json",
+        "source_required_columns": [
+          "rank_",
+          "key_"
+        ]
+      },
+      "columns": [
+        "rank_",
+        "key_",
+        "total_deposits_usd",
+        "outstanding_balance_usd",
+        "num_depositors",
+        "new_depositors",
+        "deposits_by_new_depositors",
+        "retention_rate",
+        "depositors_new_users_rate",
+        "revenue_generated",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "required_columns": [
+        "rank_",
+        "key_",
+        "total_deposits_usd",
+        "outstanding_balance_usd",
+        "num_depositors",
+        "new_depositors",
+        "deposits_by_new_depositors",
+        "retention_rate",
+        "depositors_new_users_rate",
+        "revenue_generated",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [
+        "rank_",
+        "key_",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "value_columns": [
+        "total_deposits_usd",
+        "outstanding_balance_usd",
+        "num_depositors",
+        "new_depositors",
+        "deposits_by_new_depositors",
+        "retention_rate",
+        "depositors_new_users_rate",
+        "revenue_generated"
+      ],
+      "visualization": "counter",
+      "visualization_type": "counter",
+      "default_visualization": "counter",
+      "allowed_visualizations": [
+        "counter"
+      ],
+      "value_format": "integer",
+      "exportable": false,
+      "allow_empty": true,
+      "source_label": "",
+      "freshness_policy": {
+        "expected_refresh_hours": 24,
+        "warning_after_hours": 36,
+        "stale_after_hours": 72
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 8180894,
+          "query_url": "https://dune.com/queries/8180894",
+          "data_file": "query_8180894.json",
+          "data_source": "kyberswap_campaign_summary",
+          "provider_mode": "latest_result",
+          "source_required_columns": [
+            "rank_",
+            "key_"
+          ],
+          "transformation": {
+            "id": "kyberswap_campaign_summary",
+            "version": "1.0.0",
+            "methodology_id": "kyberswap_campaign_summary_v1",
+            "script_path": "scripts/prepare_kyberswap_campaign_summary.py",
+            "tests_path": "tests/test_kyberswap_campaign_summary.py",
+            "fixture_path": "studio/fixtures/query_8180894.json",
+            "raw_data_file": "raw_query_8180894.json",
+            "source_required_columns": [
+              "rank_",
+              "key_"
+            ]
+          },
+          "required_columns": [
+            "rank_",
+            "key_",
+            "total_deposits_usd",
+            "outstanding_balance_usd",
+            "num_depositors",
+            "new_depositors",
+            "deposits_by_new_depositors",
+            "retention_rate",
+            "depositors_new_users_rate",
+            "revenue_generated",
+            "source_query_id",
+            "source_execution_id",
+            "source_last_updated",
+            "generated_at"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "kyberswap_campaign",
+      "dashboard": "KyberSwap Campaign",
+      "dashboard_display_order": 1,
+      "section_id": "counters",
+      "section": "Campaign summary",
+      "metric_id": "kyber_new_depositors",
+      "metric": "New Depositors",
+      "display_order": 6,
+      "query_id": 8180894,
+      "query_url": "https://dune.com/queries/8180894",
+      "data_file": "query_8180894.json",
+      "data_source": "kyberswap_campaign_summary",
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "rank_",
+        "key_"
+      ],
+      "transformation": {
+        "id": "kyberswap_campaign_summary",
+        "version": "1.0.0",
+        "methodology_id": "kyberswap_campaign_summary_v1",
+        "script_path": "scripts/prepare_kyberswap_campaign_summary.py",
+        "tests_path": "tests/test_kyberswap_campaign_summary.py",
+        "fixture_path": "studio/fixtures/query_8180894.json",
+        "raw_data_file": "raw_query_8180894.json",
+        "source_required_columns": [
+          "rank_",
+          "key_"
+        ]
+      },
+      "columns": [
+        "rank_",
+        "key_",
+        "total_deposits_usd",
+        "outstanding_balance_usd",
+        "num_depositors",
+        "new_depositors",
+        "deposits_by_new_depositors",
+        "retention_rate",
+        "depositors_new_users_rate",
+        "revenue_generated",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "required_columns": [
+        "rank_",
+        "key_",
+        "total_deposits_usd",
+        "outstanding_balance_usd",
+        "num_depositors",
+        "new_depositors",
+        "deposits_by_new_depositors",
+        "retention_rate",
+        "depositors_new_users_rate",
+        "revenue_generated",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [
+        "rank_",
+        "key_",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "value_columns": [
+        "total_deposits_usd",
+        "outstanding_balance_usd",
+        "num_depositors",
+        "new_depositors",
+        "deposits_by_new_depositors",
+        "retention_rate",
+        "depositors_new_users_rate",
+        "revenue_generated"
+      ],
+      "visualization": "counter",
+      "visualization_type": "counter",
+      "default_visualization": "counter",
+      "allowed_visualizations": [
+        "counter"
+      ],
+      "value_format": "integer",
+      "exportable": false,
+      "allow_empty": true,
+      "source_label": "",
+      "freshness_policy": {
+        "expected_refresh_hours": 24,
+        "warning_after_hours": 36,
+        "stale_after_hours": 72
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 8180894,
+          "query_url": "https://dune.com/queries/8180894",
+          "data_file": "query_8180894.json",
+          "data_source": "kyberswap_campaign_summary",
+          "provider_mode": "latest_result",
+          "source_required_columns": [
+            "rank_",
+            "key_"
+          ],
+          "transformation": {
+            "id": "kyberswap_campaign_summary",
+            "version": "1.0.0",
+            "methodology_id": "kyberswap_campaign_summary_v1",
+            "script_path": "scripts/prepare_kyberswap_campaign_summary.py",
+            "tests_path": "tests/test_kyberswap_campaign_summary.py",
+            "fixture_path": "studio/fixtures/query_8180894.json",
+            "raw_data_file": "raw_query_8180894.json",
+            "source_required_columns": [
+              "rank_",
+              "key_"
+            ]
+          },
+          "required_columns": [
+            "rank_",
+            "key_",
+            "total_deposits_usd",
+            "outstanding_balance_usd",
+            "num_depositors",
+            "new_depositors",
+            "deposits_by_new_depositors",
+            "retention_rate",
+            "depositors_new_users_rate",
+            "revenue_generated",
+            "source_query_id",
+            "source_execution_id",
+            "source_last_updated",
+            "generated_at"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "kyberswap_campaign",
+      "dashboard": "KyberSwap Campaign",
+      "dashboard_display_order": 1,
+      "section_id": "counters",
+      "section": "Campaign summary",
+      "metric_id": "kyber_retention_rate",
+      "metric": "Retention Rate",
+      "display_order": 7,
+      "query_id": 8180894,
+      "query_url": "https://dune.com/queries/8180894",
+      "data_file": "query_8180894.json",
+      "data_source": "kyberswap_campaign_summary",
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "rank_",
+        "key_"
+      ],
+      "transformation": {
+        "id": "kyberswap_campaign_summary",
+        "version": "1.0.0",
+        "methodology_id": "kyberswap_campaign_summary_v1",
+        "script_path": "scripts/prepare_kyberswap_campaign_summary.py",
+        "tests_path": "tests/test_kyberswap_campaign_summary.py",
+        "fixture_path": "studio/fixtures/query_8180894.json",
+        "raw_data_file": "raw_query_8180894.json",
+        "source_required_columns": [
+          "rank_",
+          "key_"
+        ]
+      },
+      "columns": [
+        "rank_",
+        "key_",
+        "total_deposits_usd",
+        "outstanding_balance_usd",
+        "num_depositors",
+        "new_depositors",
+        "deposits_by_new_depositors",
+        "retention_rate",
+        "depositors_new_users_rate",
+        "revenue_generated",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "required_columns": [
+        "rank_",
+        "key_",
+        "total_deposits_usd",
+        "outstanding_balance_usd",
+        "num_depositors",
+        "new_depositors",
+        "deposits_by_new_depositors",
+        "retention_rate",
+        "depositors_new_users_rate",
+        "revenue_generated",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [
+        "rank_",
+        "key_",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "value_columns": [
+        "total_deposits_usd",
+        "outstanding_balance_usd",
+        "num_depositors",
+        "new_depositors",
+        "deposits_by_new_depositors",
+        "retention_rate",
+        "depositors_new_users_rate",
+        "revenue_generated"
+      ],
+      "visualization": "counter",
+      "visualization_type": "counter",
+      "default_visualization": "counter",
+      "allowed_visualizations": [
+        "counter"
+      ],
+      "value_format": "percent",
+      "exportable": false,
+      "allow_empty": true,
+      "source_label": "",
+      "freshness_policy": {
+        "expected_refresh_hours": 24,
+        "warning_after_hours": 36,
+        "stale_after_hours": 72
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 8180894,
+          "query_url": "https://dune.com/queries/8180894",
+          "data_file": "query_8180894.json",
+          "data_source": "kyberswap_campaign_summary",
+          "provider_mode": "latest_result",
+          "source_required_columns": [
+            "rank_",
+            "key_"
+          ],
+          "transformation": {
+            "id": "kyberswap_campaign_summary",
+            "version": "1.0.0",
+            "methodology_id": "kyberswap_campaign_summary_v1",
+            "script_path": "scripts/prepare_kyberswap_campaign_summary.py",
+            "tests_path": "tests/test_kyberswap_campaign_summary.py",
+            "fixture_path": "studio/fixtures/query_8180894.json",
+            "raw_data_file": "raw_query_8180894.json",
+            "source_required_columns": [
+              "rank_",
+              "key_"
+            ]
+          },
+          "required_columns": [
+            "rank_",
+            "key_",
+            "total_deposits_usd",
+            "outstanding_balance_usd",
+            "num_depositors",
+            "new_depositors",
+            "deposits_by_new_depositors",
+            "retention_rate",
+            "depositors_new_users_rate",
+            "revenue_generated",
+            "source_query_id",
+            "source_execution_id",
+            "source_last_updated",
+            "generated_at"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "kyberswap_campaign",
+      "dashboard": "KyberSwap Campaign",
+      "dashboard_display_order": 1,
+      "section_id": "counters",
+      "section": "Campaign summary",
+      "metric_id": "kyber_revenue_generated",
+      "metric": "Revenue Generated",
+      "display_order": 8,
+      "query_id": 8180894,
+      "query_url": "https://dune.com/queries/8180894",
+      "data_file": "query_8180894.json",
+      "data_source": "kyberswap_campaign_summary",
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "rank_",
+        "key_"
+      ],
+      "transformation": {
+        "id": "kyberswap_campaign_summary",
+        "version": "1.0.0",
+        "methodology_id": "kyberswap_campaign_summary_v1",
+        "script_path": "scripts/prepare_kyberswap_campaign_summary.py",
+        "tests_path": "tests/test_kyberswap_campaign_summary.py",
+        "fixture_path": "studio/fixtures/query_8180894.json",
+        "raw_data_file": "raw_query_8180894.json",
+        "source_required_columns": [
+          "rank_",
+          "key_"
+        ]
+      },
+      "columns": [
+        "rank_",
+        "key_",
+        "total_deposits_usd",
+        "outstanding_balance_usd",
+        "num_depositors",
+        "new_depositors",
+        "deposits_by_new_depositors",
+        "retention_rate",
+        "depositors_new_users_rate",
+        "revenue_generated",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "required_columns": [
+        "rank_",
+        "key_",
+        "total_deposits_usd",
+        "outstanding_balance_usd",
+        "num_depositors",
+        "new_depositors",
+        "deposits_by_new_depositors",
+        "retention_rate",
+        "depositors_new_users_rate",
+        "revenue_generated",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [
+        "rank_",
+        "key_",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "value_columns": [
+        "total_deposits_usd",
+        "outstanding_balance_usd",
+        "num_depositors",
+        "new_depositors",
+        "deposits_by_new_depositors",
+        "retention_rate",
+        "depositors_new_users_rate",
+        "revenue_generated"
+      ],
+      "visualization": "counter",
+      "visualization_type": "counter",
+      "default_visualization": "counter",
+      "allowed_visualizations": [
+        "counter"
+      ],
+      "value_format": "currency_compact",
+      "exportable": false,
+      "allow_empty": true,
+      "source_label": "",
+      "freshness_policy": {
+        "expected_refresh_hours": 24,
+        "warning_after_hours": 36,
+        "stale_after_hours": 72
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 8180894,
+          "query_url": "https://dune.com/queries/8180894",
+          "data_file": "query_8180894.json",
+          "data_source": "kyberswap_campaign_summary",
+          "provider_mode": "latest_result",
+          "source_required_columns": [
+            "rank_",
+            "key_"
+          ],
+          "transformation": {
+            "id": "kyberswap_campaign_summary",
+            "version": "1.0.0",
+            "methodology_id": "kyberswap_campaign_summary_v1",
+            "script_path": "scripts/prepare_kyberswap_campaign_summary.py",
+            "tests_path": "tests/test_kyberswap_campaign_summary.py",
+            "fixture_path": "studio/fixtures/query_8180894.json",
+            "raw_data_file": "raw_query_8180894.json",
+            "source_required_columns": [
+              "rank_",
+              "key_"
+            ]
+          },
+          "required_columns": [
+            "rank_",
+            "key_",
+            "total_deposits_usd",
+            "outstanding_balance_usd",
+            "num_depositors",
+            "new_depositors",
+            "deposits_by_new_depositors",
+            "retention_rate",
+            "depositors_new_users_rate",
+            "revenue_generated",
+            "source_query_id",
+            "source_execution_id",
+            "source_last_updated",
+            "generated_at"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "kyberswap_campaign",
+      "dashboard": "KyberSwap Campaign",
+      "dashboard_display_order": 1,
+      "section_id": "trends",
+      "section": "Campaign Growth & Activity",
+      "metric_id": "kyber_referral_deposits_growth",
+      "metric": "Referral Deposits",
+      "display_order": 9,
+      "query_id": 8191379,
+      "query_url": "https://dune.com/queries/8191379",
+      "data_file": "query_8191379.json",
+      "data_source": "kyberswap_growth_deposits",
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "day",
+        "week",
+        "daily_deposits_usd",
+        "weekly_deposits_usd",
+        "cum_deposits_usd",
+        "last_updated"
+      ],
+      "transformation": {
+        "id": "kyberswap_growth_deposits",
+        "version": "1.0.0",
+        "methodology_id": "kyberswap_growth_deposits_v1",
+        "script_path": "scripts/enrich_kyberswap_growth.py",
+        "tests_path": "tests/test_kyberswap_growth.py",
+        "fixture_path": "studio/fixtures/query_8191379.json",
+        "raw_data_file": "raw_query_8191379.json",
+        "source_required_columns": [
+          "day",
+          "week",
+          "daily_deposits_usd",
+          "weekly_deposits_usd",
+          "cum_deposits_usd",
+          "last_updated"
+        ]
+      },
+      "columns": [
+        "record_type",
+        "period",
+        "day",
+        "observation_day",
+        "week",
+        "daily_deposits_usd",
+        "weekly_deposits_usd",
+        "cum_deposits_usd",
+        "last_updated",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "required_columns": [
+        "record_type",
+        "period",
+        "day",
+        "observation_day",
+        "week",
+        "daily_deposits_usd",
+        "weekly_deposits_usd",
+        "cum_deposits_usd",
+        "last_updated",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [
+        "record_type",
+        "period",
+        "day",
+        "observation_day",
+        "week",
+        "last_updated",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "value_columns": [
+        "daily_deposits_usd",
+        "weekly_deposits_usd",
+        "cum_deposits_usd"
+      ],
+      "visualization": "line",
+      "visualization_type": "line",
+      "default_visualization": "line",
+      "allowed_visualizations": [
+        "line"
+      ],
+      "value_format": "currency_compact",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "Methodology",
+      "freshness_policy": {
+        "expected_refresh_hours": 24,
+        "warning_after_hours": 36,
+        "stale_after_hours": 72
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 8191379,
+          "query_url": "https://dune.com/queries/8191379",
+          "data_file": "query_8191379.json",
+          "data_source": "kyberswap_growth_deposits",
+          "provider_mode": "latest_result",
+          "source_required_columns": [
+            "day",
+            "week",
+            "daily_deposits_usd",
+            "weekly_deposits_usd",
+            "cum_deposits_usd",
+            "last_updated"
+          ],
+          "transformation": {
+            "id": "kyberswap_growth_deposits",
+            "version": "1.0.0",
+            "methodology_id": "kyberswap_growth_deposits_v1",
+            "script_path": "scripts/enrich_kyberswap_growth.py",
+            "tests_path": "tests/test_kyberswap_growth.py",
+            "fixture_path": "studio/fixtures/query_8191379.json",
+            "raw_data_file": "raw_query_8191379.json",
+            "source_required_columns": [
+              "day",
+              "week",
+              "daily_deposits_usd",
+              "weekly_deposits_usd",
+              "cum_deposits_usd",
+              "last_updated"
+            ]
+          },
+          "required_columns": [
+            "record_type",
+            "period",
+            "day",
+            "observation_day",
+            "week",
+            "daily_deposits_usd",
+            "weekly_deposits_usd",
+            "cum_deposits_usd",
+            "last_updated",
+            "source_query_id",
+            "source_execution_id",
+            "source_last_updated",
+            "generated_at"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "kyberswap_campaign",
+      "dashboard": "KyberSwap Campaign",
+      "dashboard_display_order": 1,
+      "section_id": "trends",
+      "section": "Campaign Growth & Activity",
+      "metric_id": "kyber_attributed_tvl_over_time",
+      "metric": "Attributed TVL Over Time",
+      "display_order": 10,
+      "query_id": 8191704,
+      "query_url": "https://dune.com/queries/8191704",
+      "data_file": "query_8191704.json",
+      "data_source": "kyberswap_growth_attributed_tvl",
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "day",
+        "week",
+        "depositor_type",
+        "daily_attributed_tvl_usd",
+        "cum_attributed_tvl_usd"
+      ],
+      "transformation": {
+        "id": "kyberswap_growth_attributed_tvl",
+        "version": "1.0.0",
+        "methodology_id": "kyberswap_growth_attributed_tvl_v1",
+        "script_path": "scripts/enrich_kyberswap_growth.py",
+        "tests_path": "tests/test_kyberswap_growth.py",
+        "fixture_path": "studio/fixtures/query_8191704.json",
+        "raw_data_file": "raw_query_8191704.json",
+        "source_required_columns": [
+          "day",
+          "week",
+          "depositor_type",
+          "daily_attributed_tvl_usd",
+          "cum_attributed_tvl_usd"
+        ]
+      },
+      "columns": [
+        "record_type",
+        "period",
+        "day",
+        "observation_day",
+        "week",
+        "depositor_type",
+        "daily_attributed_tvl_usd",
+        "cum_attributed_tvl_usd",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "required_columns": [
+        "record_type",
+        "period",
+        "day",
+        "observation_day",
+        "week",
+        "depositor_type",
+        "daily_attributed_tvl_usd",
+        "cum_attributed_tvl_usd",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [
+        "record_type",
+        "period",
+        "day",
+        "observation_day",
+        "week",
+        "depositor_type",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "value_columns": [
+        "daily_attributed_tvl_usd",
+        "cum_attributed_tvl_usd"
+      ],
+      "visualization": "line",
+      "visualization_type": "line",
+      "default_visualization": "area",
+      "allowed_visualizations": [
+        "area",
+        "line"
+      ],
+      "value_format": "currency_compact",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "Methodology",
+      "freshness_policy": {
+        "expected_refresh_hours": 24,
+        "warning_after_hours": 36,
+        "stale_after_hours": 72
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 8191704,
+          "query_url": "https://dune.com/queries/8191704",
+          "data_file": "query_8191704.json",
+          "data_source": "kyberswap_growth_attributed_tvl",
+          "provider_mode": "latest_result",
+          "source_required_columns": [
+            "day",
+            "week",
+            "depositor_type",
+            "daily_attributed_tvl_usd",
+            "cum_attributed_tvl_usd"
+          ],
+          "transformation": {
+            "id": "kyberswap_growth_attributed_tvl",
+            "version": "1.0.0",
+            "methodology_id": "kyberswap_growth_attributed_tvl_v1",
+            "script_path": "scripts/enrich_kyberswap_growth.py",
+            "tests_path": "tests/test_kyberswap_growth.py",
+            "fixture_path": "studio/fixtures/query_8191704.json",
+            "raw_data_file": "raw_query_8191704.json",
+            "source_required_columns": [
+              "day",
+              "week",
+              "depositor_type",
+              "daily_attributed_tvl_usd",
+              "cum_attributed_tvl_usd"
+            ]
+          },
+          "required_columns": [
+            "record_type",
+            "period",
+            "day",
+            "observation_day",
+            "week",
+            "depositor_type",
+            "daily_attributed_tvl_usd",
+            "cum_attributed_tvl_usd",
+            "source_query_id",
+            "source_execution_id",
+            "source_last_updated",
+            "generated_at"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "kyberswap_campaign",
+      "dashboard": "KyberSwap Campaign",
+      "dashboard_display_order": 1,
+      "section_id": "trends",
+      "section": "Campaign Growth & Activity",
+      "metric_id": "kyber_referral_deposits_breakdown",
+      "metric": "Referral Deposits Breakdown",
+      "display_order": 11,
+      "query_id": 8193003,
+      "query_url": "https://dune.com/queries/8193003",
+      "data_file": "query_8193003.json",
+      "data_source": "kyberswap_growth_breakdown",
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "day",
+        "week",
+        "product_symbol",
+        "depositor_type",
+        "daily_deposits"
+      ],
+      "transformation": {
+        "id": "kyberswap_growth_breakdown",
+        "version": "1.0.0",
+        "methodology_id": "kyberswap_growth_breakdown_v1",
+        "script_path": "scripts/enrich_kyberswap_growth.py",
+        "tests_path": "tests/test_kyberswap_growth.py",
+        "fixture_path": "studio/fixtures/query_8193003.json",
+        "raw_data_file": "raw_query_8193003.json",
+        "source_required_columns": [
+          "day",
+          "week",
+          "product_symbol",
+          "depositor_type",
+          "daily_deposits"
+        ]
+      },
+      "columns": [
+        "record_type",
+        "period",
+        "day",
+        "week",
+        "product_symbol",
+        "depositor_type",
+        "daily_deposits",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "required_columns": [
+        "record_type",
+        "period",
+        "day",
+        "week",
+        "product_symbol",
+        "depositor_type",
+        "daily_deposits",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [
+        "record_type",
+        "period",
+        "day",
+        "week",
+        "product_symbol",
+        "depositor_type",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "value_columns": [
+        "daily_deposits"
+      ],
+      "visualization": "line",
+      "visualization_type": "line",
+      "default_visualization": "column",
+      "allowed_visualizations": [
+        "column"
+      ],
+      "value_format": "currency_compact",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "Methodology",
+      "freshness_policy": {
+        "expected_refresh_hours": 24,
+        "warning_after_hours": 36,
+        "stale_after_hours": 72
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 8193003,
+          "query_url": "https://dune.com/queries/8193003",
+          "data_file": "query_8193003.json",
+          "data_source": "kyberswap_growth_breakdown",
+          "provider_mode": "latest_result",
+          "source_required_columns": [
+            "day",
+            "week",
+            "product_symbol",
+            "depositor_type",
+            "daily_deposits"
+          ],
+          "transformation": {
+            "id": "kyberswap_growth_breakdown",
+            "version": "1.0.0",
+            "methodology_id": "kyberswap_growth_breakdown_v1",
+            "script_path": "scripts/enrich_kyberswap_growth.py",
+            "tests_path": "tests/test_kyberswap_growth.py",
+            "fixture_path": "studio/fixtures/query_8193003.json",
+            "raw_data_file": "raw_query_8193003.json",
+            "source_required_columns": [
+              "day",
+              "week",
+              "product_symbol",
+              "depositor_type",
+              "daily_deposits"
+            ]
+          },
+          "required_columns": [
+            "record_type",
+            "period",
+            "day",
+            "week",
+            "product_symbol",
+            "depositor_type",
+            "daily_deposits",
+            "source_query_id",
+            "source_execution_id",
+            "source_last_updated",
+            "generated_at"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "kyberswap_campaign",
+      "dashboard": "KyberSwap Campaign",
+      "dashboard_display_order": 1,
+      "section_id": "trends",
+      "section": "Campaign Growth & Activity",
+      "metric_id": "kyber_total_referral_deposits_breakdown",
+      "metric": "Total Referral Deposits Breakdown",
+      "display_order": 12,
+      "query_id": 8193003,
+      "query_url": "https://dune.com/queries/8193003",
+      "data_file": "query_8193003.json",
+      "data_source": "kyberswap_growth_breakdown",
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "day",
+        "week",
+        "product_symbol",
+        "depositor_type",
+        "daily_deposits"
+      ],
+      "transformation": {
+        "id": "kyberswap_growth_breakdown",
+        "version": "1.0.0",
+        "methodology_id": "kyberswap_growth_breakdown_v1",
+        "script_path": "scripts/enrich_kyberswap_growth.py",
+        "tests_path": "tests/test_kyberswap_growth.py",
+        "fixture_path": "studio/fixtures/query_8193003.json",
+        "raw_data_file": "raw_query_8193003.json",
+        "source_required_columns": [
+          "day",
+          "week",
+          "product_symbol",
+          "depositor_type",
+          "daily_deposits"
+        ]
+      },
+      "columns": [
+        "record_type",
+        "period",
+        "day",
+        "week",
+        "product_symbol",
+        "depositor_type",
+        "daily_deposits",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "required_columns": [
+        "record_type",
+        "period",
+        "day",
+        "week",
+        "product_symbol",
+        "depositor_type",
+        "daily_deposits",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [
+        "record_type",
+        "period",
+        "day",
+        "week",
+        "product_symbol",
+        "depositor_type",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "value_columns": [
+        "daily_deposits"
+      ],
+      "visualization": "bar",
+      "visualization_type": "bar",
+      "default_visualization": "bar",
+      "allowed_visualizations": [
+        "bar"
+      ],
+      "value_format": "currency_compact",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "Methodology",
+      "freshness_policy": {
+        "expected_refresh_hours": 24,
+        "warning_after_hours": 36,
+        "stale_after_hours": 72
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 8193003,
+          "query_url": "https://dune.com/queries/8193003",
+          "data_file": "query_8193003.json",
+          "data_source": "kyberswap_growth_breakdown",
+          "provider_mode": "latest_result",
+          "source_required_columns": [
+            "day",
+            "week",
+            "product_symbol",
+            "depositor_type",
+            "daily_deposits"
+          ],
+          "transformation": {
+            "id": "kyberswap_growth_breakdown",
+            "version": "1.0.0",
+            "methodology_id": "kyberswap_growth_breakdown_v1",
+            "script_path": "scripts/enrich_kyberswap_growth.py",
+            "tests_path": "tests/test_kyberswap_growth.py",
+            "fixture_path": "studio/fixtures/query_8193003.json",
+            "raw_data_file": "raw_query_8193003.json",
+            "source_required_columns": [
+              "day",
+              "week",
+              "product_symbol",
+              "depositor_type",
+              "daily_deposits"
+            ]
+          },
+          "required_columns": [
+            "record_type",
+            "period",
+            "day",
+            "week",
+            "product_symbol",
+            "depositor_type",
+            "daily_deposits",
+            "source_query_id",
+            "source_execution_id",
+            "source_last_updated",
+            "generated_at"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "kyberswap_campaign",
+      "dashboard": "KyberSwap Campaign",
+      "dashboard_display_order": 1,
+      "section_id": "trends",
+      "section": "Campaign Growth & Activity",
+      "metric_id": "kyber_deposit_depositor_count_by_product",
+      "metric": "Deposit & Depositor Count by Product",
+      "display_order": 13,
+      "query_id": 8193040,
+      "query_url": "https://dune.com/queries/8193040",
+      "data_file": "query_8193040.json",
+      "data_source": "kyberswap_growth_activity",
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "timestamp_type",
+        "timestamp",
+        "category_type",
+        "category",
+        "metric_type",
+        "metric_value"
+      ],
+      "transformation": {
+        "id": "kyberswap_growth_activity",
+        "version": "1.0.0",
+        "methodology_id": "kyberswap_growth_activity_v1",
+        "script_path": "scripts/enrich_kyberswap_growth.py",
+        "tests_path": "tests/test_kyberswap_growth.py",
+        "fixture_path": "studio/fixtures/query_8193040.json",
+        "raw_data_file": "raw_query_8193040.json",
+        "source_required_columns": [
+          "timestamp_type",
+          "timestamp",
+          "category_type",
+          "category",
+          "metric_type",
+          "metric_value"
+        ]
+      },
+      "columns": [
+        "record_type",
+        "period",
+        "timestamp_type",
+        "timestamp",
+        "category_type",
+        "category",
+        "metric_type",
+        "metric_value",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "required_columns": [
+        "record_type",
+        "period",
+        "timestamp_type",
+        "timestamp",
+        "category_type",
+        "category",
+        "metric_type",
+        "metric_value",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [
+        "record_type",
+        "period",
+        "timestamp_type",
+        "timestamp",
+        "category_type",
+        "category",
+        "metric_type",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "value_columns": [
+        "metric_value"
+      ],
+      "visualization": "line",
+      "visualization_type": "line",
+      "default_visualization": "column",
+      "allowed_visualizations": [
+        "column",
+        "line"
+      ],
+      "value_format": "integer",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "Methodology",
+      "freshness_policy": {
+        "expected_refresh_hours": 24,
+        "warning_after_hours": 36,
+        "stale_after_hours": 72
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 8193040,
+          "query_url": "https://dune.com/queries/8193040",
+          "data_file": "query_8193040.json",
+          "data_source": "kyberswap_growth_activity",
+          "provider_mode": "latest_result",
+          "source_required_columns": [
+            "timestamp_type",
+            "timestamp",
+            "category_type",
+            "category",
+            "metric_type",
+            "metric_value"
+          ],
+          "transformation": {
+            "id": "kyberswap_growth_activity",
+            "version": "1.0.0",
+            "methodology_id": "kyberswap_growth_activity_v1",
+            "script_path": "scripts/enrich_kyberswap_growth.py",
+            "tests_path": "tests/test_kyberswap_growth.py",
+            "fixture_path": "studio/fixtures/query_8193040.json",
+            "raw_data_file": "raw_query_8193040.json",
+            "source_required_columns": [
+              "timestamp_type",
+              "timestamp",
+              "category_type",
+              "category",
+              "metric_type",
+              "metric_value"
+            ]
+          },
+          "required_columns": [
+            "record_type",
+            "period",
+            "timestamp_type",
+            "timestamp",
+            "category_type",
+            "category",
+            "metric_type",
+            "metric_value",
+            "source_query_id",
+            "source_execution_id",
+            "source_last_updated",
+            "generated_at"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "kyberswap_campaign",
+      "dashboard": "KyberSwap Campaign",
+      "dashboard_display_order": 1,
+      "section_id": "trends",
+      "section": "Campaign Growth & Activity",
+      "metric_id": "kyber_deposit_depositor_count_by_depositor_type",
+      "metric": "Deposit & Depositor Count by Depositor Type",
+      "display_order": 14,
+      "query_id": 8193040,
+      "query_url": "https://dune.com/queries/8193040",
+      "data_file": "query_8193040.json",
+      "data_source": "kyberswap_growth_activity",
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "timestamp_type",
+        "timestamp",
+        "category_type",
+        "category",
+        "metric_type",
+        "metric_value"
+      ],
+      "transformation": {
+        "id": "kyberswap_growth_activity",
+        "version": "1.0.0",
+        "methodology_id": "kyberswap_growth_activity_v1",
+        "script_path": "scripts/enrich_kyberswap_growth.py",
+        "tests_path": "tests/test_kyberswap_growth.py",
+        "fixture_path": "studio/fixtures/query_8193040.json",
+        "raw_data_file": "raw_query_8193040.json",
+        "source_required_columns": [
+          "timestamp_type",
+          "timestamp",
+          "category_type",
+          "category",
+          "metric_type",
+          "metric_value"
+        ]
+      },
+      "columns": [
+        "record_type",
+        "period",
+        "timestamp_type",
+        "timestamp",
+        "category_type",
+        "category",
+        "metric_type",
+        "metric_value",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "required_columns": [
+        "record_type",
+        "period",
+        "timestamp_type",
+        "timestamp",
+        "category_type",
+        "category",
+        "metric_type",
+        "metric_value",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [
+        "record_type",
+        "period",
+        "timestamp_type",
+        "timestamp",
+        "category_type",
+        "category",
+        "metric_type",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "value_columns": [
+        "metric_value"
+      ],
+      "visualization": "line",
+      "visualization_type": "line",
+      "default_visualization": "column",
+      "allowed_visualizations": [
+        "column",
+        "line"
+      ],
+      "value_format": "integer",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "Methodology",
+      "freshness_policy": {
+        "expected_refresh_hours": 24,
+        "warning_after_hours": 36,
+        "stale_after_hours": 72
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 8193040,
+          "query_url": "https://dune.com/queries/8193040",
+          "data_file": "query_8193040.json",
+          "data_source": "kyberswap_growth_activity",
+          "provider_mode": "latest_result",
+          "source_required_columns": [
+            "timestamp_type",
+            "timestamp",
+            "category_type",
+            "category",
+            "metric_type",
+            "metric_value"
+          ],
+          "transformation": {
+            "id": "kyberswap_growth_activity",
+            "version": "1.0.0",
+            "methodology_id": "kyberswap_growth_activity_v1",
+            "script_path": "scripts/enrich_kyberswap_growth.py",
+            "tests_path": "tests/test_kyberswap_growth.py",
+            "fixture_path": "studio/fixtures/query_8193040.json",
+            "raw_data_file": "raw_query_8193040.json",
+            "source_required_columns": [
+              "timestamp_type",
+              "timestamp",
+              "category_type",
+              "category",
+              "metric_type",
+              "metric_value"
+            ]
+          },
+          "required_columns": [
+            "record_type",
+            "period",
+            "timestamp_type",
+            "timestamp",
+            "category_type",
+            "category",
+            "metric_type",
+            "metric_value",
+            "source_query_id",
+            "source_execution_id",
+            "source_last_updated",
+            "generated_at"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "kyberswap_campaign",
+      "dashboard": "KyberSwap Campaign",
+      "dashboard_display_order": 1,
+      "section_id": "capital_activity",
+      "section": "Capital Position & Activity",
+      "metric_id": "kyber_attributed_tvl_by_location",
+      "metric": "Attributed TVL by Current Location",
+      "display_order": 15,
+      "query_id": 8199058,
+      "query_url": "https://dune.com/queries/8199058",
+      "data_file": "query_8199058.json",
+      "data_source": "kyberswap_attributed_holdings",
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "current_token",
+        "current_token_category",
+        "referral_balance",
+        "current_balance",
+        "previous_balance"
+      ],
+      "transformation": {
+        "id": "kyberswap_attributed_holdings",
+        "version": "2.0.0",
+        "methodology_id": "kyberswap_attributed_holdings_v1",
+        "script_path": "scripts/enrich_kyberswap_attributed_holdings.py",
+        "tests_path": "tests/test_kyberswap_attributed_holdings.py",
+        "fixture_path": "studio/fixtures/query_8199058.json",
+        "raw_data_file": "raw_query_8199058.json",
+        "source_required_columns": [
+          "day",
+          "address",
+          "strategy_symbol",
+          "base_asset",
+          "depositor_type",
+          "current_token",
+          "current_token_category",
+          "referral_balance",
+          "current_balance",
+          "previous_balance"
+        ]
+      },
+      "columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "referral_balance",
+        "previous_balance",
+        "total_current_balance",
+        "campaign_supported_balance",
+        "final_attributable_balance",
+        "exited_balance",
+        "current_token",
+        "current_token_category",
+        "current_balance",
+        "attributed_balance",
+        "unattributed_balance",
+        "destination_status",
+        "allocation_rank",
+        "allocation_rule",
+        "methodology_id",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "required_columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "referral_balance",
+        "previous_balance",
+        "total_current_balance",
+        "campaign_supported_balance",
+        "final_attributable_balance",
+        "exited_balance",
+        "current_token",
+        "current_token_category",
+        "current_balance",
+        "attributed_balance",
+        "unattributed_balance",
+        "destination_status",
+        "allocation_rank",
+        "allocation_rule",
+        "methodology_id",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "current_token",
+        "current_token_category",
+        "destination_status",
+        "allocation_rule",
+        "methodology_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "value_columns": [
+        "referral_balance",
+        "previous_balance",
+        "total_current_balance",
+        "campaign_supported_balance",
+        "final_attributable_balance",
+        "exited_balance",
+        "current_balance",
+        "attributed_balance",
+        "unattributed_balance",
+        "allocation_rank",
+        "source_query_id"
+      ],
+      "visualization": "bar",
+      "visualization_type": "bar",
+      "default_visualization": "bar",
+      "allowed_visualizations": [
+        "bar"
+      ],
+      "value_format": "currency_compact",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "Methodology",
+      "freshness_policy": {
+        "expected_refresh_hours": 24,
+        "warning_after_hours": 36,
+        "stale_after_hours": 72
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 8199058,
+          "query_url": "https://dune.com/queries/8199058",
+          "data_file": "query_8199058.json",
+          "data_source": "kyberswap_attributed_holdings",
+          "provider_mode": "latest_result",
+          "source_required_columns": [
+            "day",
+            "address",
+            "strategy_symbol",
+            "base_asset",
+            "depositor_type",
+            "current_token",
+            "current_token_category",
+            "referral_balance",
+            "current_balance",
+            "previous_balance"
+          ],
+          "transformation": {
+            "id": "kyberswap_attributed_holdings",
+            "version": "2.0.0",
+            "methodology_id": "kyberswap_attributed_holdings_v1",
+            "script_path": "scripts/enrich_kyberswap_attributed_holdings.py",
+            "tests_path": "tests/test_kyberswap_attributed_holdings.py",
+            "fixture_path": "studio/fixtures/query_8199058.json",
+            "raw_data_file": "raw_query_8199058.json",
+            "source_required_columns": [
+              "day",
+              "address",
+              "strategy_symbol",
+              "base_asset",
+              "depositor_type",
+              "current_token",
+              "current_token_category",
+              "referral_balance",
+              "current_balance",
+              "previous_balance"
+            ]
+          },
+          "required_columns": [
+            "day",
+            "address",
+            "strategy_symbol",
+            "base_asset",
+            "depositor_type",
+            "referral_balance",
+            "previous_balance",
+            "total_current_balance",
+            "campaign_supported_balance",
+            "final_attributable_balance",
+            "exited_balance",
+            "current_token",
+            "current_token_category",
+            "current_balance",
+            "attributed_balance",
+            "unattributed_balance",
+            "destination_status",
+            "allocation_rank",
+            "allocation_rule",
+            "methodology_id",
+            "source_query_id",
+            "source_execution_id",
+            "source_last_updated",
+            "generated_at"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "kyberswap_campaign",
+      "dashboard": "KyberSwap Campaign",
+      "dashboard_display_order": 1,
+      "section_id": "capital_activity",
+      "section": "Capital Position & Activity",
+      "metric_id": "kyber_post_referral_activity",
+      "metric": "Post-Referral Activity",
+      "display_order": 16,
+      "query_id": 8202133,
+      "query_url": "https://dune.com/queries/8202133",
+      "data_file": "query_8202133.json",
+      "data_source": "kyberswap_post_referral_activity",
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "day",
+        "week",
+        "project",
+        "event",
+        "label",
+        "amount_usd"
+      ],
+      "transformation": {
+        "id": "kyberswap_post_referral_activity",
+        "version": "1.0.0",
+        "methodology_id": "kyberswap_post_referral_activity_v1",
+        "script_path": "scripts/enrich_kyberswap_growth.py",
+        "tests_path": "tests/test_kyberswap_growth.py",
+        "fixture_path": "studio/fixtures/query_8202133.json",
+        "raw_data_file": "raw_query_8202133.json",
+        "source_required_columns": [
+          "day",
+          "week",
+          "project",
+          "event",
+          "label",
+          "amount_usd"
+        ]
+      },
+      "columns": [
+        "record_type",
+        "granularity",
+        "period",
+        "day",
+        "week",
+        "grouping_type",
+        "category",
+        "amount_usd",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "required_columns": [
+        "record_type",
+        "granularity",
+        "period",
+        "day",
+        "week",
+        "grouping_type",
+        "category",
+        "amount_usd",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [
+        "record_type",
+        "granularity",
+        "period",
+        "day",
+        "week",
+        "grouping_type",
+        "category",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "value_columns": [
+        "amount_usd",
+        "source_query_id"
+      ],
+      "visualization": "bar",
+      "visualization_type": "bar",
+      "default_visualization": "bar",
+      "allowed_visualizations": [
+        "bar"
+      ],
+      "value_format": "currency_compact",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "Methodology",
+      "freshness_policy": {
+        "expected_refresh_hours": 24,
+        "warning_after_hours": 36,
+        "stale_after_hours": 72
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 8202133,
+          "query_url": "https://dune.com/queries/8202133",
+          "data_file": "query_8202133.json",
+          "data_source": "kyberswap_post_referral_activity",
+          "provider_mode": "latest_result",
+          "source_required_columns": [
+            "day",
+            "week",
+            "project",
+            "event",
+            "label",
+            "amount_usd"
+          ],
+          "transformation": {
+            "id": "kyberswap_post_referral_activity",
+            "version": "1.0.0",
+            "methodology_id": "kyberswap_post_referral_activity_v1",
+            "script_path": "scripts/enrich_kyberswap_growth.py",
+            "tests_path": "tests/test_kyberswap_growth.py",
+            "fixture_path": "studio/fixtures/query_8202133.json",
+            "raw_data_file": "raw_query_8202133.json",
+            "source_required_columns": [
+              "day",
+              "week",
+              "project",
+              "event",
+              "label",
+              "amount_usd"
+            ]
+          },
+          "required_columns": [
+            "record_type",
+            "granularity",
+            "period",
+            "day",
+            "week",
+            "grouping_type",
+            "category",
+            "amount_usd",
+            "source_query_id",
+            "source_execution_id",
+            "source_last_updated",
+            "generated_at"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "kyberswap_campaign",
+      "dashboard": "KyberSwap Campaign",
+      "dashboard_display_order": 1,
+      "section_id": "capital_activity",
+      "section": "Capital Position & Activity",
+      "metric_id": "kyber_capital_journey",
+      "metric": "Attributed Funds by Current Location Sankey",
+      "display_order": 17,
+      "query_id": 8199058,
+      "query_url": "https://dune.com/queries/8199058",
+      "data_file": "query_8199058.json",
+      "data_source": "kyberswap_attributed_holdings",
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "current_token",
+        "current_token_category",
+        "referral_balance",
+        "current_balance",
+        "previous_balance"
+      ],
+      "transformation": {
+        "id": "kyberswap_attributed_holdings",
+        "version": "2.0.0",
+        "methodology_id": "kyberswap_attributed_holdings_v1",
+        "script_path": "scripts/enrich_kyberswap_attributed_holdings.py",
+        "tests_path": "tests/test_kyberswap_attributed_holdings.py",
+        "fixture_path": "studio/fixtures/query_8199058.json",
+        "raw_data_file": "raw_query_8199058.json",
+        "source_required_columns": [
+          "day",
+          "address",
+          "strategy_symbol",
+          "base_asset",
+          "depositor_type",
+          "current_token",
+          "current_token_category",
+          "referral_balance",
+          "current_balance",
+          "previous_balance"
+        ]
+      },
+      "columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "referral_balance",
+        "previous_balance",
+        "total_current_balance",
+        "campaign_supported_balance",
+        "final_attributable_balance",
+        "exited_balance",
+        "current_token",
+        "current_token_category",
+        "current_balance",
+        "attributed_balance",
+        "unattributed_balance",
+        "destination_status",
+        "allocation_rank",
+        "allocation_rule",
+        "methodology_id",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "required_columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "referral_balance",
+        "previous_balance",
+        "total_current_balance",
+        "campaign_supported_balance",
+        "final_attributable_balance",
+        "exited_balance",
+        "current_token",
+        "current_token_category",
+        "current_balance",
+        "attributed_balance",
+        "unattributed_balance",
+        "destination_status",
+        "allocation_rank",
+        "allocation_rule",
+        "methodology_id",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "current_token",
+        "current_token_category",
+        "destination_status",
+        "allocation_rule",
+        "methodology_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "value_columns": [
+        "referral_balance",
+        "previous_balance",
+        "total_current_balance",
+        "campaign_supported_balance",
+        "final_attributable_balance",
+        "exited_balance",
+        "current_balance",
+        "attributed_balance",
+        "unattributed_balance",
+        "allocation_rank",
+        "source_query_id"
+      ],
+      "visualization": "sankey",
+      "visualization_type": "sankey",
+      "default_visualization": "sankey",
+      "allowed_visualizations": [
+        "sankey"
+      ],
+      "value_format": "currency_compact",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "Methodology",
+      "freshness_policy": {
+        "expected_refresh_hours": 24,
+        "warning_after_hours": 36,
+        "stale_after_hours": 72
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 8199058,
+          "query_url": "https://dune.com/queries/8199058",
+          "data_file": "query_8199058.json",
+          "data_source": "kyberswap_attributed_holdings",
+          "provider_mode": "latest_result",
+          "source_required_columns": [
+            "day",
+            "address",
+            "strategy_symbol",
+            "base_asset",
+            "depositor_type",
+            "current_token",
+            "current_token_category",
+            "referral_balance",
+            "current_balance",
+            "previous_balance"
+          ],
+          "transformation": {
+            "id": "kyberswap_attributed_holdings",
+            "version": "2.0.0",
+            "methodology_id": "kyberswap_attributed_holdings_v1",
+            "script_path": "scripts/enrich_kyberswap_attributed_holdings.py",
+            "tests_path": "tests/test_kyberswap_attributed_holdings.py",
+            "fixture_path": "studio/fixtures/query_8199058.json",
+            "raw_data_file": "raw_query_8199058.json",
+            "source_required_columns": [
+              "day",
+              "address",
+              "strategy_symbol",
+              "base_asset",
+              "depositor_type",
+              "current_token",
+              "current_token_category",
+              "referral_balance",
+              "current_balance",
+              "previous_balance"
+            ]
+          },
+          "required_columns": [
+            "day",
+            "address",
+            "strategy_symbol",
+            "base_asset",
+            "depositor_type",
+            "referral_balance",
+            "previous_balance",
+            "total_current_balance",
+            "campaign_supported_balance",
+            "final_attributable_balance",
+            "exited_balance",
+            "current_token",
+            "current_token_category",
+            "current_balance",
+            "attributed_balance",
+            "unattributed_balance",
+            "destination_status",
+            "allocation_rank",
+            "allocation_rule",
+            "methodology_id",
+            "source_query_id",
+            "source_execution_id",
+            "source_last_updated",
+            "generated_at"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "kyberswap_campaign",
+      "dashboard": "KyberSwap Campaign",
+      "dashboard_display_order": 1,
+      "section_id": "capital_activity",
+      "section": "Capital Position & Activity",
+      "metric_id": "kyber_product_adoption",
+      "metric": "Depositor Journey Sankey",
+      "display_order": 18,
+      "query_id": 8199058,
+      "query_url": "https://dune.com/queries/8199058",
+      "data_file": "query_8199058.json",
+      "data_source": "kyberswap_attributed_holdings",
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "current_token",
+        "current_token_category",
+        "referral_balance",
+        "current_balance",
+        "previous_balance"
+      ],
+      "transformation": {
+        "id": "kyberswap_attributed_holdings",
+        "version": "2.0.0",
+        "methodology_id": "kyberswap_attributed_holdings_v1",
+        "script_path": "scripts/enrich_kyberswap_attributed_holdings.py",
+        "tests_path": "tests/test_kyberswap_attributed_holdings.py",
+        "fixture_path": "studio/fixtures/query_8199058.json",
+        "raw_data_file": "raw_query_8199058.json",
+        "source_required_columns": [
+          "day",
+          "address",
+          "strategy_symbol",
+          "base_asset",
+          "depositor_type",
+          "current_token",
+          "current_token_category",
+          "referral_balance",
+          "current_balance",
+          "previous_balance"
+        ]
+      },
+      "columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "referral_balance",
+        "previous_balance",
+        "total_current_balance",
+        "campaign_supported_balance",
+        "final_attributable_balance",
+        "exited_balance",
+        "current_token",
+        "current_token_category",
+        "current_balance",
+        "attributed_balance",
+        "unattributed_balance",
+        "destination_status",
+        "allocation_rank",
+        "allocation_rule",
+        "methodology_id",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "required_columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "referral_balance",
+        "previous_balance",
+        "total_current_balance",
+        "campaign_supported_balance",
+        "final_attributable_balance",
+        "exited_balance",
+        "current_token",
+        "current_token_category",
+        "current_balance",
+        "attributed_balance",
+        "unattributed_balance",
+        "destination_status",
+        "allocation_rank",
+        "allocation_rule",
+        "methodology_id",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "current_token",
+        "current_token_category",
+        "destination_status",
+        "allocation_rule",
+        "methodology_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "value_columns": [
+        "referral_balance",
+        "previous_balance",
+        "total_current_balance",
+        "campaign_supported_balance",
+        "final_attributable_balance",
+        "exited_balance",
+        "current_balance",
+        "attributed_balance",
+        "unattributed_balance",
+        "allocation_rank",
+        "source_query_id"
+      ],
+      "visualization": "sankey",
+      "visualization_type": "sankey",
+      "default_visualization": "sankey",
+      "allowed_visualizations": [
+        "sankey"
+      ],
+      "value_format": "currency_compact",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "Methodology",
+      "freshness_policy": {
+        "expected_refresh_hours": 24,
+        "warning_after_hours": 36,
+        "stale_after_hours": 72
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 8199058,
+          "query_url": "https://dune.com/queries/8199058",
+          "data_file": "query_8199058.json",
+          "data_source": "kyberswap_attributed_holdings",
+          "provider_mode": "latest_result",
+          "source_required_columns": [
+            "day",
+            "address",
+            "strategy_symbol",
+            "base_asset",
+            "depositor_type",
+            "current_token",
+            "current_token_category",
+            "referral_balance",
+            "current_balance",
+            "previous_balance"
+          ],
+          "transformation": {
+            "id": "kyberswap_attributed_holdings",
+            "version": "2.0.0",
+            "methodology_id": "kyberswap_attributed_holdings_v1",
+            "script_path": "scripts/enrich_kyberswap_attributed_holdings.py",
+            "tests_path": "tests/test_kyberswap_attributed_holdings.py",
+            "fixture_path": "studio/fixtures/query_8199058.json",
+            "raw_data_file": "raw_query_8199058.json",
+            "source_required_columns": [
+              "day",
+              "address",
+              "strategy_symbol",
+              "base_asset",
+              "depositor_type",
+              "current_token",
+              "current_token_category",
+              "referral_balance",
+              "current_balance",
+              "previous_balance"
+            ]
+          },
+          "required_columns": [
+            "day",
+            "address",
+            "strategy_symbol",
+            "base_asset",
+            "depositor_type",
+            "referral_balance",
+            "previous_balance",
+            "total_current_balance",
+            "campaign_supported_balance",
+            "final_attributable_balance",
+            "exited_balance",
+            "current_token",
+            "current_token_category",
+            "current_balance",
+            "attributed_balance",
+            "unattributed_balance",
+            "destination_status",
+            "allocation_rank",
+            "allocation_rule",
+            "methodology_id",
+            "source_query_id",
+            "source_execution_id",
+            "source_last_updated",
+            "generated_at"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "kyberswap_campaign",
+      "dashboard": "KyberSwap Campaign",
+      "dashboard_display_order": 1,
+      "section_id": "tables",
+      "section": "Depositor Analysis",
+      "metric_id": "kyber_top_referred_depositors",
+      "metric": "Top Referred Depositors",
+      "display_order": 20,
+      "query_id": 8199058,
+      "query_url": "https://dune.com/queries/8199058",
+      "data_file": "query_8199058.json",
+      "data_source": "kyberswap_attributed_holdings",
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "current_token",
+        "current_token_category",
+        "referral_balance",
+        "current_balance",
+        "previous_balance"
+      ],
+      "transformation": {
+        "id": "kyberswap_attributed_holdings",
+        "version": "2.0.0",
+        "methodology_id": "kyberswap_attributed_holdings_v1",
+        "script_path": "scripts/enrich_kyberswap_attributed_holdings.py",
+        "tests_path": "tests/test_kyberswap_attributed_holdings.py",
+        "fixture_path": "studio/fixtures/query_8199058.json",
+        "raw_data_file": "raw_query_8199058.json",
+        "source_required_columns": [
+          "day",
+          "address",
+          "strategy_symbol",
+          "base_asset",
+          "depositor_type",
+          "current_token",
+          "current_token_category",
+          "referral_balance",
+          "current_balance",
+          "previous_balance"
+        ]
+      },
+      "columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "referral_balance",
+        "previous_balance",
+        "total_current_balance",
+        "campaign_supported_balance",
+        "final_attributable_balance",
+        "exited_balance",
+        "current_token",
+        "current_token_category",
+        "current_balance",
+        "attributed_balance",
+        "unattributed_balance",
+        "destination_status",
+        "allocation_rank",
+        "allocation_rule",
+        "methodology_id",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "required_columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "referral_balance",
+        "previous_balance",
+        "total_current_balance",
+        "campaign_supported_balance",
+        "final_attributable_balance",
+        "exited_balance",
+        "current_token",
+        "current_token_category",
+        "current_balance",
+        "attributed_balance",
+        "unattributed_balance",
+        "destination_status",
+        "allocation_rank",
+        "allocation_rule",
+        "methodology_id",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "current_token",
+        "current_token_category",
+        "destination_status",
+        "allocation_rule",
+        "methodology_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "value_columns": [
+        "referral_balance",
+        "previous_balance",
+        "total_current_balance",
+        "campaign_supported_balance",
+        "final_attributable_balance",
+        "exited_balance",
+        "current_balance",
+        "attributed_balance",
+        "unattributed_balance",
+        "allocation_rank",
+        "source_query_id"
+      ],
+      "visualization": "bar",
+      "visualization_type": "bar",
+      "default_visualization": "bar",
+      "allowed_visualizations": [
+        "bar"
+      ],
+      "value_format": "currency_compact",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "Methodology",
+      "freshness_policy": {
+        "expected_refresh_hours": 24,
+        "warning_after_hours": 36,
+        "stale_after_hours": 72
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 8199058,
+          "query_url": "https://dune.com/queries/8199058",
+          "data_file": "query_8199058.json",
+          "data_source": "kyberswap_attributed_holdings",
+          "provider_mode": "latest_result",
+          "source_required_columns": [
+            "day",
+            "address",
+            "strategy_symbol",
+            "base_asset",
+            "depositor_type",
+            "current_token",
+            "current_token_category",
+            "referral_balance",
+            "current_balance",
+            "previous_balance"
+          ],
+          "transformation": {
+            "id": "kyberswap_attributed_holdings",
+            "version": "2.0.0",
+            "methodology_id": "kyberswap_attributed_holdings_v1",
+            "script_path": "scripts/enrich_kyberswap_attributed_holdings.py",
+            "tests_path": "tests/test_kyberswap_attributed_holdings.py",
+            "fixture_path": "studio/fixtures/query_8199058.json",
+            "raw_data_file": "raw_query_8199058.json",
+            "source_required_columns": [
+              "day",
+              "address",
+              "strategy_symbol",
+              "base_asset",
+              "depositor_type",
+              "current_token",
+              "current_token_category",
+              "referral_balance",
+              "current_balance",
+              "previous_balance"
+            ]
+          },
+          "required_columns": [
+            "day",
+            "address",
+            "strategy_symbol",
+            "base_asset",
+            "depositor_type",
+            "referral_balance",
+            "previous_balance",
+            "total_current_balance",
+            "campaign_supported_balance",
+            "final_attributable_balance",
+            "exited_balance",
+            "current_token",
+            "current_token_category",
+            "current_balance",
+            "attributed_balance",
+            "unattributed_balance",
+            "destination_status",
+            "allocation_rank",
+            "allocation_rule",
+            "methodology_id",
+            "source_query_id",
+            "source_execution_id",
+            "source_last_updated",
+            "generated_at"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "kyberswap_campaign",
+      "dashboard": "KyberSwap Campaign",
+      "dashboard_display_order": 1,
+      "section_id": "tables",
+      "section": "Depositor Analysis",
+      "metric_id": "kyber_referral_deposit_concentration",
+      "metric": "Referral Deposit Concentration",
+      "display_order": 21,
+      "query_id": 8199058,
+      "query_url": "https://dune.com/queries/8199058",
+      "data_file": "query_8199058.json",
+      "data_source": "kyberswap_attributed_holdings",
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "current_token",
+        "current_token_category",
+        "referral_balance",
+        "current_balance",
+        "previous_balance"
+      ],
+      "transformation": {
+        "id": "kyberswap_attributed_holdings",
+        "version": "2.0.0",
+        "methodology_id": "kyberswap_attributed_holdings_v1",
+        "script_path": "scripts/enrich_kyberswap_attributed_holdings.py",
+        "tests_path": "tests/test_kyberswap_attributed_holdings.py",
+        "fixture_path": "studio/fixtures/query_8199058.json",
+        "raw_data_file": "raw_query_8199058.json",
+        "source_required_columns": [
+          "day",
+          "address",
+          "strategy_symbol",
+          "base_asset",
+          "depositor_type",
+          "current_token",
+          "current_token_category",
+          "referral_balance",
+          "current_balance",
+          "previous_balance"
+        ]
+      },
+      "columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "referral_balance",
+        "previous_balance",
+        "total_current_balance",
+        "campaign_supported_balance",
+        "final_attributable_balance",
+        "exited_balance",
+        "current_token",
+        "current_token_category",
+        "current_balance",
+        "attributed_balance",
+        "unattributed_balance",
+        "destination_status",
+        "allocation_rank",
+        "allocation_rule",
+        "methodology_id",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "required_columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "referral_balance",
+        "previous_balance",
+        "total_current_balance",
+        "campaign_supported_balance",
+        "final_attributable_balance",
+        "exited_balance",
+        "current_token",
+        "current_token_category",
+        "current_balance",
+        "attributed_balance",
+        "unattributed_balance",
+        "destination_status",
+        "allocation_rank",
+        "allocation_rule",
+        "methodology_id",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "current_token",
+        "current_token_category",
+        "destination_status",
+        "allocation_rule",
+        "methodology_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "value_columns": [
+        "referral_balance",
+        "previous_balance",
+        "total_current_balance",
+        "campaign_supported_balance",
+        "final_attributable_balance",
+        "exited_balance",
+        "current_balance",
+        "attributed_balance",
+        "unattributed_balance",
+        "allocation_rank",
+        "source_query_id"
+      ],
+      "visualization": "bar",
+      "visualization_type": "bar",
+      "default_visualization": "bar",
+      "allowed_visualizations": [
+        "bar"
+      ],
+      "value_format": "percent",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "Methodology",
+      "freshness_policy": {
+        "expected_refresh_hours": 24,
+        "warning_after_hours": 36,
+        "stale_after_hours": 72
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 8199058,
+          "query_url": "https://dune.com/queries/8199058",
+          "data_file": "query_8199058.json",
+          "data_source": "kyberswap_attributed_holdings",
+          "provider_mode": "latest_result",
+          "source_required_columns": [
+            "day",
+            "address",
+            "strategy_symbol",
+            "base_asset",
+            "depositor_type",
+            "current_token",
+            "current_token_category",
+            "referral_balance",
+            "current_balance",
+            "previous_balance"
+          ],
+          "transformation": {
+            "id": "kyberswap_attributed_holdings",
+            "version": "2.0.0",
+            "methodology_id": "kyberswap_attributed_holdings_v1",
+            "script_path": "scripts/enrich_kyberswap_attributed_holdings.py",
+            "tests_path": "tests/test_kyberswap_attributed_holdings.py",
+            "fixture_path": "studio/fixtures/query_8199058.json",
+            "raw_data_file": "raw_query_8199058.json",
+            "source_required_columns": [
+              "day",
+              "address",
+              "strategy_symbol",
+              "base_asset",
+              "depositor_type",
+              "current_token",
+              "current_token_category",
+              "referral_balance",
+              "current_balance",
+              "previous_balance"
+            ]
+          },
+          "required_columns": [
+            "day",
+            "address",
+            "strategy_symbol",
+            "base_asset",
+            "depositor_type",
+            "referral_balance",
+            "previous_balance",
+            "total_current_balance",
+            "campaign_supported_balance",
+            "final_attributable_balance",
+            "exited_balance",
+            "current_token",
+            "current_token_category",
+            "current_balance",
+            "attributed_balance",
+            "unattributed_balance",
+            "destination_status",
+            "allocation_rank",
+            "allocation_rule",
+            "methodology_id",
+            "source_query_id",
+            "source_execution_id",
+            "source_last_updated",
+            "generated_at"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "kyberswap_campaign",
+      "dashboard": "KyberSwap Campaign",
+      "dashboard_display_order": 1,
+      "section_id": "tables",
+      "section": "Depositor Analysis",
+      "metric_id": "kyber_top_depositors",
+      "metric": "Top Depositors",
+      "display_order": 22,
+      "query_id": 8199058,
+      "query_url": "https://dune.com/queries/8199058",
+      "data_file": "query_8199058.json",
+      "data_source": "kyberswap_attributed_holdings",
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "current_token",
+        "current_token_category",
+        "referral_balance",
+        "current_balance",
+        "previous_balance"
+      ],
+      "transformation": {
+        "id": "kyberswap_attributed_holdings",
+        "version": "2.0.0",
+        "methodology_id": "kyberswap_attributed_holdings_v1",
+        "script_path": "scripts/enrich_kyberswap_attributed_holdings.py",
+        "tests_path": "tests/test_kyberswap_attributed_holdings.py",
+        "fixture_path": "studio/fixtures/query_8199058.json",
+        "raw_data_file": "raw_query_8199058.json",
+        "source_required_columns": [
+          "day",
+          "address",
+          "strategy_symbol",
+          "base_asset",
+          "depositor_type",
+          "current_token",
+          "current_token_category",
+          "referral_balance",
+          "current_balance",
+          "previous_balance"
+        ]
+      },
+      "columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "referral_balance",
+        "previous_balance",
+        "total_current_balance",
+        "campaign_supported_balance",
+        "final_attributable_balance",
+        "exited_balance",
+        "current_token",
+        "current_token_category",
+        "current_balance",
+        "attributed_balance",
+        "unattributed_balance",
+        "destination_status",
+        "allocation_rank",
+        "allocation_rule",
+        "methodology_id",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "required_columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "referral_balance",
+        "previous_balance",
+        "total_current_balance",
+        "campaign_supported_balance",
+        "final_attributable_balance",
+        "exited_balance",
+        "current_token",
+        "current_token_category",
+        "current_balance",
+        "attributed_balance",
+        "unattributed_balance",
+        "destination_status",
+        "allocation_rank",
+        "allocation_rule",
+        "methodology_id",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "current_token",
+        "current_token_category",
+        "destination_status",
+        "allocation_rule",
+        "methodology_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "value_columns": [
+        "referral_balance",
+        "previous_balance",
+        "total_current_balance",
+        "campaign_supported_balance",
+        "final_attributable_balance",
+        "exited_balance",
+        "current_balance",
+        "attributed_balance",
+        "unattributed_balance",
+        "allocation_rank",
+        "source_query_id"
+      ],
+      "visualization": "table",
+      "visualization_type": "table",
+      "default_visualization": "table",
+      "allowed_visualizations": [
+        "table"
+      ],
+      "value_format": "table",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "View Dune Query",
+      "freshness_policy": {
+        "expected_refresh_hours": 24,
+        "warning_after_hours": 36,
+        "stale_after_hours": 72
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 8199058,
+          "query_url": "https://dune.com/queries/8199058",
+          "data_file": "query_8199058.json",
+          "data_source": "kyberswap_attributed_holdings",
+          "provider_mode": "latest_result",
+          "source_required_columns": [
+            "day",
+            "address",
+            "strategy_symbol",
+            "base_asset",
+            "depositor_type",
+            "current_token",
+            "current_token_category",
+            "referral_balance",
+            "current_balance",
+            "previous_balance"
+          ],
+          "transformation": {
+            "id": "kyberswap_attributed_holdings",
+            "version": "2.0.0",
+            "methodology_id": "kyberswap_attributed_holdings_v1",
+            "script_path": "scripts/enrich_kyberswap_attributed_holdings.py",
+            "tests_path": "tests/test_kyberswap_attributed_holdings.py",
+            "fixture_path": "studio/fixtures/query_8199058.json",
+            "raw_data_file": "raw_query_8199058.json",
+            "source_required_columns": [
+              "day",
+              "address",
+              "strategy_symbol",
+              "base_asset",
+              "depositor_type",
+              "current_token",
+              "current_token_category",
+              "referral_balance",
+              "current_balance",
+              "previous_balance"
+            ]
+          },
+          "required_columns": [
+            "day",
+            "address",
+            "strategy_symbol",
+            "base_asset",
+            "depositor_type",
+            "referral_balance",
+            "previous_balance",
+            "total_current_balance",
+            "campaign_supported_balance",
+            "final_attributable_balance",
+            "exited_balance",
+            "current_token",
+            "current_token_category",
+            "current_balance",
+            "attributed_balance",
+            "unattributed_balance",
+            "destination_status",
+            "allocation_rank",
+            "allocation_rule",
+            "methodology_id",
+            "source_query_id",
+            "source_execution_id",
+            "source_last_updated",
+            "generated_at"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "kyberswap_campaign",
+      "dashboard": "KyberSwap Campaign",
+      "dashboard_display_order": 1,
+      "section_id": "tables",
+      "section": "Depositor Analysis",
+      "metric_id": "kyber_recent_referral_deposits",
+      "metric": "Recent Referral Deposits",
+      "display_order": 23,
+      "query_id": 8204345,
+      "query_url": "https://dune.com/queries/8204345",
+      "data_file": "query_8204345.json",
+      "data_source": "kyberswap_referral_deposit_events",
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "tx_hash",
+        "address",
+        "blockchain",
+        "block_time",
+        "strategy_symbol",
+        "amount_usd"
+      ],
+      "transformation": {
+        "id": "kyberswap_referral_deposits",
+        "version": "1.0.0",
+        "methodology_id": "kyberswap_referral_deposits_v1",
+        "script_path": "scripts/prepare_kyberswap_depositor_intelligence.py",
+        "tests_path": "tests/test_kyberswap_depositor_intelligence.py",
+        "fixture_path": "studio/fixtures/query_8204345.json",
+        "raw_data_file": "raw_query_8204345.json",
+        "source_required_columns": [
+          "tx_hash",
+          "address",
+          "blockchain",
+          "block_time",
+          "strategy_symbol",
+          "amount_usd"
+        ]
+      },
+      "columns": [
+        "tx_hash",
+        "address",
+        "blockchain",
+        "block_time",
+        "strategy_symbol",
+        "amount_usd",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "required_columns": [
+        "tx_hash",
+        "address",
+        "blockchain",
+        "block_time",
+        "strategy_symbol",
+        "amount_usd",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [
+        "tx_hash",
+        "address",
+        "blockchain",
+        "block_time",
+        "strategy_symbol",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "value_columns": [
+        "amount_usd",
+        "source_query_id"
+      ],
+      "visualization": "table",
+      "visualization_type": "table",
+      "default_visualization": "table",
+      "allowed_visualizations": [
+        "table"
+      ],
+      "value_format": "table",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "View Dune Query",
+      "freshness_policy": {
+        "expected_refresh_hours": 24,
+        "warning_after_hours": 36,
+        "stale_after_hours": 72
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 8204345,
+          "query_url": "https://dune.com/queries/8204345",
+          "data_file": "query_8204345.json",
+          "data_source": "kyberswap_referral_deposit_events",
+          "provider_mode": "latest_result",
+          "source_required_columns": [
+            "tx_hash",
+            "address",
+            "blockchain",
+            "block_time",
+            "strategy_symbol",
+            "amount_usd"
+          ],
+          "transformation": {
+            "id": "kyberswap_referral_deposits",
+            "version": "1.0.0",
+            "methodology_id": "kyberswap_referral_deposits_v1",
+            "script_path": "scripts/prepare_kyberswap_depositor_intelligence.py",
+            "tests_path": "tests/test_kyberswap_depositor_intelligence.py",
+            "fixture_path": "studio/fixtures/query_8204345.json",
+            "raw_data_file": "raw_query_8204345.json",
+            "source_required_columns": [
+              "tx_hash",
+              "address",
+              "blockchain",
+              "block_time",
+              "strategy_symbol",
+              "amount_usd"
+            ]
+          },
+          "required_columns": [
+            "tx_hash",
+            "address",
+            "blockchain",
+            "block_time",
+            "strategy_symbol",
+            "amount_usd",
+            "source_query_id",
+            "source_execution_id",
+            "source_last_updated",
+            "generated_at"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "kyberswap_campaign",
+      "dashboard": "KyberSwap Campaign",
+      "dashboard_display_order": 1,
+      "section_id": "tables",
+      "section": "Depositor Analysis",
+      "metric_id": "kyber_recent_etherfi_activity",
+      "metric": "Recent ether.fi Activity",
+      "display_order": 24,
+      "query_id": 8204373,
+      "query_url": "https://dune.com/queries/8204373",
+      "data_file": "query_8204373.json",
+      "data_source": "kyberswap_etherfi_activity_events",
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "event",
+        "address",
+        "project",
+        "blockchain",
+        "tx_hash",
+        "block_time",
+        "amount_usd",
+        "token_symbol",
+        "label"
+      ],
+      "transformation": {
+        "id": "kyberswap_etherfi_activity",
+        "version": "1.0.0",
+        "methodology_id": "kyberswap_etherfi_activity_v1",
+        "script_path": "scripts/prepare_kyberswap_depositor_intelligence.py",
+        "tests_path": "tests/test_kyberswap_depositor_intelligence.py",
+        "fixture_path": "studio/fixtures/query_8204373.json",
+        "raw_data_file": "raw_query_8204373.json",
+        "source_required_columns": [
+          "event",
+          "address",
+          "project",
+          "blockchain",
+          "tx_hash",
+          "block_time",
+          "amount_usd",
+          "token_symbol",
+          "label"
+        ]
+      },
+      "columns": [
+        "event",
+        "address",
+        "project",
+        "blockchain",
+        "tx_hash",
+        "block_time",
+        "amount_usd",
+        "token_symbol",
+        "label",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "required_columns": [
+        "event",
+        "address",
+        "project",
+        "blockchain",
+        "tx_hash",
+        "block_time",
+        "amount_usd",
+        "token_symbol",
+        "label",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [
+        "event",
+        "address",
+        "project",
+        "blockchain",
+        "tx_hash",
+        "block_time",
+        "token_symbol",
+        "label",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "value_columns": [
+        "amount_usd",
+        "source_query_id"
+      ],
+      "visualization": "table",
+      "visualization_type": "table",
+      "default_visualization": "table",
+      "allowed_visualizations": [
+        "table"
+      ],
+      "value_format": "table",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "View Dune Query",
+      "freshness_policy": {
+        "expected_refresh_hours": 24,
+        "warning_after_hours": 36,
+        "stale_after_hours": 72
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 8204373,
+          "query_url": "https://dune.com/queries/8204373",
+          "data_file": "query_8204373.json",
+          "data_source": "kyberswap_etherfi_activity_events",
+          "provider_mode": "latest_result",
+          "source_required_columns": [
+            "event",
+            "address",
+            "project",
+            "blockchain",
+            "tx_hash",
+            "block_time",
+            "amount_usd",
+            "token_symbol",
+            "label"
+          ],
+          "transformation": {
+            "id": "kyberswap_etherfi_activity",
+            "version": "1.0.0",
+            "methodology_id": "kyberswap_etherfi_activity_v1",
+            "script_path": "scripts/prepare_kyberswap_depositor_intelligence.py",
+            "tests_path": "tests/test_kyberswap_depositor_intelligence.py",
+            "fixture_path": "studio/fixtures/query_8204373.json",
+            "raw_data_file": "raw_query_8204373.json",
+            "source_required_columns": [
+              "event",
+              "address",
+              "project",
+              "blockchain",
+              "tx_hash",
+              "block_time",
+              "amount_usd",
+              "token_symbol",
+              "label"
+            ]
+          },
+          "required_columns": [
+            "event",
+            "address",
+            "project",
+            "blockchain",
+            "tx_hash",
+            "block_time",
+            "amount_usd",
+            "token_symbol",
+            "label",
+            "source_query_id",
+            "source_execution_id",
+            "source_last_updated",
+            "generated_at"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "kyberswap_campaign",
+      "dashboard": "KyberSwap Campaign",
+      "dashboard_display_order": 1,
+      "section_id": "tables",
+      "section": "Depositor Analysis",
+      "metric_id": "kyber_wallet_investigation",
+      "metric": "Wallet Investigation",
+      "display_order": 25,
+      "query_id": 8199058,
+      "query_url": "https://dune.com/queries/8199058",
+      "data_file": "query_8199058.json",
+      "data_source": "kyberswap_attributed_holdings",
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "current_token",
+        "current_token_category",
+        "referral_balance",
+        "current_balance",
+        "previous_balance"
+      ],
+      "transformation": {
+        "id": "kyberswap_attributed_holdings",
+        "version": "2.0.0",
+        "methodology_id": "kyberswap_attributed_holdings_v1",
+        "script_path": "scripts/enrich_kyberswap_attributed_holdings.py",
+        "tests_path": "tests/test_kyberswap_attributed_holdings.py",
+        "fixture_path": "studio/fixtures/query_8199058.json",
+        "raw_data_file": "raw_query_8199058.json",
+        "source_required_columns": [
+          "day",
+          "address",
+          "strategy_symbol",
+          "base_asset",
+          "depositor_type",
+          "current_token",
+          "current_token_category",
+          "referral_balance",
+          "current_balance",
+          "previous_balance"
+        ]
+      },
+      "columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "referral_balance",
+        "previous_balance",
+        "total_current_balance",
+        "campaign_supported_balance",
+        "final_attributable_balance",
+        "exited_balance",
+        "current_token",
+        "current_token_category",
+        "current_balance",
+        "attributed_balance",
+        "unattributed_balance",
+        "destination_status",
+        "allocation_rank",
+        "allocation_rule",
+        "methodology_id",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "required_columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "referral_balance",
+        "previous_balance",
+        "total_current_balance",
+        "campaign_supported_balance",
+        "final_attributable_balance",
+        "exited_balance",
+        "current_token",
+        "current_token_category",
+        "current_balance",
+        "attributed_balance",
+        "unattributed_balance",
+        "destination_status",
+        "allocation_rank",
+        "allocation_rule",
+        "methodology_id",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "current_token",
+        "current_token_category",
+        "destination_status",
+        "allocation_rule",
+        "methodology_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "value_columns": [
+        "referral_balance",
+        "previous_balance",
+        "total_current_balance",
+        "campaign_supported_balance",
+        "final_attributable_balance",
+        "exited_balance",
+        "current_balance",
+        "attributed_balance",
+        "unattributed_balance",
+        "allocation_rank",
+        "source_query_id"
+      ],
+      "visualization": "bar",
+      "visualization_type": "bar",
+      "default_visualization": "bar",
+      "allowed_visualizations": [
+        "bar"
+      ],
+      "value_format": "currency_compact",
+      "exportable": false,
+      "allow_empty": true,
+      "source_label": "Methodology",
+      "freshness_policy": {
+        "expected_refresh_hours": 24,
+        "warning_after_hours": 36,
+        "stale_after_hours": 72
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 8199058,
+          "query_url": "https://dune.com/queries/8199058",
+          "data_file": "query_8199058.json",
+          "data_source": "kyberswap_attributed_holdings",
+          "provider_mode": "latest_result",
+          "source_required_columns": [
+            "day",
+            "address",
+            "strategy_symbol",
+            "base_asset",
+            "depositor_type",
+            "current_token",
+            "current_token_category",
+            "referral_balance",
+            "current_balance",
+            "previous_balance"
+          ],
+          "transformation": {
+            "id": "kyberswap_attributed_holdings",
+            "version": "2.0.0",
+            "methodology_id": "kyberswap_attributed_holdings_v1",
+            "script_path": "scripts/enrich_kyberswap_attributed_holdings.py",
+            "tests_path": "tests/test_kyberswap_attributed_holdings.py",
+            "fixture_path": "studio/fixtures/query_8199058.json",
+            "raw_data_file": "raw_query_8199058.json",
+            "source_required_columns": [
+              "day",
+              "address",
+              "strategy_symbol",
+              "base_asset",
+              "depositor_type",
+              "current_token",
+              "current_token_category",
+              "referral_balance",
+              "current_balance",
+              "previous_balance"
+            ]
+          },
+          "required_columns": [
+            "day",
+            "address",
+            "strategy_symbol",
+            "base_asset",
+            "depositor_type",
+            "referral_balance",
+            "previous_balance",
+            "total_current_balance",
+            "campaign_supported_balance",
+            "final_attributable_balance",
+            "exited_balance",
+            "current_token",
+            "current_token_category",
+            "current_balance",
+            "attributed_balance",
+            "unattributed_balance",
+            "destination_status",
+            "allocation_rank",
+            "allocation_rule",
+            "methodology_id",
+            "source_query_id",
+            "source_execution_id",
+            "source_last_updated",
+            "generated_at"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "component_test_lab",
+      "dashboard": "Component Test Lab",
+      "dashboard_display_order": 2,
+      "section_id": "counters",
+      "section": "Counters",
+      "metric_id": "lab_total_value",
+      "metric": "Total Test Value",
+      "display_order": 1,
+      "query_id": 9102001,
+      "query_url": "https://dune.com/queries/9102001",
+      "data_file": "query_9102001.json",
+      "data_source": "lab_summary",
+      "provider_mode": "fixture",
+      "source_required_columns": [],
+      "transformation": {},
+      "columns": [
+        "total_value_usd"
+      ],
+      "required_columns": [
+        "total_value_usd",
+        "value_change_pct"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [],
+      "value_columns": [],
+      "visualization": "counter",
+      "visualization_type": "counter",
+      "default_visualization": "counter",
+      "allowed_visualizations": [
+        "counter"
+      ],
+      "value_format": "currency_compact",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "",
+      "freshness_policy": {
+        "expected_refresh_hours": 168,
+        "warning_after_hours": 336,
+        "stale_after_hours": 720
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 9102001,
+          "query_url": "https://dune.com/queries/9102001",
+          "data_file": "query_9102001.json",
+          "data_source": "lab_summary",
+          "provider_mode": "fixture",
+          "source_required_columns": [],
+          "transformation": {},
+          "required_columns": [
+            "total_value_usd",
+            "value_change_pct"
+          ],
+          "optional_columns": []
+        },
+        {
+          "role": "sparkline",
+          "query_id": 9102002,
+          "query_url": "https://dune.com/queries/9102002",
+          "data_file": "query_9102002.json",
+          "data_source": "lab_timeseries",
+          "provider_mode": "fixture",
+          "source_required_columns": [],
+          "transformation": {},
+          "required_columns": [
+            "day",
+            "total_value_usd"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "component_test_lab",
+      "dashboard": "Component Test Lab",
+      "dashboard_display_order": 2,
+      "section_id": "counters",
+      "section": "Counters",
+      "metric_id": "lab_users",
+      "metric": "Qualified Users",
+      "display_order": 2,
+      "query_id": 9102001,
+      "query_url": "https://dune.com/queries/9102001",
+      "data_file": "query_9102001.json",
+      "data_source": "lab_summary",
+      "provider_mode": "fixture",
+      "source_required_columns": [],
+      "transformation": {},
+      "columns": [
+        "qualified_users"
+      ],
+      "required_columns": [
+        "qualified_users",
+        "users_change_pct"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [],
+      "value_columns": [],
+      "visualization": "counter",
+      "visualization_type": "counter",
+      "default_visualization": "counter",
+      "allowed_visualizations": [
+        "counter"
+      ],
+      "value_format": "integer",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "",
+      "freshness_policy": {
+        "expected_refresh_hours": 168,
+        "warning_after_hours": 336,
+        "stale_after_hours": 720
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 9102001,
+          "query_url": "https://dune.com/queries/9102001",
+          "data_file": "query_9102001.json",
+          "data_source": "lab_summary",
+          "provider_mode": "fixture",
+          "source_required_columns": [],
+          "transformation": {},
+          "required_columns": [
+            "qualified_users",
+            "users_change_pct"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "component_test_lab",
+      "dashboard": "Component Test Lab",
+      "dashboard_display_order": 2,
+      "section_id": "counters",
+      "section": "Counters",
+      "metric_id": "lab_conversion",
+      "metric": "Conversion Rate",
+      "display_order": 3,
+      "query_id": 9102001,
+      "query_url": "https://dune.com/queries/9102001",
+      "data_file": "query_9102001.json",
+      "data_source": "lab_summary",
+      "provider_mode": "fixture",
+      "source_required_columns": [],
+      "transformation": {},
+      "columns": [
+        "conversion_rate"
+      ],
+      "required_columns": [
+        "conversion_rate",
+        "conversion_change_pp"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [],
+      "value_columns": [],
+      "visualization": "counter",
+      "visualization_type": "counter",
+      "default_visualization": "counter",
+      "allowed_visualizations": [
+        "counter"
+      ],
+      "value_format": "percent",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "",
+      "freshness_policy": {
+        "expected_refresh_hours": 168,
+        "warning_after_hours": 336,
+        "stale_after_hours": 720
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 9102001,
+          "query_url": "https://dune.com/queries/9102001",
+          "data_file": "query_9102001.json",
+          "data_source": "lab_summary",
+          "provider_mode": "fixture",
+          "source_required_columns": [],
+          "transformation": {},
+          "required_columns": [
+            "conversion_rate",
+            "conversion_change_pp"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "component_test_lab",
+      "dashboard": "Component Test Lab",
+      "dashboard_display_order": 2,
+      "section_id": "counters",
+      "section": "Counters",
+      "metric_id": "lab_active_positions",
+      "metric": "Active Positions",
+      "display_order": 4,
+      "query_id": 9102001,
+      "query_url": "https://dune.com/queries/9102001",
+      "data_file": "query_9102001.json",
+      "data_source": "lab_summary",
+      "provider_mode": "fixture",
+      "source_required_columns": [],
+      "transformation": {},
+      "columns": [
+        "active_positions"
+      ],
+      "required_columns": [
+        "active_positions"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [],
+      "value_columns": [],
+      "visualization": "counter",
+      "visualization_type": "counter",
+      "default_visualization": "counter",
+      "allowed_visualizations": [
+        "counter"
+      ],
+      "value_format": "integer",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "",
+      "freshness_policy": {
+        "expected_refresh_hours": 168,
+        "warning_after_hours": 336,
+        "stale_after_hours": 720
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 9102001,
+          "query_url": "https://dune.com/queries/9102001",
+          "data_file": "query_9102001.json",
+          "data_source": "lab_summary",
+          "provider_mode": "fixture",
+          "source_required_columns": [],
+          "transformation": {},
+          "required_columns": [
+            "active_positions"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "component_test_lab",
+      "dashboard": "Component Test Lab",
+      "dashboard_display_order": 2,
+      "section_id": "trends",
+      "section": "Trend charts",
+      "metric_id": "lab_single_line",
+      "metric": "Single-Series Value",
+      "display_order": 5,
+      "query_id": 9102002,
+      "query_url": "https://dune.com/queries/9102002",
+      "data_file": "query_9102002.json",
+      "data_source": "lab_timeseries",
+      "provider_mode": "fixture",
+      "source_required_columns": [],
+      "transformation": {},
+      "columns": [
+        "day",
+        "total_value_usd"
+      ],
+      "required_columns": [
+        "day",
+        "total_value_usd"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [],
+      "value_columns": [],
+      "visualization": "line",
+      "visualization_type": "line",
+      "default_visualization": "line",
+      "allowed_visualizations": [
+        "line",
+        "area",
+        "column"
+      ],
+      "value_format": "currency_compact",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "",
+      "freshness_policy": {
+        "expected_refresh_hours": 168,
+        "warning_after_hours": 336,
+        "stale_after_hours": 720
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 9102002,
+          "query_url": "https://dune.com/queries/9102002",
+          "data_file": "query_9102002.json",
+          "data_source": "lab_timeseries",
+          "provider_mode": "fixture",
+          "source_required_columns": [],
+          "transformation": {},
+          "required_columns": [
+            "day",
+            "total_value_usd"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "component_test_lab",
+      "dashboard": "Component Test Lab",
+      "dashboard_display_order": 2,
+      "section_id": "trends",
+      "section": "Trend charts",
+      "metric_id": "lab_multi_line",
+      "metric": "Multi-Series Activity",
+      "display_order": 6,
+      "query_id": 9102002,
+      "query_url": "https://dune.com/queries/9102002",
+      "data_file": "query_9102002.json",
+      "data_source": "lab_timeseries",
+      "provider_mode": "fixture",
+      "source_required_columns": [],
+      "transformation": {},
+      "columns": [
+        "day",
+        "deposits_usd",
+        "withdrawals_usd",
+        "fees_usd"
+      ],
+      "required_columns": [
+        "day",
+        "deposits_usd",
+        "withdrawals_usd",
+        "fees_usd"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [],
+      "value_columns": [],
+      "visualization": "line",
+      "visualization_type": "line",
+      "default_visualization": "area",
+      "allowed_visualizations": [
+        "line",
+        "area",
+        "column"
+      ],
+      "value_format": "currency_compact",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "",
+      "freshness_policy": {
+        "expected_refresh_hours": 168,
+        "warning_after_hours": 336,
+        "stale_after_hours": 720
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 9102002,
+          "query_url": "https://dune.com/queries/9102002",
+          "data_file": "query_9102002.json",
+          "data_source": "lab_timeseries",
+          "provider_mode": "fixture",
+          "source_required_columns": [],
+          "transformation": {},
+          "required_columns": [
+            "day",
+            "deposits_usd",
+            "withdrawals_usd",
+            "fees_usd"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "component_test_lab",
+      "dashboard": "Component Test Lab",
+      "dashboard_display_order": 2,
+      "section_id": "trends",
+      "section": "Trend charts",
+      "metric_id": "lab_empty_line",
+      "metric": "Empty Result State",
+      "display_order": 7,
+      "query_id": 9102003,
+      "query_url": "https://dune.com/queries/9102003",
+      "data_file": "query_9102003.json",
+      "data_source": "empty_series",
+      "provider_mode": "fixture",
+      "source_required_columns": [],
+      "transformation": {},
+      "columns": [
+        "day",
+        "value_usd"
+      ],
+      "required_columns": [
+        "day",
+        "value_usd"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [],
+      "value_columns": [],
+      "visualization": "line",
+      "visualization_type": "line",
+      "default_visualization": "line",
+      "allowed_visualizations": [
+        "line",
+        "area",
+        "column"
+      ],
+      "value_format": "currency_compact",
+      "exportable": false,
+      "allow_empty": true,
+      "source_label": "",
+      "freshness_policy": {
+        "expected_refresh_hours": 168,
+        "warning_after_hours": 336,
+        "stale_after_hours": 720
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 9102003,
+          "query_url": "https://dune.com/queries/9102003",
+          "data_file": "query_9102003.json",
+          "data_source": "empty_series",
+          "provider_mode": "fixture",
+          "source_required_columns": [],
+          "transformation": {},
+          "required_columns": [
+            "day",
+            "value_usd"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "component_test_lab",
+      "dashboard": "Component Test Lab",
+      "dashboard_display_order": 2,
+      "section_id": "trends",
+      "section": "Trend charts",
+      "metric_id": "lab_error_line",
+      "metric": "Error State",
+      "display_order": 8,
+      "query_id": 9102004,
+      "query_url": "https://dune.com/queries/9102004",
+      "data_file": "query_9102004.json",
+      "data_source": "error_series",
+      "provider_mode": "fixture",
+      "source_required_columns": [],
+      "transformation": {},
+      "columns": [
+        "day",
+        "value_usd"
+      ],
+      "required_columns": [
+        "day",
+        "value_usd"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [],
+      "value_columns": [],
+      "visualization": "line",
+      "visualization_type": "line",
+      "default_visualization": "line",
+      "allowed_visualizations": [
+        "line",
+        "area",
+        "column"
+      ],
+      "value_format": "currency_compact",
+      "exportable": false,
+      "allow_empty": true,
+      "source_label": "",
+      "freshness_policy": {
+        "expected_refresh_hours": 168,
+        "warning_after_hours": 336,
+        "stale_after_hours": 720
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 9102004,
+          "query_url": "https://dune.com/queries/9102004",
+          "data_file": "query_9102004.json",
+          "data_source": "error_series",
+          "provider_mode": "fixture",
+          "source_required_columns": [],
+          "transformation": {},
+          "required_columns": [
+            "day",
+            "value_usd"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "component_test_lab",
+      "dashboard": "Component Test Lab",
+      "dashboard_display_order": 2,
+      "section_id": "rankings",
+      "section": "Bar charts",
+      "metric_id": "lab_vertical_bar",
+      "metric": "Product Performance",
+      "display_order": 9,
+      "query_id": 9102005,
+      "query_url": "https://dune.com/queries/9102005",
+      "data_file": "query_9102005.json",
+      "data_source": "lab_products",
+      "provider_mode": "fixture",
+      "source_required_columns": [],
+      "transformation": {},
+      "columns": [
+        "product",
+        "value_usd"
+      ],
+      "required_columns": [
+        "product",
+        "value_usd"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [],
+      "value_columns": [],
+      "visualization": "bar",
+      "visualization_type": "bar",
+      "default_visualization": "bar",
+      "allowed_visualizations": [
+        "bar"
+      ],
+      "value_format": "currency_compact",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "",
+      "freshness_policy": {
+        "expected_refresh_hours": 168,
+        "warning_after_hours": 336,
+        "stale_after_hours": 720
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 9102005,
+          "query_url": "https://dune.com/queries/9102005",
+          "data_file": "query_9102005.json",
+          "data_source": "lab_products",
+          "provider_mode": "fixture",
+          "source_required_columns": [],
+          "transformation": {},
+          "required_columns": [
+            "product",
+            "value_usd"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "component_test_lab",
+      "dashboard": "Component Test Lab",
+      "dashboard_display_order": 2,
+      "section_id": "rankings",
+      "section": "Bar charts",
+      "metric_id": "lab_horizontal_ranking",
+      "metric": "Top 100 Wallets",
+      "display_order": 10,
+      "query_id": 9102006,
+      "query_url": "https://dune.com/queries/9102006",
+      "data_file": "query_9102006.json",
+      "data_source": "lab_top_users",
+      "provider_mode": "fixture",
+      "source_required_columns": [],
+      "transformation": {},
+      "columns": [
+        "wallet",
+        "value_usd"
+      ],
+      "required_columns": [
+        "wallet",
+        "value_usd"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [],
+      "value_columns": [],
+      "visualization": "bar",
+      "visualization_type": "bar",
+      "default_visualization": "bar",
+      "allowed_visualizations": [
+        "bar"
+      ],
+      "value_format": "currency_compact",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "",
+      "freshness_policy": {
+        "expected_refresh_hours": 168,
+        "warning_after_hours": 336,
+        "stale_after_hours": 720
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 9102006,
+          "query_url": "https://dune.com/queries/9102006",
+          "data_file": "query_9102006.json",
+          "data_source": "lab_top_users",
+          "provider_mode": "fixture",
+          "source_required_columns": [],
+          "transformation": {},
+          "required_columns": [
+            "wallet",
+            "value_usd"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "component_test_lab",
+      "dashboard": "Component Test Lab",
+      "dashboard_display_order": 2,
+      "section_id": "flows",
+      "section": "Flow diagrams",
+      "metric_id": "lab_sankey",
+      "metric": "Capital Routing Stress Test",
+      "display_order": 11,
+      "query_id": 9102007,
+      "query_url": "https://dune.com/queries/9102007",
+      "data_file": "query_9102007.json",
+      "data_source": "lab_flows",
+      "provider_mode": "fixture",
+      "source_required_columns": [],
+      "transformation": {},
+      "columns": [
+        "source",
+        "target",
+        "value_usd"
+      ],
+      "required_columns": [
+        "source",
+        "target",
+        "value_usd"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [],
+      "value_columns": [],
+      "visualization": "sankey",
+      "visualization_type": "sankey",
+      "default_visualization": "sankey",
+      "allowed_visualizations": [
+        "sankey"
+      ],
+      "value_format": "currency_compact",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "",
+      "freshness_policy": {
+        "expected_refresh_hours": 168,
+        "warning_after_hours": 336,
+        "stale_after_hours": 720
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 9102007,
+          "query_url": "https://dune.com/queries/9102007",
+          "data_file": "query_9102007.json",
+          "data_source": "lab_flows",
+          "provider_mode": "fixture",
+          "source_required_columns": [],
+          "transformation": {},
+          "required_columns": [
+            "source",
+            "target",
+            "value_usd"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "component_test_lab",
+      "dashboard": "Component Test Lab",
+      "dashboard_display_order": 2,
+      "section_id": "tables",
+      "section": "Tables",
+      "metric_id": "lab_sortable_table",
+      "metric": "Sortable Position Ledger",
+      "display_order": 12,
+      "query_id": 9102008,
+      "query_url": "https://dune.com/queries/9102008",
+      "data_file": "query_9102008.json",
+      "data_source": "lab_positions",
+      "provider_mode": "fixture",
+      "source_required_columns": [],
+      "transformation": {},
+      "columns": [
+        "updated_at",
+        "wallet",
+        "strategy",
+        "balance_usd",
+        "apy",
+        "active"
+      ],
+      "required_columns": [
+        "updated_at",
+        "wallet",
+        "strategy",
+        "balance_usd",
+        "apy",
+        "active"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [],
+      "value_columns": [],
+      "visualization": "table",
+      "visualization_type": "table",
+      "default_visualization": "table",
+      "allowed_visualizations": [
+        "table"
+      ],
+      "value_format": "table",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "",
+      "freshness_policy": {
+        "expected_refresh_hours": 168,
+        "warning_after_hours": 336,
+        "stale_after_hours": 720
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 9102008,
+          "query_url": "https://dune.com/queries/9102008",
+          "data_file": "query_9102008.json",
+          "data_source": "lab_positions",
+          "provider_mode": "fixture",
+          "source_required_columns": [],
+          "transformation": {},
+          "required_columns": [
+            "updated_at",
+            "wallet",
+            "strategy",
+            "balance_usd",
+            "apy",
+            "active"
+          ],
+          "optional_columns": []
+        }
+      ]
+    },
+    {
+      "dashboard_id": "component_test_lab",
+      "dashboard": "Component Test Lab",
+      "dashboard_display_order": 2,
+      "section_id": "counters",
+      "section": "Counters",
+      "metric_id": "lab_token_balance",
+      "metric": "Test Token Balance",
+      "display_order": 50,
+      "query_id": 9102001,
+      "query_url": "https://dune.com/queries/9102001",
+      "data_file": "query_9102001.json",
+      "data_source": "lab_summary",
+      "provider_mode": "fixture",
+      "source_required_columns": [],
+      "transformation": {},
+      "columns": [
+        "token_balance"
+      ],
+      "required_columns": [
+        "token_balance"
+      ],
+      "optional_columns": [],
+      "dimension_columns": [],
+      "value_columns": [],
+      "visualization": "counter",
+      "visualization_type": "counter",
+      "default_visualization": "counter",
+      "allowed_visualizations": [
+        "counter"
+      ],
+      "value_format": "token",
+      "exportable": true,
+      "allow_empty": false,
+      "source_label": "",
+      "freshness_policy": {
+        "expected_refresh_hours": 168,
+        "warning_after_hours": 336,
+        "stale_after_hours": 720
+      },
+      "source_mappings": [
+        {
+          "role": "primary",
+          "query_id": 9102001,
+          "query_url": "https://dune.com/queries/9102001",
+          "data_file": "query_9102001.json",
+          "data_source": "lab_summary",
+          "provider_mode": "fixture",
+          "source_required_columns": [],
+          "transformation": {},
+          "required_columns": [
+            "token_balance"
+          ],
+          "optional_columns": []
+        }
+      ]
+    }
+  ],
+  "queries": [
+    {
+      "query_id": 8180894,
+      "query_url": "https://dune.com/queries/8180894",
+      "data_file": "query_8180894.json",
+      "dashboard_ids": [
+        "kyberswap_campaign"
+      ],
+      "metric_ids": [
+        "kyber_attributed_tvl",
+        "kyber_new_depositor_deposit_rate",
+        "kyber_new_depositor_deposits",
+        "kyber_new_depositors",
+        "kyber_retention_rate",
+        "kyber_revenue_generated",
+        "kyber_total_depositors",
+        "kyber_total_referral_deposits"
+      ],
+      "data_sources": [
+        "kyberswap_campaign_summary"
+      ],
+      "source_roles": [
+        "primary"
+      ],
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "rank_",
+        "key_"
+      ],
+      "transformation": {
+        "id": "kyberswap_campaign_summary",
+        "version": "1.0.0",
+        "methodology_id": "kyberswap_campaign_summary_v1",
+        "script_path": "scripts/prepare_kyberswap_campaign_summary.py",
+        "tests_path": "tests/test_kyberswap_campaign_summary.py",
+        "fixture_path": "studio/fixtures/query_8180894.json",
+        "raw_data_file": "raw_query_8180894.json",
+        "source_required_columns": [
+          "rank_",
+          "key_"
+        ]
+      },
+      "required_columns": [
+        "rank_",
+        "key_",
+        "total_deposits_usd",
+        "outstanding_balance_usd",
+        "num_depositors",
+        "new_depositors",
+        "deposits_by_new_depositors",
+        "retention_rate",
+        "depositors_new_users_rate",
+        "revenue_generated",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": []
+    },
+    {
+      "query_id": 8191379,
+      "query_url": "https://dune.com/queries/8191379",
+      "data_file": "query_8191379.json",
+      "dashboard_ids": [
+        "kyberswap_campaign"
+      ],
+      "metric_ids": [
+        "kyber_referral_deposits_growth"
+      ],
+      "data_sources": [
+        "kyberswap_growth_deposits"
+      ],
+      "source_roles": [
+        "primary"
+      ],
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "day",
+        "week",
+        "daily_deposits_usd",
+        "weekly_deposits_usd",
+        "cum_deposits_usd",
+        "last_updated"
+      ],
+      "transformation": {
+        "id": "kyberswap_growth_deposits",
+        "version": "1.0.0",
+        "methodology_id": "kyberswap_growth_deposits_v1",
+        "script_path": "scripts/enrich_kyberswap_growth.py",
+        "tests_path": "tests/test_kyberswap_growth.py",
+        "fixture_path": "studio/fixtures/query_8191379.json",
+        "raw_data_file": "raw_query_8191379.json",
+        "source_required_columns": [
+          "day",
+          "week",
+          "daily_deposits_usd",
+          "weekly_deposits_usd",
+          "cum_deposits_usd",
+          "last_updated"
+        ]
+      },
+      "required_columns": [
+        "record_type",
+        "period",
+        "day",
+        "observation_day",
+        "week",
+        "daily_deposits_usd",
+        "weekly_deposits_usd",
+        "cum_deposits_usd",
+        "last_updated",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": []
+    },
+    {
+      "query_id": 8191704,
+      "query_url": "https://dune.com/queries/8191704",
+      "data_file": "query_8191704.json",
+      "dashboard_ids": [
+        "kyberswap_campaign"
+      ],
+      "metric_ids": [
+        "kyber_attributed_tvl_over_time"
+      ],
+      "data_sources": [
+        "kyberswap_growth_attributed_tvl"
+      ],
+      "source_roles": [
+        "primary"
+      ],
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "day",
+        "week",
+        "depositor_type",
+        "daily_attributed_tvl_usd",
+        "cum_attributed_tvl_usd"
+      ],
+      "transformation": {
+        "id": "kyberswap_growth_attributed_tvl",
+        "version": "1.0.0",
+        "methodology_id": "kyberswap_growth_attributed_tvl_v1",
+        "script_path": "scripts/enrich_kyberswap_growth.py",
+        "tests_path": "tests/test_kyberswap_growth.py",
+        "fixture_path": "studio/fixtures/query_8191704.json",
+        "raw_data_file": "raw_query_8191704.json",
+        "source_required_columns": [
+          "day",
+          "week",
+          "depositor_type",
+          "daily_attributed_tvl_usd",
+          "cum_attributed_tvl_usd"
+        ]
+      },
+      "required_columns": [
+        "record_type",
+        "period",
+        "day",
+        "observation_day",
+        "week",
+        "depositor_type",
+        "daily_attributed_tvl_usd",
+        "cum_attributed_tvl_usd",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": []
+    },
+    {
+      "query_id": 8193003,
+      "query_url": "https://dune.com/queries/8193003",
+      "data_file": "query_8193003.json",
+      "dashboard_ids": [
+        "kyberswap_campaign"
+      ],
+      "metric_ids": [
+        "kyber_referral_deposits_breakdown",
+        "kyber_total_referral_deposits_breakdown"
+      ],
+      "data_sources": [
+        "kyberswap_growth_breakdown"
+      ],
+      "source_roles": [
+        "primary"
+      ],
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "day",
+        "week",
+        "product_symbol",
+        "depositor_type",
+        "daily_deposits"
+      ],
+      "transformation": {
+        "id": "kyberswap_growth_breakdown",
+        "version": "1.0.0",
+        "methodology_id": "kyberswap_growth_breakdown_v1",
+        "script_path": "scripts/enrich_kyberswap_growth.py",
+        "tests_path": "tests/test_kyberswap_growth.py",
+        "fixture_path": "studio/fixtures/query_8193003.json",
+        "raw_data_file": "raw_query_8193003.json",
+        "source_required_columns": [
+          "day",
+          "week",
+          "product_symbol",
+          "depositor_type",
+          "daily_deposits"
+        ]
+      },
+      "required_columns": [
+        "record_type",
+        "period",
+        "day",
+        "week",
+        "product_symbol",
+        "depositor_type",
+        "daily_deposits",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": []
+    },
+    {
+      "query_id": 8193040,
+      "query_url": "https://dune.com/queries/8193040",
+      "data_file": "query_8193040.json",
+      "dashboard_ids": [
+        "kyberswap_campaign"
+      ],
+      "metric_ids": [
+        "kyber_deposit_depositor_count_by_depositor_type",
+        "kyber_deposit_depositor_count_by_product"
+      ],
+      "data_sources": [
+        "kyberswap_growth_activity"
+      ],
+      "source_roles": [
+        "primary"
+      ],
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "timestamp_type",
+        "timestamp",
+        "category_type",
+        "category",
+        "metric_type",
+        "metric_value"
+      ],
+      "transformation": {
+        "id": "kyberswap_growth_activity",
+        "version": "1.0.0",
+        "methodology_id": "kyberswap_growth_activity_v1",
+        "script_path": "scripts/enrich_kyberswap_growth.py",
+        "tests_path": "tests/test_kyberswap_growth.py",
+        "fixture_path": "studio/fixtures/query_8193040.json",
+        "raw_data_file": "raw_query_8193040.json",
+        "source_required_columns": [
+          "timestamp_type",
+          "timestamp",
+          "category_type",
+          "category",
+          "metric_type",
+          "metric_value"
+        ]
+      },
+      "required_columns": [
+        "record_type",
+        "period",
+        "timestamp_type",
+        "timestamp",
+        "category_type",
+        "category",
+        "metric_type",
+        "metric_value",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": []
+    },
+    {
+      "query_id": 8199058,
+      "query_url": "https://dune.com/queries/8199058",
+      "data_file": "query_8199058.json",
+      "dashboard_ids": [
+        "kyberswap_campaign"
+      ],
+      "metric_ids": [
+        "kyber_attributed_tvl_by_location",
+        "kyber_capital_journey",
+        "kyber_product_adoption",
+        "kyber_referral_deposit_concentration",
+        "kyber_top_depositors",
+        "kyber_top_referred_depositors",
+        "kyber_wallet_investigation"
+      ],
+      "data_sources": [
+        "kyberswap_attributed_holdings"
+      ],
+      "source_roles": [
+        "primary"
+      ],
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "current_token",
+        "current_token_category",
+        "referral_balance",
+        "current_balance",
+        "previous_balance"
+      ],
+      "transformation": {
+        "id": "kyberswap_attributed_holdings",
+        "version": "2.0.0",
+        "methodology_id": "kyberswap_attributed_holdings_v1",
+        "script_path": "scripts/enrich_kyberswap_attributed_holdings.py",
+        "tests_path": "tests/test_kyberswap_attributed_holdings.py",
+        "fixture_path": "studio/fixtures/query_8199058.json",
+        "raw_data_file": "raw_query_8199058.json",
+        "source_required_columns": [
+          "day",
+          "address",
+          "strategy_symbol",
+          "base_asset",
+          "depositor_type",
+          "current_token",
+          "current_token_category",
+          "referral_balance",
+          "current_balance",
+          "previous_balance"
+        ]
+      },
+      "required_columns": [
+        "day",
+        "address",
+        "strategy_symbol",
+        "base_asset",
+        "depositor_type",
+        "referral_balance",
+        "previous_balance",
+        "total_current_balance",
+        "campaign_supported_balance",
+        "final_attributable_balance",
+        "exited_balance",
+        "current_token",
+        "current_token_category",
+        "current_balance",
+        "attributed_balance",
+        "unattributed_balance",
+        "destination_status",
+        "allocation_rank",
+        "allocation_rule",
+        "methodology_id",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": []
+    },
+    {
+      "query_id": 8202133,
+      "query_url": "https://dune.com/queries/8202133",
+      "data_file": "query_8202133.json",
+      "dashboard_ids": [
+        "kyberswap_campaign"
+      ],
+      "metric_ids": [
+        "kyber_post_referral_activity"
+      ],
+      "data_sources": [
+        "kyberswap_post_referral_activity"
+      ],
+      "source_roles": [
+        "primary"
+      ],
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "day",
+        "week",
+        "project",
+        "event",
+        "label",
+        "amount_usd"
+      ],
+      "transformation": {
+        "id": "kyberswap_post_referral_activity",
+        "version": "1.0.0",
+        "methodology_id": "kyberswap_post_referral_activity_v1",
+        "script_path": "scripts/enrich_kyberswap_growth.py",
+        "tests_path": "tests/test_kyberswap_growth.py",
+        "fixture_path": "studio/fixtures/query_8202133.json",
+        "raw_data_file": "raw_query_8202133.json",
+        "source_required_columns": [
+          "day",
+          "week",
+          "project",
+          "event",
+          "label",
+          "amount_usd"
+        ]
+      },
+      "required_columns": [
+        "record_type",
+        "granularity",
+        "period",
+        "day",
+        "week",
+        "grouping_type",
+        "category",
+        "amount_usd",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": []
+    },
+    {
+      "query_id": 8204345,
+      "query_url": "https://dune.com/queries/8204345",
+      "data_file": "query_8204345.json",
+      "dashboard_ids": [
+        "kyberswap_campaign"
+      ],
+      "metric_ids": [
+        "kyber_recent_referral_deposits"
+      ],
+      "data_sources": [
+        "kyberswap_referral_deposit_events"
+      ],
+      "source_roles": [
+        "primary"
+      ],
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "tx_hash",
+        "address",
+        "blockchain",
+        "block_time",
+        "strategy_symbol",
+        "amount_usd"
+      ],
+      "transformation": {
+        "id": "kyberswap_referral_deposits",
+        "version": "1.0.0",
+        "methodology_id": "kyberswap_referral_deposits_v1",
+        "script_path": "scripts/prepare_kyberswap_depositor_intelligence.py",
+        "tests_path": "tests/test_kyberswap_depositor_intelligence.py",
+        "fixture_path": "studio/fixtures/query_8204345.json",
+        "raw_data_file": "raw_query_8204345.json",
+        "source_required_columns": [
+          "tx_hash",
+          "address",
+          "blockchain",
+          "block_time",
+          "strategy_symbol",
+          "amount_usd"
+        ]
+      },
+      "required_columns": [
+        "tx_hash",
+        "address",
+        "blockchain",
+        "block_time",
+        "strategy_symbol",
+        "amount_usd",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": []
+    },
+    {
+      "query_id": 8204373,
+      "query_url": "https://dune.com/queries/8204373",
+      "data_file": "query_8204373.json",
+      "dashboard_ids": [
+        "kyberswap_campaign"
+      ],
+      "metric_ids": [
+        "kyber_recent_etherfi_activity"
+      ],
+      "data_sources": [
+        "kyberswap_etherfi_activity_events"
+      ],
+      "source_roles": [
+        "primary"
+      ],
+      "provider_mode": "latest_result",
+      "source_required_columns": [
+        "event",
+        "address",
+        "project",
+        "blockchain",
+        "tx_hash",
+        "block_time",
+        "amount_usd",
+        "token_symbol",
+        "label"
+      ],
+      "transformation": {
+        "id": "kyberswap_etherfi_activity",
+        "version": "1.0.0",
+        "methodology_id": "kyberswap_etherfi_activity_v1",
+        "script_path": "scripts/prepare_kyberswap_depositor_intelligence.py",
+        "tests_path": "tests/test_kyberswap_depositor_intelligence.py",
+        "fixture_path": "studio/fixtures/query_8204373.json",
+        "raw_data_file": "raw_query_8204373.json",
+        "source_required_columns": [
+          "event",
+          "address",
+          "project",
+          "blockchain",
+          "tx_hash",
+          "block_time",
+          "amount_usd",
+          "token_symbol",
+          "label"
+        ]
+      },
+      "required_columns": [
+        "event",
+        "address",
+        "project",
+        "blockchain",
+        "tx_hash",
+        "block_time",
+        "amount_usd",
+        "token_symbol",
+        "label",
+        "source_query_id",
+        "source_execution_id",
+        "source_last_updated",
+        "generated_at"
+      ],
+      "optional_columns": []
+    },
+    {
+      "query_id": 9102001,
+      "query_url": "https://dune.com/queries/9102001",
+      "data_file": "query_9102001.json",
+      "dashboard_ids": [
+        "component_test_lab"
+      ],
+      "metric_ids": [
+        "lab_active_positions",
+        "lab_conversion",
+        "lab_token_balance",
+        "lab_total_value",
+        "lab_users"
+      ],
+      "data_sources": [
+        "lab_summary"
+      ],
+      "source_roles": [
+        "primary"
+      ],
+      "provider_mode": "fixture",
+      "source_required_columns": [],
+      "transformation": {},
+      "required_columns": [
+        "total_value_usd",
+        "value_change_pct",
+        "qualified_users",
+        "users_change_pct",
+        "conversion_rate",
+        "conversion_change_pp",
+        "active_positions",
+        "token_balance"
+      ],
+      "optional_columns": []
+    },
+    {
+      "query_id": 9102002,
+      "query_url": "https://dune.com/queries/9102002",
+      "data_file": "query_9102002.json",
+      "dashboard_ids": [
+        "component_test_lab"
+      ],
+      "metric_ids": [
+        "lab_multi_line",
+        "lab_single_line",
+        "lab_total_value"
+      ],
+      "data_sources": [
+        "lab_timeseries"
+      ],
+      "source_roles": [
+        "primary",
+        "sparkline"
+      ],
+      "provider_mode": "fixture",
+      "source_required_columns": [],
+      "transformation": {},
+      "required_columns": [
+        "day",
+        "total_value_usd",
+        "deposits_usd",
+        "withdrawals_usd",
+        "fees_usd"
+      ],
+      "optional_columns": []
+    },
+    {
+      "query_id": 9102003,
+      "query_url": "https://dune.com/queries/9102003",
+      "data_file": "query_9102003.json",
+      "dashboard_ids": [
+        "component_test_lab"
+      ],
+      "metric_ids": [
+        "lab_empty_line"
+      ],
+      "data_sources": [
+        "empty_series"
+      ],
+      "source_roles": [
+        "primary"
+      ],
+      "provider_mode": "fixture",
+      "source_required_columns": [],
+      "transformation": {},
+      "required_columns": [
+        "day",
+        "value_usd"
+      ],
+      "optional_columns": []
+    },
+    {
+      "query_id": 9102004,
+      "query_url": "https://dune.com/queries/9102004",
+      "data_file": "query_9102004.json",
+      "dashboard_ids": [
+        "component_test_lab"
+      ],
+      "metric_ids": [
+        "lab_error_line"
+      ],
+      "data_sources": [
+        "error_series"
+      ],
+      "source_roles": [
+        "primary"
+      ],
+      "provider_mode": "fixture",
+      "source_required_columns": [],
+      "transformation": {},
+      "required_columns": [
+        "day",
+        "value_usd"
+      ],
+      "optional_columns": []
+    },
+    {
+      "query_id": 9102005,
+      "query_url": "https://dune.com/queries/9102005",
+      "data_file": "query_9102005.json",
+      "dashboard_ids": [
+        "component_test_lab"
+      ],
+      "metric_ids": [
+        "lab_vertical_bar"
+      ],
+      "data_sources": [
+        "lab_products"
+      ],
+      "source_roles": [
+        "primary"
+      ],
+      "provider_mode": "fixture",
+      "source_required_columns": [],
+      "transformation": {},
+      "required_columns": [
+        "product",
+        "value_usd"
+      ],
+      "optional_columns": []
+    },
+    {
+      "query_id": 9102006,
+      "query_url": "https://dune.com/queries/9102006",
+      "data_file": "query_9102006.json",
+      "dashboard_ids": [
+        "component_test_lab"
+      ],
+      "metric_ids": [
+        "lab_horizontal_ranking"
+      ],
+      "data_sources": [
+        "lab_top_users"
+      ],
+      "source_roles": [
+        "primary"
+      ],
+      "provider_mode": "fixture",
+      "source_required_columns": [],
+      "transformation": {},
+      "required_columns": [
+        "wallet",
+        "value_usd"
+      ],
+      "optional_columns": []
+    },
+    {
+      "query_id": 9102007,
+      "query_url": "https://dune.com/queries/9102007",
+      "data_file": "query_9102007.json",
+      "dashboard_ids": [
+        "component_test_lab"
+      ],
+      "metric_ids": [
+        "lab_sankey"
+      ],
+      "data_sources": [
+        "lab_flows"
+      ],
+      "source_roles": [
+        "primary"
+      ],
+      "provider_mode": "fixture",
+      "source_required_columns": [],
+      "transformation": {},
+      "required_columns": [
+        "source",
+        "target",
+        "value_usd"
+      ],
+      "optional_columns": []
+    },
+    {
+      "query_id": 9102008,
+      "query_url": "https://dune.com/queries/9102008",
+      "data_file": "query_9102008.json",
+      "dashboard_ids": [
+        "component_test_lab"
+      ],
+      "metric_ids": [
+        "lab_sortable_table"
+      ],
+      "data_sources": [
+        "lab_positions"
+      ],
+      "source_roles": [
+        "primary"
+      ],
+      "provider_mode": "fixture",
+      "source_required_columns": [],
+      "transformation": {},
+      "required_columns": [
+        "updated_at",
+        "wallet",
+        "strategy",
+        "balance_usd",
+        "apy",
+        "active"
+      ],
+      "optional_columns": []
+    }
+  ]
+}

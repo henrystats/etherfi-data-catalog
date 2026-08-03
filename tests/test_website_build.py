@@ -6,6 +6,8 @@ import re
 import shutil
 import subprocess
 
+import pytest
+
 from scripts.build_website import (
     DEFAULT_OUTPUT_DIR,
     NOT_DOCUMENTED,
@@ -22,6 +24,8 @@ from scripts.build_website import (
     normalize_schema_search_text,
     render_compact_dataset_card,
     serialize_catalog_index,
+    site_output_path,
+    validate_page_output_path,
 )
 
 
@@ -34,8 +38,23 @@ def test_website_pages_include_expected_navigation_entries():
         "MCP",
         "Datasets",
         "Dashboards",
+        "Studio",
         "Freshness",
     ]
+
+
+@pytest.mark.parametrize(
+    "output_path",
+    ["../escape.html", "/tmp/escape.html", "studio\\..\\escape.html", "studio/data.json"],
+)
+def test_page_output_paths_reject_traversal_and_non_html_targets(output_path):
+    with pytest.raises(ValueError, match="Unsafe website page output_path"):
+        validate_page_output_path(output_path)
+
+
+def test_site_output_path_cannot_escape_the_build_directory(tmp_path):
+    with pytest.raises(ValueError, match="escapes the build directory"):
+        site_output_path(tmp_path, "../escape.html")
 
 
 def test_dataset_category_description_uses_dynamic_singular_and_plural_grammar():
@@ -171,7 +190,7 @@ def test_generated_pages_include_global_theme_contract(tmp_path):
     for html_file in html_files:
         html = html_file.read_text(encoding="utf-8")
         relative_path = html_file.relative_to(tmp_path)
-        asset_prefix = "../" if len(relative_path.parts) > 1 else ""
+        asset_prefix = "../" * (len(relative_path.parts) - 1)
         head = re.search(r"<head>(.*?)</head>", html, re.S)
 
         assert head
@@ -370,6 +389,102 @@ console.log(JSON.stringify({
         "attemptedStoredTheme": "dark",
     }
     assert behavior["storageTheme"] == "light"
+
+
+def test_studio_rehomes_single_theme_control_and_skips_catalog_search():
+    node = shutil.which("node")
+    if node is None:
+        return
+
+    root_dir = Path(__file__).resolve().parents[1]
+    theme_source = (root_dir / "website" / "assets" / "theme.js").read_text(
+        encoding="utf-8"
+    )
+    script = r"""
+const vm = require("vm");
+const globalSearch = require("./website/assets/global-search.js");
+const themeSource = __THEME_SOURCE__;
+
+function fakeElement(initial) {
+  return {
+    attrs: Object.assign({}, initial || {}),
+    listeners: {},
+    setAttribute(name, value) { this.attrs[name] = String(value); },
+    getAttribute(name) {
+      return Object.prototype.hasOwnProperty.call(this.attrs, name)
+        ? this.attrs[name]
+        : null;
+    },
+    addEventListener(name, callback) { this.listeners[name] = callback; },
+  };
+}
+
+const root = fakeElement({ "data-theme": "light" });
+const toggle = fakeElement({ "aria-pressed": "false" });
+const themeColor = fakeElement({ content: "#f2f0e8" });
+const slot = {
+  children: [],
+  appendChild(child) { this.children.push(child); },
+};
+const documentObject = {
+  documentElement: root,
+  querySelector(selector) {
+    if (selector === "[data-theme-toggle]") return toggle;
+    if (selector === "[data-studio-theme-slot]") return slot;
+    if (selector === "[data-theme-color]") return themeColor;
+    return null;
+  },
+};
+const browserWindow = {
+  localStorage: { getItem() { return null; }, setItem() {} },
+  matchMedia() { return { matches: false, addEventListener() {} }; },
+  addEventListener() {},
+};
+vm.runInNewContext(themeSource, {
+  document: documentObject,
+  window: browserWindow,
+});
+
+let catalogQueries = 0;
+const studioScope = {
+  body: {
+    classList: {
+      contains(name) { return name === "studio-page"; },
+    },
+  },
+  querySelector() {
+    catalogQueries += 1;
+    return null;
+  },
+};
+const searchMount = globalSearch.mount(studioScope, {
+  ETHERFI_CATALOG_INDEX: [],
+});
+
+console.log(JSON.stringify({
+  movedCount: slot.children.length,
+  movedOriginal: slot.children[0] === toggle,
+  pressed: toggle.attrs["aria-pressed"],
+  searchMount,
+  catalogQueries,
+}));
+""".replace("__THEME_SOURCE__", json.dumps(theme_source))
+    result = subprocess.run(
+        [node, "-e", script],
+        cwd=root_dir,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    behavior = json.loads(result.stdout)
+    assert behavior == {
+        "movedCount": 1,
+        "movedOriginal": True,
+        "pressed": "false",
+        "searchMount": None,
+        "catalogQueries": 0,
+    }
 
 
 def test_build_website_generates_polished_mcp_page_from_current_tools(tmp_path):
@@ -4732,7 +4847,7 @@ def test_global_search_shell_keeps_primary_nav_and_nested_fallbacks(tmp_path):
         re.S,
     )
     assert desktop_nav
-    assert desktop_nav.group(1).count('class="nav-link') == 5
+    assert desktop_nav.group(1).count('class="nav-link') == 6
     assert "Explore" not in desktop_nav.group(1)
 
     for html, prefix in [(root_html, ""), (nested_html, "../")]:

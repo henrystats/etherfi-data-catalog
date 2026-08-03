@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "query_id": 8193003,
+  "execution_id": "fixture-8193003-latest",
+  "execution_started_at": "2026-07-31T11:50:00Z",
+  "execution_finished_at": "2026-07-31T11:55:00Z",
+  "columns": [
+    "day",
+    "week",
+    "product_symbol",
+    "depositor_type",
+    "daily_deposits"
+  ],
+  "rows": [
+    {"day": "2026-07-20", "week": "2026-07-20", "product_symbol": "eETH", "depositor_type": "New Depositor", "daily_deposits": "100.10"},
+    {"day": "2026-07-20", "week": "2026-07-20", "product_symbol": "eETH", "depositor_type": "Existing Depositor", "daily_deposits": "50.20"},
+    {"day": "2026-07-20", "week": "2026-07-20", "product_symbol": "liquidETH", "depositor_type": "Past Depositor", "daily_deposits": "25.30"},
+    {"day": "2026-07-21", "week": "2026-07-20", "product_symbol": "liquidUSD", "depositor_type": "New Depositor", "daily_deposits": "10.40"},
+    {"day": "2026-07-27", "week": "2026-07-27", "product_symbol": "liquidBTC", "depositor_type": "Existing Depositor", "daily_deposits": "20.50"}
+  ]
+}

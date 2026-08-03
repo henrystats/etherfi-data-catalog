@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "query_id": 8204373,
+  "execution_id": "fixture-8204373-latest",
+  "execution_started_at": "2026-07-31T11:57:00Z",
+  "execution_finished_at": "2026-07-31T11:59:00Z",
+  "columns": [
+    "event",
+    "address",
+    "project",
+    "blockchain",
+    "tx_hash",
+    "block_time",
+    "amount_usd",
+    "token_symbol",
+    "label"
+  ],
+  "rows": [
+    {
+      "event": "deposit",
+      "address": "0x1111111111111111111111111111111111111111",
+      "project": "ether.fi",
+      "blockchain": "ethereum",
+      "tx_hash": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "block_time": "2026-07-31T08:30:00Z",
+      "amount_usd": 35000,
+      "token_symbol": "weETH",
+      "label": "Restaked deposit"
+    },
+    {
+      "event": "withdraw",
+      "address": "0x1111111111111111111111111111111111111111",
+      "project": "ether.fi",
+      "blockchain": "ethereum",
+      "tx_hash": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "block_time": "2026-07-31T10:45:00Z",
+      "amount_usd": -12500.75,
+      "token_symbol": "weETH",
+      "label": "Withdrawal"
+    },
+    {
+      "event": "swap",
+      "address": "0x2222222222222222222222222222222222222222",
+      "project": "ether.fi Liquid",
+      "blockchain": "arbitrum",
+      "tx_hash": "0x1111111111111111111111111111111111111111111111111111111111111111",
+      "block_time": "2026-07-30T16:10:00Z",
+      "amount_usd": 8400.5,
+      "token_symbol": "liquidBTC",
+      "label": "Strategy rebalance"
+    },
+    {
+      "event": "claim",
+      "address": "0x3333333333333333333333333333333333333333",
+      "project": "ether.fi Liquid",
+      "blockchain": "base",
+      "tx_hash": "0x2222222222222222222222222222222222222222222222222222222222222222",
+      "block_time": "2026-07-29T11:00:00Z",
+      "amount_usd": 0,
+      "token_symbol": "liquidUSD",
+      "label": "Rewards claim"
+    }
+  ]
+}

@@ -40,6 +40,7 @@
       }());
     </script>
     <link rel="stylesheet" href="${asset_prefix}assets/styles.css?v=$styles_version">
+    $extra_head
     <script src="${asset_prefix}assets/catalog-ui.js?v=$catalog_ui_js_version" defer></script>
     <script src="${asset_prefix}assets/catalog-index.js?v=$catalog_index_js_version" defer></script>
     <script src="${asset_prefix}assets/global-search.js?v=$global_search_js_version" defer></script>

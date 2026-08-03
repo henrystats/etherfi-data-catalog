@@ -4,7 +4,12 @@
   var STORAGE_KEY = "etherfi-data-catalog-theme";
   var root = document.documentElement;
   var toggle = document.querySelector("[data-theme-toggle]");
+  var studioThemeSlot = document.querySelector("[data-studio-theme-slot]");
   var themeColor = document.querySelector("[data-theme-color]");
+
+  if (toggle && studioThemeSlot) {
+    studioThemeSlot.appendChild(toggle);
+  }
 
   function isTheme(value) {
     return value === "light" || value === "dark";
