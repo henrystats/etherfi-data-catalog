@@ -2604,6 +2604,41 @@ def test_cli_refuses_implicit_live_mode_without_touching_dune(tmp_path):
     assert not (tmp_path / "state.json").exists()
 
 
+def test_cli_requires_dune_key_before_constructing_live_client(
+    tmp_path,
+    monkeypatch,
+    capsys,
+):
+    client_constructed = False
+
+    def forbidden_client(api_key):
+        nonlocal client_constructed
+        del api_key
+        client_constructed = True
+        raise AssertionError("live client must not be constructed without a secret")
+
+    monkeypatch.setenv("STUDIO_ENABLE_LIVE_DUNE", "1")
+    monkeypatch.delenv("DUNE_API_KEY", raising=False)
+    monkeypatch.setattr(
+        fetch_studio_data,
+        "DuneLatestResultClient",
+        forbidden_client,
+    )
+
+    exit_code = fetch_studio_data.main(["--output-dir", str(tmp_path)])
+    captured = capsys.readouterr()
+
+    assert exit_code == 1
+    assert captured.out == ""
+    assert json.loads(captured.err) == {
+        "error": "DUNE_API_KEY is required for explicitly enabled live mode",
+        "status": "failed",
+    }
+    assert client_constructed is False
+    assert not (tmp_path / "state.json").exists()
+    assert not (tmp_path / "attempts").exists()
+
+
 @pytest.mark.parametrize(
     "fixture_only_args",
     [

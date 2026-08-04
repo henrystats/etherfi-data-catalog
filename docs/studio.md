@@ -82,9 +82,12 @@ website/assets/
   vendor/echarts.min.js
 docs/
   studio-query-inventory.md       Generated human-readable inventory
-  examples/studio_dune_refresh.yml.example
 .github/workflows/
   studio-fixture-refresh.yml      Manual, offline, non-deploying fixture check
+  deploy-website.yml              Push-only production entry point
+  studio-live-refresh.yml         Manual-only production entry point
+  studio-production-deploy.yml    Shared live ingest/build/Pages deployment
+  refresh-freshness.yml           Catalog-freshness validation artifact only
 ```
 
 The main flow is:
@@ -106,6 +109,13 @@ dashboard + metric registries
                                  --> flatten public manifest/query/status files
                                  --> generated HTML/CSS/JS site
 ```
+
+Production has two thin entry points but only one implementation. A push to
+`main` enters through `deploy-website.yml`; a manual live refresh enters through
+`studio-live-refresh.yml`. Both call the reusable, `workflow_call`-only
+`studio-production-deploy.yml`, which owns the secret check, read-only import,
+validation, tests, build, Pages artifact, and deployment. No production Studio
+workflow has a schedule.
 
 The production provider flow is deliberately one-way and read-only:
 
@@ -487,25 +497,38 @@ mappings.
 
 For the current KyberSwap registry, queries 8180894, 8191379, 8191704, 8193003,
 8193040, 8199058, 8202133, 8204345, and 8204373 are all `latest_result` sources
-and are each imported once from Dune. Load a local gitignored `.env` without
-printing its contents, then enable the two live gates:
+and are each imported once from Dune. Keep the checked-in snapshot unchanged:
+seed an isolated temporary root from it, load a local gitignored `.env` without
+printing its contents, and enable the two live gates:
 
 ```bash
+STUDIO_LIVE_ROOT="$(mktemp -d)"
+STUDIO_LIVE_GENERATED="$STUDIO_LIVE_ROOT/studio-live-generated"
+mkdir -p "$STUDIO_LIVE_GENERATED"
+cp -R website/data/studio/generated/. "$STUDIO_LIVE_GENERATED/"
 set -a
 source .env
 set +a
 STUDIO_ENABLE_LIVE_DUNE=1 \
   .venv/bin/python scripts/fetch_studio_data.py \
-  --output-dir website/data/studio/generated \
+  --output-dir "$STUDIO_LIVE_GENERATED" \
   --keep-previous 1 \
   --verbose
+.venv/bin/python scripts/fetch_studio_data.py \
+  --validate-only \
+  --output-dir "$STUDIO_LIVE_GENERATED"
+.venv/bin/python scripts/build_website.py \
+  --studio-generated-data "$STUDIO_LIVE_GENERATED"
 ```
 
-The resulting manifest records each query's actual `source_mode`. Plain live
-mode rejects any future fixture-backed generated mapping rather than querying
-an unapproved ID. `--fixture-mode` remains fully offline. The separate
-`--mixed-source-mode` option is an explicit development tool for a deliberately
-mixed registry; the current KyberSwap workflow does not use it.
+The first command is the exact live ingestion CLI used by production, with the
+runner's temporary path substituted for `STUDIO_LIVE_GENERATED`. The validation
+and build commands consume that same promoted root explicitly. The resulting
+manifest records each query's actual `source_mode`. Plain live mode rejects any
+future fixture-backed generated mapping rather than querying an unapproved ID.
+`--fixture-mode` remains fully offline. The separate `--mixed-source-mode`
+option is an explicit development tool for a deliberately mixed registry; the
+current KyberSwap workflow does not use it.
 
 ### Filtered and partial refreshes
 
@@ -527,22 +550,31 @@ requests and retry behavior.
 
 ### Explicit production read-only import
 
-Production read-only mode requires both gates in the server-side process:
+Production read-only mode requires both gates in the server-side process. The
+shared workflow supplies the secret only to the read-only import steps and uses
+the seeded runner-temporary output root:
 
 ```bash
 STUDIO_ENABLE_LIVE_DUNE=1 \
-DUNE_API_KEY=... \
-.venv/bin/python scripts/fetch_studio_data.py \
-  --output-dir website/data/studio/generated \
+python scripts/fetch_studio_data.py \
+  --output-dir "$RUNNER_TEMP/studio-live-generated" \
   --keep-previous 1 \
   --verbose
+python scripts/fetch_studio_data.py \
+  --validate-only \
+  --output-dir "$RUNNER_TEMP/studio-live-generated"
+python scripts/build_website.py \
+  --studio-generated-data "$RUNNER_TEMP/studio-live-generated"
 ```
 
 Do not put the key in registries, generated JSON, logs, browser assets, Pages
 artifacts, shell history, or committed workflow files. The adapter sends it only
 as the `X-Dune-API-Key` request header. Provision the production key with read
 access only; Studio needs no permission to create, edit, execute, cancel, or
-refresh queries.
+refresh queries. Configure it at **GitHub repository → Settings → Secrets and
+variables → Actions → New repository secret**, with the name `DUNE_API_KEY`.
+An absent secret fails the production job before ingestion, artifact upload, or
+deployment; it never silently substitutes fixture data.
 
 The production client implements one logical `fetch_latest_result(query_id)`
 operation per unique query ID per GitHub Action run. That operation reads only:
@@ -733,7 +765,7 @@ cannot bypass the configured maximum delay.
 After a refresh, the source tree is:
 
 ```text
-website/data/studio/generated/
+<generated-root>/
   state.json
   snapshots/
     <current-id>/
@@ -745,6 +777,13 @@ website/data/studio/generated/
   attempts/
     <attempt-id>/attempt.json
 ```
+
+For a local production-equivalent run, `<generated-root>` is the isolated
+`STUDIO_LIVE_GENERATED` path shown above. In Actions it is
+`$RUNNER_TEMP/studio-live-generated`. The shared workflow seeds that directory
+from the checked-in `website/data/studio/generated/` previous-good snapshot,
+then writes only to the temporary copy. It never commits or uploads the private
+snapshot tree as the Pages artifact.
 
 Promotion is transactional:
 
@@ -763,7 +802,11 @@ Promotion is transactional:
 
 Fetch or validation failure writes an attempt and failure state while preserving
 the active snapshot. A reader never observes a half-written promoted directory.
-Snapshot IDs contain mode, UTC refresh time, and a checksum prefix.
+Snapshot IDs contain mode, UTC refresh time, and a checksum prefix. In
+production, any import, transformation, validation, test, or build failure
+stops before Pages artifact upload and deployment. The already-deployed site is
+therefore the true previous-good production fallback; the runner must not
+publish its older checked-in seed over a newer live deployment.
 
 When normalized content and latest-result metadata match the active snapshot,
 the CLI records an `unchanged` attempt and updates `last_checked_at` and
@@ -891,6 +934,17 @@ checksum/timestamps, latest status, `using_previous`, and a restrained failure
 summary. The raw `state.json`, snapshot history, attempts, and API key are not
 published.
 
+Production passes the validated runner-temporary root through
+`--studio-generated-data`; it never relies on the build command's checked-in
+default. The public manifest and source descriptors therefore carry the live
+snapshot ID and generation time, Dune execution IDs and completion times,
+source `last_updated` values where supplied by a transformation, and
+methodology IDs and versions. Dashboard `Last Updated` values continue to use
+source data/completion time rather than workflow or build time. If a validated
+partial/fallback snapshot is ever built explicitly, `refresh_status.json` and
+the per-source metadata expose `using_previous` and the failed/reused sources;
+fallback is never silently labeled as a fresh full success.
+
 Each dashboard page embeds presentation configuration. `studio.js` loads only
 local static JSON, including the optional sanitized refresh status, normalizes
 demo and generated sources into a shared adapter, and caches shared paths.
@@ -952,7 +1006,8 @@ avoids fading sibling bars, and leaves the tooltip enabled in both themes.
 ## GitHub Actions safety
 
 `.github/workflows/studio-fixture-refresh.yml` is an active but manual-only
-offline validation workflow. Its boolean confirmation defaults to false. It:
+offline validation workflow. It runs immediately when dispatched and has no
+confirmation checkbox. It:
 
 - has read-only repository permission and no Dune secret;
 - checks the inventory;
@@ -961,28 +1016,54 @@ offline validation workflow. Its boolean confirmation defaults to false. It:
 - uploads short-lived diagnostics;
 - does not deploy Pages or commit generated data.
 
-`docs/examples/studio_dune_refresh.yml.example` is the production read-only
-deployment template. GitHub ignores it because it is outside
-`.github/workflows` and has an `.example` suffix; its job also has a hard-false
-guard. Activation requires all of the following:
+Production is active through three narrowly scoped workflows:
 
-1. Confirm the reviewed production query IDs and their output contracts. The
-   current KyberSwap sources are 8180894, 8191379, 8191704, 8193003, 8193040,
-   8199058, 8202133, 8204345, and 8204373. Never send a placeholder ID to Dune.
-2. Configure those queries to refresh independently on Dune and verify their
-   latest stored results are available through the read endpoint.
-3. Add a read-only `DUNE_API_KEY` as a GitHub Actions repository secret.
-4. Move/copy the reviewed file into `.github/workflows` and remove the
-   hard-false guard.
-5. Review Pages permissions, environment, concurrency, failure artifacts, and
-   branch protection.
-6. Run it manually and review the snapshot before considering automation.
+- `.github/workflows/deploy-website.yml` is a push-to-`main` wrapper. It has no
+  build steps of its own and calls the shared production workflow.
+- `.github/workflows/studio-live-refresh.yml` is the manual
+  `workflow_dispatch` wrapper. It calls the same shared production workflow and
+  has no schedule.
+- `.github/workflows/studio-production-deploy.yml` is `workflow_call`-only. It
+  requires the `DUNE_API_KEY` secret, performs the complete read-only import,
+  validates and tests it, builds the complete website from the promoted
+  runner-temporary snapshot, uploads one Pages artifact, and deploys only after
+  the build job succeeds.
 
-Do not add a schedule without explicit approval. The normal Pages workflow is
-credential-free; the catalog's separate freshness workflow is unrelated to
-Studio query snapshots. Even if a Studio import schedule is later approved, it
-only reads Dune's latest stored results; Dune's own query schedules remain the
-sole mechanism that executes or refreshes the queries.
+The shared workflow first checks that `DUNE_API_KEY` is present, then copies the
+checked-in previous-good root to `$RUNNER_TEMP/studio-live-generated`. It loads
+the unique production query IDs from the validated Studio registry rather than
+hardcoding them in YAML. Its live import omits `--allow-partial`,
+`--mixed-source-mode`, and all execution or stale-auto-refresh options. A
+source, transformation, reconciliation, validation, test, or build failure
+prevents artifact upload and deployment. A missing secret fails before
+ingestion and provides repository Actions-secret setup guidance. No generated
+data is written back to git.
+
+All production entries share the fixed `studio-production-pages` concurrency
+group with `cancel-in-progress: true`. Only one production deployment can
+proceed at a time, and a newer run supersedes an older in-progress run. The
+fixture workflow uses a separate group and has no Pages permissions, so it
+cannot interfere with production.
+
+`.github/workflows/refresh-freshness.yml` remains scheduled hourly and can also
+be dispatched manually, but it now validates only the latest already-stored
+catalog-freshness result and uploads a short-lived diagnostic artifact. It has
+read-only repository permission and no Pages build, artifact, environment, or
+deployment. It therefore cannot overwrite a live Studio site. The shared
+production build imports catalog freshness when it builds the complete website.
+
+Configure the repository Actions secret before triggering either production
+entry point:
+
+```text
+GitHub repository -> Settings -> Secrets and variables -> Actions
+Secret name: DUNE_API_KEY
+Access: Dune query-result read access only
+```
+
+There is no scheduled Studio import. Dune's own independent query schedules
+remain the sole mechanism that executes or refreshes the reviewed queries. The
+push and manual workflows only read their latest stored results.
 
 ## Onboarding changes safely
 

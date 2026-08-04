@@ -4,174 +4,246 @@ import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
-WORKFLOW_PATH = ROOT / ".github" / "workflows" / "deploy-website.yml"
+DEPLOY_WRAPPER_PATH = ROOT / ".github" / "workflows" / "deploy-website.yml"
+STUDIO_LIVE_WRAPPER_PATH = (
+    ROOT / ".github" / "workflows" / "studio-live-refresh.yml"
+)
+STUDIO_PRODUCTION_WORKFLOW_PATH = (
+    ROOT / ".github" / "workflows" / "studio-production-deploy.yml"
+)
 STUDIO_FIXTURE_WORKFLOW_PATH = (
     ROOT / ".github" / "workflows" / "studio-fixture-refresh.yml"
 )
-STUDIO_REFRESH_TEMPLATE_PATH = (
-    ROOT / "docs" / "examples" / "studio_dune_refresh.yml.example"
-)
+SHARED_WORKFLOW_REFERENCE = "./.github/workflows/studio-production-deploy.yml"
+STUDIO_LIVE_OUTPUT = '"$RUNNER_TEMP/studio-live-generated"'
 
 
-def test_deploy_website_workflow_builds_and_publishes_pages_artifact():
-    workflow_text = WORKFLOW_PATH.read_text(encoding="utf-8")
-    workflow = yaml.load(workflow_text, Loader=yaml.BaseLoader)
+def load_workflow(path: Path) -> dict:
+    return yaml.load(path.read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
 
-    assert workflow["name"] == "Deploy website"
-    assert workflow["on"]["push"]["branches"] == ["main"]
-    assert workflow["on"]["workflow_dispatch"] == ""
-    assert workflow["permissions"] == {
+
+def only_job(workflow: dict) -> dict:
+    assert len(workflow["jobs"]) == 1
+    return next(iter(workflow["jobs"].values()))
+
+
+def step_with_run(steps: list[dict], text: str) -> dict:
+    matches = [step for step in steps if text in str(step.get("run") or "")]
+    assert len(matches) == 1, text
+    return matches[0]
+
+
+def step_with_action(steps: list[dict], action: str) -> dict:
+    matches = [step for step in steps if step.get("uses") == action]
+    assert len(matches) == 1, action
+    return matches[0]
+
+
+def assert_shared_production_caller(path: Path, *, expected_trigger: dict) -> None:
+    workflow = load_workflow(path)
+
+    assert workflow["on"] == expected_trigger
+    assert workflow["permissions"] == {}
+    job = only_job(workflow)
+    assert job["permissions"] == {
         "contents": "read",
         "pages": "write",
         "id-token": "write",
     }
-
-    job = workflow["jobs"]["build-and-deploy"]
-    step_names = [step["name"] for step in job["steps"]]
-
-    assert "Install project" in step_names
-    assert "Run website tests" in step_names
-    assert "Build website" in step_names
-    assert "Configure GitHub Pages" in step_names
-    assert "Upload website artifact" in step_names
-    assert "Deploy to GitHub Pages" in step_names
-
-    assert "python -m pip install -e '.[dev]'" in workflow_text
-    assert "python -m pytest tests/test_website_build.py" in workflow_text
-    assert "tests/test_studio_build.py" in workflow_text
-    assert "tests/test_studio_data_contract.py" in workflow_text
-    assert "tests/test_studio_inventory.py" in workflow_text
-    assert "tests/test_studio_js.py" in workflow_text
-    assert "python scripts/generate_studio_inventory.py --check" in workflow_text
-    assert "python scripts/build_website.py" in workflow_text
-    assert "actions/configure-pages@v5" in workflow_text
-    assert "actions/upload-pages-artifact@v3" in workflow_text
-    assert "path: output/website" in workflow_text
-    assert "actions/deploy-pages@v4" in workflow_text
-    assert "DUNE_API_KEY" not in workflow_text
-
-
-def test_deploy_website_runs_studio_tests_before_the_static_build():
-    workflow = yaml.load(
-        WORKFLOW_PATH.read_text(encoding="utf-8"),
-        Loader=yaml.BaseLoader,
-    )
-    steps = workflow["jobs"]["build-and-deploy"]["steps"]
-    step_names = [step["name"] for step in steps]
-
-    test_step = steps[step_names.index("Run website tests")]
-    build_step = steps[step_names.index("Build website")]
-
-    assert step_names.index("Run website tests") < step_names.index("Build website")
-    assert "python scripts/generate_studio_inventory.py --check" in test_step["run"]
-    assert "tests/test_studio_build.py" in test_step["run"]
-    assert "tests/test_studio_data_contract.py" in test_step["run"]
-    assert "tests/test_studio_inventory.py" in test_step["run"]
-    assert "tests/test_studio_js.py" in test_step["run"]
-    assert build_step["run"] == "python scripts/build_website.py"
-
-
-def test_studio_refresh_example_is_a_disabled_manual_template():
-    template_text = STUDIO_REFRESH_TEMPLATE_PATH.read_text(encoding="utf-8")
-    template = yaml.load(template_text, Loader=yaml.BaseLoader)
-
-    assert "TEMPLATE ONLY" in template_text
-    assert STUDIO_REFRESH_TEMPLATE_PATH.parent != ROOT / ".github" / "workflows"
-    assert STUDIO_REFRESH_TEMPLATE_PATH.suffix == ".example"
-    assert set(template["on"]) == {"workflow_dispatch"}
-    dispatch = template["on"]["workflow_dispatch"]
-    assert dispatch["inputs"]["confirm_read_only_import"] == {
-        "description": "Import reviewed stored Dune results (read only)",
-        "required": "true",
-        "type": "boolean",
-        "default": "false",
+    assert job["uses"] == SHARED_WORKFLOW_REFERENCE
+    assert job["secrets"] == {
+        "DUNE_API_KEY": "${{ secrets.DUNE_API_KEY }}",
     }
-
-    jobs = template["jobs"]
-    assert list(jobs) == ["import-build-deploy-template"]
-    job = jobs["import-build-deploy-template"]
-    assert job["if"] == "${{ false && inputs.confirm_read_only_import == true }}"
+    assert "steps" not in job
 
 
-def test_studio_refresh_template_scopes_secret_and_preserves_failure_boundary():
-    template = yaml.load(
-        STUDIO_REFRESH_TEMPLATE_PATH.read_text(encoding="utf-8"),
-        Loader=yaml.BaseLoader,
-    )
-    steps = template["jobs"]["import-build-deploy-template"]["steps"]
-    step_names = [step["name"] for step in steps]
-
-    expected_order = [
-        "Check unique query inventory",
-        "Fetch latest stored results, validate, and promote snapshot",
-        "Validate promoted snapshot",
-        "Run complete tests",
-        "Build website",
-        "Upload website artifact",
-        "Deploy to GitHub Pages",
-    ]
-    assert [step_names.index(name) for name in expected_order] == sorted(
-        step_names.index(name) for name in expected_order
+def test_push_deploy_uses_only_the_shared_live_studio_production_path():
+    assert_shared_production_caller(
+        DEPLOY_WRAPPER_PATH,
+        expected_trigger={"push": {"branches": ["main"]}},
     )
 
+
+def test_manual_live_refresh_uses_only_the_shared_live_studio_production_path():
+    assert_shared_production_caller(
+        STUDIO_LIVE_WRAPPER_PATH,
+        expected_trigger={"workflow_dispatch": ""},
+    )
+
+
+def test_shared_production_workflow_requires_only_the_dune_secret():
+    workflow = load_workflow(STUDIO_PRODUCTION_WORKFLOW_PATH)
+
+    assert set(workflow["on"]) == {"workflow_call"}
+    declared_secrets = workflow["on"]["workflow_call"]["secrets"]
+    assert set(declared_secrets) == {"DUNE_API_KEY"}
+    assert declared_secrets["DUNE_API_KEY"]["required"] == "true"
+    assert workflow["permissions"] == {}
+    assert "env" not in workflow
+
+    assert set(workflow["jobs"]) == {"build", "deploy"}
+    build_job = workflow["jobs"]["build"]
+    deploy_job = workflow["jobs"]["deploy"]
+    assert build_job["permissions"] == {"contents": "read"}
+    assert deploy_job["permissions"] == {
+        "pages": "write",
+        "id-token": "write",
+    }
+    assert "env" not in build_job
+    assert "env" not in deploy_job
     secret_steps = [
-        step for step in steps if "DUNE_API_KEY" in str(step.get("env") or {})
+        step
+        for step in build_job["steps"]
+        if "DUNE_API_KEY" in (step.get("env") or {})
     ]
-    assert len(secret_steps) == 1
-    assert secret_steps[0]["name"] == (
-        "Fetch latest stored results, validate, and promote snapshot"
+    assert len(secret_steps) == 3
+    preflight = step_with_run(secret_steps, 'if [ -z "${DUNE_API_KEY:-}" ]')
+    studio_refresh = step_with_run(secret_steps, "scripts/fetch_studio_data.py")
+    catalog_refresh = step_with_run(
+        secret_steps,
+        "scripts/update_freshness_from_dune.py",
     )
-    assert secret_steps[0]["env"] == {
+    assert preflight["env"] == {
+        "DUNE_API_KEY": "${{ secrets.DUNE_API_KEY }}",
+    }
+    assert studio_refresh["env"] == {
         "DUNE_API_KEY": "${{ secrets.DUNE_API_KEY }}",
         "STUDIO_ENABLE_LIVE_DUNE": "1",
     }
-
-    refresh_step = steps[
-        step_names.index("Fetch latest stored results, validate, and promote snapshot")
-    ]
-    validate_step = steps[step_names.index("Validate promoted snapshot")]
-    assert "scripts/fetch_studio_data.py" in refresh_step["run"]
-    assert "--keep-previous 1" in refresh_step["run"]
-    assert "--fixture-mode" not in refresh_step["run"]
-    assert "--mixed-source-mode" not in refresh_step["run"]
-    assert "scripts/fetch_studio_data.py" in validate_step["run"]
-    assert "--validate-only" in validate_step["run"]
-    assert "refresh_studio_from_dune.py" not in STUDIO_REFRESH_TEMPLATE_PATH.read_text(
-        encoding="utf-8"
+    assert catalog_refresh["env"] == {
+        "DUNE_API_KEY": "${{ secrets.DUNE_API_KEY }}",
+    }
+    assert build_job["steps"].index(preflight) < build_job["steps"].index(
+        studio_refresh
     )
 
-    active_workflow_text = WORKFLOW_PATH.read_text(encoding="utf-8")
-    assert "DUNE_API_KEY" not in active_workflow_text
 
+def test_shared_production_workflow_fetches_validates_builds_and_deploys_one_snapshot():
+    workflow = load_workflow(STUDIO_PRODUCTION_WORKFLOW_PATH)
+    build_job = workflow["jobs"]["build"]
+    deploy_job = workflow["jobs"]["deploy"]
+    steps = build_job["steps"]
 
-def test_studio_refresh_template_documents_read_only_latest_result_contract():
-    template_text = STUDIO_REFRESH_TEMPLATE_PATH.read_text(encoding="utf-8")
-    template = yaml.load(template_text, Loader=yaml.BaseLoader)
-    steps = template["jobs"]["import-build-deploy-template"]["steps"]
-    step_names = [step["name"] for step in steps]
-    import_step = steps[
-        step_names.index("Fetch latest stored results, validate, and promote snapshot")
+    inventory = step_with_run(steps, "scripts/generate_studio_inventory.py --check")
+    seed = step_with_run(steps, "website/data/studio/generated")
+    validation_candidates = [
+        step
+        for step in steps
+        if "scripts/fetch_studio_data.py" in str(step.get("run") or "")
+        and "--validate-only" in str(step.get("run") or "")
     ]
+    assert len(validation_candidates) == 1
+    validation = validation_candidates[0]
+    refresh_candidates = [
+        step
+        for step in steps
+        if "scripts/fetch_studio_data.py" in str(step.get("run") or "")
+        and "--validate-only" not in str(step.get("run") or "")
+    ]
+    assert len(refresh_candidates) == 1
+    refresh = refresh_candidates[0]
+    catalog_refresh = step_with_run(
+        steps,
+        "scripts/update_freshness_from_dune.py --query-id 7625551",
+    )
+    tests = step_with_run(steps, "python -m pytest")
+    build = step_with_run(steps, "scripts/build_website.py")
+    upload = step_with_action(steps, "actions/upload-pages-artifact@v3")
 
-    assert "READ-ONLY DUNE CONTRACT" in template_text
-    assert "GET /api/v1/query/{query_id}/results" in template_text
-    assert "get_latest_result" in template_text
-    assert "read-only DUNE_API_KEY" in template_text
-    assert "max_age_hours" in template_text
-    assert "scripts/fetch_studio_data.py" in import_step["run"]
-    assert "--fixture-mode" not in import_step["run"]
-    assert "--max-age" not in import_step["run"]
+    assert [
+        steps.index(step)
+        for step in (
+            inventory,
+            seed,
+            refresh,
+            validation,
+            catalog_refresh,
+            tests,
+            build,
+            upload,
+        )
+    ] == sorted(
+        steps.index(step)
+        for step in (
+            inventory,
+            seed,
+            refresh,
+            validation,
+            catalog_refresh,
+            tests,
+            build,
+            upload,
+        )
+    )
+
+    seed_command = str(seed["run"])
+    assert "website/data/studio/generated" in seed_command
+    assert STUDIO_LIVE_OUTPUT in seed_command
+
+    refresh_command = str(refresh["run"])
+    assert f"--output-dir {STUDIO_LIVE_OUTPUT}" in refresh_command
+    assert "--keep-previous 1" in refresh_command
+    for forbidden in (
+        "--fixture-mode",
+        "--mixed-source-mode",
+        "--allow-partial",
+        "--query-id",
+        "--dashboard",
+        "run_query",
+        "execute_query",
+        "refresh_query",
+        "max_age_hours",
+        "/execute",
+    ):
+        assert forbidden not in refresh_command
+
+    validation_command = str(validation["run"])
+    assert "--validate-only" in validation_command
+    assert f"--output-dir {STUDIO_LIVE_OUTPUT}" in validation_command
+    assert (
+        f"--studio-generated-data {STUDIO_LIVE_OUTPUT}" in str(build["run"])
+    )
+    assert upload["with"]["path"] == "output/website"
+
+    assert deploy_job["needs"] == "build"
+    deploy_steps = deploy_job["steps"]
+    configure = step_with_action(deploy_steps, "actions/configure-pages@v5")
+    deploy = step_with_action(deploy_steps, "actions/deploy-pages@v4")
+    assert deploy_steps.index(configure) < deploy_steps.index(deploy)
+    assert deploy.get("if") != "${{ always() }}"
+
+
+def test_only_the_shared_production_workflow_can_deploy_pages():
+    deployers = []
+    for path in sorted((ROOT / ".github" / "workflows").glob("*.yml")):
+        workflow = load_workflow(path)
+        for job in (workflow.get("jobs") or {}).values():
+            if any(
+                step.get("uses") == "actions/deploy-pages@v4"
+                for step in job.get("steps", [])
+            ):
+                deployers.append((path, job))
+
+    assert [path for path, _ in deployers] == [STUDIO_PRODUCTION_WORKFLOW_PATH]
+    workflow = load_workflow(STUDIO_PRODUCTION_WORKFLOW_PATH)
+    assert workflow["concurrency"] == {
+        "group": "studio-production-pages",
+        "cancel-in-progress": "true",
+    }
 
 
 def test_studio_fixture_workflow_is_manual_offline_and_runs_on_dispatch():
     workflow_text = STUDIO_FIXTURE_WORKFLOW_PATH.read_text(encoding="utf-8")
-    workflow = yaml.load(workflow_text, Loader=yaml.BaseLoader)
+    workflow = load_workflow(STUDIO_FIXTURE_WORKFLOW_PATH)
 
     assert workflow["name"] == "Validate Studio fixture refresh"
     assert workflow["on"] == {"workflow_dispatch": ""}
     assert "schedule" not in workflow["on"]
     assert workflow["permissions"] == {"contents": "read"}
-    assert workflow["concurrency"]["cancel-in-progress"] == "false"
+    assert workflow["concurrency"] == {
+        "group": "studio-fixture-refresh-${{ github.ref }}",
+        "cancel-in-progress": "false",
+    }
 
     job = workflow["jobs"]["fixture-refresh"]
     assert "if" not in job
@@ -185,10 +257,7 @@ def test_studio_fixture_workflow_is_manual_offline_and_runs_on_dispatch():
 
 
 def test_studio_fixture_workflow_validates_builds_and_uploads_short_lived_artifacts():
-    workflow = yaml.load(
-        STUDIO_FIXTURE_WORKFLOW_PATH.read_text(encoding="utf-8"),
-        Loader=yaml.BaseLoader,
-    )
+    workflow = load_workflow(STUDIO_FIXTURE_WORKFLOW_PATH)
     steps = workflow["jobs"]["fixture-refresh"]["steps"]
     step_names = [step["name"] for step in steps]
     setup = steps[step_names.index("Set up Python")]
@@ -226,16 +295,16 @@ def test_studio_fixture_workflow_validates_builds_and_uploads_short_lived_artifa
         "python -m pytest -q"
     )
     assert steps[step_names.index("Build website")]["run"] == (
-        'python scripts/build_website.py '
+        "python scripts/build_website.py "
         '--studio-generated-data "$RUNNER_TEMP/studio-fixture-generated"'
     )
     artifact = steps[step_names.index("Upload fixture diagnostics")]
     assert artifact["if"] == "${{ always() }}"
     assert artifact["uses"] == "actions/upload-artifact@v4"
     assert artifact["with"]["retention-days"] == "7"
-    assert "${{ runner.temp }}/studio-fixture-generated/state.json" in artifact["with"][
-        "path"
-    ]
-    assert "${{ runner.temp }}/studio-fixture-generated/attempts/" in artifact["with"][
-        "path"
-    ]
+    assert "${{ runner.temp }}/studio-fixture-generated/state.json" in artifact[
+        "with"
+    ]["path"]
+    assert "${{ runner.temp }}/studio-fixture-generated/attempts/" in artifact[
+        "with"
+    ]["path"]

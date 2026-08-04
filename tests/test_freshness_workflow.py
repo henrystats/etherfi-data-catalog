@@ -7,30 +7,59 @@ ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW_PATH = ROOT / ".github" / "workflows" / "refresh-freshness.yml"
 
 
-def test_refresh_freshness_workflow_fetches_dune_snapshot_and_deploys_site():
+def test_refresh_freshness_workflow_is_scheduled_read_only_and_non_deploying():
     workflow_text = WORKFLOW_PATH.read_text(encoding="utf-8")
     workflow = yaml.load(workflow_text, Loader=yaml.BaseLoader)
 
-    assert workflow["name"] == "Refresh freshness website"
     assert workflow["on"]["workflow_dispatch"] == ""
-    assert workflow["on"]["schedule"][0]["cron"] == "7 * * * *"
-    assert workflow["permissions"] == {
-        "contents": "read",
-        "pages": "write",
-        "id-token": "write",
+    assert workflow["on"]["schedule"] == [{"cron": "7 * * * *"}]
+    assert workflow["permissions"] == {"contents": "read"}
+    assert "pages" not in workflow["permissions"]
+    assert "id-token" not in workflow["permissions"]
+    assert "actions/configure-pages" not in workflow_text
+    assert "actions/upload-pages-artifact" not in workflow_text
+    assert "actions/deploy-pages" not in workflow_text
+    assert "scripts/build_website.py" not in workflow_text
+    if "concurrency" in workflow:
+        assert workflow["concurrency"]["group"] != "studio-production-pages"
+
+
+def test_refresh_freshness_workflow_scopes_secret_and_uploads_short_lived_diagnostics():
+    workflow = yaml.load(
+        WORKFLOW_PATH.read_text(encoding="utf-8"),
+        Loader=yaml.BaseLoader,
+    )
+    assert len(workflow["jobs"]) == 1
+    job = next(iter(workflow["jobs"].values()))
+    assert "environment" not in job
+    assert "env" not in job
+    steps = job["steps"]
+
+    fetch_steps = [
+        step
+        for step in steps
+        if "scripts/update_freshness_from_dune.py" in str(step.get("run") or "")
+        and "--query-id 7625551" in str(step.get("run") or "")
+    ]
+    assert len(fetch_steps) == 1
+    fetch = fetch_steps[0]
+    assert fetch["env"] == {
+        "DUNE_API_KEY": "${{ secrets.DUNE_API_KEY }}",
     }
+    secret_steps = [
+        step for step in steps if "DUNE_API_KEY" in (step.get("env") or {})
+    ]
+    assert secret_steps == [fetch]
 
-    job = workflow["jobs"]["refresh-and-deploy"]
-
-    step_names = [step["name"] for step in job["steps"]]
-    assert "Fetch latest Dune freshness snapshot" in step_names
-    assert "Build website" in step_names
-    assert "Upload website artifact" in step_names
-    assert "Deploy to GitHub Pages" in step_names
-
-    assert "DUNE_API_KEY: ${{ secrets.DUNE_API_KEY }}" in workflow_text
-    assert "scripts/update_freshness_from_dune.py --query-id 7625551" in workflow_text
-    assert "python scripts/build_website.py" in workflow_text
-    assert "actions/upload-pages-artifact@v3" in workflow_text
-    assert "path: output/website" in workflow_text
-    assert "actions/deploy-pages@v4" in workflow_text
+    artifact_steps = [
+        step for step in steps if step.get("uses") == "actions/upload-artifact@v4"
+    ]
+    assert len(artifact_steps) == 1
+    artifact = artifact_steps[0]
+    assert steps.index(fetch) < steps.index(artifact)
+    assert '--output "$RUNNER_TEMP/dataset_freshness.yaml"' in fetch["run"]
+    assert artifact["with"]["path"] == (
+        "${{ runner.temp }}/dataset_freshness.yaml"
+    )
+    assert 1 <= int(artifact["with"]["retention-days"]) <= 7
+    assert artifact["with"].get("if-no-files-found") in {None, "error"}
