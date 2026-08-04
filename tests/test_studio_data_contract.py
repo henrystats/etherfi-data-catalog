@@ -27,6 +27,7 @@ from scripts.studio import (
 
 GENERATED_AT = "2026-07-30T12:00:00Z"
 FINISHED_AT = "2026-07-30T11:58:41Z"
+DASHBOARD_REFRESHED_AT = "2026-07-30T12:05:00Z"
 
 
 def dashboard(
@@ -1240,6 +1241,7 @@ def test_delayed_query_freshness_is_valid_and_propagates_to_dashboard(tmp_path):
 
     assert payload["sources"]["shared_result"]["freshness_status"] == "delayed"
     assert payload["meta"]["freshness_status"] == "delayed"
+    assert payload["meta"]["dashboard_refreshed_at"] == GENERATED_AT
 
 
 def test_contract_allow_empty_policy_protects_exportable_metrics():
@@ -1344,6 +1346,28 @@ def test_schema_v1_accepts_and_validates_optional_richer_query_metadata():
         validate_studio_query_result(result_with_mismatched_policy, entry)
 
 
+def test_manifest_validates_optional_dashboard_refresh_timestamp():
+    entry = manifest_entry(columns=["value_a"])
+    legacy = {
+        "schema_version": STUDIO_DATA_SCHEMA_VERSION,
+        "generated_at": GENERATED_AT,
+        "queries": [entry],
+    }
+
+    assert "dashboard_refreshed_at" not in validate_studio_generated_manifest(
+        legacy
+    )
+    enriched = validate_studio_generated_manifest(
+        {**legacy, "dashboard_refreshed_at": DASHBOARD_REFRESHED_AT}
+    )
+    assert enriched["dashboard_refreshed_at"] == DASHBOARD_REFRESHED_AT
+
+    with pytest.raises(ValueError, match="dashboard_refreshed_at"):
+        validate_studio_generated_manifest(
+            {**legacy, "dashboard_refreshed_at": "2026-07-30T12:05:00"}
+        )
+
+
 def test_file_loaders_report_missing_and_malformed_generated_files(tmp_path):
     missing_manifest = tmp_path / "missing-manifest.json"
     with pytest.raises(ValueError, match="Missing Studio generated manifest"):
@@ -1381,6 +1405,7 @@ def test_generated_mode_loads_one_shared_query_for_multiple_metrics(tmp_path):
         {
             "mode": "fixture",
             "source": "local_fixture",
+            "dashboard_refreshed_at": DASHBOARD_REFRESHED_AT,
             "data_updated_at": FINISHED_AT,
             "display_updated_at": FINISHED_AT,
             "last_checked_at": GENERATED_AT,
@@ -1413,6 +1438,7 @@ def test_generated_mode_loads_one_shared_query_for_multiple_metrics(tmp_path):
     }
     assert payload["sources"]["shared_result"]["query_id"] == 42
     assert payload["meta"]["last_refreshed"] == FINISHED_AT
+    assert payload["meta"]["dashboard_refreshed_at"] == DASHBOARD_REFRESHED_AT
     assert payload["meta"]["generated_at"] == GENERATED_AT
     assert payload["meta"]["data_updated_at"] == FINISHED_AT
     assert payload["meta"]["display_updated_at"] == FINISHED_AT
@@ -1446,6 +1472,7 @@ def test_generated_dashboard_uses_oldest_required_source_update_timestamp(
     )
     manifest_payload.update(
         {
+            "dashboard_refreshed_at": DASHBOARD_REFRESHED_AT,
             "data_updated_at": "2026-07-29T01:00:00Z",
             "display_updated_at": "2026-07-30T11:59:00Z",
         }
@@ -1477,6 +1504,7 @@ def test_generated_dashboard_uses_oldest_required_source_update_timestamp(
 
     expected = "2026-07-30T09:15:00Z"
     assert payload["meta"]["last_refreshed"] == expected
+    assert payload["meta"]["dashboard_refreshed_at"] == DASHBOARD_REFRESHED_AT
     assert payload["meta"]["data_updated_at"] == expected
     assert payload["meta"]["display_updated_at"] == expected
 
@@ -1682,6 +1710,7 @@ def test_rendered_config_contains_mode_specific_source_descriptors(data_mode):
             "dashboard_id": "contract_dashboard",
             "status": dashboard_value["status"],
             "last_refreshed": GENERATED_AT,
+            "dashboard_refreshed_at": DASHBOARD_REFRESHED_AT,
             "freshness_status": "current",
         },
         "datasets": {"shared_result": [{"value_a": 1}]},
@@ -1712,7 +1741,8 @@ def test_rendered_config_contains_mode_specific_source_descriptors(data_mode):
     assert source["queryId"] == 42
     assert source["expectedColumns"] == ["value_a"]
     assert source["staleAfterHours"] == 36
-    assert f'data-studio-last-updated="{GENERATED_AT}"' in html
+    assert f'data-studio-last-updated="{DASHBOARD_REFRESHED_AT}"' in html
+    assert f'datetime="{DASHBOARD_REFRESHED_AT}"' in html
     if data_mode == "generated":
         assert source["kind"] == "generated_query"
         assert config["manifestUrl"] == (

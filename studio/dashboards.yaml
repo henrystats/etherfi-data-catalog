@@ -9,7 +9,7 @@ dashboards:
     audience: Finance · GTM · Partnerships
     status: live
     freshness_status: current
-    freshness_note: Last Updated comes from the oldest required query in the active validated snapshot. Failed refreshes keep that snapshot available.
+    freshness_note: Dashboard Last Updated records when the active snapshot passed validation and was accepted. Source and methodology timestamps continue to describe each Dune result independently.
     freshness_policy:
       expected_refresh_hours: 24
       warning_after_hours: 36

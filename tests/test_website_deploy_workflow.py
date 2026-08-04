@@ -64,11 +64,17 @@ def test_push_deploy_uses_only_the_shared_live_studio_production_path():
     )
 
 
-def test_manual_live_refresh_uses_only_the_shared_live_studio_production_path():
+def test_manual_and_scheduled_live_refresh_use_the_shared_production_path():
     assert_shared_production_caller(
         STUDIO_LIVE_WRAPPER_PATH,
-        expected_trigger={"workflow_dispatch": ""},
+        expected_trigger={
+            "workflow_dispatch": "",
+            "schedule": [{"cron": "25 */4 * * *"}],
+        },
     )
+
+    cron = load_workflow(STUDIO_LIVE_WRAPPER_PATH)["on"]["schedule"][0]["cron"]
+    assert cron.split()[0] == "25"
 
 
 def test_shared_production_workflow_requires_only_the_dune_secret():
@@ -183,6 +189,7 @@ def test_shared_production_workflow_fetches_validates_builds_and_deploys_one_sna
     refresh_command = str(refresh["run"])
     assert f"--output-dir {STUDIO_LIVE_OUTPUT}" in refresh_command
     assert "--keep-previous 1" in refresh_command
+    assert "--force" in refresh_command
     for forbidden in (
         "--fixture-mode",
         "--mixed-source-mode",

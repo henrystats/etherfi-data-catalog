@@ -2807,6 +2807,13 @@ def validate_studio_generated_manifest(
             context="Studio generated manifest",
             field="generated_at",
         )
+    dashboard_refreshed_at = payload.get("dashboard_refreshed_at")
+    if dashboard_refreshed_at is not None:
+        _parse_timezone_timestamp(
+            dashboard_refreshed_at,
+            context="Studio generated manifest",
+            field="dashboard_refreshed_at",
+        )
 
     normalized_queries = []
     query_ids: list[int] = []
@@ -3776,12 +3783,23 @@ def load_studio_data(
     )
     data_updated_at = source_updated_at
     display_updated_at = source_updated_at
+    dashboard_refreshed_at = (
+        manifest.get("dashboard_refreshed_at")
+        or manifest.get("last_successful_fetch_at")
+        or manifest["generated_at"]
+    )
+    _parse_timezone_timestamp(
+        dashboard_refreshed_at,
+        context=f"Studio dashboard {dashboard.id}",
+        field="dashboard_refreshed_at",
+    )
     is_fixture_snapshot = manifest.get("mode") == "fixture"
     return {
         "meta": {
             "dashboard_id": dashboard.id,
             "status": dashboard.data["status"],
             "last_refreshed": display_updated_at,
+            "dashboard_refreshed_at": dashboard_refreshed_at,
             "generated_at": manifest["generated_at"],
             "data_updated_at": data_updated_at,
             "display_updated_at": display_updated_at,
@@ -4482,7 +4500,9 @@ def render_studio_dashboard(
     )
     meta = data_payload["meta"]
     source_status = str(meta["status"])
-    refreshed_at = str(meta["last_refreshed"])
+    refreshed_at = str(
+        meta.get("dashboard_refreshed_at") or meta["last_refreshed"]
+    )
     try:
         refreshed_datetime = datetime.fromisoformat(
             refreshed_at.replace("Z", "+00:00")

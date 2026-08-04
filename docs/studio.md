@@ -85,7 +85,7 @@ docs/
 .github/workflows/
   studio-fixture-refresh.yml      Manual, offline, non-deploying fixture check
   deploy-website.yml              Push-only production entry point
-  studio-live-refresh.yml         Manual-only production entry point
+  studio-live-refresh.yml         Manual + four-hour production entry point
   studio-production-deploy.yml    Shared live ingest/build/Pages deployment
   refresh-freshness.yml           Catalog-freshness validation artifact only
 ```
@@ -103,6 +103,7 @@ dashboard + metric registries
                                 --> Decimal enrichment and reconciliation
                                 --> build validated cross-query derived artifacts
                                 --> normalize and validate in staging
+                                --> stamp dashboard_refreshed_at at acceptance
                                 --> immutable snapshot + atomic state pointer
           |
           +--> website build --> resolve active snapshot
@@ -110,12 +111,14 @@ dashboard + metric registries
                                  --> generated HTML/CSS/JS site
 ```
 
-Production has two thin entry points but only one implementation. A push to
-`main` enters through `deploy-website.yml`; a manual live refresh enters through
-`studio-live-refresh.yml`. Both call the reusable, `workflow_call`-only
+Production has two thin workflow files but three trigger paths and only one
+implementation. A push to `main` enters through `deploy-website.yml`; manual
+and four-hour scheduled live refreshes enter through `studio-live-refresh.yml`.
+All three call the reusable, `workflow_call`-only
 `studio-production-deploy.yml`, which owns the secret check, read-only import,
-validation, tests, build, Pages artifact, and deployment. No production Studio
-workflow has a schedule.
+validation, tests, build, Pages artifact, and deployment. The cron
+`25 */4 * * *` runs at approximately 00:25, 04:25, 08:25, 12:25, 16:25, and
+20:25 UTC; it schedules only this importer, never a Dune query execution.
 
 The production provider flow is deliberately one-way and read-only:
 
@@ -559,6 +562,7 @@ STUDIO_ENABLE_LIVE_DUNE=1 \
 python scripts/fetch_studio_data.py \
   --output-dir "$RUNNER_TEMP/studio-live-generated" \
   --keep-previous 1 \
+  --force \
   --verbose
 python scripts/fetch_studio_data.py \
   --validate-only \
@@ -794,10 +798,12 @@ Promotion is transactional:
    `snapshots/`.
 3. Validate manifest/query agreement, registry contracts, content checksums,
    file checksums, source checksum, and manifest checksum.
-4. Rename the validated directory to its immutable snapshot ID.
-5. Atomically replace `state.json` so readers switch to the new snapshot in one
+4. Stamp `dashboard_refreshed_at`, recompute the manifest checksum, and
+   revalidate the accepted candidate.
+5. Rename the validated directory to its immutable snapshot ID.
+6. Atomically replace `state.json` so readers switch to the new snapshot in one
    operation.
-6. Retain the configured number of older snapshots while protecting the exact
+7. Retain the configured number of older snapshots while protecting the exact
    `previous_snapshot_id`; retention cleanup is best-effort after promotion.
 
 Fetch or validation failure writes an attempt and failure state while preserving
@@ -842,7 +848,8 @@ Each immutable `manifest.json` contains:
 
 ```text
 schema_version, ingestion_schema_version, ingestion_tool_version,
-snapshot_id, previous_snapshot_id, generated_at, display_updated_at,
+snapshot_id, previous_snapshot_id, generated_at, dashboard_refreshed_at,
+display_updated_at,
 data_updated_at, last_checked_at, last_successful_fetch_at,
 source, mode, validation_status,
 dashboard_count, metric_count, unique_query_count,
@@ -906,6 +913,12 @@ These timestamps answer different questions:
   across identical content.
 - `fetched_at`: when the provider response was fetched.
 - `generated_at`: when this local validated snapshot/result was written.
+- `dashboard_refreshed_at`: when all required sources and enrichments passed
+  validation and the complete snapshot was accepted at the atomic promotion
+  boundary. The writer emits a timezone-aware UTC `Z` value. Fixture mode uses
+  its deterministic fixture clock. A failed, partial, filtered, or unchanged
+  non-forced attempt preserves the prior successful value because it did not
+  fetch every required production source in one complete acceptance cycle.
 - `last_checked_at`: the most recent refresh attempt, including unchanged or
   failed checks.
 - `last_successful_fetch_at`: the most recent complete successful fetch,
@@ -918,6 +931,14 @@ queries. It represents the oldest contributing data, not the newest request or
 build. Query freshness is `current`, `delayed`, or `stale` according to its
 effective warning/stale thresholds. Dashboard status uses the worst required
 source state.
+
+The top-right **Dashboard Last Updated** label uses
+`dashboard_refreshed_at`. It answers when Studio successfully refreshed and
+accepted the deployed snapshot. Query execution, source-last-updated,
+source-data-through, snapshot-generated, and methodology-version fields answer
+source provenance questions and remain separate. Legacy manifests without the
+field fall back to `last_successful_fetch_at`, then `generated_at`; they never
+fall back to the oldest source timestamp.
 
 Do not replace these semantics with `Date.now()` in the browser. Page-open and
 site-build times must not make old data look fresh.
@@ -939,8 +960,9 @@ Production passes the validated runner-temporary root through
 default. The public manifest and source descriptors therefore carry the live
 snapshot ID and generation time, Dune execution IDs and completion times,
 source `last_updated` values where supplied by a transformation, and
-methodology IDs and versions. Dashboard `Last Updated` values continue to use
-source data/completion time rather than workflow or build time. If a validated
+methodology IDs and versions. Dashboard `Last Updated` uses the accepted
+snapshot's `dashboard_refreshed_at`, while source age and methodology continue
+to use their query-specific data/completion timestamps. If a validated
 partial/fallback snapshot is ever built explicitly, `refresh_status.json` and
 the per-source metadata expose `using_previous` and the failed/reused sources;
 fallback is never silently labeled as a fresh full success.
@@ -1020,9 +1042,9 @@ Production is active through three narrowly scoped workflows:
 
 - `.github/workflows/deploy-website.yml` is a push-to-`main` wrapper. It has no
   build steps of its own and calls the shared production workflow.
-- `.github/workflows/studio-live-refresh.yml` is the manual
-  `workflow_dispatch` wrapper. It calls the same shared production workflow and
-  has no schedule.
+- `.github/workflows/studio-live-refresh.yml` preserves `workflow_dispatch` and
+  also runs on `25 */4 * * *`. Manual and scheduled invocations call the same
+  shared production workflow with the same ingestion command.
 - `.github/workflows/studio-production-deploy.yml` is `workflow_call`-only. It
   requires the `DUNE_API_KEY` secret, performs the complete read-only import,
   validates and tests it, builds the complete website from the promoted
@@ -1033,7 +1055,10 @@ The shared workflow first checks that `DUNE_API_KEY` is present, then copies the
 checked-in previous-good root to `$RUNNER_TEMP/studio-live-generated`. It loads
 the unique production query IDs from the validated Studio registry rather than
 hardcoding them in YAML. Its live import omits `--allow-partial`,
-`--mixed-source-mode`, and all execution or stale-auto-refresh options. A
+`--mixed-source-mode`, and all execution or stale-auto-refresh options. It uses
+`--force` so every fully validated production deployment receives a newly
+accepted immutable snapshot and `dashboard_refreshed_at`, even when Dune's
+latest stored execution IDs are unchanged. A
 source, transformation, reconciliation, validation, test, or build failure
 prevents artifact upload and deployment. A missing secret fails before
 ingestion and provides repository Actions-secret setup guidance. No generated
@@ -1061,9 +1086,10 @@ Secret name: DUNE_API_KEY
 Access: Dune query-result read access only
 ```
 
-There is no scheduled Studio import. Dune's own independent query schedules
-remain the sole mechanism that executes or refreshes the reviewed queries. The
-push and manual workflows only read their latest stored results.
+The four-hour Studio schedule imports only latest stored results. Dune's own
+independent query schedules remain the sole mechanism that executes or
+refreshes the reviewed queries. Push, manual, and scheduled Studio triggers all
+use the same read-only production path.
 
 ## Onboarding changes safely
 

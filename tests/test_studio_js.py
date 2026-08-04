@@ -3439,6 +3439,7 @@ const manifest = studio.normalizeManifest({
   schema_version: 1,
   snapshot_id: "live-20260731-active",
   generated_at: "2026-07-31T08:00:00Z",
+  dashboard_refreshed_at: "2026-07-31T08:05:00Z",
   display_updated_at: "2026-07-31T07:50:00Z",
   data_updated_at: "2026-07-31T07:50:00Z",
   mode: "live",
@@ -3470,6 +3471,7 @@ const base = {
   schema_version: 1,
   snapshot_id: "live-20260731-active",
   generated_at: "2026-07-31T08:00:00Z",
+  dashboard_refreshed_at: "2026-07-31T08:05:00Z",
   display_updated_at: "2026-07-31T07:50:00Z",
   data_updated_at: "2026-07-31T07:50:00Z",
   mode: "live",
@@ -3484,6 +3486,7 @@ const policy = {
 console.log(JSON.stringify({
   manifest: {
     snapshotId: manifest.snapshot_id,
+    dashboardRefreshedAt: manifest.dashboard_refreshed_at,
     displayUpdatedAt: manifest.display_updated_at,
     freshness: manifest.queries[0].freshness_status,
   },
@@ -3529,6 +3532,10 @@ console.log(JSON.stringify({
   errors: {
     duplicate: errorMessage({ ...base, queries: [query, { ...query }] }),
     incomplete: errorMessage({ ...base, display_updated_at: undefined }),
+    invalidDashboardRefresh: errorMessage({
+      ...base,
+      dashboard_refreshed_at: "not-a-timestamp",
+    }),
     missingExecution: errorMessage({
       ...base,
       queries: [{ ...query, execution_id: undefined }],
@@ -3544,6 +3551,7 @@ console.log(JSON.stringify({
 
     assert result["manifest"] == {
         "snapshotId": "live-20260731-active",
+        "dashboardRefreshedAt": "2026-07-31T08:05:00Z",
         "displayUpdatedAt": "2026-07-31T07:50:00Z",
         "freshness": "delayed",
     }
@@ -3561,8 +3569,46 @@ console.log(JSON.stringify({
     }
     assert "duplicate" in result["errors"]["duplicate"].lower()
     assert "incomplete" in result["errors"]["incomplete"].lower()
+    assert "incomplete" in result["errors"]["invalidDashboardRefresh"].lower()
     assert "malformed" in result["errors"]["missingExecution"].lower()
     assert "unsafe" in result["errors"]["unsafe"].lower()
+
+
+def test_runtime_header_prefers_dashboard_refresh_timestamp_and_formats_utc():
+    result = run_node_json(
+        """
+const attributes = {};
+const time = {
+  dateTime: "",
+  textContent: "",
+  setAttribute(name, value) { attributes[name] = value; },
+};
+studio.updateDashboardTimestamp({
+  data: {
+    meta: {
+      dashboard_refreshed_at: "2026-08-04T09:25:31Z",
+      display_updated_at: "2026-08-01T06:29:57Z",
+    },
+  },
+  page: {
+    querySelector(selector) {
+      return selector === "[data-studio-last-updated]" ? time : null;
+    },
+  },
+});
+console.log(JSON.stringify({
+  dateTime: time.dateTime,
+  datetime: attributes.datetime,
+  text: time.textContent,
+}));
+"""
+    )
+
+    assert result == {
+        "dateTime": "2026-08-04T09:25:31Z",
+        "datetime": "2026-08-04T09:25:31Z",
+        "text": "04 Aug 2026 · 09:25 UTC",
+    }
 
 
 def test_counter_reports_unavailable_or_stale_auxiliary_sparkline_data():
@@ -3886,6 +3932,7 @@ def test_loader_uses_manifest_paths_and_keeps_previous_snapshot_metadata_separat
     schema_version: 1,
     snapshot_id: "live-20260730-active",
     generated_at: "2026-07-30T23:59:00Z",
+    dashboard_refreshed_at: "2026-07-30T23:59:30Z",
     display_updated_at: "2026-07-29T22:00:00Z",
     data_updated_at: "2026-07-29T22:00:00Z",
     mode: "live",
@@ -3926,14 +3973,14 @@ def test_loader_uses_manifest_paths_and_keeps_previous_snapshot_metadata_separat
       },
     },
   };
-  async function load(refreshAvailable) {
+  async function load(refreshAvailable, manifestPayload = manifest) {
     const calls = {};
     const data = await studio.loadStudioSources(
       config,
       async (url) => {
         calls[url] = (calls[url] || 0) + 1;
         if (url === "/active/manifest.json") {
-          return { ok: true, async json() { return manifest; } };
+          return { ok: true, async json() { return manifestPayload; } };
         }
         if (url === "/active/refresh_status.json") {
           return refreshAvailable
@@ -3951,6 +3998,9 @@ def test_loader_uses_manifest_paths_and_keeps_previous_snapshot_metadata_separat
   }
   const previous = await load(true);
   const noStatus = await load(false);
+  const legacyManifest = { ...manifest };
+  delete legacyManifest.dashboard_refreshed_at;
+  const legacy = await load(false, legacyManifest);
   const metric = {
     id: "result_metric",
     name: "Result metric",
@@ -3973,6 +4023,7 @@ def test_loader_uses_manifest_paths_and_keeps_previous_snapshot_metadata_separat
       snapshotState: noStatus.data.sourceMeta.result.snapshot_state,
       refreshStatus: noStatus.data.meta.refresh_status_status,
     },
+    legacyDashboardRefreshedAt: legacy.data.meta.dashboard_refreshed_at,
   }));
 })().catch((error) => {
   console.error(error);
@@ -3989,6 +4040,7 @@ def test_loader_uses_manifest_paths_and_keeps_previous_snapshot_metadata_separat
     assert "/wrong/query_42.json" not in result["calls"]
     assert result["rows"] == [{"value": 42}]
     assert result["meta"]["generated_at"] == "2026-07-30T23:59:00Z"
+    assert result["meta"]["dashboard_refreshed_at"] == "2026-07-30T23:59:30Z"
     assert result["meta"]["display_updated_at"] == "2026-07-29T22:00:00Z"
     assert result["meta"]["snapshot_state"] == "previous"
     assert result["meta"]["result_status"] == "success"
@@ -4007,6 +4059,7 @@ def test_loader_uses_manifest_paths_and_keeps_previous_snapshot_metadata_separat
         "snapshotState": "current",
         "refreshStatus": "unavailable",
     }
+    assert result["legacyDashboardRefreshedAt"] == "2026-07-30T23:59:00Z"
 
 
 def test_partial_refresh_uses_previous_snapshot_and_source_scoped_timestamps():
@@ -4043,6 +4096,7 @@ def test_partial_refresh_uses_previous_snapshot_and_source_scoped_timestamps():
     schema_version: 1,
     snapshot_id: "live-20260731-active",
     generated_at: "2026-07-31T08:00:00Z",
+    dashboard_refreshed_at: "2026-07-31T08:05:00Z",
     display_updated_at: "2026-07-01T00:00:00Z",
     data_updated_at: "2026-07-01T00:00:00Z",
     mode: "live",
@@ -4132,6 +4186,7 @@ def test_partial_refresh_uses_previous_snapshot_and_source_scoped_timestamps():
     assert result["meta"]["latest_attempt_status"] == "partial"
     assert result["meta"]["using_previous"] is True
     assert result["meta"]["snapshot_state"] == "partial"
+    assert result["meta"]["dashboard_refreshed_at"] == "2026-07-31T08:05:00Z"
     assert result["meta"]["display_updated_at"] == "2026-07-29T21:00:00Z"
     assert result["meta"]["data_updated_at"] == "2026-07-29T21:00:00Z"
     assert result["meta"]["latest_failure"]["failed_query_ids"] == [43]

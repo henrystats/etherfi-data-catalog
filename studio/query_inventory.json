@@ -4,7 +4,7 @@
     "studio/dashboards.yaml",
     "studio/metrics.yaml"
   ],
-  "registry_checksum": "8767090b852f8a15c175f2c2c5e710376dbf6bc62806077f17664a1aa48ad308",
+  "registry_checksum": "e14b9378afa86bf27f3960dc80c3c42140b7d1f0c62a099f180f7458e21b4a39",
   "dashboard_count": 1,
   "metric_count": 24,
   "unique_query_count": 9,

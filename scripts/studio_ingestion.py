@@ -2701,6 +2701,7 @@ class SnapshotStore:
         previous_snapshot_id: str | None,
         required_query_ids: set[int],
         partial_failures: list[dict] | None = None,
+        dashboard_refreshed_at: str | None = None,
     ) -> dict:
         snapshot_id = _safe_snapshot_id(snapshot_id)
         self.initialize()
@@ -2715,6 +2716,33 @@ class SnapshotStore:
                         f"Unsafe Studio result filename: {file_name}",
                     )
                 _durable_write_bytes(staging_dir / file_name, file_bytes)
+            _durable_write_bytes(
+                staging_dir / "manifest.json",
+                pretty_json_bytes(manifest),
+            )
+            _fsync_directory(staging_dir)
+            validate_snapshot_directory(
+                staging_dir,
+                query_requests=query_requests,
+                required_query_ids=required_query_ids,
+                expected_snapshot_id=snapshot_id,
+            )
+            if dashboard_refreshed_at is None:
+                accepted_at = iso_utc(self.clock())
+            else:
+                accepted_at = iso_utc(
+                    parse_timestamp(
+                        dashboard_refreshed_at,
+                        field_name="dashboard_refreshed_at",
+                    )
+                )
+            accepted_manifest = dict(manifest)
+            accepted_manifest.pop("manifest_checksum", None)
+            accepted_manifest["dashboard_refreshed_at"] = accepted_at
+            accepted_manifest["manifest_checksum"] = sha256_json(
+                accepted_manifest
+            )
+            manifest = accepted_manifest
             _durable_write_bytes(
                 staging_dir / "manifest.json",
                 pretty_json_bytes(manifest),
@@ -3560,6 +3588,7 @@ def _refresh_studio_data_unlocked(
         if current_entries.get(query_id, {}).get("checksum") != value.content_checksum
     ]
     last_successful_fetch_at = checked_at_text
+    preserved_dashboard_refreshed_at: str | None = None
     if partial_failure_payloads:
         prior_complete_success = (
             state.get("last_successful_fetch_at")
@@ -3577,6 +3606,24 @@ def _refresh_studio_data_unlocked(
                 "The active Studio snapshot has no valid complete-success timestamp",
             ) from exc
         last_successful_fetch_at = str(prior_complete_success)
+    if partial_failure_payloads or selected_ids != target_query_ids:
+        prior_dashboard_refresh = (
+            (current_manifest or {}).get("dashboard_refreshed_at")
+            or (current_manifest or {}).get("last_successful_fetch_at")
+            or (current_manifest or {}).get("generated_at")
+        )
+        try:
+            preserved_dashboard_refreshed_at = iso_utc(
+                parse_timestamp(
+                    prior_dashboard_refresh,
+                    field_name="dashboard_refreshed_at",
+                )
+            )
+        except ValueError as exc:
+            raise StudioIngestionError(
+                FailureCategory.MANIFEST_FAILURE,
+                "The active Studio snapshot has no valid dashboard refresh timestamp",
+            ) from exc
     manifest = _build_manifest(
         checked_at=checked_at,
         mode=mode,
@@ -3640,6 +3687,7 @@ def _refresh_studio_data_unlocked(
             ),
             required_query_ids=target_query_ids,
             partial_failures=partial_failure_payloads,
+            dashboard_refreshed_at=preserved_dashboard_refreshed_at,
         )
     except StudioIngestionError as exc:
         failed_attempt = dict(attempt_payload)

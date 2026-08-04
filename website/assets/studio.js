@@ -1468,6 +1468,10 @@
       || !/^[a-z0-9][a-z0-9._-]{0,127}$/.test(payload.snapshot_id)
       || !["fixture", "live", "mixed"].includes(payload.mode)
       || payload.validation_status !== "valid"
+      || (
+        payload.dashboard_refreshed_at !== undefined
+        && !parseDate(payload.dashboard_refreshed_at)
+      )
       || !parseDate(payload.display_updated_at)
       || !parseDate(payload.data_updated_at)
     )) {
@@ -8315,6 +8319,16 @@
       || dashboardMeta.display_updated_at
       || (manifest && manifest.display_updated_at)
       || generatedAt;
+    const dashboardRefreshedAt = (
+      manifest
+      && (
+        manifest.dashboard_refreshed_at
+        || manifest.last_successful_fetch_at
+        || manifest.generated_at
+      )
+    )
+      || dashboardMeta.dashboard_refreshed_at
+      || generatedAt;
     const dataUpdatedAt = sourceDataUpdatedAt
       || dashboardMeta.data_updated_at
       || (manifest && manifest.data_updated_at)
@@ -8353,6 +8367,7 @@
           : "unavailable",
         using_previous: usingPrevious,
         generated_at: generatedAt,
+        dashboard_refreshed_at: dashboardRefreshedAt,
         display_updated_at: displayUpdatedAt,
         data_updated_at: dataUpdatedAt,
         last_refreshed: dashboardMeta.last_refreshed || displayUpdatedAt,
@@ -8757,7 +8772,8 @@
       && state.data
       && state.data.meta
       && (
-        state.data.meta.display_updated_at
+        state.data.meta.dashboard_refreshed_at
+        || state.data.meta.display_updated_at
         || state.data.meta.data_updated_at
         || state.data.meta.generated_at
         || state.data.meta.last_refreshed
@@ -9045,6 +9061,7 @@
     stableBarInteraction,
     utcTimestampDetailLabel,
     utcTimestampLabel,
+    updateDashboardTimestamp,
     validateExpectedColumns,
     visibilityDisclosureModel,
     visibilityDisclosureStorageKey,

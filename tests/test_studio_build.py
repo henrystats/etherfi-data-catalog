@@ -1101,6 +1101,20 @@ def test_live_snapshot_labels_and_timezone_render_without_template_changes(tmp_p
         clock=fixture_clock,
         sleeper=lambda _: None,
     )
+    failed_clock = lambda: datetime(2026, 8, 3, 14, tzinfo=timezone.utc)
+    with pytest.raises(StudioIngestionError, match="active snapshot preserved"):
+        refresh_studio_data(
+            FixtureDuneClient(
+                requests,
+                dashboards,
+                scenario="query_execution_failed",
+                clock=failed_clock,
+            ),
+            output_root=generated_dir,
+            mode="fixture",
+            clock=failed_clock,
+            sleeper=lambda _: None,
+        )
 
     output_dir = tmp_path / "site"
     build_site(
@@ -1112,8 +1126,10 @@ def test_live_snapshot_labels_and_timezone_render_without_template_changes(tmp_p
         encoding="utf-8"
     )
 
-    assert "31 Jul 2026 · 11:45 UTC" in html
+    assert "03 Aug 2026 · 12:00 UTC" in html
     assert "Last Updated:" in html
+    assert '"sourceLastUpdated":"2026-07-31T11:45:00Z"' in html
+    assert '"executionFinishedAt":"2026-07-31T11:45:00Z"' in html
     assert "Live generated snapshot" not in html
     assert "Dune-backed analytics, rendered statically." not in html
     assert "Query 8180894 · source" not in html
@@ -1123,6 +1139,32 @@ def test_live_snapshot_labels_and_timezone_render_without_template_changes(tmp_p
     assert 'data-methodology-open="kyber_total_referral_deposits"' not in html
     assert "kyberswap_campaign_summary_v1" in html
     assert '"queryId":8180894' in html
+
+    replacement_clock = lambda: datetime(2026, 8, 3, 16, tzinfo=timezone.utc)
+    refresh_studio_data(
+        FixtureDuneClient(
+            requests,
+            dashboards,
+            scenario="success",
+            clock=replacement_clock,
+        ),
+        output_root=generated_dir,
+        mode="fixture",
+        force=True,
+        clock=replacement_clock,
+        sleeper=lambda _: None,
+    )
+    replacement_output = tmp_path / "replacement-site"
+    build_site(
+        output_dir=replacement_output,
+        studio_dir=studio_dir,
+        studio_generated_data_dir=generated_dir,
+    )
+    replacement_html = (
+        replacement_output / "studio" / "kyberswap" / "index.html"
+    ).read_text(encoding="utf-8")
+    assert "03 Aug 2026 · 16:00 UTC" in replacement_html
+    assert '"sourceLastUpdated":"2026-07-31T11:45:00Z"' in replacement_html
 
 
 def test_every_dashboard_appears_in_landing_and_dashboard_selectors(

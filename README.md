@@ -161,10 +161,18 @@ Fixture mode is offline and does not require a Dune key. The manual
 [`studio-fixture-refresh.yml`](.github/workflows/studio-fixture-refresh.yml)
 workflow runs directly when dispatched, does not deploy, and uploads only
 short-lived diagnostics from a runner-temporary fixture directory. Production
-Studio imports run on pushes to `main` and on a manual live-refresh dispatch;
-there is no Studio import schedule. Both production entry points call
+Studio imports run on pushes to `main`, on a manual live-refresh dispatch, and
+at minute 25 every four hours. All three production entry points call
 [`studio-production-deploy.yml`](.github/workflows/studio-production-deploy.yml)
 and require `DUNE_API_KEY` as a repository Actions secret with read access only.
+The Studio schedule only imports latest stored results; Dune's independent
+query schedules remain solely responsible for executing and refreshing queries.
+
+The dashboard header's `Last Updated` value is the manifest-level
+`dashboard_refreshed_at`: the UTC time when a complete Studio snapshot passed
+validation and was atomically accepted for the website build. It is separate
+from query execution, source-data, methodology, browser, and build timestamps.
+Failed or partial attempts retain the prior successful value.
 
 Production Studio ingestion is a read-only import, not query execution. Dune
 schedules and refreshes each approved query independently; the GitHub Action
@@ -234,6 +242,7 @@ STUDIO_ENABLE_LIVE_DUNE=1 \
   .venv/bin/python scripts/fetch_studio_data.py \
   --output-dir "$STUDIO_LIVE_GENERATED" \
   --keep-previous 1 \
+  --force \
   --verbose
 .venv/bin/python scripts/fetch_studio_data.py \
   --validate-only \

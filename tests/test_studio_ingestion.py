@@ -1152,7 +1152,33 @@ def test_successful_refresh_promotes_complete_valid_snapshot_once_per_query(tmp_
     ]
     assert manifest["validation_status"] == "valid"
     assert manifest["mode"] == "fixture"
+    assert manifest["dashboard_refreshed_at"] == "2026-07-31T12:00:00Z"
+    refreshed_at = datetime.fromisoformat(
+        manifest["dashboard_refreshed_at"].replace("Z", "+00:00")
+    )
+    assert refreshed_at.tzinfo is not None
+    assert refreshed_at.utcoffset() == timedelta(0)
     assert len(manifest["contract_checksum"]) == 64
+
+
+def test_live_dashboard_timestamp_is_sampled_at_validated_acceptance(tmp_path):
+    _, _, client = generated_registry_fixture()
+    acceptance_time = NOW + timedelta(minutes=7)
+    clock_values = iter((NOW, acceptance_time))
+
+    summary = refresh_studio_data(
+        client,
+        output_root=tmp_path,
+        mode="live",
+        force=True,
+        clock=lambda: next(clock_values),
+        sleeper=lambda _: None,
+    )
+
+    manifest = validate_current_snapshot(tmp_path)
+    assert summary.status == "success"
+    assert manifest["generated_at"] == "2026-07-31T12:00:00Z"
+    assert manifest["dashboard_refreshed_at"] == "2026-07-31T12:07:00Z"
 
 
 def test_shared_transformed_queries_are_fetched_once_and_keep_raw_results(
@@ -1714,6 +1740,9 @@ def test_unchanged_refresh_records_check_without_rewriting_snapshot_files(tmp_pa
     state = json.loads((tmp_path / "state.json").read_text())
     assert state["last_checked_at"] == "2026-07-31T13:00:00Z"
     assert state["latest_attempt_status"] == "unchanged"
+    assert validate_current_snapshot(tmp_path)["dashboard_refreshed_at"] == (
+        "2026-07-31T12:00:00Z"
+    )
     assert len(list((tmp_path / "attempts").glob("*/attempt.json"))) == 2
 
 
@@ -1792,6 +1821,9 @@ def test_failed_refresh_preserves_active_snapshot_and_records_affected_metrics(t
         clock=fixed_clock,
         sleeper=lambda _: None,
     )
+    first_dashboard_refreshed_at = validate_current_snapshot(tmp_path)[
+        "dashboard_refreshed_at"
+    ]
     current_path = tmp_path / "snapshots" / first.snapshot_id / requests[8204345].result_file
     before = current_path.read_bytes()
     _, failed_client = registry_fixture("query_execution_failed")
@@ -1819,6 +1851,9 @@ def test_failed_refresh_preserves_active_snapshot_and_records_affected_metrics(t
     assert state["latest_attempt_status"] == "failed"
     assert state["latest_failure"]["failed_query_ids"] == [8204345]
     assert current_path.read_bytes() == before
+    assert validate_current_snapshot(tmp_path)["dashboard_refreshed_at"] == (
+        first_dashboard_refreshed_at
+    )
     attempt = json.loads(sorted((tmp_path / "attempts").glob("*/attempt.json"))[-1].read_text())
     assert attempt["active_snapshot_preserved"] is True
     assert attempt["failures"][0]["affected_metrics"] == [
@@ -2053,6 +2088,9 @@ def test_changed_partial_snapshot_preserves_last_complete_success_timestamp(tmp_
         clock=fixed_clock,
         sleeper=lambda _: None,
     )
+    first_dashboard_refreshed_at = validate_current_snapshot(tmp_path)[
+        "dashboard_refreshed_at"
+    ]
     _, base_client = registry_fixture()
 
     class ChangedPartialClient:
@@ -2084,6 +2122,7 @@ def test_changed_partial_snapshot_preserves_last_complete_success_timestamp(tmp_
     assert manifest["changed_query_ids"] == [8204373]
     assert manifest["last_checked_at"] == "2026-07-31T13:00:00Z"
     assert manifest["last_successful_fetch_at"] == "2026-07-31T12:00:00Z"
+    assert manifest["dashboard_refreshed_at"] == first_dashboard_refreshed_at
     state = json.loads((tmp_path / "state.json").read_text())
     assert state["latest_attempt_status"] == "partial"
     assert state["last_checked_at"] == "2026-07-31T13:00:00Z"
@@ -2099,6 +2138,9 @@ def test_filtered_refresh_fetches_only_selected_query_and_merges_current(tmp_pat
         clock=fixed_clock,
         sleeper=lambda _: None,
     )
+    first_dashboard_refreshed_at = validate_current_snapshot(tmp_path)[
+        "dashboard_refreshed_at"
+    ]
     _, selected_client = registry_fixture("changed_referral_deposit")
 
     summary = refresh_studio_data(
@@ -2117,6 +2159,7 @@ def test_filtered_refresh_fetches_only_selected_query_and_merges_current(tmp_pat
     manifest = validate_current_snapshot(tmp_path)
     assert manifest["unique_query_count"] == 9
     assert manifest["changed_query_ids"] == [8204345]
+    assert manifest["dashboard_refreshed_at"] == first_dashboard_refreshed_at
     state = json.loads((tmp_path / "state.json").read_text())
     assert state["current_snapshot_id"] == summary.snapshot_id
     assert state["previous_snapshot_id"] == first.snapshot_id

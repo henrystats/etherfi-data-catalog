@@ -61,6 +61,7 @@ jobs:
           python scripts/fetch_studio_data.py \
             --output-dir "$RUNNER_TEMP/studio-live-generated" \
             --keep-previous 1 \
+            --force \
             --verbose
 
       - name: Validate promoted Studio snapshot
