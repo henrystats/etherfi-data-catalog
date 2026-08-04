@@ -1,8 +1,11 @@
 import importlib.util
+import io
 import json
 from pathlib import Path
+import urllib.error
 import urllib.request
 
+import pytest
 import yaml
 
 
@@ -131,7 +134,7 @@ def test_dune_freshness_importer_reads_latest_result_endpoint_without_execution(
             }
         )
 
-    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+    monkeypatch.setattr(MODULE._NO_REDIRECT_OPENER, "open", fake_urlopen)
 
     rows = MODULE.fetch_latest_freshness_rows(
         query_id=7625551,
@@ -146,3 +149,45 @@ def test_dune_freshness_importer_reads_latest_result_endpoint_without_execution(
     assert captured["headers"]["X-dune-api-key"] == "read-only-key"
     assert captured["timeout"] == 12
     assert rows == [{"query_id": 6213381, "last_updated": "2026-06-01T08:00:00Z"}]
+
+
+def test_dune_freshness_importer_refuses_redirects_that_could_forward_the_key():
+    request = urllib.request.Request(
+        "https://api.dune.com/api/v1/query/7625551/results",
+        headers={"X-DUNE-API-KEY": "sentinel-read-only-key"},
+    )
+
+    redirected = MODULE._NoRedirectHandler().redirect_request(
+        request,
+        None,
+        302,
+        "Found",
+        {},
+        "https://unexpected.example/results",
+    )
+
+    assert redirected is None
+
+
+def test_dune_freshness_importer_redacts_a_key_reflected_in_an_http_error(
+    monkeypatch,
+):
+    api_key = "sentinel-read-only-key"
+
+    def fake_urlopen(request, timeout):
+        del request, timeout
+        raise urllib.error.HTTPError(
+            "https://api.dune.com/api/v1/query/7625551/results",
+            401,
+            "Unauthorized",
+            {},
+            io.BytesIO(f"invalid API key: {api_key}".encode("utf-8")),
+        )
+
+    monkeypatch.setattr(MODULE._NO_REDIRECT_OPENER, "open", fake_urlopen)
+
+    with pytest.raises(RuntimeError) as exc_info:
+        MODULE.fetch_latest_freshness_rows(query_id=7625551, api_key=api_key)
+
+    assert api_key not in str(exc_info.value)
+    assert "[REDACTED]" in str(exc_info.value)

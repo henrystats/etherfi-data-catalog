@@ -21,6 +21,17 @@ DEFAULT_DUNE_API_BASE_URL = "https://api.dune.com/api/v1"
 DEFAULT_DUNE_CONFIG_PATH = Path.home() / ".config" / "dune" / "config.yaml"
 
 
+class _NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Never forward the Dune API key through an HTTP redirect."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        del req, fp, code, msg, headers, newurl
+        return None
+
+
+_NO_REDIRECT_OPENER = urllib.request.build_opener(_NoRedirectHandler())
+
+
 def _rows_from_result(result) -> list[dict]:
     rows = getattr(result, "rows", None)
     if rows is None and hasattr(result, "result"):
@@ -125,10 +136,11 @@ def fetch_latest_freshness_rows(
         },
     )
     try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
+        with _NO_REDIRECT_OPENER.open(request, timeout=timeout) as response:
             payload = json.loads(response.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         body = exc.read().decode("utf-8", errors="replace")
+        body = body.replace(str(api_key), "[REDACTED]")
         raise RuntimeError(
             f"Failed to fetch latest Dune result for query {query_id}: "
             f"HTTP {exc.code} {body}"
