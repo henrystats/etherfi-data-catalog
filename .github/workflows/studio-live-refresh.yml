@@ -1,18 +1,98 @@
-name: Refresh live Studio data and deploy website
+name: Refresh live Studio data snapshot
 
 on:
   workflow_dispatch:
   schedule:
     - cron: "25 */4 * * *"
 
-permissions: {}
+permissions:
+  contents: read
+
+concurrency:
+  group: studio-live-snapshot
+  cancel-in-progress: true
 
 jobs:
-  production-deploy:
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    uses: ./.github/workflows/studio-production-deploy.yml
-    secrets:
-      DUNE_API_KEY: ${{ secrets.DUNE_API_KEY }}
+  refresh-snapshot:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Require read-only Dune API secret
+        env:
+          DUNE_API_KEY: ${{ secrets.DUNE_API_KEY }}
+        run: |
+          if [ -z "${DUNE_API_KEY:-}" ]; then
+            echo "::error::DUNE_API_KEY is required. Add it as a repository Actions secret with read-only Dune access." >&2
+            exit 1
+          fi
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e '.[dev]'
+
+      - name: Check Studio query inventory
+        run: python scripts/generate_studio_inventory.py --check
+
+      - name: Seed previous-good Studio snapshot
+        run: |
+          mkdir -p "$RUNNER_TEMP/studio-live-generated"
+          cp -R website/data/studio/generated/. "$RUNNER_TEMP/studio-live-generated/"
+
+      - name: Fetch latest stored Studio results and promote validated snapshot
+        env:
+          DUNE_API_KEY: ${{ secrets.DUNE_API_KEY }}
+          STUDIO_ENABLE_LIVE_DUNE: "1"
+        run: |
+          python scripts/fetch_studio_data.py \
+            --output-dir "$RUNNER_TEMP/studio-live-generated" \
+            --keep-previous 1 \
+            --force \
+            --verbose
+
+      - name: Validate promoted Studio snapshot
+        run: |
+          python scripts/fetch_studio_data.py \
+            --validate-only \
+            --output-dir "$RUNNER_TEMP/studio-live-generated"
+
+      - name: Run complete tests
+        run: python -m pytest -q
+
+      - name: Verify complete website build from snapshot
+        run: >-
+          python scripts/build_website.py
+          --studio-generated-data "$RUNNER_TEMP/studio-live-generated"
+
+      - name: Upload failed-refresh diagnostics
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: studio-live-refresh-failure-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/studio-live-generated/state.json
+            ${{ runner.temp }}/studio-live-generated/attempts/*/attempt.json
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Upload validated Studio snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: studio-live-snapshot-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/studio-live-generated/state.json
+            ${{ runner.temp }}/studio-live-generated/snapshots/
+          if-no-files-found: error
+          retention-days: 2

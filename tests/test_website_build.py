@@ -2614,8 +2614,8 @@ def test_build_website_generates_freshness_status_page(tmp_path):
         in source_panel.group(1)
     )
     assert (
-        "Freshness is sourced from a Dune tracker query and refreshed through the "
-        "GitHub Actions workflow."
+        "Catalog freshness is read from a Dune tracker query; each website "
+        "deployment reuses the latest validated four-hour Studio snapshot."
         in source_panel.group(1)
     )
     assert re.search(
@@ -2627,7 +2627,7 @@ def test_build_website_generates_freshness_status_page(tmp_path):
     assert re.search(
         r'<a class="freshness-source-link workflow" '
         r'href="https://github\.com/henrystats/etherfi-data-catalog/actions/workflows/refresh-freshness\.yml"[^>]*>'
-        r'.*?<strong>Open refresh workflow</strong>.*?</a>',
+        r'.*?<strong>Refresh freshness &amp; deploy</strong>.*?</a>',
         source_panel.group(1),
         re.S,
     )

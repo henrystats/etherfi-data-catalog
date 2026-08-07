@@ -273,10 +273,11 @@ output/website
 ```
 
 The workflow `.github/workflows/deploy-website.yml` runs on pushes to `main` and
-manual `workflow_dispatch`, installs the project, runs the website build tests,
-builds the site with `python scripts/build_website.py`, uploads
-`output/website` as the Pages artifact, and deploys it with GitHub's official
-Pages actions.
+calls the same reusable artifact-consuming deployment used by the hourly
+freshness workflow. That deployment downloads and validates the latest
+successful Studio snapshot artifact, imports the latest stored catalog
+freshness result, runs tests, builds `output/website`, and deploys it with
+GitHub's official Pages actions.
 
 Before using the workflow, set the repository Pages source to GitHub Actions:
 
@@ -284,9 +285,10 @@ Before using the workflow, set the repository Pages source to GitHub Actions:
 GitHub repo -> Settings -> Pages -> Source: GitHub Actions
 ```
 
-The normal website deploy does not require `DUNE_API_KEY` and does not fetch
-Dune data. It can publish the catalog with unknown runtime freshness if no
-runtime snapshot exists in the runner workspace.
+The website deployment requires the read-only `DUNE_API_KEY` only for catalog
+freshness query `7625551`. It never refetches the nine Studio query results.
+Those are supplied by the latest validated temporary artifact from the
+four-hour Studio snapshot workflow.
 
 ## Freshness workflow
 
@@ -294,12 +296,14 @@ Runtime freshness snapshots are generated into `status/dataset_freshness.yaml`.
 That file should stay ignored by git because it is runtime data, not source
 metadata.
 
-The optional workflow `.github/workflows/refresh-freshness.yml` runs hourly and
-on manual dispatch. It uses the read-only repository secret `DUNE_API_KEY` to
-call `scripts/update_freshness_from_dune.py --query-id 7625551`, which reads the
+The workflow `.github/workflows/refresh-freshness.yml` runs hourly, on manual
+dispatch, and after every successful Studio snapshot refresh. It uses the
+read-only repository secret `DUNE_API_KEY` to call
+`scripts/update_freshness_from_dune.py --query-id 7625551`, which reads the
 latest stored Dune query result and writes `status/dataset_freshness.yaml` in
-the runner workspace. It then rebuilds `output/website` and deploys the Pages
-artifact.
+the runner workspace. The shared deployment also downloads and validates the
+latest successful `main` `studio-live-snapshot` artifact, then rebuilds
+`output/website` and deploys the Pages artifact.
 
 The importer reads Dune's latest stored result endpoint; it does not trigger a
 fresh Dune SQL execution. Schedule or run the source freshness query on Dune
@@ -311,6 +315,13 @@ absent, the generated freshness page and dataset cards fall back to unknown or
 undocumented runtime freshness. The Pages artifact may include freshness-derived
 HTML after the optional workflow generates the runtime file, but the YAML
 snapshot itself should not be committed.
+
+`.github/workflows/studio-live-refresh.yml` is the only workflow that reads the
+nine Studio query results. It runs manually and every four hours, validates and
+tests one complete snapshot, verifies the website can build from it, and uploads
+the build input as a two-day Actions artifact without deploying Pages. Missing
+or invalid artifacts stop the freshness deployment before Pages upload, so the
+existing site remains available.
 
 ## Cloud Run private staging
 

@@ -10,9 +10,11 @@ safe, reviewable analysis.
 - Website: [https://henrystats.github.io/etherfi-data-catalog/](https://henrystats.github.io/etherfi-data-catalog/)
 - Pushes to `main` enter through
   [`.github/workflows/deploy-website.yml`](.github/workflows/deploy-website.yml),
-  while manual production refreshes enter through
-  [`.github/workflows/studio-live-refresh.yml`](.github/workflows/studio-live-refresh.yml).
-  Both call the same read-only Studio production build and Pages deployment.
+  while hourly/manual freshness deployments enter through
+  [`.github/workflows/refresh-freshness.yml`](.github/workflows/refresh-freshness.yml).
+  Both reuse the latest validated Studio artifact and call the same Pages
+  deployment. [`.github/workflows/studio-live-refresh.yml`](.github/workflows/studio-live-refresh.yml)
+  refreshes that artifact every four hours without deploying.
 
 ## What this repo provides
 
@@ -161,12 +163,21 @@ Fixture mode is offline and does not require a Dune key. The manual
 [`studio-fixture-refresh.yml`](.github/workflows/studio-fixture-refresh.yml)
 workflow runs directly when dispatched, does not deploy, and uploads only
 short-lived diagnostics from a runner-temporary fixture directory. Production
-Studio imports run on pushes to `main`, on a manual live-refresh dispatch, and
-at minute 25 every four hours. All three production entry points call
-[`studio-production-deploy.yml`](.github/workflows/studio-production-deploy.yml)
-and require `DUNE_API_KEY` as a repository Actions secret with read access only.
-The Studio schedule only imports latest stored results; Dune's independent
-query schedules remain solely responsible for executing and refreshing queries.
+Studio imports run on a manual live-refresh dispatch and at minute 25 every
+four hours. [`studio-live-refresh.yml`](.github/workflows/studio-live-refresh.yml)
+fetches and validates the nine latest stored Studio results once, then uploads
+the complete validated snapshot as a two-day `studio-live-snapshot` Actions
+artifact. It does not deploy Pages. Dune's independent query schedules remain
+solely responsible for executing and refreshing queries.
+
+Website deployments run hourly at minute 7, on manual catalog-freshness
+dispatch, after each successful Studio snapshot refresh, and on pushes to
+`main`. Every deployment calls
+[`studio-production-deploy.yml`](.github/workflows/studio-production-deploy.yml),
+which downloads and revalidates the latest successful `main` snapshot artifact,
+reads only the latest stored result for catalog-freshness query `7625551`,
+builds the complete site, and deploys Pages. The repository `DUNE_API_KEY`
+secret needs read access only.
 
 The dashboard header's `Last Updated` value is the manifest-level
 `dashboard_refreshed_at`: the UTC time when a complete Studio snapshot passed
@@ -284,12 +295,12 @@ the website still builds and reports unknown or undocumented runtime freshness.
 
 The optional
 [`refresh-freshness.yml`](.github/workflows/refresh-freshness.yml) workflow is
-configured to run hourly or manually. With the repository's read-only
-`DUNE_API_KEY` secret, it imports the stored result and uploads a short-lived
-validation artifact only. It cannot build or deploy Pages, so it cannot replace
-a newer live Studio deployment. Production push and manual builds import the
-same catalog freshness result inside the shared production path before they
-build the complete website.
+configured to run hourly, manually, and after each successful four-hour Studio
+snapshot refresh. With the repository's read-only `DUNE_API_KEY` secret, it
+imports the stored catalog-freshness result, downloads and validates the latest
+successful Studio snapshot artifact, builds the complete website, and deploys
+Pages. It never refetches the nine Studio queries. Pushes to `main` use the same
+artifact-consuming production path.
 
 ## Metadata conventions
 

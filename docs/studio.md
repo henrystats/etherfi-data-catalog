@@ -85,9 +85,9 @@ docs/
 .github/workflows/
   studio-fixture-refresh.yml      Manual, offline, non-deploying fixture check
   deploy-website.yml              Push-only production entry point
-  studio-live-refresh.yml         Manual + four-hour production entry point
-  studio-production-deploy.yml    Shared live ingest/build/Pages deployment
-  refresh-freshness.yml           Catalog-freshness validation artifact only
+  studio-live-refresh.yml         Manual + four-hour Studio artifact producer
+  studio-production-deploy.yml    Shared artifact/freshness build + deployment
+  refresh-freshness.yml           Hourly/manual freshness deployment entry
 ```
 
 The main flow is:
@@ -105,20 +105,27 @@ dashboard + metric registries
                                 --> normalize and validate in staging
                                 --> stamp dashboard_refreshed_at at acceptance
                                 --> immutable snapshot + atomic state pointer
+                                --> short-lived validated Actions artifact
           |
-          +--> website build --> resolve active snapshot
+          +--> website build --> download + validate latest snapshot artifact
+                                 --> read latest catalog-freshness result
+                                 --> resolve active snapshot
                                  --> flatten public manifest/query/status files
                                  --> generated HTML/CSS/JS site
 ```
 
-Production has two thin workflow files but three trigger paths and only one
-implementation. A push to `main` enters through `deploy-website.yml`; manual
-and four-hour scheduled live refreshes enter through `studio-live-refresh.yml`.
-All three call the reusable, `workflow_call`-only
-`studio-production-deploy.yml`, which owns the secret check, read-only import,
-validation, tests, build, Pages artifact, and deployment. The cron
-`25 */4 * * *` runs at approximately 00:25, 04:25, 08:25, 12:25, 16:25, and
-20:25 UTC; it schedules only this importer, never a Dune query execution.
+Production separates expensive Studio API reads from frequent website builds.
+`studio-live-refresh.yml` runs manually and on `25 */4 * * *` (approximately
+00:25, 04:25, 08:25, 12:25, 16:25, and 20:25 UTC). It owns the single complete
+read-only Studio import, validation, tests, build verification, and two-day
+`studio-live-snapshot` artifact. It has no Pages permissions and cannot deploy.
+
+`refresh-freshness.yml` runs manually, hourly on `7 * * * *`, and immediately
+after a successful Studio snapshot workflow. Pushes to `main` enter through
+`deploy-website.yml`. Both entry points call the reusable, `workflow_call`-only
+`studio-production-deploy.yml`, which selects a successful same-repository
+`main` Studio run, downloads and revalidates its immutable artifact, reads only
+the latest stored catalog-freshness result, tests, builds, and deploys Pages.
 
 The production provider flow is deliberately one-way and read-only:
 
@@ -127,7 +134,9 @@ Dune's independent query schedule --> latest stored result
                                           |
 GitHub Action --> GET /api/v1/query/{query_id}/results
               --> validate execution metadata, freshness, columns, and rows
-              --> write/promote Studio snapshot --> build and deploy website
+              --> write/promote Studio snapshot --> temporary Actions artifact
+                                                    |
+hourly freshness GET + website deploy <-------------+
 ```
 
 Studio owns only `fetch_latest_result`; Dune owns query execution and its
@@ -784,10 +793,10 @@ After a refresh, the source tree is:
 
 For a local production-equivalent run, `<generated-root>` is the isolated
 `STUDIO_LIVE_GENERATED` path shown above. In Actions it is
-`$RUNNER_TEMP/studio-live-generated`. The shared workflow seeds that directory
-from the checked-in `website/data/studio/generated/` previous-good snapshot,
-then writes only to the temporary copy. It never commits or uploads the private
-snapshot tree as the Pages artifact.
+`$RUNNER_TEMP/studio-live-generated`. The four-hour Studio producer seeds that
+directory from the checked-in `website/data/studio/generated/` previous-good
+snapshot, then writes only to the temporary copy. It never commits or uploads
+the private snapshot tree as the Pages artifact.
 
 Promotion is transactional:
 
@@ -1038,44 +1047,49 @@ confirmation checkbox. It:
 - uploads short-lived diagnostics;
 - does not deploy Pages or commit generated data.
 
-Production is active through three narrowly scoped workflows:
+Production is active through four narrowly scoped workflows:
 
 - `.github/workflows/deploy-website.yml` is a push-to-`main` wrapper. It has no
-  build steps of its own and calls the shared production workflow.
+  build steps of its own and calls the shared artifact-consuming deployment.
 - `.github/workflows/studio-live-refresh.yml` preserves `workflow_dispatch` and
-  also runs on `25 */4 * * *`. Manual and scheduled invocations call the same
-  shared production workflow with the same ingestion command.
+  also runs on `25 */4 * * *`. It performs the only nine-query Studio import,
+  validates and tests the snapshot, verifies a complete build, and uploads the
+  two-day `studio-live-snapshot` artifact. It has no Pages permissions.
 - `.github/workflows/studio-production-deploy.yml` is `workflow_call`-only. It
-  requires the `DUNE_API_KEY` secret, performs the complete read-only import,
-  validates and tests it, builds the complete website from the promoted
-  runner-temporary snapshot, uploads one Pages artifact, and deploys only after
-  the build job succeeds.
+  resolves a trusted successful `main` Studio workflow run, downloads and
+  validates that run's artifact, reads catalog-freshness query `7625551`, runs
+  tests, builds the website, and deploys only after the build job succeeds.
+- `.github/workflows/refresh-freshness.yml` runs hourly, manually, and after a
+  successful Studio snapshot workflow. It passes the triggering Studio run ID
+  when available and calls the same shared deployment as pushes to `main`.
 
-The shared workflow first checks that `DUNE_API_KEY` is present, then copies the
+The Studio producer first checks that `DUNE_API_KEY` is present, then copies the
 checked-in previous-good root to `$RUNNER_TEMP/studio-live-generated`. It loads
-the unique production query IDs from the validated Studio registry rather than
-hardcoding them in YAML. Its live import omits `--allow-partial`,
-`--mixed-source-mode`, and all execution or stale-auto-refresh options. It uses
-`--force` so every fully validated production deployment receives a newly
-accepted immutable snapshot and `dashboard_refreshed_at`, even when Dune's
-latest stored execution IDs are unchanged. A
-source, transformation, reconciliation, validation, test, or build failure
-prevents artifact upload and deployment. A missing secret fails before
-ingestion and provides repository Actions-secret setup guidance. No generated
-data is written back to git.
+the unique production query IDs from the validated registry rather than
+hardcoding them in YAML. Its import omits `--allow-partial`,
+`--mixed-source-mode`, and every execution or stale-auto-refresh option. It uses
+`--force` so each complete four-hour import receives a newly accepted immutable
+snapshot and `dashboard_refreshed_at`, even when Dune's latest stored execution
+IDs are unchanged. A source, transformation, reconciliation, validation, test,
+or build failure prevents the reusable artifact from being uploaded.
 
-All production entries share the fixed `studio-production-pages` concurrency
-group with `cancel-in-progress: true`. Only one production deployment can
-proceed at a time, and a newer run supersedes an older in-progress run. The
-fixture workflow uses a separate group and has no Pages permissions, so it
-cannot interfere with production.
+The deployment consumer grants only `actions: read` and `contents: read` to its
+build job. It accepts only a completed successful artifact run from
+`.github/workflows/studio-live-refresh.yml` on `main` in the same repository,
+then validates manifest and file checksums again after download. A missing,
+expired, untrusted, or invalid artifact stops before the Pages artifact is
+uploaded, preserving the existing deployment. No generated data is written
+back to git.
 
-`.github/workflows/refresh-freshness.yml` remains scheduled hourly and can also
-be dispatched manually, but it now validates only the latest already-stored
-catalog-freshness result and uploads a short-lived diagnostic artifact. It has
-read-only repository permission and no Pages build, artifact, environment, or
-deployment. It therefore cannot overwrite a live Studio site. The shared
-production build imports catalog freshness when it builds the complete website.
+All Pages entries share the fixed `studio-production-pages` concurrency group
+with `cancel-in-progress: true`. Only one deployment can proceed at a time, and
+a newer run supersedes an older in-progress run. Studio artifact production and
+fixture validation use separate concurrency groups and have no Pages
+permissions, so they cannot interfere with production deployment.
+
+The hourly freshness deployment reads only latest stored query result `7625551`;
+it does not execute that query and does not fetch any of the nine Studio query
+results. It reuses the most recent validated Studio artifact for every build.
 
 Configure the repository Actions secret before triggering either production
 entry point:
@@ -1086,10 +1100,12 @@ Secret name: DUNE_API_KEY
 Access: Dune query-result read access only
 ```
 
-The four-hour Studio schedule imports only latest stored results. Dune's own
-independent query schedules remain the sole mechanism that executes or
-refreshes the reviewed queries. Push, manual, and scheduled Studio triggers all
-use the same read-only production path.
+The four-hour Studio schedule and hourly catalog-freshness schedule import only
+latest stored results. Dune's own independent query schedules remain the sole
+mechanism that executes or refreshes the reviewed queries. After this workflow
+split is first deployed, run `Refresh live Studio data snapshot` once to
+bootstrap the first temporary artifact; until one exists, website deployments
+fail safely and preserve the current Pages site.
 
 ## Onboarding changes safely
 

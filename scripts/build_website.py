@@ -1371,7 +1371,7 @@ def render_freshness_page(
         'aria-labelledby="freshness-source-title">'
         '<div class="freshness-source-copy-block">'
         '<h2 id="freshness-source-title" class="freshness-source-title">Source &amp; automation</h2>'
-        '<p class="freshness-source-copy">Freshness is sourced from a Dune tracker query and refreshed through the GitHub Actions workflow.</p>'
+        '<p class="freshness-source-copy">Catalog freshness is read from a Dune tracker query; each website deployment reuses the latest validated four-hour Studio snapshot.</p>'
         "</div>"
         '<div class="freshness-source-actions">'
         '<a class="freshness-source-link dune" href="https://dune.com/queries/7625551" '
@@ -1379,8 +1379,8 @@ def render_freshness_page(
         '<span>Dune tracker</span><strong>View freshness query</strong>'
         "</a>"
         '<a class="freshness-source-link workflow" href="https://github.com/henrystats/etherfi-data-catalog/actions/workflows/refresh-freshness.yml" '
-        'aria-label="Open freshness refresh workflow on GitHub">'
-        '<span>GitHub Actions</span><strong>Open refresh workflow</strong>'
+        'aria-label="Refresh catalog freshness and deploy the website on GitHub">'
+        '<span>GitHub Actions</span><strong>Refresh freshness &amp; deploy</strong>'
         "</a>"
         "</div>"
         "</section>"
