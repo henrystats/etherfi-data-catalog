@@ -130,6 +130,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="Validate the registry and active snapshot without fetching or writing.",
     )
     parser.add_argument(
+        "--require-active-snapshot",
+        action="store_true",
+        help=(
+            "Fail validation when the output root has no active snapshot. "
+            "Requires --validate-only."
+        ),
+    )
+    parser.add_argument(
         "--query-id",
         action="append",
         type=_positive_int,
@@ -175,13 +183,15 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
+        if args.require_active_snapshot and not args.validate_only:
+            raise ValueError("--require-active-snapshot requires --validate-only")
         dashboards, _, requests = load_query_requests()
         if args.validate_only:
             store = SnapshotStore(args.output_dir)
             current_dir = store.current_snapshot_dir()
             manifest = (
                 validate_current_snapshot(args.output_dir)
-                if current_dir is not None
+                if current_dir is not None or args.require_active_snapshot
                 else None
             )
             print(

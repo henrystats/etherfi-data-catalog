@@ -382,6 +382,7 @@ def test_shared_deployment_resolves_only_a_successful_trusted_main_studio_run():
         "github-token": "${{ github.token }}",
         "repository": "${{ github.repository }}",
         "run-id": "${{ steps.studio-run.outputs.run_id }}",
+        "merge-multiple": "true",
     }
     assert steps.index(resolver) < steps.index(downloader)
     assert "env" not in resolver or "DUNE_API_KEY" not in resolver["env"]
@@ -494,6 +495,7 @@ def test_shared_deployment_validates_downloaded_snapshot_without_refetching_stud
     validation = studio_commands[0]
     validation_command = str(validation["run"])
     assert "--validate-only" in validation_command
+    assert "--require-active-snapshot" in validation_command
     assert f"--output-dir {STUDIO_LIVE_OUTPUT}" in validation_command
 
     catalog_refresh = step_with_run(

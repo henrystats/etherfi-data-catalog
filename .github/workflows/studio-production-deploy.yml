@@ -140,6 +140,7 @@ jobs:
           github-token: ${{ github.token }}
           repository: ${{ github.repository }}
           run-id: ${{ steps.studio-run.outputs.run_id }}
+          merge-multiple: true
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -160,6 +161,7 @@ jobs:
         run: |
           python scripts/fetch_studio_data.py \
             --validate-only \
+            --require-active-snapshot \
             --output-dir "$RUNNER_TEMP/studio-live-generated"
 
       - name: Fetch latest stored catalog freshness result

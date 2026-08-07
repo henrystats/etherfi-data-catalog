@@ -2736,6 +2736,55 @@ def test_cli_validate_only_can_check_registry_before_first_snapshot(tmp_path):
     assert payload["unique_query_count"] == 9
 
 
+def test_cli_validate_only_can_require_an_active_snapshot(tmp_path):
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "scripts/fetch_studio_data.py",
+            "--validate-only",
+            "--require-active-snapshot",
+            "--output-dir",
+            str(tmp_path),
+        ],
+        cwd=Path(__file__).resolve().parents[1],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 1
+    payload = json.loads(completed.stderr)
+    assert payload["status"] == "failed"
+    assert payload["category"] == "manifest_failure"
+    assert payload["error"] == "Studio has no active generated snapshot"
+    assert not (tmp_path / "state.json").exists()
+
+
+def test_cli_require_active_snapshot_rejects_refresh_mode(tmp_path):
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "scripts/fetch_studio_data.py",
+            "--fixture-mode",
+            "--require-active-snapshot",
+            "--output-dir",
+            str(tmp_path),
+        ],
+        cwd=Path(__file__).resolve().parents[1],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 1
+    payload = json.loads(completed.stderr)
+    assert payload == {
+        "error": "--require-active-snapshot requires --validate-only",
+        "status": "failed",
+    }
+    assert not (tmp_path / "state.json").exists()
+
+
 def test_cli_fixture_and_validate_only_round_trip(tmp_path):
     root = Path(__file__).resolve().parents[1]
     command = [
@@ -2756,6 +2805,7 @@ def test_cli_fixture_and_validate_only_round_trip(tmp_path):
             sys.executable,
             "scripts/fetch_studio_data.py",
             "--validate-only",
+            "--require-active-snapshot",
             "--output-dir",
             str(tmp_path),
         ],
